@@ -1,13 +1,6 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Req,
-  Get,
-  Version,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { AuthService } from './auth.service';
 
@@ -24,6 +17,11 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiResponse({
+    description: 'The record has been successfully created.',
+    type: CreateAccountDto,
+  })
+  @ApiCreatedResponse({})
   register(@Body() createAccountDto: CreateAccountDto) {
     return createAccountDto;
   }
