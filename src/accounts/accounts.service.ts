@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { AccountRepository } from './accounts.repository';
+import { CreateAccountDto } from './dto/create-account.dto';
 
 @Injectable()
 export class AccountsService {
+  constructor(private accountRepository: AccountRepository) {}
+
   private readonly accounts = [
     {
       id: 1,
@@ -19,5 +23,9 @@ export class AccountsService {
 
   async findOne(username: string) {
     return this.accounts.find((user) => user.username === username);
+  }
+
+  async createAccount(data: CreateAccountDto) {
+    return this.accountRepository.createAccount(data);
   }
 }

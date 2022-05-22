@@ -18,11 +18,11 @@ export class AuthController {
 
   @Post('register')
   @ApiResponse({
-    description: 'The record has been successfully created.',
+    description: 'The account has been successfully created.',
     type: CreateAccountDto,
   })
   @ApiCreatedResponse({})
   register(@Body() createAccountDto: CreateAccountDto) {
-    return createAccountDto;
+    return this.authService.register(createAccountDto);
   }
 }
