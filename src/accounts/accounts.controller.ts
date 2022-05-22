@@ -4,7 +4,6 @@ import { AccountsService } from './accounts.service';
 
 @Controller({
   path: 'accounts',
-  version: '1',
 })
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
