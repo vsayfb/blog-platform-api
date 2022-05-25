@@ -14,8 +14,8 @@ export class AuthService {
     const account = await this.accountsService.findOne(username);
 
     if (account && account.password === pass) {
-      const { password, ...result } = account;
-      return result;
+      delete account.password;
+      return account;
     }
 
     return null;
@@ -29,7 +29,6 @@ export class AuthService {
   }
 
   async register(data: CreateAccountDto) {
-    
     return this.accountsService.createAccount(data);
   }
 }

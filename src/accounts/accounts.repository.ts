@@ -13,4 +13,21 @@ export class AccountRepository {
   createAccount(data: CreateAccountDto) {
     return this.accountRepository.save(data);
   }
+
+  async findByUsernameOrEmail(usernameOrEmail: string) {
+    return await this.accountRepository.findOne({
+      where: {
+        email: usernameOrEmail,
+        username: usernameOrEmail,
+      },
+    });
+  }
+
+  async existsByUsername(username: string) {
+    return !!(await this.accountRepository.findOne({ username }));
+  }
+
+  async existsByEmail(email: string) {
+    return !!(await this.accountRepository.findOne({ email }));
+  }
 }
