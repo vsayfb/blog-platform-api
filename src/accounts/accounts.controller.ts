@@ -1,6 +1,6 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
+import { CreateAccountDto } from './dto/create-account.dto';
 
 @Controller({
   path: 'accounts',
@@ -8,9 +8,7 @@ import { AccountsService } from './accounts.service';
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('profile')
-  getProfile(@Req() request: any) {
-    return request.user;
+  create(dto: CreateAccountDto) {
+    return this.accountsService.create(dto);
   }
 }

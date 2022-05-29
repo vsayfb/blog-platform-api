@@ -1,10 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AccountRepository } from './accounts.repository';
+import { Injectable } from '@nestjs/common';
+import { AccountsRepository } from './accounts.repository';
 import { CreateAccountDto } from './dto/create-account.dto';
 
 @Injectable()
 export class AccountsService {
-  constructor(private accountRepository: AccountRepository) {}
+  constructor(private accountsRepository: AccountsRepository) {}
 
   private readonly accounts = [
     {
@@ -21,19 +21,11 @@ export class AccountsService {
     },
   ];
 
-  async findOne(username: string) {
+  async findOneByUsername(username: string) {
     return this.accounts.find((user) => user.username === username);
   }
 
-  async createAccount(data: CreateAccountDto) {
-    if (await this.accountRepository.existsByUsername(data.username)) {
-      throw new ForbiddenException('Username taken.');
-    }
-
-    if (await this.accountRepository.existsByEmail(data.email)) {
-      throw new ForbiddenException('Email taken.');
-    }
-
-    return this.accountRepository.createAccount(data);
+  async create(data: CreateAccountDto) {
+    return this.accountsRepository.createAccount(data);
   }
 }

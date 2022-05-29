@@ -11,7 +11,7 @@ export class AuthService {
   ) {}
 
   async validateAccount(username: string, pass: string): Promise<any> {
-    const account = await this.accountsService.findOne(username);
+    const account = await this.accountsService.findOneByUsername(username);
 
     if (account && account.password === pass) {
       delete account.password;
@@ -29,6 +29,6 @@ export class AuthService {
   }
 
   async register(data: CreateAccountDto) {
-    return this.accountsService.createAccount(data);
+    return this.accountsService.create(data);
   }
 }

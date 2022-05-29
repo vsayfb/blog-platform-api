@@ -5,7 +5,7 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { Account } from './entities/account.entity';
 
 @Injectable()
-export class AccountRepository {
+export class AccountsRepository {
   constructor(
     @InjectRepository(Account) private accountRepository: Repository<Account>,
   ) {}
