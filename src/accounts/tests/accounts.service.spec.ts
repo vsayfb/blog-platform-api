@@ -4,7 +4,7 @@ import { AccountsService } from '../accounts.service';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { accountStub } from './stub/account.stub';
 
-jest.mock('../accounts.repository');
+jest.mock('src/accounts/accounts.repository');
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
@@ -22,7 +22,7 @@ describe('AccountsService', () => {
   it('should be create a user and return that', async () => {
     let dto: CreateAccountDto = accountStub();
 
-    expect(await accounstService.create(accountStub())).toEqual({
+    expect(await accounstService.create(dto)).toEqual({
       id: expect.any(String),
       ...dto,
     });

@@ -22,12 +22,4 @@ export class AccountsRepository {
       },
     });
   }
-
-  async existsByUsername(username: string) {
-    return !!(await this.accountRepository.findOne({ username }));
-  }
-
-  async existsByEmail(email: string) {
-    return !!(await this.accountRepository.findOne({ email }));
-  }
 }

@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsRepository } from 'src/accounts/accounts.repository';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly accountsService: AccountsService,
+    private readonly accountsRepository: AccountsRepository,
     private jwtService: JwtService,
   ) {}
 
   async validateAccount(username: string, pass: string): Promise<any> {
-    const account = await this.accountsService.findOneByUsername(username);
+    const account = await this.accountsRepository.findByUsernameOrEmail(
+      username,
+    );
 
     if (account && account.password === pass) {
       delete account.password;
@@ -29,6 +31,6 @@ export class AuthService {
   }
 
   async register(data: CreateAccountDto) {
-    return this.accountsService.create(data);
+    return this.accountsRepository.createAccount(data);
   }
 }
