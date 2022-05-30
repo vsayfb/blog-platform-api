@@ -14,12 +14,12 @@ export class AccountsRepository {
     return this.accountRepository.save(data);
   }
 
-  existsByUsername(username: string) {
-    return this.accountRepository.findOne({ username });
+  async existsByUsername(username: string) {
+    return !!(await this.accountRepository.findOne({ username }));
   }
 
-  existsByEmail(email: string) {
-    return this.accountRepository.findOne({ email });
+  async existsByEmail(email: string) {
+    return !!(await this.accountRepository.findOne({ email }));
   }
 
   async findByUsernameOrEmail(usernameOrEmail: string) {
