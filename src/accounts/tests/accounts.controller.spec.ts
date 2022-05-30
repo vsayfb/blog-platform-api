@@ -20,12 +20,7 @@ describe('AccountsController', () => {
     accountsService = module.get<AccountsService>(AccountsService);
   });
 
-  it('should create an account and return that', async () => {
-    let dto: CreateAccountDto = accountStub();
-
-    expect(await accountsController.create(dto)).toEqual(dto);
-
-    expect(accountsService.create).toHaveBeenCalledWith(dto);
+  it('should be defined', () => {
+    expect(accountsController).toBeDefined();
   });
 });
-

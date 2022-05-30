@@ -78,6 +78,12 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
+    "maxWorkers": 1,
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
