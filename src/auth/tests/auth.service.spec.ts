@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthService } from '../auth.service';
 
@@ -26,14 +27,31 @@ describe('AuthService', () => {
     accountsRepository = module.get<AccountsRepository>(AccountsRepository);
   });
 
-  it('should create an account return that', async () => {
-    expect(await authService.register(accountStub())).toEqual({
-      id: expect.any(String),
-      ...accountStub(),
+  describe('create account', () => {
+    let dto: CreateAccountDto = accountStub();
+    let result: Account;
+
+    beforeEach(async () => {
+      result = await authService.register(accountStub());
     });
 
-    expect(accountsRepository.createAccount).toHaveBeenCalledWith(
-      accountStub(),
-    );
+    test('calls existsByUsername method', () => {
+      expect(accountsRepository.existsByUsername).toHaveBeenCalled();
+    });
+
+    test('calls existsByEmail method', () => {
+      expect(accountsRepository.existsByEmail).toHaveBeenCalled();
+    });
+
+    test('calls createAccount method with received value', () => {
+      expect(accountsRepository.createAccount).toHaveBeenCalledWith(dto);
+    });
+
+    it('should create an account return that', async () => {
+      expect(result).toEqual({
+        id: expect.any(String),
+        ...dto,
+      });
+    });
   });
 });

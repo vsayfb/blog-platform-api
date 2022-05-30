@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
@@ -31,6 +31,16 @@ export class AuthService {
   }
 
   async register(data: CreateAccountDto) {
+    const usernameTaken = await this.accountsRepository.existsByUsername(
+      data.username,
+    );
+
+    const emailTaken = await this.accountsRepository.existsByEmail(data.email);
+
+    if (usernameTaken) throw new ForbiddenException('Username taken.');
+
+    if (emailTaken) throw new ForbiddenException('Email taken.');
+
     return this.accountsRepository.createAccount(data);
   }
 }

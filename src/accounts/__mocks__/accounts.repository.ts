@@ -5,4 +5,6 @@ export const AccountsRepository = jest.fn().mockReturnValue({
   createAccount: jest.fn((dto: CreateAccountDto) =>
     Promise.resolve({ id: randomUUID(), ...dto }),
   ),
+  existsByUsername: jest.fn().mockResolvedValue(false),
+  existsByEmail: jest.fn().mockResolvedValue(false),
 });
