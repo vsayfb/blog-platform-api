@@ -65,7 +65,7 @@ describe('AccountsRepository', () => {
       expect(repo.findOne).toHaveBeenCalled();
     });
 
-    it('should return false', () => {
+    it('should return an account', () => {
       expect(result).toEqual({
         id: expect.any(String),
         ...account,
