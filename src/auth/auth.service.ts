@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
@@ -7,6 +8,7 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 export class AuthService {
   constructor(
     private readonly accountsRepository: AccountsRepository,
+    private readonly configService: ConfigService,
     private jwtService: JwtService,
   ) {}
 
@@ -24,21 +26,25 @@ export class AuthService {
     return null;
   }
 
-  login(account: any) {
+  async login(account: any) {
     const payload = { username: account.username, sub: account.userId };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      }),
     };
   }
 
   async register(data: CreateAccountDto) {
+    const { email, username } = data;
+
     const usernameTaken = await this.accountsRepository.existsByUsername(
-      data.username,
+      username,
     );
 
-    const emailTaken = await this.accountsRepository.existsByEmail(data.email);
-
     if (usernameTaken) throw new ForbiddenException('Username taken.');
+
+    const emailTaken = await this.accountsRepository.existsByEmail(email);
 
     if (emailTaken) throw new ForbiddenException('Email taken.');
 

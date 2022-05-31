@@ -6,26 +6,26 @@ import { Account } from './entities/account.entity';
 
 @Injectable()
 export class AccountsRepository {
-  constructor(@InjectRepository(Account) private entity: Repository<Account>) {}
+  constructor(
+    @InjectRepository(Account)
+    private readonly accountsRepository: Repository<Account>,
+  ) {}
 
   createAccount(data: CreateAccountDto) {
-    return this.entity.save(data);
+    return this.accountsRepository.save(data);
   }
 
   async existsByUsername(username: string) {
-    return !!(await this.entity.findOne({ username }));
+    return !!(await this.accountsRepository.findOne({ username }));
   }
 
   async existsByEmail(email: string) {
-    return !!(await this.entity.findOne({ email }));
+    return !!(await this.accountsRepository.findOne({ email }));
   }
 
   async findByUsernameOrEmail(usernameOrEmail: string) {
-    return await this.entity.findOne({
-      where: {
-        email: usernameOrEmail,
-        username: usernameOrEmail,
-      },
+    return this.accountsRepository.findOne({
+      where: [{ email: usernameOrEmail }, { username: usernameOrEmail }],
     });
   }
 }

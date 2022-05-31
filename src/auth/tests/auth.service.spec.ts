@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
@@ -17,7 +18,12 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [AuthService, AccountsRepository, JwtService],
+      providers: [
+        AuthService,
+        AccountsRepository,
+        JwtService,
+        { provide: ConfigService, useValue: { get: jest.fn(() => '') } },
+      ],
     })
       .overrideProvider(JwtService)
       .useValue(mockJwtService)
@@ -59,8 +65,8 @@ describe('AuthService', () => {
     let account = accountStub();
     let result: { access_token: string };
 
-    beforeEach(() => {
-      result = authService.login(account);
+    beforeEach(async () => {
+      result = await authService.login(account);
     });
 
     test('calls sign method in JwtService', () => {
