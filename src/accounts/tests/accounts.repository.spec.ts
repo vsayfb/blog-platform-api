@@ -108,7 +108,7 @@ describe('AccountsRepository', () => {
       expect(repo.findOne).toHaveBeenCalled();
     });
 
-    it('should return false', () => {
+    it('should return true', () => {
       expect(result).toBe(true);
     });
   });
