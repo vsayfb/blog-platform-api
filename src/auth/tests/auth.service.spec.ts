@@ -54,4 +54,42 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('login to account', () => {
+    let account = accountStub();
+    let result: { access_token: string };
+
+    beforeEach(() => {
+      result = authService.login(account);
+    });
+
+    test('calls sign method in JwtService', () => {
+      expect(mockJwtService.sign).toHaveBeenCalled();
+    });
+
+    it('should return an access token', () => {
+      expect(result).toEqual({
+        access_token: expect.any(String),
+      });
+    });
+  });
+
+  describe('validate account', () => {
+    let { username, email, password } = accountStub();
+    let result: Account;
+
+    beforeEach(async () => {
+      result = await authService.validateAccount(username, password);
+    });
+
+    test('calls existsByUsernameOrEmail method in acc repo', () => {
+      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
+        username,
+      );
+    });
+
+    it('should validate the account', async () => {
+      expect(result).toEqual({ id: expect.any(String), username, email });
+    });
+  });
 });

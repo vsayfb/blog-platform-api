@@ -16,15 +16,16 @@ export class AuthService {
     );
 
     if (account && account.password === pass) {
-      delete account.password;
-      return account;
+      const { password, ...result } = account;
+
+      return result;
     }
 
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  login(account: any) {
+    const payload = { username: account.username, sub: account.userId };
     return {
       access_token: this.jwtService.sign(payload),
     };

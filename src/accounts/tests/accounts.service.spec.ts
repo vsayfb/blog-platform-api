@@ -19,14 +19,7 @@ describe('AccountsService', () => {
     accountsRepository = module.get<AccountsRepository>(AccountsRepository);
   });
 
-  it('should be create a user and return that', async () => {
-    let dto: CreateAccountDto = accountStub();
-
-    expect(await accounstService.create(dto)).toEqual({
-      id: expect.any(String),
-      ...dto,
-    });
-
-    expect(accountsRepository.createAccount).toHaveBeenCalledWith(dto);
+  it('should be defined', () => {
+    expect(accounstService).toBeDefined();
   });
 });
