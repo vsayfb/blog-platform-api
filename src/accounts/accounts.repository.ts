@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BaseRepository } from 'src/database/base/base.repository';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { Account } from './entities/account.entity';
 
 @Injectable()
-export class AccountsRepository {
+export class AccountsRepository extends BaseRepository<Account> {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
-  ) {}
-
-  createAccount(data: CreateAccountDto) {
-    return this.accountsRepository.save(data);
+  ) {
+    super(accountsRepository);
   }
 
   async existsByUsername(username: string) {

@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async login(account: any) {
-    const payload = { username: account.username, sub: account.userId };
+    const payload = { username: account.username, sub: account.id };
     return {
       access_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
@@ -48,6 +48,6 @@ export class AuthService {
 
     if (emailTaken) throw new ForbiddenException('Email taken.');
 
-    return this.accountsRepository.createAccount(data);
+    return this.accountsRepository.createEntity(data);
   }
 }

@@ -1,3 +1,4 @@
+import { resultAccountStub } from './../../accounts/tests/stub/account.stub';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -15,22 +16,24 @@ describe('AuthService', () => {
   let mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
   };
+  let mockConfigService = { get: jest.fn(() => '') };
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        AccountsRepository,
-        JwtService,
-        { provide: ConfigService, useValue: { get: jest.fn(() => '') } },
-      ],
+      providers: [AuthService, AccountsRepository, JwtService, ConfigService],
     })
       .overrideProvider(JwtService)
       .useValue(mockJwtService)
+      .overrideProvider(ConfigService)
+      .useValue(mockConfigService)
       .compile();
 
     authService = module.get<AuthService>(AuthService);
     accountsRepository = module.get<AccountsRepository>(AccountsRepository);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('create account', () => {
@@ -42,35 +45,46 @@ describe('AuthService', () => {
     });
 
     test('calls existsByUsername method', () => {
-      expect(accountsRepository.existsByUsername).toHaveBeenCalled();
+      expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
+        dto.username,
+      );
     });
 
     test('calls existsByEmail method', () => {
-      expect(accountsRepository.existsByEmail).toHaveBeenCalled();
+      expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
     });
 
-    test('calls createAccount method with received value', () => {
-      expect(accountsRepository.createAccount).toHaveBeenCalledWith(dto);
+    test('calls createAccount', () => {
+      expect(accountsRepository.createEntity).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.createEntity).toHaveBeenCalledWith(dto);
     });
 
     it('should create an account return that', async () => {
-      expect(result).toEqual({
-        id: expect.any(String),
-        ...dto,
-      });
+      expect(result).toEqual({ id: expect.any(String), ...dto });
     });
   });
 
   describe('login to account', () => {
-    let account = accountStub();
+    let dto = resultAccountStub();
     let result: { access_token: string };
 
     beforeEach(async () => {
-      result = await authService.login(account);
+      result = await authService.login(dto);
     });
 
-    test('calls sign method in JwtService', () => {
-      expect(mockJwtService.sign).toHaveBeenCalled();
+    test('calls sign method', () => {
+      expect(mockJwtService.sign).toHaveBeenCalledTimes(1);
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        { sub: dto.id, username: dto.username },
+        { secret: '' },
+      );
+    });
+
+    test('calls get method', () => {
+      expect(mockConfigService.get).toHaveBeenCalledTimes(1);
+      expect(mockConfigService.get).toHaveBeenCalledWith('JWT_SECRET');
     });
 
     it('should return an access token', () => {
@@ -88,8 +102,9 @@ describe('AuthService', () => {
       result = await authService.validateAccount(username, password);
     });
 
-    test('calls existsByUsernameOrEmail method in acc repo', () => {
-      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
+    test('calls existsByUsernameOrEmail', () => {
+      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
         username,
       );
     });

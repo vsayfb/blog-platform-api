@@ -1,14 +1,10 @@
-import { randomUUID } from 'crypto';
-import { CreateAccountDto } from '../dto/create-account.dto';
-import { accountStub } from '../tests/stub/account.stub';
+import { resultAccountStub } from './../tests/stub/account.stub';
+import { BaseRepository } from 'src/database/base/__mocks__/base.repository';
 
 export const AccountsRepository = jest.fn().mockReturnValue({
-  createAccount: jest.fn((dto: CreateAccountDto) =>
-    Promise.resolve({ id: randomUUID(), ...dto }),
-  ),
+  ...BaseRepository,
+  createAccount: jest.fn().mockResolvedValue(resultAccountStub()),
   existsByUsername: jest.fn().mockResolvedValue(false),
   existsByEmail: jest.fn().mockResolvedValue(false),
-  findByUsernameOrEmail: jest
-    .fn()
-    .mockResolvedValue({ ...accountStub(), id: randomUUID() }),
+  findByUsernameOrEmail: jest.fn().mockResolvedValue(resultAccountStub()),
 });

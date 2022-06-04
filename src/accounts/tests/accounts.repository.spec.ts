@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
+import autoMock from 'src/utils/autoMock';
 import { Repository } from 'typeorm';
 import { AccountsRepository } from '../accounts.repository';
-import { CreateAccountDto } from '../dto/create-account.dto';
 import { Account } from '../entities/account.entity';
 import { accountStub } from './stub/account.stub';
 
@@ -24,68 +23,43 @@ describe('AccountsRepository', () => {
 
     accounstRepository = module.get<AccountsRepository>(AccountsRepository);
     repo = module.get<Repository<Account>>(getRepositoryToken(Account));
-  });
 
-  describe('save entity', () => {
-    let data = accountStub();
-    let result: CreateAccountDto;
-
-    beforeEach(async () => {
-      jest
-        .spyOn(repo, 'save')
-        .mockResolvedValueOnce({ id: randomUUID(), ...data } as any);
-
-      result = await accounstRepository.createAccount(data);
-    });
-
-    test('calls save function in repository', () => {
-      expect(repo.save).toHaveBeenCalled();
-    });
-
-    it('should return an account', () => {
-      expect(result).toEqual({
-        id: expect.any(String),
-        ...data,
-      });
-    });
+    autoMock(repo);
   });
 
   describe('findByUsernameOrEmail', () => {
     let result: Account;
-    let account: Account | any = accountStub();
+    let account = accountStub();
+    let expected = { id: expect.any(String), ...account };
 
     beforeEach(async () => {
-      jest
-        .spyOn(repo, 'findOne')
-        .mockResolvedValueOnce({ id: randomUUID(), ...account });
       result = await accounstRepository.findByUsernameOrEmail(account.email);
     });
 
     test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalled();
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: [
+          { email: expect.any(String) },
+          { username: expect.any(String) },
+        ],
+      });
     });
 
     it('should return an account', () => {
-      expect(result).toEqual({
-        id: expect.any(String),
-        ...account,
-      });
+      expect(result).toEqual(expected);
     });
   });
 
   describe('exists by username', () => {
     let result: boolean;
-    let account: Account | any = accountStub();
+    let account = accountStub();
 
     beforeEach(async () => {
-      jest
-        .spyOn(repo, 'findOne')
-        .mockResolvedValueOnce({ id: randomUUID(), ...account });
       result = await accounstRepository.existsByUsername(account.username);
     });
 
     test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalled();
+      expect(repo.findOne).toHaveBeenCalledWith({ username: account.username });
     });
 
     it('should return true', () => {
@@ -98,14 +72,11 @@ describe('AccountsRepository', () => {
     let account: Account | any = accountStub();
 
     beforeEach(async () => {
-      jest
-        .spyOn(repo, 'findOne')
-        .mockResolvedValueOnce({ id: randomUUID(), ...account });
       result = await accounstRepository.existsByEmail(account.email);
     });
 
     test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalled();
+      expect(repo.findOne).toHaveBeenCalledWith({ email: account.email });
     });
 
     it('should return true', () => {
