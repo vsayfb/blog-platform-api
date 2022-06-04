@@ -2,17 +2,17 @@ import { resultAccountStub } from './../../accounts/tests/stub/account.stub';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
-import { AccountsRepository } from 'src/accounts/accounts.repository';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthService } from '../auth.service';
+import { AccountsService } from 'src/accounts/accounts.service';
 
-jest.mock('src/accounts/accounts.repository');
+jest.mock('src/accounts/accounts.service');
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let accountsRepository: AccountsRepository;
+  let accountsService: AccountsService;
   let mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
   };
@@ -20,7 +20,7 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [AuthService, AccountsRepository, JwtService, ConfigService],
+      providers: [AuthService, AccountsService, JwtService, ConfigService],
     })
       .overrideProvider(JwtService)
       .useValue(mockJwtService)
@@ -29,7 +29,7 @@ describe('AuthService', () => {
       .compile();
 
     authService = module.get<AuthService>(AuthService);
-    accountsRepository = module.get<AccountsRepository>(AccountsRepository);
+    accountsService = module.get<AccountsService>(AccountsService);
   });
 
   afterEach(() => {
@@ -44,21 +44,9 @@ describe('AuthService', () => {
       result = await authService.register(accountStub());
     });
 
-    test('calls existsByUsername method', () => {
-      expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
-        dto.username,
-      );
-    });
-
-    test('calls existsByEmail method', () => {
-      expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
-    });
-
-    test('calls createAccount', () => {
-      expect(accountsRepository.createEntity).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.createEntity).toHaveBeenCalledWith(dto);
+    test('calls createAccount method', () => {
+      expect(accountsService.createAccount).toHaveBeenCalledTimes(1);
+      expect(accountsService.createAccount).toHaveBeenCalledWith(dto);
     });
 
     it('should create an account return that', async () => {
@@ -103,10 +91,8 @@ describe('AuthService', () => {
     });
 
     test('calls existsByUsernameOrEmail', () => {
-      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
-        username,
-      );
+      expect(accountsService.getAccount).toHaveBeenCalledTimes(1);
+      expect(accountsService.getAccount).toHaveBeenCalledWith(username);
     });
 
     it('should validate the account', async () => {

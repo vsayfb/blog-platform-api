@@ -1,3 +1,5 @@
+import { accountStub, resultAccountStub } from './stub/account.stub';
+import { Account } from './../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsRepository } from '../accounts.repository';
 import { AccountsService } from '../accounts.service';
@@ -17,7 +19,57 @@ describe('AccountsService', () => {
     accountsRepository = module.get<AccountsRepository>(AccountsRepository);
   });
 
-  it('should be defined', () => {
-    expect(accounstService).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('getAccount', () => {
+    let result: Account;
+    let username = accountStub().username;
+
+    beforeEach(async () => {
+      result = await accounstService.getAccount(username);
+    });
+
+    test('calls findByUsernameOrEmail', () => {
+      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
+        username,
+      );
+    });
+
+    it('should return an account', () => {
+      expect(result).toEqual({ id: expect.any(String), ...result });
+    });
+  });
+
+  describe('createAccount', () => {
+    let result: Account;
+    let dto = accountStub();
+
+    beforeEach(async () => {
+      result = await accounstService.createAccount(dto);
+    });
+
+    test('calls existsByUsername', () => {
+      expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
+        dto.username,
+      );
+    });
+
+    test('calls existsByEmail', () => {
+      expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
+    });
+
+    test('calls createEntity', () => {
+      expect(accountsRepository.createEntity).toHaveBeenCalledTimes(1);
+      expect(accountsRepository.createEntity).toHaveBeenCalledWith(dto);
+    });
+
+    it('should return an account', () => {
+      expect(result).toEqual({ id: expect.any(String), ...dto });
+    });
   });
 });
