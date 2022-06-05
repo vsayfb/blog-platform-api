@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { GoogleService } from 'src/google/google.service';
 import { AuthService } from './auth.service';
 
 @Controller({
@@ -24,5 +25,10 @@ export class AuthController {
   @ApiCreatedResponse({})
   register(@Body() createAccountDto: CreateAccountDto) {
     return this.authService.register(createAccountDto);
+  }
+
+  @Post('google')
+  authGoogle(@Req() req) {
+    return this.authService.googleAuth(req.headers.authorization);
   }
 }

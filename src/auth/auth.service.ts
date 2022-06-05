@@ -1,3 +1,4 @@
+import { GoogleService } from 'src/google/google.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -8,8 +9,9 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 export class AuthService {
   constructor(
     private readonly accountsService: AccountsService,
+    private readonly googleService: GoogleService,
     private readonly configService: ConfigService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateAccount(username: string, pass: string): Promise<any> {
@@ -35,5 +37,13 @@ export class AuthService {
 
   async register(data: CreateAccountDto) {
     return this.accountsService.createAccount(data);
+  }
+
+  async googleAuth(access_token: string): Promise<any> {
+    const credentials = await this.googleService.authorization(access_token);
+
+    console.log(credentials);
+
+    return 'ok';
   }
 }
