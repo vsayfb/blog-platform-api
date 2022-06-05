@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountsRepository } from './accounts.repository';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { RegisterType } from './entities/account.entity';
 
 @Injectable()
 export class AccountsService {
@@ -10,7 +11,7 @@ export class AccountsService {
     return this.accountsRepository.findByUsernameOrEmail(userNameOrEmail);
   }
 
-  async createAccount(data: CreateAccountDto) {
+  async createLocalAccount(data: CreateAccountDto) {
     const { email, username } = data;
 
     const usernameTaken = await this.accountsRepository.existsByUsername(
@@ -24,5 +25,12 @@ export class AccountsService {
     if (emailTaken) throw new ForbiddenException('Email taken.');
 
     return await this.accountsRepository.createEntity(data);
+  }
+
+  async createAccountViaGoogle(data: CreateAccountDto) {
+    return await this.accountsRepository.createEntity({
+      ...data,
+      via: RegisterType.GOOGLE,
+    });
   }
 }

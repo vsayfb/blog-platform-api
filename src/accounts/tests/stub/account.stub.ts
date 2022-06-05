@@ -12,11 +12,11 @@ const stub = {
   username: 'foo',
 };
 
-export const accountStub = () => ({
+export const accountStub = (): AccountStub => ({
   ...stub,
 });
 
-export const resultAccountStub = () => ({
+export const resultAccountStub = (): AccountStub => ({
   id: randomUUID(),
   ...stub,
 });

@@ -1,8 +1,4 @@
-import {
-  accountStub,
-  resultAccountStub,
-} from 'src/accounts/tests/stub/account.stub';
-import { randomUUID } from 'crypto';
+import { resultAccountStub } from 'src/accounts/tests/stub/account.stub';
 
 // ! nowhere doesn't mock manually
 

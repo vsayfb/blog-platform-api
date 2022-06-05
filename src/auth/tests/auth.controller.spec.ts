@@ -1,8 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  accountStub,
-  resultAccountStub,
-} from 'src/accounts/tests/stub/account.stub';
+import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 
@@ -24,7 +21,7 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should create an account and return that', async () => {
-      let dto = accountStub();
+      const dto = accountStub();
 
       expect(await authController.register(dto)).toEqual({
         id: expect.any(String),

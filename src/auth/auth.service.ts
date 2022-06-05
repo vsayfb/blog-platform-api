@@ -14,6 +14,38 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async register(data: CreateAccountDto) {
+    return this.accountsService.createLocalAccount(data);
+  }
+
+  async googleAuth(access_token: string): Promise<{ access_token: string }> {
+    const { email, family_name, given_name } =
+      await this.googleService.getUserCredentials(access_token);
+
+    const registeredUser = await this.accountsService.getAccount(email);
+
+    if (registeredUser) {
+      return this.login(await this.accountsService.getAccount(email));
+    } else {
+      const account = await this.accountsService.createAccountViaGoogle({
+        email,
+        username: (given_name + family_name).replace(/ /g, '').toLowerCase(),
+        password: Math.random().toString(36).substring(2, 8),
+      });
+
+      return this.login(account);
+    }
+  }
+
+  login(account: any): { access_token: string } {
+    const payload = { username: account.username, sub: account.id };
+    return {
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      }),
+    };
+  }
+
   async validateAccount(username: string, pass: string): Promise<any> {
     const account = await this.accountsService.getAccount(username);
 
@@ -24,26 +56,5 @@ export class AuthService {
     }
 
     return null;
-  }
-
-  async login(account: any) {
-    const payload = { username: account.username, sub: account.id };
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-      }),
-    };
-  }
-
-  async register(data: CreateAccountDto) {
-    return this.accountsService.createAccount(data);
-  }
-
-  async googleAuth(access_token: string): Promise<any> {
-    const credentials = await this.googleService.authorization(access_token);
-
-    console.log(credentials);
-
-    return 'ok';
   }
 }

@@ -1,4 +1,4 @@
-import { accountStub, resultAccountStub } from './stub/account.stub';
+import { accountStub } from './stub/account.stub';
 import { Account } from './../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsRepository } from '../accounts.repository';
@@ -25,7 +25,7 @@ describe('AccountsService', () => {
 
   describe('getAccount', () => {
     let result: Account;
-    let username = accountStub().username;
+    const username = accountStub().username;
 
     beforeEach(async () => {
       result = await accounstService.getAccount(username);
@@ -45,10 +45,10 @@ describe('AccountsService', () => {
 
   describe('createAccount', () => {
     let result: Account;
-    let dto = accountStub();
+    const dto = accountStub();
 
     beforeEach(async () => {
-      result = await accounstService.createAccount(dto);
+      result = await accounstService.createLocalAccount(dto);
     });
 
     test('calls existsByUsername', () => {

@@ -7,20 +7,29 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthService } from '../auth.service';
 import { AccountsService } from 'src/accounts/accounts.service';
+import { GoogleService } from 'src/google/google.service';
 
 jest.mock('src/accounts/accounts.service');
+jest.mock('src/google/google.service');
 
 describe('AuthService', () => {
   let authService: AuthService;
   let accountsService: AccountsService;
-  let mockJwtService = {
+  let googleService: GoogleService;
+  const mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
   };
-  let mockConfigService = { get: jest.fn(() => '') };
+  const mockConfigService = { get: jest.fn(() => '') };
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [AuthService, AccountsService, JwtService, ConfigService],
+      providers: [
+        AuthService,
+        AccountsService,
+        GoogleService,
+        JwtService,
+        ConfigService,
+      ],
     })
       .overrideProvider(JwtService)
       .useValue(mockJwtService)
@@ -30,23 +39,24 @@ describe('AuthService', () => {
 
     authService = module.get<AuthService>(AuthService);
     accountsService = module.get<AccountsService>(AccountsService);
+    googleService = module.get<GoogleService>(GoogleService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('create account', () => {
-    let dto: CreateAccountDto = accountStub();
+  describe('register', () => {
+    const dto: CreateAccountDto = accountStub();
     let result: Account;
 
     beforeEach(async () => {
       result = await authService.register(accountStub());
     });
 
-    test('calls createAccount method', () => {
-      expect(accountsService.createAccount).toHaveBeenCalledTimes(1);
-      expect(accountsService.createAccount).toHaveBeenCalledWith(dto);
+    test('calls createLocalAccount method', () => {
+      expect(accountsService.createLocalAccount).toHaveBeenCalledTimes(1);
+      expect(accountsService.createLocalAccount).toHaveBeenCalledWith(dto);
     });
 
     it('should create an account return that', async () => {
@@ -54,8 +64,35 @@ describe('AuthService', () => {
     });
   });
 
-  describe('login to account', () => {
-    let dto = resultAccountStub();
+  describe.only('googleAuth', () => {
+    const access_token = 'ksadjsjdıdwq';
+    let result: { access_token: string };
+
+    beforeEach(async () => {
+      result = await authService.googleAuth(access_token);
+    });
+
+    test('calls getUserCredentials', () => {
+      expect(googleService.getUserCredentials).toHaveBeenCalledTimes(1);
+      expect(googleService.getUserCredentials).toHaveBeenCalledWith(
+        access_token,
+      );
+    });
+
+    test('calls getAccount two times', () => {
+      expect(accountsService.getAccount).toHaveBeenCalledTimes(2);
+      expect(accountsService.getAccount).toHaveBeenCalledWith(
+        accountStub().email,
+      );
+    });
+
+    test('should return an access token', () => {
+      expect(result).toEqual({ access_token: expect.any(String) });
+    });
+  });
+
+  describe('login', () => {
+    const dto = resultAccountStub();
     let result: { access_token: string };
 
     beforeEach(async () => {
@@ -82,8 +119,8 @@ describe('AuthService', () => {
     });
   });
 
-  describe('validate account', () => {
-    let { username, email, password } = accountStub();
+  describe('validateAccount', () => {
+    const { username, email, password } = accountStub();
     let result: Account;
 
     beforeEach(async () => {

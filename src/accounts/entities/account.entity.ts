@@ -1,5 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
+export enum RegisterType {
+  LOCAL = 'local',
+  GOOGLE = 'google',
+}
+
 @Entity()
 export class Account extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -13,4 +18,7 @@ export class Account extends BaseEntity {
 
   @Column({ length: 22 })
   password: string;
+
+  @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })
+  via: RegisterType;
 }

@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from '../accounts.controller';
 import { AccountsService } from '../accounts.service';
-import { CreateAccountDto } from '../dto/create-account.dto';
-import { accountStub } from './stub/account.stub';
 
 jest.mock('../accounts.service');
 

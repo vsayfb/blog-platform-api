@@ -29,8 +29,8 @@ describe('AccountsRepository', () => {
 
   describe('findByUsernameOrEmail', () => {
     let result: Account;
-    let account = accountStub();
-    let expected = { id: expect.any(String), ...account };
+    const account = accountStub();
+    const expected = { id: expect.any(String), ...account };
 
     beforeEach(async () => {
       result = await accounstRepository.findByUsernameOrEmail(account.email);
@@ -52,14 +52,16 @@ describe('AccountsRepository', () => {
 
   describe('exists by username', () => {
     let result: boolean;
-    let account = accountStub();
+    const account = accountStub();
 
     beforeEach(async () => {
       result = await accounstRepository.existsByUsername(account.username);
     });
 
     test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalledWith({ username: account.username });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { username: account.username },
+      });
     });
 
     it('should return true', () => {
@@ -69,14 +71,16 @@ describe('AccountsRepository', () => {
 
   describe('exists by email', () => {
     let result: boolean;
-    let account: Account | any = accountStub();
+    const account: Account | any = accountStub();
 
     beforeEach(async () => {
       result = await accounstRepository.existsByEmail(account.email);
     });
 
     test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalledWith({ email: account.email });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { email: account.email },
+      });
     });
 
     it('should return true', () => {

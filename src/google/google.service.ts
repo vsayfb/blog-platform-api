@@ -1,30 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { google, Auth } from 'googleapis';
+import axios from 'axios';
+
+type UserInfo = {
+  sub: string;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  email: string;
+  email_verified: boolean;
+  locale: string;
+  hd: string;
+};
 
 @Injectable()
 export class GoogleService {
-  private oauth2: Auth.OAuth2Client;
+  private userInfoURL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
-  constructor(private configService: ConfigService) {
-    this.oauth2 = new google.auth.OAuth2({
-      clientId: this.configService.get<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
+  async getUserCredentials(
+    access_token: string,
+  ): Promise<{ email: string; given_name: string; family_name: string }> {
+    const { data }: { data: UserInfo } = await axios.get(this.userInfoURL, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+      method: 'GET',
     });
-  }
 
-  private async verify(idToken: string) {
-    let audience = this.configService.get<string>('GOOGLE_CLIENT_ID');
-
-    return this.oauth2.verifyIdToken({
-      idToken,
-      audience,
-    });
-  }
-
-  async authorization(access_token: string) {
-    const { getPayload } = await this.verify(access_token);
-
-    return getPayload();
+    return {
+      email: data.email,
+      given_name: data.given_name,
+      family_name: data.family_name,
+    };
   }
 }
