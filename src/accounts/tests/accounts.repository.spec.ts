@@ -32,7 +32,7 @@ describe('AccountsRepository', () => {
     const account = accountStub();
     const expected = { id: expect.any(String), ...account };
 
-    describe('when findByUsernameOrEmail called ', () => {
+    describe('when findByUsernameOrEmail is called ', () => {
       beforeEach(async () => {
         result = await accounstRepository.findByUsernameOrEmail(account.email);
       });

@@ -19,7 +19,7 @@ describe('GoogleService', () => {
   });
 
   describe('getUserCredentials', () => {
-    describe('when getUserCredentials called', () => {
+    describe('when getUserCredentials is called', () => {
       let axiosReturnValue = {
         email: accountStub().email,
         given_name: accountStub().username,
