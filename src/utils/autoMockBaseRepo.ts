@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { accountStub } from './../accounts/tests/stub/account.stub';
+import { accountStub } from '../accounts/tests/stub/account.stub';
 import { Repository } from 'typeorm';
 
 export default function autoMock<T>(repository: Repository<T>): void {

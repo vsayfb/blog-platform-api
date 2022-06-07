@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import autoMock from 'src/utils/autoMock';
+import autoMockBaseRepo from 'src/utils/autoMockBaseRepo';
 import { Repository } from 'typeorm';
 import { AccountsRepository } from '../accounts.repository';
 import { Account } from '../entities/account.entity';
@@ -24,7 +24,7 @@ describe('AccountsRepository', () => {
     accounstRepository = module.get<AccountsRepository>(AccountsRepository);
     repo = module.get<Repository<Account>>(getRepositoryToken(Account));
 
-    autoMock(repo);
+    autoMockBaseRepo(repo);
   });
 
   describe('findByUsernameOrEmail', () => {
@@ -32,59 +32,37 @@ describe('AccountsRepository', () => {
     const account = accountStub();
     const expected = { id: expect.any(String), ...account };
 
-    beforeEach(async () => {
-      result = await accounstRepository.findByUsernameOrEmail(account.email);
-    });
-
-    test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalledWith({
-        where: [
-          { email: expect.any(String) },
-          { username: expect.any(String) },
-        ],
+    describe('when findByUsernameOrEmail called ', () => {
+      beforeEach(async () => {
+        result = await accounstRepository.findByUsernameOrEmail(account.email);
       });
-    });
 
-    it('should return an account', () => {
-      expect(result).toEqual(expected);
+      test('findOne method should be called', () => {
+        expect(repo.findOne).toHaveBeenCalled();
+      });
+
+      it('should return an account', () => {
+        expect(result).toEqual(expected);
+      });
     });
   });
 
   describe('exists by username', () => {
-    let result: boolean;
-    const account = accountStub();
+    describe('when existsByUsername called', () => {
+      let result: boolean;
+      const account = accountStub();
 
-    beforeEach(async () => {
-      result = await accounstRepository.existsByUsername(account.username);
-    });
-
-    test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalledWith({
-        where: { username: account.username },
+      beforeEach(async () => {
+        result = await accounstRepository.existsByUsername(account.username);
       });
-    });
 
-    it('should return true', () => {
-      expect(result).toBe(true);
-    });
-  });
-
-  describe('exists by email', () => {
-    let result: boolean;
-    const account: Account | any = accountStub();
-
-    beforeEach(async () => {
-      result = await accounstRepository.existsByEmail(account.email);
-    });
-
-    test('calls findOne method in acc repo', () => {
-      expect(repo.findOne).toHaveBeenCalledWith({
-        where: { email: account.email },
+      test('findOne method should be called', () => {
+        expect(repo.findOne).toHaveBeenCalled();
       });
-    });
 
-    it('should return true', () => {
-      expect(result).toBe(true);
+      it('should return true', () => {
+        expect(result).toBe(true);
+      });
     });
   });
 });

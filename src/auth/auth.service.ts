@@ -25,15 +25,15 @@ export class AuthService {
     const registeredUser = await this.accountsService.getAccount(email);
 
     if (registeredUser) {
-      return this.login(await this.accountsService.getAccount(email));
+      return this.login(registeredUser);
     } else {
-      const account = await this.accountsService.createAccountViaGoogle({
+      const newAccount = await this.accountsService.createAccountViaGoogle({
         email,
         username: (given_name + family_name).replace(/ /g, '').toLowerCase(),
         password: Math.random().toString(36).substring(2, 8),
       });
 
-      return this.login(account);
+      return this.login(newAccount);
     }
   }
 

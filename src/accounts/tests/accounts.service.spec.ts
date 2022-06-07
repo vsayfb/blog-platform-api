@@ -17,59 +17,86 @@ describe('AccountsService', () => {
 
     accounstService = module.get<AccountsService>(AccountsService);
     accountsRepository = module.get<AccountsRepository>(AccountsRepository);
-  });
 
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getAccount', () => {
-    let result: Account;
-    const username = accountStub().username;
+  describe('getAccount method', () => {
+    describe('when getAccount method is called', () => {
+      let result: Account;
+      const { username, email } = accountStub();
 
-    beforeEach(async () => {
-      result = await accounstService.getAccount(username);
-    });
+      beforeEach(async () => {
+        result = await accounstService.getAccount(username);
+      });
 
-    test('calls findByUsernameOrEmail', () => {
-      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
-        username,
-      );
-    });
+      test('findByUsernameOrEmail method should be called with username or email', () => {
+        expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
+          username || email,
+        );
+      });
 
-    it('should return an account', () => {
-      expect(result).toEqual({ id: expect.any(String), ...result });
+      it('then should return an account', () => {
+        expect(result).toEqual({ id: expect.any(String), ...result });
+      });
     });
   });
 
-  describe('createAccount', () => {
-    let result: Account;
+  describe('createAccount method', () => {
     const dto = accountStub();
 
-    beforeEach(async () => {
-      result = await accounstService.createLocalAccount(dto);
-    });
+    describe('when createAccount method is called ', () => {
+      describe('if : username exists in the db', () => {
+        test('throws "Username taken." error', async () => {
+          jest
+            .spyOn(accountsRepository, 'existsByUsername')
+            .mockResolvedValueOnce(true);
 
-    test('calls existsByUsername', () => {
-      expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
-        dto.username,
-      );
-    });
+          await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
+            'Username taken.',
+          );
 
-    test('calls existsByEmail', () => {
-      expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(dto.email);
-    });
+          expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
+        });
+      });
 
-    test('calls createEntity', () => {
-      expect(accountsRepository.createEntity).toHaveBeenCalledTimes(1);
-      expect(accountsRepository.createEntity).toHaveBeenCalledWith(dto);
-    });
+      describe('if : email exists in the db', () => {
+        test('throws "Email taken." error', async () => {
+          jest
+            .spyOn(accountsRepository, 'existsByEmail')
+            .mockResolvedValueOnce(true);
 
-    it('should return an account', () => {
-      expect(result).toEqual({ id: expect.any(String), ...dto });
+          await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
+            'Email taken.',
+          );
+
+          expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe('if: unique username and email', () => {
+        let result: Account;
+
+        beforeEach(async () => {
+          result = await accounstService.createLocalAccount(dto);
+        });
+
+        test('existsByUsername method should be called with username', () => {
+          expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
+            dto.username,
+          );
+        });
+
+        test('existsByEmail method should be called with email', () => {
+          expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(
+            dto.email,
+          );
+        });
+
+        it('then should return an account', () => {
+          expect(result).toEqual({ id: expect.any(String), ...dto });
+        });
+      });
     });
   });
 });

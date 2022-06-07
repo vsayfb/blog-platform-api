@@ -1,4 +1,3 @@
-import { resultAccountStub } from './../../accounts/tests/stub/account.stub';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -27,15 +26,10 @@ describe('AuthService', () => {
         AuthService,
         AccountsService,
         GoogleService,
-        JwtService,
-        ConfigService,
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
-    })
-      .overrideProvider(JwtService)
-      .useValue(mockJwtService)
-      .overrideProvider(ConfigService)
-      .useValue(mockConfigService)
-      .compile();
+    }).compile();
 
     authService = module.get<AuthService>(AuthService);
     accountsService = module.get<AccountsService>(AccountsService);
@@ -54,67 +48,60 @@ describe('AuthService', () => {
       result = await authService.register(accountStub());
     });
 
-    test('calls createLocalAccount method', () => {
-      expect(accountsService.createLocalAccount).toHaveBeenCalledTimes(1);
-      expect(accountsService.createLocalAccount).toHaveBeenCalledWith(dto);
-    });
+    describe('when register method is called', () => {
+      test('createLocalAccount method should be called with dto', () => {
+        expect(accountsService.createLocalAccount).toHaveBeenCalledWith(dto);
+      });
 
-    it('should create an account return that', async () => {
-      expect(result).toEqual({ id: expect.any(String), ...dto });
-    });
-  });
-
-  describe.only('googleAuth', () => {
-    const access_token = 'ksadjsjdıdwq';
-    let result: { access_token: string };
-
-    beforeEach(async () => {
-      result = await authService.googleAuth(access_token);
-    });
-
-    test('calls getUserCredentials', () => {
-      expect(googleService.getUserCredentials).toHaveBeenCalledTimes(1);
-      expect(googleService.getUserCredentials).toHaveBeenCalledWith(
-        access_token,
-      );
-    });
-
-    test('calls getAccount two times', () => {
-      expect(accountsService.getAccount).toHaveBeenCalledTimes(2);
-      expect(accountsService.getAccount).toHaveBeenCalledWith(
-        accountStub().email,
-      );
-    });
-
-    test('should return an access token', () => {
-      expect(result).toEqual({ access_token: expect.any(String) });
+      it('should create an account return that', async () => {
+        expect(result).toEqual({ id: expect.any(String), ...dto });
+      });
     });
   });
 
-  describe('login', () => {
-    const dto = resultAccountStub();
-    let result: { access_token: string };
+  describe('googleAuth', () => {
+    describe('when googleAuth is called', () => {
+      const access_token = 'ksadjsjdidwq';
+      let result: { access_token: string };
+      let dto = accountStub();
 
-    beforeEach(async () => {
-      result = await authService.login(dto);
-    });
+      beforeEach(async () => {
+        result = await authService.googleAuth(access_token);
+      });
 
-    test('calls sign method', () => {
-      expect(mockJwtService.sign).toHaveBeenCalledTimes(1);
-      expect(mockJwtService.sign).toHaveBeenCalledWith(
-        { sub: dto.id, username: dto.username },
-        { secret: '' },
-      );
-    });
+      test('getUserCredentials in google service should be called with access_token', () => {
+        expect(googleService.getUserCredentials).toHaveBeenCalledWith(
+          access_token,
+        );
+      });
 
-    test('calls get method', () => {
-      expect(mockConfigService.get).toHaveBeenCalledTimes(1);
-      expect(mockConfigService.get).toHaveBeenCalledWith('JWT_SECRET');
-    });
+      test('getAccount method should be called with email', () => {
+        expect(accountsService.getAccount).toHaveBeenCalledWith(dto.email);
+      });
 
-    it('should return an access token', () => {
-      expect(result).toEqual({
-        access_token: expect.any(String),
+      describe('if : registered user', () => {
+        it('should return an access token', () => {
+          expect(result).toEqual({ access_token: expect.any(String) });
+        });
+      });
+
+      describe('if : unregistered user', () => {
+        beforeEach(async () => {
+          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
+          result = await authService.googleAuth(access_token);
+        });
+
+        test('createAccountViaGoogle method should be called with account', () => {
+          expect(accountsService.createAccountViaGoogle).toHaveBeenCalledWith({
+            email: dto.email,
+            password: expect.any(String),
+            username: dto.username + dto.username,
+          });
+        });
+
+        it('should return an access token', () => {
+          expect(result).toEqual({ access_token: expect.any(String) });
+        });
       });
     });
   });
@@ -123,17 +110,30 @@ describe('AuthService', () => {
     const { username, email, password } = accountStub();
     let result: Account;
 
-    beforeEach(async () => {
-      result = await authService.validateAccount(username, password);
-    });
+    describe('when validateAccount is called', () => {
+      beforeEach(async () => {
+        result = await authService.validateAccount(username, password);
+      });
 
-    test('calls existsByUsernameOrEmail', () => {
-      expect(accountsService.getAccount).toHaveBeenCalledTimes(1);
-      expect(accountsService.getAccount).toHaveBeenCalledWith(username);
-    });
+      test('getAccount method should be called with username ', () => {
+        expect(accountsService.getAccount).toHaveBeenCalledWith(username);
+      });
 
-    it('should validate the account', async () => {
-      expect(result).toEqual({ id: expect.any(String), username, email });
+      describe('if : an account found', () => {
+        it('should return the account', () => {
+          expect(result).toEqual({ id: expect.any(String), username, email });
+        });
+      });
+
+      describe('if : an account not found', () => {
+        it('should return null', async () => {
+          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
+
+          result = await authService.validateAccount(username, password);
+
+          expect(result).toEqual(null);
+        });
+      });
     });
   });
 });
