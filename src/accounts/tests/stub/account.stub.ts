@@ -8,7 +8,7 @@ type AccountStub = {
 
 const stub = {
   email: 'foo@gmail.com',
-  password: 'foo123',
+  password: 'foo1234',
   username: 'foo',
 };
 

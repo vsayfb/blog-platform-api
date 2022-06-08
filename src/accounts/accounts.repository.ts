@@ -13,6 +13,10 @@ export class AccountsRepository extends BaseRepository<Account> {
     super(accountsRepository);
   }
 
+  async clear() {
+    this.accountsRepository.clear();
+  }
+
   async existsByUsername(username: string) {
     return !!(await this.accountsRepository.findOne({ where: { username } }));
   }
