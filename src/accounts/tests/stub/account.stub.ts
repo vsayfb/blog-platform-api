@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
-type AccountStub = {
+
+export type AccountStub = {
   id?: string;
   email: string;
   username: string;

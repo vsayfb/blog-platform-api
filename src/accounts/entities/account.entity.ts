@@ -8,13 +8,16 @@ export enum RegisterType {
 @Entity()
 export class Account extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ unique: true, length: 22 })
   username: string;
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true, unique: true, default: null })
+  image?: string;
 
   @Column({ length: 22 })
   password: string;

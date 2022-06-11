@@ -1,20 +1,24 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
-import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthService } from '../auth.service';
 import { AccountsService } from 'src/accounts/accounts.service';
-import { GoogleService } from 'src/google/google.service';
+import { GoogleService } from 'src/apis/google/google.service';
+import { ForbiddenException } from '@nestjs/common';
+import { CodesService } from 'src/codes/codes.service';
 
 jest.mock('src/accounts/accounts.service');
-jest.mock('src/google/google.service');
+jest.mock('src/codes/codes.service');
+jest.mock('src/apis/google/google.service');
 
 describe('AuthService', () => {
   let authService: AuthService;
   let accountsService: AccountsService;
   let googleService: GoogleService;
+  let codesService: CodesService;
+
   const mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
   };
@@ -26,6 +30,7 @@ describe('AuthService', () => {
         AuthService,
         AccountsService,
         GoogleService,
+        CodesService,
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -34,27 +39,47 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     accountsService = module.get<AccountsService>(AccountsService);
     googleService = module.get<GoogleService>(GoogleService);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    codesService = module.get<CodesService>(CodesService);
   });
 
   describe('register', () => {
-    const dto: CreateAccountDto = accountStub();
-    let result: Account;
+    const dto = { ...accountStub(), verification_code: '21345' };
+
+    let result: { access_token: string } | ForbiddenException;
 
     beforeEach(async () => {
-      result = await authService.register(accountStub());
+      result = await authService.register(dto);
     });
 
-    describe('when register method is called', () => {
-      test('createLocalAccount method should be called with dto', () => {
-        expect(accountsService.createLocalAccount).toHaveBeenCalledWith(dto);
+    describe.only('when register method is called', () => {
+      test('getCode method should be called with code in dto', () => {
+        expect(codesService.getCode).toHaveBeenCalledWith(
+          dto.verification_code,
+        );
       });
 
-      it('should create an account return that', async () => {
-        expect(result).toEqual({ id: expect.any(String), ...dto });
+      describe.only('if : code is null', () => {
+        test('register method throws an error', async () => {
+          jest.spyOn(codesService, 'getCode').mockResolvedValueOnce(null);
+
+          await expect(authService.register(dto)).rejects.toThrow(
+            'Invalid Code!',
+          );
+        });
+      });
+
+      describe('if : code is verified', () => {
+        test('getCode method should be called with code id', () => {
+          expect(codesService.removeCode).toHaveBeenCalled();
+        });
+
+        test('createLocalAccount method should be called with dto', () => {
+          expect(accountsService.createLocalAccount).toHaveBeenCalled();
+        });
+
+        it('should create an account and return access_token', async () => {
+          expect(result).toEqual({ access_token: expect.any(String) });
+        });
       });
     });
   });
@@ -63,7 +88,7 @@ describe('AuthService', () => {
     describe('when googleAuth is called', () => {
       const access_token = 'ksadjsjdidwq';
       let result: { access_token: string };
-      let dto = accountStub();
+      const dto = accountStub();
 
       beforeEach(async () => {
         result = await authService.googleAuth(access_token);

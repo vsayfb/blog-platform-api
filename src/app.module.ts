@@ -3,7 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { GoogleModule } from './google/google.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { MailsModule } from './mails/mails.module';
+import { MailgunModule } from './apis/mailgun/mailgun.module';
+import { CodesModule } from './codes/codes.module';
 
 @Module({
   imports: [
@@ -11,7 +14,10 @@ import { GoogleModule } from './google/google.module';
     DatabaseModule,
     AccountsModule,
     AuthModule,
-    GoogleModule,
+    UploadsModule,
+    MailsModule,
+    MailgunModule,
+    CodesModule,
   ],
 })
 export class AppModule {}

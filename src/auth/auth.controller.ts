@@ -1,7 +1,9 @@
-import { Controller, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
+import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
 
 @Controller({
@@ -12,8 +14,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  login(@Req() request: any) {
-    return this.authService.login(request.user);
+  login(@Account() account: AccountEntity) {
+    return this.authService.login(account);
   }
 
   @Post('register')

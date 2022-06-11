@@ -3,7 +3,6 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
-import { RegisterType } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
 
 describe('AuthController (e2e)', () => {
@@ -38,9 +37,7 @@ describe('AuthController (e2e)', () => {
         .send(dto);
 
       expect(result.body).toEqual({
-        id: expect.any(String),
-        ...dto,
-        via: RegisterType.LOCAL,
+        access_token: expect.any(String),
       });
 
       expect(result.status).toBe(201);

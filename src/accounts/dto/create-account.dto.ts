@@ -13,4 +13,8 @@ export class CreateAccountDto {
   @ApiProperty({ minLength: 7 })
   @MinLength(7)
   password: string;
+
+  @ApiProperty({ minLength: 5 })
+  @MinLength(5)
+  verification_code: string;
 }

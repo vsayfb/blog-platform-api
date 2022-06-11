@@ -6,7 +6,6 @@ jest.mock('../accounts.service');
 
 describe('AccountsController', () => {
   let accountsController: AccountsController;
-  let accountsService: AccountsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -15,7 +14,6 @@ describe('AccountsController', () => {
     }).compile();
 
     accountsController = module.get<AccountsController>(AccountsController);
-    accountsService = module.get<AccountsService>(AccountsService);
   });
 
   it('should be defined', () => {

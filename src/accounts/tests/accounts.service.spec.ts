@@ -1,76 +1,57 @@
 import { accountStub } from './stub/account.stub';
 import { Account } from './../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountsRepository } from '../accounts.repository';
 import { AccountsService } from '../accounts.service';
-
-jest.mock('src/accounts/accounts.repository');
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { MailsService } from 'src/mails/mails.service';
+import { mockRepository } from 'src/helpers/mockRepository';
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
-  let accountsRepository: AccountsRepository;
+
+  const mailService = {
+    sendMail: jest.fn().mockReturnValue({}),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AccountsService, AccountsRepository],
+      providers: [
+        AccountsService,
+        {
+          provide: getRepositoryToken(Account),
+          useValue: mockRepository,
+        },
+        {
+          provide: MailsService,
+          useValue: mailService,
+        },
+      ],
     }).compile();
 
     accounstService = module.get<AccountsService>(AccountsService);
-    accountsRepository = module.get<AccountsRepository>(AccountsRepository);
-
-    jest.clearAllMocks();
   });
 
-  describe('getAccount method', () => {
-    describe('when getAccount method is called', () => {
-      let result: Account;
-      const { username, email } = accountStub();
+  describe('createLocalAccount method', () => {
+    const dto = { ...accountStub(), verification_code: '123456' };
 
-      beforeEach(async () => {
-        result = await accounstService.getAccount(username);
-      });
-
-      test('findByUsernameOrEmail method should be called with username or email', () => {
-        expect(accountsRepository.findByUsernameOrEmail).toHaveBeenCalledWith(
-          username || email,
-        );
-      });
-
-      it('then should return an account', () => {
-        expect(result).toEqual({ id: expect.any(String), ...result });
-      });
-    });
-  });
-
-  describe('createAccount method', () => {
-    const dto = accountStub();
-
-    describe('when createAccount method is called ', () => {
+    describe('when createLocalAccount method is called ', () => {
       describe('if : username exists in the db', () => {
         test('throws "Username taken." error', async () => {
-          jest
-            .spyOn(accountsRepository, 'existsByUsername')
-            .mockResolvedValueOnce(true);
-
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
             'Username taken.',
           );
-
-          expect(accountsRepository.existsByUsername).toHaveBeenCalledTimes(1);
         });
       });
 
       describe('if : email exists in the db', () => {
         test('throws "Email taken." error', async () => {
           jest
-            .spyOn(accountsRepository, 'existsByEmail')
-            .mockResolvedValueOnce(true);
+            .spyOn(accounstService, 'getOneByUsername')
+            .mockResolvedValueOnce(null);
 
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
             'Email taken.',
           );
-
-          expect(accountsRepository.existsByEmail).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -78,22 +59,20 @@ describe('AccountsService', () => {
         let result: Account;
 
         beforeEach(async () => {
+          jest
+            .spyOn(accounstService, 'getOneByUsername')
+            .mockResolvedValueOnce(null);
+
+          jest
+            .spyOn(accounstService, 'getOneByEmail')
+            .mockResolvedValueOnce(null);
+
           result = await accounstService.createLocalAccount(dto);
         });
 
-        test('existsByUsername method should be called with username', () => {
-          expect(accountsRepository.existsByUsername).toHaveBeenCalledWith(
-            dto.username,
-          );
-        });
-
-        test('existsByEmail method should be called with email', () => {
-          expect(accountsRepository.existsByEmail).toHaveBeenCalledWith(
-            dto.email,
-          );
-        });
-
         it('then should return an account', () => {
+          delete dto.verification_code;
+
           expect(result).toEqual({ id: expect.any(String), ...dto });
         });
       });

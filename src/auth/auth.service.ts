@@ -1,9 +1,11 @@
-import { GoogleService } from 'src/google/google.service';
-import { Injectable } from '@nestjs/common';
+import { GoogleService } from 'src/apis/google/google.service';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { Account } from 'src/accounts/entities/account.entity';
+import { CodesService } from 'src/codes/codes.service';
 
 @Injectable()
 export class AuthService {
@@ -11,11 +13,23 @@ export class AuthService {
     private readonly accountsService: AccountsService,
     private readonly googleService: GoogleService,
     private readonly configService: ConfigService,
+    private readonly codeService: CodesService,
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(data: CreateAccountDto) {
-    return this.accountsService.createLocalAccount(data);
+  async register(
+    data: CreateAccountDto,
+  ): Promise<{ access_token: string } | ForbiddenException> {
+    const code = await this.codeService.getCode(data.verification_code);
+
+    if (!code || code.receiver !== data.email)
+      throw new ForbiddenException('Invalid Code!');
+
+    this.codeService.removeCode(code.id);
+
+    const account = await this.accountsService.createLocalAccount(data);
+
+    return this.login(account);
   }
 
   async googleAuth(access_token: string): Promise<{ access_token: string }> {
@@ -37,8 +51,9 @@ export class AuthService {
     }
   }
 
-  login(account: any): { access_token: string } {
+  login(account: Account): { access_token: string } {
     const payload = { username: account.username, sub: account.id };
+
     return {
       access_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
