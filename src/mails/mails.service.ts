@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
+import { MAILGUN_SENDER_MAIL } from 'src/common/env';
 import { JobsService } from 'src/jobs/jobs.service';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class MailsService {
     private readonly jobsService: JobsService,
     private readonly configService: ConfigService,
   ) {
-    this.sender = this.configService.get<string>('MAILGUN_SENDER_MAIL');
+    this.sender = this.configService.get<string>(MAILGUN_SENDER_MAIL);
   }
 
   async sendVerificationCode(to: string) {

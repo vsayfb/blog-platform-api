@@ -6,7 +6,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
-import { JobsService } from 'src/jobs/jobs.service';
+import { JWT_SECRET } from 'src/common/env';
 
 @Injectable()
 export class AuthService {
@@ -57,7 +57,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.get<string>(JWT_SECRET),
       }),
     };
   }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DEV_DATABASE, NODE_ENV, PROD_DATABASE } from 'src/common/env';
 import { DatabaseService } from './database.service';
 
 @Module({
@@ -9,9 +10,9 @@ import { DatabaseService } from './database.service';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url:
-          configService.get('NODE_ENV') === 'production'
-            ? configService.get('PROD_DATABASE')
-            : configService.get('DEV_DATABASE'),
+          configService.get(NODE_ENV) === 'production'
+            ? configService.get(PROD_DATABASE)
+            : configService.get(DEV_DATABASE),
         entities: [__dirname + '/../**/*.entity.{js,ts}'],
         synchronize: true,
       }),

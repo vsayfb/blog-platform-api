@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobsService } from 'src/jobs/jobs.service';
 import { MailsService } from 'src/mails/mails.service';
+import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { Account, RegisterType } from './entities/account.entity';
@@ -12,6 +13,7 @@ export class AccountsService {
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
     private readonly mailService: MailsService,
+    private readonly uploadsService: UploadsService,
   ) {}
 
   async getAccount(userNameOrEmail: string) {
@@ -50,6 +52,20 @@ export class AccountsService {
       ...data,
       via: RegisterType.GOOGLE,
     });
+  }
+
+  async changeProfileImage(req_account: Account, file: Express.Multer.File) {
+    console.log(req_account);
+
+    const account = await this.getAccount(req_account.username);
+
+    const newFileName = await this.uploadsService.upload(file);
+
+    account.image = newFileName;
+
+    await this.accountsRepository.save(account);
+
+    return { message: 'Image updated!' };
   }
 
   async beginRegisterVerification(

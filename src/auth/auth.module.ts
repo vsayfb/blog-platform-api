@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { GoogleModule } from 'src/apis/google/google.module';
 import { CodesModule } from 'src/codes/codes.module';
+import { JWT_SECRET } from 'src/common/env';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { CodesModule } from 'src/codes/codes.module';
     GoogleModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get<string>(JWT_SECRET),
       }),
       inject: [ConfigService],
     }),
