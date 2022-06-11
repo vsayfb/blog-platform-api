@@ -5,7 +5,7 @@ import {
   EMAIL_TAKEN,
   USERNAME_TAKEN,
 } from 'src/common/error-messages';
-import { JobsService } from 'src/jobs/jobs.service';
+import { JwtPayload } from 'src/common/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
@@ -59,9 +59,7 @@ export class AccountsService {
     });
   }
 
-  async changeProfileImage(req_account: Account, file: Express.Multer.File) {
-    console.log(req_account);
-
+  async changeProfileImage(req_account: JwtPayload, file: Express.Multer.File) {
     const account = await this.getAccount(req_account.username);
 
     const newFileName = await this.uploadsService.upload(file);

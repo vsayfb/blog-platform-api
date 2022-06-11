@@ -11,11 +11,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtPayload } from 'src/common/jwt.payload';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
-import { Account as AccountEntity } from './entities/account.entity';
 
 @Controller({
   path: 'accounts',
@@ -25,7 +25,7 @@ export class AccountsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  findMe(@Account() account: AccountEntity) {
+  findMe(@Account() account: JwtPayload) {
     return account;
   }
 
@@ -48,7 +48,7 @@ export class AccountsController {
   @Post('upload_profile_photo')
   @UseInterceptors(FileInterceptor('image'))
   async uploadProfilePhoto(
-    @Account() account: AccountEntity,
+    @Account() account: JwtPayload,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new MethodNotAllowedException();
