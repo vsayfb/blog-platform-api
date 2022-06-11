@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  MethodNotAllowedException,
   Post,
   Query,
   UploadedFile,
@@ -12,6 +13,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
+import { EmailQueryDto } from './dto/email-query.dto';
+import { UsernameQuery } from './dto/username-query.dto';
 import { Account as AccountEntity } from './entities/account.entity';
 
 @Controller({
@@ -27,17 +30,17 @@ export class AccountsController {
   }
 
   @Get('/is_available_username')
-  async isAvailableUsername(@Query('username') username: string) {
-    return !(await this.accountsService.getOneByUsername(username));
+  async isAvailableUsername(@Query() query: UsernameQuery) {
+    return !(await this.accountsService.getOneByUsername(query.username));
   }
 
   @Get('/is_available_email')
-  async isAvailableEmail(@Query('email') email: string) {
-    return !(await this.accountsService.getOneByEmail(email));
+  async isAvailableEmail(@Query() query: EmailQueryDto) {
+    return !(await this.accountsService.getOneByEmail(query.email));
   }
 
   @Post('begin_verification')
-  async beginVerification(@Body() data: { email: string }) {
+  async beginVerification(@Body() data: EmailQueryDto) {
     return await this.accountsService.beginRegisterVerification(data.email);
   }
 
@@ -48,6 +51,8 @@ export class AccountsController {
     @Account() account: AccountEntity,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) throw new MethodNotAllowedException();
+
     return await this.accountsService.changeProfileImage(account, file);
   }
 }

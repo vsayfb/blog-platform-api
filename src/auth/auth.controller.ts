@@ -5,6 +5,7 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
+import { AccessToken } from './dto/access-token.dto';
 
 @Controller({
   path: 'auth',
@@ -29,7 +30,7 @@ export class AuthController {
   }
 
   @Post('google')
-  authGoogle(@Body() body: { access_token: string }) {
+  authGoogle(@Body() body: AccessToken) {
     return this.authService.googleAuth(body.access_token);
   }
 }
