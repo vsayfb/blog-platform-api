@@ -5,6 +5,7 @@ import { AccountsService } from '../accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
 import { mockRepository } from 'src/helpers/mockRepository';
+import { EMAIL_TAKEN, USERNAME_TAKEN } from 'src/common/error-messages';
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
@@ -38,7 +39,7 @@ describe('AccountsService', () => {
       describe('if : username exists in the db', () => {
         test('throws "Username taken." error', async () => {
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
-            'Username taken.',
+            USERNAME_TAKEN,
           );
         });
       });
@@ -50,7 +51,7 @@ describe('AccountsService', () => {
             .mockResolvedValueOnce(null);
 
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
-            'Email taken.',
+            EMAIL_TAKEN,
           );
         });
       });

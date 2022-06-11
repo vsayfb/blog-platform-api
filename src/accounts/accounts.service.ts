@@ -1,5 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  EMAIL_REGISTERED,
+  EMAIL_TAKEN,
+  USERNAME_TAKEN,
+} from 'src/common/error-messages';
 import { JobsService } from 'src/jobs/jobs.service';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
@@ -34,11 +39,11 @@ export class AccountsService {
 
     const usernameTaken = await this.getOneByUsername(username);
 
-    if (usernameTaken) throw new ForbiddenException('Username taken.');
+    if (usernameTaken) throw new ForbiddenException(USERNAME_TAKEN);
 
     const emailTaken = await this.getOneByEmail(email);
 
-    if (emailTaken) throw new ForbiddenException('Email taken.');
+    if (emailTaken) throw new ForbiddenException(EMAIL_TAKEN);
 
     return await this.accountsRepository.save(data);
   }
@@ -73,7 +78,7 @@ export class AccountsService {
   ): Promise<{ message: string } | ForbiddenException> {
     const account = await this.accountsRepository.findOne({ where: { email } });
 
-    if (account) throw new ForbiddenException('This email already registered.');
+    if (account) throw new ForbiddenException(EMAIL_REGISTERED);
 
     await this.mailService.sendVerificationCode(email);
 

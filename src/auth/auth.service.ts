@@ -7,6 +7,7 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
 import { JWT_SECRET } from 'src/common/env';
+import { INVALID_CODE } from 'src/common/error-messages';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     const code = await this.codeService.getCode(data.verification_code);
 
     if (!code || code.receiver !== data.email)
-      throw new ForbiddenException('Invalid Code!');
+      throw new ForbiddenException(INVALID_CODE);
 
     this.codeService.removeCode(code.id);
 
