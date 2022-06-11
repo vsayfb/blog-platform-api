@@ -21,7 +21,7 @@ export class AuthService {
 
   async register(
     data: CreateAccountDto,
-  ): Promise<{ access_token: string } | ForbiddenException> {
+  ): Promise<{ account: Account; access_token: string } | ForbiddenException> {
     const code = await this.codeService.getCode(data.verification_code);
 
     if (!code || code.receiver !== data.email)
@@ -31,17 +31,27 @@ export class AuthService {
 
     const account = await this.accountsService.createLocalAccount(data);
 
-    return this.login(account);
+    const { access_token } = this.login(account);
+
+    delete account.password;
+
+    return { account, access_token };
   }
 
-  async googleAuth(access_token: string): Promise<{ access_token: string }> {
+  async googleAuth(
+    access_token: string,
+  ): Promise<{ account: Account; access_token: string }> {
     const { email, family_name, given_name } =
       await this.googleService.getUserCredentials(access_token);
 
     const registeredUser = await this.accountsService.getAccount(email);
 
     if (registeredUser) {
-      return this.login(registeredUser);
+      const { access_token } = this.login(registeredUser);
+
+      delete registeredUser.password;
+
+      return { account: registeredUser, access_token };
     } else {
       const newAccount = await this.accountsService.createAccountViaGoogle({
         email,
@@ -49,12 +59,20 @@ export class AuthService {
         password: Math.random().toString(36).substring(2, 8),
       });
 
-      return this.login(newAccount);
+      const { access_token } = this.login(newAccount);
+
+      delete newAccount.password;
+
+      return { account: newAccount, access_token };
     }
   }
 
   login(account: Account): { access_token: string } {
-    const payload = { username: account.username, sub: account.id };
+    const payload = {
+      username: account.username,
+      sub: account.id,
+      image: account.image,
+    };
 
     return {
       access_token: this.jwtService.sign(payload, {

@@ -11,13 +11,17 @@ const stub = {
   email: 'foo@gmail.com',
   password: 'foo1234',
   username: 'foo',
+  image: 'foo_image',
 };
 
 export const accountStub = (): AccountStub => ({
   ...stub,
 });
 
-export const resultAccountStub = (): AccountStub => ({
-  id: randomUUID(),
-  ...stub,
-});
+export const resultAccountStub = (): AccountStub => {
+  delete stub.password;
+  return {
+    id: randomUUID(),
+    ...stub,
+  };
+};

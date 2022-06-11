@@ -51,14 +51,14 @@ describe('AuthService', () => {
       result = await authService.register(dto);
     });
 
-    describe.only('when register method is called', () => {
+    describe('when register method is called', () => {
       test('getCode method should be called with code in dto', () => {
         expect(codesService.getCode).toHaveBeenCalledWith(
           dto.verification_code,
         );
       });
 
-      describe.only('if : code is null', () => {
+      describe('if : code is null', () => {
         test('register method throws an error', async () => {
           jest.spyOn(codesService, 'getCode').mockResolvedValueOnce(null);
 
@@ -78,7 +78,12 @@ describe('AuthService', () => {
         });
 
         it('should create an account and return access_token', async () => {
-          expect(result).toEqual({ access_token: expect.any(String) });
+          delete dto.verification_code;
+
+          expect(result).toEqual({
+            account: { ...dto, id: expect.any(String) },
+            access_token: expect.any(String),
+          });
         });
       });
     });
@@ -105,8 +110,11 @@ describe('AuthService', () => {
       });
 
       describe('if : registered user', () => {
-        it('should return an access token', () => {
-          expect(result).toEqual({ access_token: expect.any(String) });
+        it('should return an access token and an account', () => {
+          expect(result).toEqual({
+            account: { ...dto, id: expect.any(String) },
+            access_token: expect.any(String),
+          });
         });
       });
 
@@ -124,8 +132,11 @@ describe('AuthService', () => {
           });
         });
 
-        it('should return an access token', () => {
-          expect(result).toEqual({ access_token: expect.any(String) });
+        it('should return an access token and an account', () => {
+          expect(result).toEqual({
+            account: { ...dto, id: expect.any(String) },
+            access_token: expect.any(String),
+          });
         });
       });
     });
@@ -146,7 +157,10 @@ describe('AuthService', () => {
 
       describe('if : an account found', () => {
         it('should return the account', () => {
-          expect(result).toEqual({ id: expect.any(String), username, email });
+          expect(result).toEqual({
+            id: expect.any(String),
+            ...result,
+          });
         });
       });
 
