@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JobsService } from 'src/jobs/jobs.service';
 import { MailsService } from 'src/mails/mails.service';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';

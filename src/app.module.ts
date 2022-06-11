@@ -7,6 +7,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { MailsModule } from './mails/mails.module';
 import { MailgunModule } from './apis/mailgun/mailgun.module';
 import { CodesModule } from './codes/codes.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CodesModule } from './codes/codes.module';
     MailsModule,
     MailgunModule,
     CodesModule,
+    JobsModule,
   ],
 })
 export class AppModule {}

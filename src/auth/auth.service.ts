@@ -6,6 +6,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
+import { JobsService } from 'src/jobs/jobs.service';
 
 @Injectable()
 export class AuthService {
