@@ -80,7 +80,7 @@ export class AccountsService {
 
     await this.mailService.sendVerificationCode(email);
 
-    return { message: 'The code sent.' };
+    return { message: 'A code sent.' };
   }
 
   async getOneByEmail(email: string) {

@@ -8,6 +8,7 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
 import { JWT_SECRET } from 'src/common/env';
 import { INVALID_CODE } from 'src/common/error-messages';
+import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,9 @@ export class AuthService {
 
   async register(
     data: CreateAccountDto,
-  ): Promise<{ account: Account; access_token: string } | ForbiddenException> {
+  ): Promise<
+    { account: RegisterViewDto; access_token: string } | ForbiddenException
+  > {
     const code = await this.codeService.getCode(data.verification_code);
 
     if (!code || code.receiver !== data.email)
@@ -40,7 +43,7 @@ export class AuthService {
 
   async googleAuth(
     access_token: string,
-  ): Promise<{ account: Account; access_token: string }> {
+  ): Promise<{ account: RegisterViewDto; access_token: string }> {
     const { email, family_name, given_name } =
       await this.googleService.getUserCredentials(access_token);
 

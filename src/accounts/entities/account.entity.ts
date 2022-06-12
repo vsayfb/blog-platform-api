@@ -17,7 +17,7 @@ export class Account extends BaseEntity {
   email: string;
 
   @Column({ nullable: true, unique: true, default: null })
-  image?: string;
+  image: string | null;
 
   @Column({ length: 22 })
   password: string;
