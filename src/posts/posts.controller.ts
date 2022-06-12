@@ -1,15 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-
+import { Account } from 'src/accounts/decorator/account.decorator';
+import { JwtPayload } from 'src/common/jwt.payload';
+import { AuthGuard } from '@nestjs/passport';
+                            
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  async create(
+    @Account() account: JwtPayload,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    return await this.postsService.create(account.sub, createPostDto);
   }
 
   @Get()

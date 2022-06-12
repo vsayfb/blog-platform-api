@@ -1,4 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Post } from 'src/posts/entities/post.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum RegisterType {
   LOCAL = 'local',
@@ -22,6 +31,15 @@ export class Account extends BaseEntity {
   @Column({ length: 22 })
   password: string;
 
+  @OneToMany((_type) => Post, (post) => post.author)
+  posts: Post[];
+
   @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })
   via: RegisterType;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

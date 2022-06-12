@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Post } from './entities/post.entity';
+import uniqueID from 'short-unique-id';
+import slugify from 'slugify';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(
+    @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
+  ) {}
+
+  create(authorID: string, dto: CreatePostDto): Promise<Post> {
+    const url = `${slugify(dto.title)}-${new uniqueID()()}`;
+
+    return this.postsRepository.save({ ...dto, url, author: { id: authorID } });
   }
 
   findAll() {
