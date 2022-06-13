@@ -4,13 +4,14 @@ import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { Account } from 'src/accounts/entities/account.entity';
+import { UNAUTHORIZED } from 'src/common/error-messages';
 
 describe('PostsController (e2e)', () => {
   let app: INestApplication;
   let databaseService: DatabaseService;
   let user: Account;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -30,64 +31,46 @@ describe('PostsController (e2e)', () => {
   });
 
   describe('/ (POST) new post', () => {
-    describe('given the user is not logged in', () => {
+    describe('the given user is not logged in', () => {
       it('should return 401 Unauthorized', async () => {
         const result = await request(app.getHttpServer())
           .post('/posts/')
           .send({});
 
-        expect(result.body).toEqual({
-          statusCode: 401,
-          message: 'Unauthorized',
-        });
+        expect(result.body.message).toBe(UNAUTHORIZED);
       });
     });
 
-    describe('given the user is logged in', () => {
+    describe('the given user is logged in', () => {
       let access_token: string;
 
       beforeAll(async () => {
         await databaseService.createTestUser();
 
+        // take a token
         const { body } = await request(app.getHttpServer())
           .post('/auth/login')
           .send({
             username: DatabaseService.testUsername,
-            password: DatabaseService.testPassword,
+            password: DatabaseService.testUserCorrectPassword,
           });
 
         access_token = body.access_token;
       });
 
-      afterAll(() => {
-        databaseService.removeTestUser();
+      afterAll(async () => {
+        await databaseService.removeTestUser();
       });
 
-      describe('scenario : given the dto is empty', () => {
-        it('should return 400 status code', async () => {
-          const dto = {};
+      it('should return the post', async () => {
+        const dto = { title: 'foo-title-foo-title' };
 
-          const result = await request(app.getHttpServer())
-            .post('/posts')
-            .set('Authorization', `Bearer ${access_token}`)
-            .send(dto);
+        const result = await request(app.getHttpServer())
+          .post('/posts')
+          .set('Authorization', `Bearer ${access_token}`)
+          .send(dto);
 
-          expect(result.statusCode).toBe(400);
-        });
-      });
-
-      describe('scenario : the given dto is fulfilled and the user logs in', () => {
-        it('should return 200 status code and the post', async () => {
-          const dto = { title: 'foo-title-foo-title' };
-
-          const result = await request(app.getHttpServer())
-            .post('/posts')
-            .set('Authorization', `Bearer ${access_token}`)
-            .send(dto);
-
-          expect(result.statusCode).toBe(201);
-          expect(result.body.title).toEqual(dto.title);
-        });
+        expect(result.body.title).toEqual(dto.title);
       });
     });
   });

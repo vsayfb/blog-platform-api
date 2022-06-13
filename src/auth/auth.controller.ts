@@ -20,7 +20,6 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
-import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { AuthService } from './auth.service';
 import { AccessToken } from './dto/access-token.dto';
 

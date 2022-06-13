@@ -7,7 +7,8 @@ export class DatabaseService {
   private db: Client;
 
   static testUsername = 'test_user';
-  static testPassword = 'test_password';
+  static testUserCorrectPassword = 'test_correct_password';
+  static testUserWrongPassword = 'test_wrong_password';
 
   constructor(configService: ConfigService) {
     this.db = new Client({
@@ -27,7 +28,7 @@ export class DatabaseService {
 
   async createTestUser() {
     await this.db.query(
-      `INSERT INTO account (username,password,email) VALUES ('${DatabaseService.testUsername}','${DatabaseService.testPassword}','foo@gmail.com') `,
+      `INSERT INTO account (username,password,email) VALUES ('${DatabaseService.testUsername}','${DatabaseService.testUserCorrectPassword}','foo@gmail.com') `,
     );
   }
 

@@ -60,9 +60,14 @@ export class AuthService {
     if (registeredUser) {
       const { access_token } = this.login(registeredUser);
 
-      delete registeredUser.password;
-
-      return { account: registeredUser, access_token };
+      return {
+        account: {
+          id: registeredUser.id,
+          image: registeredUser.image,
+          username: registeredUser.username,
+        },
+        access_token,
+      };
     } else {
       const newAccount = await this.accountsService.createAccountViaGoogle({
         email,
@@ -72,9 +77,14 @@ export class AuthService {
 
       const { access_token } = this.login(newAccount);
 
-      delete newAccount.password;
-
-      return { account: newAccount, access_token };
+      return {
+        account: {
+          id: newAccount.id,
+          image: newAccount.image,
+          username: newAccount.username,
+        },
+        access_token,
+      };
     }
   }
 

@@ -1,19 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  ForbiddenException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { accountStub } from 'src/accounts/tests/stub/account.stub';
-import { MailsService } from 'src/mails/mails.service';
 import { CodesService } from 'src/codes/codes.service';
-import { randomUUID } from 'crypto';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
-import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
-import { INVALID_CODE, INVALID_EMAIL } from 'src/common/error-messages';
+import {
+  INVALID_CODE,
+  INVALID_CREDENTIALS,
+  INVALID_EMAIL,
+} from 'src/common/error-messages';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +18,7 @@ describe('AuthController (e2e)', () => {
   let codesService: CodesService;
   let mailgunService: MailgunService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -44,82 +41,105 @@ describe('AuthController (e2e)', () => {
     await app.close();
   });
 
-  describe('/ (POST) new local account', () => {
-    describe('the given dto is missing verification code', () => {
-      it('should return "verification_code" error', async () => {
+  describe('/ (POST) login', () => {
+    beforeAll(async () => {
+      await databaseService.createTestUser();
+    });
+
+    afterAll(async () => {
+      await databaseService.removeTestUser();
+    });
+
+    describe('the given dto includes wrong values', () => {
+      it('should return Invalid Credentials error', async () => {
         const result = await request(app.getHttpServer())
-          .post('/auth/register')
-          .send(accountStub());
+          .post('/auth/login')
+          .send({
+            username: DatabaseService.testUsername,
+            password: DatabaseService.testUserWrongPassword,
+          });
 
-        expect(result.body.message[0]).toBe(
-          'verification_code must be longer than or equal to 5 characters',
-        );
-
-        expect(result.statusCode).toBe(400);
+        expect(result.body.message).toBe(INVALID_CREDENTIALS);
       });
     });
 
-    describe('the given dto meets all conditions', () => {
-      const verification_code = '12345';
-      const invalid_code = '12344';
-      const dto = accountStub();
-
-      beforeEach(async () => {
-        //private method
-        jest
-          .spyOn(CodesService.prototype, 'generateCode' as any)
-          .mockReturnValue(verification_code);
-
-        jest
-          .spyOn(mailgunService, 'sendMail')
-          .mockImplementationOnce(() => '' as any);
-
-        // sends a verification code which email adress requests
-        await request(app.getHttpServer())
-          .post('/accounts/begin_verification')
-          .send({ email: dto.email });
-      });
-
-      describe('invalid verification code is sent', () => {
-        it('should return "invalid code" error', async () => {
-          const result = await request(app.getHttpServer())
-            .post('/auth/register')
-            .send({ ...dto, verification_code: invalid_code });
-
-          expect(result.body.message).toEqual(INVALID_CODE);
-        });
-      });
-
-      describe('invalid email address is sent', () => {
-        it('should return "invalid email" error', async () => {
-          const result = await request(app.getHttpServer())
-            .post('/auth/register')
-            .send({
-              ...dto,
-              email: 'foo2@gmail.com',
-              verification_code,
-            });
-
-          expect(result.body.message).toEqual(INVALID_EMAIL);
-        });
-      });
-
-      describe('valid email address & verification code is sent', () => {
-        it('should return an access_token and account', async () => {
-          const result = await request(app.getHttpServer())
-            .post('/auth/register')
-            .send({ ...dto, verification_code });
-
-          const { account, access_token } = result.body;
-
-          expect(account).toEqual({
-            id: expect.any(String),
-            image: expect.any(String),
-            username: dto.username,
+    describe('the given dto includes correct values', () => {
+      it('should return Invalid Credentials error', async () => {
+        const result = await request(app.getHttpServer())
+          .post('/auth/login')
+          .send({
+            username: DatabaseService.testUsername,
+            password: DatabaseService.testUserCorrectPassword,
           });
 
-          expect(access_token).toEqual(expect.any(String));
+        expect(result.body.access_token).toEqual(expect.any(String));
+      });
+    });
+  });
+
+  describe('/ (POST) new local account', () => {
+    beforeAll(async () => {
+      //private method
+      jest
+        .spyOn(CodesService.prototype, 'generateCode' as any)
+        .mockReturnValue(verification_code);
+
+      // don't send a real mail
+      jest
+        .spyOn(mailgunService, 'sendMail')
+        .mockImplementation(() => '' as any);
+    });
+
+    const verification_code = '12345';
+    const invalid_code = '12344';
+    const dto = accountStub();
+
+    beforeEach(async () => {
+      // sends a verification code which email adress requests
+      await request(app.getHttpServer())
+        .post('/accounts/begin_verification')
+        .send({ email: dto.email });
+    });
+
+    describe('scenario : invalid verification code is sent', () => {
+      it('should return "invalid code" error', async () => {
+        const result = await request(app.getHttpServer())
+          .post('/auth/register')
+          .send({ ...dto, verification_code: invalid_code });
+
+        expect(result.body.message).toEqual(INVALID_CODE);
+      });
+    });
+
+    describe('scenario : invalid email address is sent', () => {
+      it('should return "invalid email" error', async () => {
+        const result = await request(app.getHttpServer())
+          .post('/auth/register')
+          .send({
+            ...dto,
+            email: 'invalid@gmail.com',
+            verification_code,
+          });
+
+        expect(result.body.message).toEqual(INVALID_EMAIL);
+      });
+    });
+
+    describe('valid email address & valid verification code is sent', () => {
+      it('should return an access_token and account', async () => {
+        const result = await request(app.getHttpServer())
+          .post('/auth/register')
+          .send({ ...dto, verification_code });
+
+        const { account, access_token } = result.body;
+
+        expect(account).toEqual({
+          id: expect.any(String),
+          image: expect.any(String),
+          username: dto.username,
         });
+
+        expect(access_token).toEqual(expect.any(String));
       });
     });
   });
