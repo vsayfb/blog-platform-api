@@ -25,8 +25,8 @@ describe('PostsController (e2e)', () => {
   });
 
   afterAll(async () => {
+    await databaseService.clearTableRows('post');
     await app.close();
-    databaseService.dropTable('post');
   });
 
   describe('/ (POST) new post', () => {

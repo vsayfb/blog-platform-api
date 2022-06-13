@@ -7,7 +7,7 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
 import { JWT_SECRET } from 'src/common/env';
-import { INVALID_CODE } from 'src/common/error-messages';
+import { INVALID_CODE, INVALID_EMAIL } from 'src/common/error-messages';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 
 @Injectable()
@@ -27,8 +27,11 @@ export class AuthService {
   > {
     const code = await this.codeService.getCode(data.verification_code);
 
-    if (!code || code.receiver !== data.email)
-      throw new ForbiddenException(INVALID_CODE);
+    if (!code) throw new ForbiddenException(INVALID_CODE);
+
+    if (code.receiver !== data.email) {
+      throw new ForbiddenException(INVALID_EMAIL);
+    }
 
     this.codeService.removeCode(code.id);
 
@@ -36,9 +39,14 @@ export class AuthService {
 
     const { access_token } = this.login(account);
 
-    delete account.password;
-
-    return { account, access_token };
+    return {
+      account: {
+        id: account.id,
+        image: account.image,
+        username: account.username,
+      },
+      access_token,
+    };
   }
 
   async googleAuth(

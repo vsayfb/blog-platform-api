@@ -17,8 +17,11 @@ export class DatabaseService {
     this.db.connect();
   }
 
-  async dropTable(table: string) {
-    await this.db.query(`DROP TABLE ${table}`);
+  async clearTableRows(table: string) {
+    await this.db.query(`DELETE FROM ${table}`);
+  }
+
+  async closeDatabase() {
     return this.db.end();
   }
 
