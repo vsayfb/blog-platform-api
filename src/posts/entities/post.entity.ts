@@ -16,6 +16,9 @@ export class Post {
   @Column()
   title: string;
 
+  @Column({ default: null })
+  titleImage: string | null;
+
   @ManyToOne((_type) => Account, (account) => account.posts, {
     onDelete: 'CASCADE',
   })

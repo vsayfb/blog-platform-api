@@ -6,17 +6,35 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 import uniqueID from 'short-unique-id';
 import slugify from 'slugify';
+import { UploadsService } from 'src/uploads/uploads.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
+    private readonly uploadService: UploadsService,
   ) {}
 
-  create(authorID: string, dto: CreatePostDto): Promise<Post> {
+  async create(
+    authorID: string,
+    dto: CreatePostDto,
+    image: Express.Multer.File | undefined,
+  ): Promise<Post> {
     const url = `${slugify(dto.title)}-${new uniqueID()()}`;
 
-    return this.postsRepository.save({ ...dto, url, author: { id: authorID } });
+    let titleImage: string | null = null;
+
+    if (image) {
+      const newImage = await this.uploadService.upload(image);
+      titleImage = newImage;
+    }
+
+    return this.postsRepository.save({
+      ...dto,
+      url,
+      author: { id: authorID },
+      titleImage,
+    });
   }
 
   findAll() {

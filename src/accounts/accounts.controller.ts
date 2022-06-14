@@ -14,12 +14,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiForbiddenResponse,
   ApiOkResponse,
-  ApiResponse,
 } from '@nestjs/swagger';
 import { EMAIL_REGISTERED } from 'src/common/error-messages';
 import { JwtPayload } from 'src/common/jwt.payload';
@@ -82,7 +80,7 @@ export class AccountsController {
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<{ newImage: string }> {
     if (!file) throw new MethodNotAllowedException();
 
     return await this.accountsService.changeProfileImage(account, file);

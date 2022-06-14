@@ -68,7 +68,7 @@ export class AccountsService {
 
     await this.accountsRepository.save(account);
 
-    return { message: 'Image updated!' };
+    return { newImage: newFileName };
   }
 
   async beginRegisterVerification(
