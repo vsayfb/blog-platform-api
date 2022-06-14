@@ -48,7 +48,7 @@ describe('PostsController (e2e)', () => {
       let access_token: string;
       const dto = { title: 'foo-title-foo-title' };
       const testTitleImageFile = path.join(
-        path.resolve() + '/src/' + 'barisabi.jpg',
+        path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
       );
 
       beforeAll(async () => {
