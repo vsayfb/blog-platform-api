@@ -37,8 +37,8 @@ export class PostsService {
     });
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  findAll(): Promise<Post[]> {
+    return this.postsRepository.find({});
   }
 
   findOne(url: string) {

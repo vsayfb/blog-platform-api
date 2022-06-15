@@ -5,7 +5,6 @@ import {
   UseGuards,
   ForbiddenException,
   HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -13,8 +12,6 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
-  ApiResponse,
-  ApiResponseProperty,
 } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
@@ -48,10 +45,10 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'An array of errors.' })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   @Post('register')
-  register(
+  async register(
     @Body() createAccountDto: CreateAccountDto,
   ): Promise<RegisterViewDto | ForbiddenException> {
-    return this.authService.register(createAccountDto);
+    return await this.authService.register(createAccountDto);
   }
 
   @ApiBadRequestResponse({
@@ -67,7 +64,7 @@ export class AuthController {
   })
   @HttpCode(200)
   @Post('google')
-  authGoogle(@Body() body: AccessToken): Promise<RegisterViewDto> {
-    return this.authService.googleAuth(body.access_token);
+  async authGoogle(@Body() body: AccessToken): Promise<RegisterViewDto> {
+    return await this.authService.googleAuth(body.access_token);
   }
 }

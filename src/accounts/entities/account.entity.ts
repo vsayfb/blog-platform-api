@@ -19,16 +19,16 @@ export class Account extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, length: 22 })
+  @Column({ unique: true })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, select: false })
   email: string;
 
   @Column({ nullable: true, unique: true, default: null })
   image: string | null;
 
-  @Column({ length: 22 })
+  @Column({ select: false })
   password: string;
 
   @OneToMany((_type) => Post, (post) => post.author, { cascade: true })

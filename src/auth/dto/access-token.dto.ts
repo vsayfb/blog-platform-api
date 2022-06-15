@@ -1,8 +1,6 @@
-import { IsByteLength } from 'class-validator';
+import { IsByteLength, IsString } from 'class-validator';
 
 export class AccessToken {
-  @IsByteLength(2048, 2048, {
-    message: 'Access token size must be 2048 bytes.',
-  })
+  @IsString()
   access_token: string;
 }
