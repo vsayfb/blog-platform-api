@@ -62,7 +62,7 @@ export class AccountsService {
   async changeProfileImage(req_account: JwtPayload, file: Express.Multer.File) {
     const account = await this.getAccount(req_account.username);
 
-    const newFileName = await this.uploadsService.upload(file);
+    const newFileName = await this.uploadsService.uploadProfileImage(file);
 
     account.image = newFileName;
 

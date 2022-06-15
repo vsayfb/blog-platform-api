@@ -42,9 +42,9 @@ export class PostsController {
     return this.postsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  @Get(':url')
+  findOne(@Param('url') url: string) {
+    return this.postsService.findOne(url);
   }
 
   @Patch(':id')

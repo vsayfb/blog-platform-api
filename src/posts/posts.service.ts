@@ -25,7 +25,7 @@ export class PostsService {
     let titleImage: string | null = null;
 
     if (image) {
-      const newImage = await this.uploadService.upload(image);
+      const newImage = await this.uploadService.uploadImage(image);
       titleImage = newImage;
     }
 
@@ -41,8 +41,8 @@ export class PostsService {
     return `This action returns all posts`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  findOne(url: string) {
+    return this.postsRepository.findOne({ where: { url } });
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {

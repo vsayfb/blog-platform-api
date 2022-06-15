@@ -5,7 +5,10 @@ import { CloudinaryService } from 'src/apis/cloudinary/cloudinary.service';
 export class UploadsService {
   constructor(private cloudinaryService: CloudinaryService) {}
 
-  async upload(file: Express.Multer.File) {
+  async uploadProfileImage(file: Express.Multer.File) {
+    return this.cloudinaryService.uploadProfileImage(file);
+  }
+  async uploadImage(file: Express.Multer.File) {
     return this.cloudinaryService.uploadImage(file);
   }
 }

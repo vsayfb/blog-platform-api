@@ -18,7 +18,7 @@ export class CloudinaryService {
     });
   }
 
-  private getTransformation() {
+  private getProfileImageTransformation() {
     return {
       transformation: [
         {
@@ -51,13 +51,19 @@ export class CloudinaryService {
   }
 
   async uploadImage(file: Express.Multer.File) {
-    const base64 = await this.convertBase64(file);
-
-    const image = await cloudinaryV2.uploader.upload(
-      base64,
-      this.getTransformation(),
+    const { secure_url } = await cloudinaryV2.uploader.upload(
+      await this.convertBase64(file),
     );
 
-    return image.secure_url;
+    return secure_url;
+  }
+
+  async uploadProfileImage(file: Express.Multer.File): Promise<string> {
+    const { secure_url } = await cloudinaryV2.uploader.upload(
+      await this.convertBase64(file),
+      this.getProfileImageTransformation(),
+    );
+
+    return secure_url;
   }
 }
