@@ -21,11 +21,15 @@ export class Post {
 
   @ManyToOne((_type) => Account, (account) => account.posts, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   author: Account;
 
   @Column({ unique: true })
   url: string;
+
+  @Column()
+  content: string;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -30,14 +30,13 @@ describe('PostsController', () => {
     let dto = postStub();
 
     beforeEach(async () => {
-      result = await controller.create(account, dto);
+      result = await controller.create(account, dto, '' as any);
     });
 
     test('should return a post', () => {
       expect(result).toEqual({
         author: { id: expect.any(String) },
         ...dto,
-        url: expect.any(String),
       });
     });
   });

@@ -46,7 +46,10 @@ describe('PostsController (e2e)', () => {
 
     describe('the given user is logged in', () => {
       let access_token: string;
-      const dto = { title: 'foo-title-foo-title' };
+      const dto = {
+        title: 'foo-title-foo-title',
+        content: 'foo-content-foo-content',
+      };
       const testTitleImageFile = path.join(
         path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
       );
@@ -69,13 +72,14 @@ describe('PostsController (e2e)', () => {
         it('should not be null [titleImage] field in response', async () => {
           // don't upload an image to cloud
           jest
-            .spyOn(uploadsService, 'upload')
+            .spyOn(uploadsService, 'uploadImage')
             .mockResolvedValue('https://fooimage.com');
 
           const result: { body: Post } = await request(app.getHttpServer())
             .post('/posts')
             .set('Authorization', `Bearer ${access_token}`)
             .field('title', dto.title)
+            .field('content', dto.content)
             .attach('titleImage', testTitleImageFile);
 
           expect(result.body.titleImage).not.toBeNull();

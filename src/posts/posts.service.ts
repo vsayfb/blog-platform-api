@@ -25,8 +25,8 @@ export class PostsService {
     let titleImage: string | null = null;
 
     if (image) {
-      const newImage = await this.uploadService.uploadImage(image);
-      titleImage = newImage;
+      const newImageUrl = await this.uploadService.uploadImage(image);
+      titleImage = newImageUrl;
     }
 
     return this.postsRepository.save({

@@ -1,4 +1,4 @@
 export const postStub = () => ({
   title: 'foo title',
-  url: 'foo',
+  content: 'foo',
 });

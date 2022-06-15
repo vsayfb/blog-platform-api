@@ -1,3 +1,4 @@
 export const UploadsService = jest.fn().mockReturnValue({
-  upload: jest.fn().mockResolvedValue({}),
+  uploadImage: jest.fn().mockResolvedValue({}),
+  uploadProfileImage: jest.fn().mockResolvedValue({}),
 });
