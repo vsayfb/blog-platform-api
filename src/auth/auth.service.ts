@@ -22,9 +22,7 @@ export class AuthService {
 
   async register(
     data: CreateAccountDto,
-  ): Promise<
-    { account: RegisterViewDto; access_token: string } | ForbiddenException
-  > {
+  ): Promise<RegisterViewDto | ForbiddenException> {
     const code = await this.codeService.getCode(data.verification_code);
 
     if (!code) throw new ForbiddenException(INVALID_CODE);
@@ -49,9 +47,7 @@ export class AuthService {
     };
   }
 
-  async googleAuth(
-    access_token: string,
-  ): Promise<{ account: RegisterViewDto; access_token: string }> {
+  async googleAuth(access_token: string): Promise<RegisterViewDto> {
     const { email, family_name, given_name } =
       await this.googleService.getUserCredentials(access_token);
 

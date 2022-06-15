@@ -11,6 +11,7 @@ import {
   INVALID_CREDENTIALS,
   INVALID_EMAIL,
 } from 'src/common/error-messages';
+import { faker } from '@faker-js/faker';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -35,19 +36,14 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('account');
-    await databaseService.clearTableRows('codes');
-    await databaseService.removeTestUser();
+    await databaseService.clearTableRows('code');
+
     await app.close();
   });
 
   describe('/ (POST) login', () => {
     beforeAll(async () => {
       await databaseService.createTestUser();
-    });
-
-    afterAll(async () => {
-      await databaseService.removeTestUser();
     });
 
     describe('the given dto includes wrong values', () => {
@@ -64,7 +60,7 @@ describe('AuthController (e2e)', () => {
     });
 
     describe('the given dto includes correct values', () => {
-      it('should return Invalid Credentials error', async () => {
+      it('should return an access_token', async () => {
         const result = await request(app.getHttpServer())
           .post('/auth/login')
           .send({
@@ -78,34 +74,50 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/ (POST) new local account', () => {
-    beforeAll(async () => {
-      //private method
-      jest
-        .spyOn(CodesService.prototype, 'generateCode' as any)
-        .mockReturnValue(verification_code);
+    let verification_code: string;
+    const INVALID_VERIFICATION_CODE = '12344';
+    const dto = accountStub();
+    let email: string;
 
+    beforeAll(async () => {
       // don't send a real mail
       jest
         .spyOn(mailgunService, 'sendMail')
-        .mockImplementation(() => '' as any);
+        .mockImplementation(() => Promise.resolve() as any);
     });
 
-    const verification_code = '12345';
-    const invalid_code = '12344';
-    const dto = accountStub();
-
     beforeEach(async () => {
-      // sends a verification code which email adress requests
+      //private method return custom code
+      const code = faker.datatype.number({ min: 10000, max: 99999 });
+
+      verification_code = code.toString();
+
+      jest
+        .spyOn(CodesService.prototype, 'generateCode' as any)
+        .mockReturnValue(code);
+
+      // send verification request for generating a code before each request
+
+      email = faker.internet.email();
+
       await request(app.getHttpServer())
         .post('/accounts/begin_verification')
-        .send({ email: dto.email });
+        .send({ email });
+    });
+
+    afterEach(async () => {
+      await databaseService.removeTestUser();
     });
 
     describe('scenario : invalid verification code is sent', () => {
       it('should return "invalid code" error', async () => {
         const result = await request(app.getHttpServer())
           .post('/auth/register')
-          .send({ ...dto, verification_code: invalid_code });
+          .send({
+            ...dto,
+            email,
+            verification_code: INVALID_VERIFICATION_CODE,
+          });
 
         expect(result.body.message).toEqual(INVALID_CODE);
       });
@@ -117,8 +129,8 @@ describe('AuthController (e2e)', () => {
           .post('/auth/register')
           .send({
             ...dto,
-            email: 'invalid@gmail.com',
             verification_code,
+            email: 'invalid@gmail.com',
           });
 
         expect(result.body.message).toEqual(INVALID_EMAIL);
@@ -129,7 +141,7 @@ describe('AuthController (e2e)', () => {
       it('should return an access_token and account', async () => {
         const result = await request(app.getHttpServer())
           .post('/auth/register')
-          .send({ ...dto, verification_code });
+          .send({ ...dto, email, verification_code });
 
         const { account, access_token } = result.body;
 

@@ -29,7 +29,7 @@ describe('PostsController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('post');
+    await databaseService.removeTestUser();
     await app.close();
   });
 
@@ -63,10 +63,6 @@ describe('PostsController (e2e)', () => {
           });
 
         access_token = body.access_token;
-      });
-
-      afterAll(async () => {
-        await databaseService.removeTestUser();
       });
 
       describe('scenario : the user uploads a title image for a post', () => {

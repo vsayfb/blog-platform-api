@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CloudinaryService } from 'src/apis/cloudinary/cloudinary.service';
-import { UploadsService } from './uploads.service';
+import { UploadsService } from '../uploads.service';
 
 describe('UploadsService', () => {
   let service: UploadsService;

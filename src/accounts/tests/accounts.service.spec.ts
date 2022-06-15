@@ -1,5 +1,5 @@
 import { accountStub } from './stub/account.stub';
-import { Account } from './../entities/account.entity';
+import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsService } from '../accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -74,9 +74,10 @@ describe('AccountsService', () => {
         });
 
         it('then should return an account', () => {
-          delete dto.verification_code;
-
-          expect(result).toEqual({ id: expect.any(String), ...dto });
+          expect(result).toEqual({
+            id: expect.any(String),
+            ...dto,
+          });
         });
       });
     });

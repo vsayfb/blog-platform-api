@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Codes } from './codes.entity';
+import { Code } from './entities/code.entity';
 
 @Injectable()
 export class CodesService {
-  constructor(@InjectRepository(Codes) private repository: Repository<Codes>) {}
+  constructor(@InjectRepository(Code) private repository: Repository<Code>) {}
 
   private generateCode() {
     return Math.floor(Math.random() * 100000).toString();

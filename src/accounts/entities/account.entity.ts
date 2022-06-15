@@ -31,7 +31,7 @@ export class Account extends BaseEntity {
   @Column({ length: 22 })
   password: string;
 
-  @OneToMany((_type) => Post, (post) => post.author)
+  @OneToMany((_type) => Post, (post) => post.author, { cascade: true })
   posts: Post[];
 
   @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })

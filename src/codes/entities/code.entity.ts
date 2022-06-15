@@ -7,14 +7,14 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Codes extends BaseEntity {
+export class Code extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
-  @Column()
+  @Column({ unique: true })
   receiver: string;
 
   @CreateDateColumn()

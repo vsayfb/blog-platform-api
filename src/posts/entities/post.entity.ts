@@ -1,4 +1,3 @@
-import { Account } from 'src/accounts/entities/account.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Account } from 'src/accounts/entities/account.entity';
 
 @Entity()
 export class Post {

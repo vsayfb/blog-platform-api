@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
+import { DEV_DATABASE } from 'src/common/env';
 
 @Injectable()
 export class DatabaseService {
@@ -12,10 +13,14 @@ export class DatabaseService {
 
   constructor(configService: ConfigService) {
     this.db = new Client({
-      connectionString: configService.get<string>('DEV_DATABASE'),
+      connectionString: configService.get<string>(DEV_DATABASE),
     });
 
-    this.db.connect();
+    this.connect();
+  }
+
+  private async connect() {
+    return await this.db.connect();
   }
 
   async clearTableRows(table: string) {
@@ -33,8 +38,6 @@ export class DatabaseService {
   }
 
   async removeTestUser() {
-    await this.db.query(
-      `DELETE FROM account WHERE username = '${DatabaseService.testUsername}'`,
-    );
+    await this.db.query(`DELETE FROM account`);
   }
 }

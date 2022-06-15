@@ -8,6 +8,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { GoogleService } from 'src/apis/google/google.service';
 import { ForbiddenException } from '@nestjs/common';
 import { CodesService } from 'src/codes/codes.service';
+import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 
 jest.mock('src/accounts/accounts.service');
 jest.mock('src/codes/codes.service');
@@ -45,7 +46,7 @@ describe('AuthService', () => {
   describe('register', () => {
     const dto = { ...accountStub(), verification_code: '21345' };
 
-    let result: { access_token: string } | ForbiddenException;
+    let result: RegisterViewDto | ForbiddenException;
 
     beforeEach(async () => {
       result = await authService.register(dto);
@@ -78,10 +79,8 @@ describe('AuthService', () => {
         });
 
         it('should create an account and return access_token', async () => {
-          delete dto.verification_code;
-
-          expect(result).toEqual({
-            account: { ...dto, id: expect.any(String) },
+          expect(result).toMatchObject({
+            account: expect.anything(),
             access_token: expect.any(String),
           });
         });
@@ -92,7 +91,7 @@ describe('AuthService', () => {
   describe('googleAuth', () => {
     describe('when googleAuth is called', () => {
       const access_token = 'ksadjsjdidwq';
-      let result: { access_token: string };
+      let result: RegisterViewDto;
       const dto = accountStub();
 
       beforeEach(async () => {
@@ -111,8 +110,8 @@ describe('AuthService', () => {
 
       describe('if : registered user', () => {
         it('should return an access token and an account', () => {
-          expect(result).toEqual({
-            account: { ...dto, id: expect.any(String) },
+          expect(result).toMatchObject({
+            account: expect.anything(),
             access_token: expect.any(String),
           });
         });
@@ -133,8 +132,8 @@ describe('AuthService', () => {
         });
 
         it('should return an access token and an account', () => {
-          expect(result).toEqual({
-            account: { ...dto, id: expect.any(String) },
+          expect(result).toMatchObject({
+            account: expect.anything(),
             access_token: expect.any(String),
           });
         });

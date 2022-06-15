@@ -1,5 +1,4 @@
-export class RegisterViewDto {
-  id: string;
-  username: string;
-  image: string;
-}
+export type RegisterViewDto = {
+  account: { id: string; username: string; image: string };
+  access_token: string;
+};
