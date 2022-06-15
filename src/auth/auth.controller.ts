@@ -50,9 +50,7 @@ export class AuthController {
   @Post('register')
   register(
     @Body() createAccountDto: CreateAccountDto,
-  ): Promise<
-    { account: RegisterViewDto; access_token: string } | ForbiddenException
-  > {
+  ): Promise<RegisterViewDto | ForbiddenException> {
     return this.authService.register(createAccountDto);
   }
 
@@ -69,9 +67,7 @@ export class AuthController {
   })
   @HttpCode(200)
   @Post('google')
-  authGoogle(
-    @Body() body: AccessToken,
-  ): Promise<{ account: RegisterViewDto; access_token: string }> {
+  authGoogle(@Body() body: AccessToken): Promise<RegisterViewDto> {
     return this.authService.googleAuth(body.access_token);
   }
 }
