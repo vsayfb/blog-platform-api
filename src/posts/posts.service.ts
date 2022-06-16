@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
-import uniqueID from 'short-unique-id';
+import ShortUniqueID from 'short-unique-id';
 import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
+import { POST_NOT_FOUND } from 'src/common/error-messages';
 
 @Injectable()
 export class PostsService {
@@ -23,20 +24,13 @@ export class PostsService {
     dto: CreatePostDto,
     image: Express.Multer.File | undefined,
   ): Promise<Post> {
-    const url = `${slugify(dto.title)}-${new uniqueID()()}`;
+    const url = this.convertUrl(dto.title);
 
-    let titleImage: string | null = null;
+    let titleImage: null | string = null;
 
-    if (image) {
-      const newImageUrl = await this.uploadService.uploadImage(image);
-      titleImage = newImageUrl;
-    }
+    if (image) titleImage = await this.saveTitleImage(image);
 
-    let tags: Tag[] = [];
-
-    if (dto.tags && dto.tags.length) {
-      tags = await this.tagsService.createMultipleTagsIfNotExist(dto.tags);
-    }
+    const tags = await this.setPostTags(dto.tags);
 
     const { content, title } = dto;
 
@@ -58,8 +52,52 @@ export class PostsService {
     return this.postsRepository.findOne({ where: { url } });
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+    image: Express.Multer.File | undefined,
+  ) {
+    const post = await this.postsRepository.findOne({ where: { id } });
+
+    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+
+    post.title = updatePostDto.title;
+    post.url = this.convertUrl(post.title);
+    post.content = updatePostDto.content;
+    post.tags = await this.setPostTags(updatePostDto.tags);
+
+    if (image) {
+      post.titleImage = await this.saveTitleImage(image);
+    }
+
+    return this.postsRepository.save(post);
+  }
+
+  private async saveTitleImage(image: Express.Multer.File | undefined) {
+    let titleImage: string | null = null;
+
+    if (image) {
+      const newImageUrl = await this.uploadService.uploadImage(image);
+      titleImage = newImageUrl;
+    }
+
+    return titleImage;
+  }
+
+  private async setPostTags(tags: string[] | undefined) {
+    let newTags: Tag[] = [];
+
+    if (tags && tags.length) {
+      newTags = await this.tagsService.createMultipleTagsIfNotExist(tags);
+    }
+
+    return newTags;
+  }
+
+  private convertUrl(title: string) {
+    const uniqueID = new ShortUniqueID();
+
+    return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
   remove(id: number) {

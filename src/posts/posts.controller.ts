@@ -47,9 +47,15 @@ export class PostsController {
     return this.postsService.findOne(url);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('titleImage'))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  update(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @UploadedFile() titleImage: Express.Multer.File,
+  ) {
+    return this.postsService.update(id, updatePostDto, titleImage);
   }
 
   @Delete(':id')
