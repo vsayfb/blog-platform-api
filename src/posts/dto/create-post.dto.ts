@@ -1,4 +1,4 @@
-import { MinLength } from 'class-validator';
+import { IsArray, IsOptional, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @MinLength(15)
@@ -6,4 +6,8 @@ export class CreatePostDto {
 
   @MinLength(15)
   content: string;
+
+  @IsArray()
+  @IsOptional()
+  tags?: string[];
 }

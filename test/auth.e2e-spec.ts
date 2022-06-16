@@ -50,10 +50,7 @@ describe('AuthController (e2e)', () => {
       it('should return Invalid Credentials error', async () => {
         const result = await request(app.getHttpServer())
           .post('/auth/login')
-          .send({
-            username: DatabaseService.testUsername,
-            password: DatabaseService.testUserWrongPassword,
-          });
+          .send({ ...databaseService.getTestUser(), password: 'incorrect' });
 
         expect(result.body.message).toBe(INVALID_CREDENTIALS);
       });
@@ -63,10 +60,7 @@ describe('AuthController (e2e)', () => {
       it('should return an access_token', async () => {
         const result = await request(app.getHttpServer())
           .post('/auth/login')
-          .send({
-            username: DatabaseService.testUsername,
-            password: DatabaseService.testUserCorrectPassword,
-          });
+          .send(databaseService.getTestUser());
 
         expect(result.body.access_token).toEqual(expect.any(String));
       });

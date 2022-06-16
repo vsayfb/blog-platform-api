@@ -29,7 +29,10 @@ describe('PostsController (e2e)', () => {
   });
 
   afterAll(async () => {
+    // remove user method automatically remove posts entities of relation its beacuse of used cascade true
     await databaseService.removeTestUser();
+    await databaseService.clearTableRows('tag');
+    await databaseService.closeDatabase();
     await app.close();
   });
 
@@ -49,6 +52,7 @@ describe('PostsController (e2e)', () => {
       const dto = {
         title: 'foo-title-foo-title',
         content: 'foo-content-foo-content',
+        tags: ['nodejs', 'software'],
       };
       const testTitleImageFile = path.join(
         path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
@@ -60,10 +64,7 @@ describe('PostsController (e2e)', () => {
         // take a token
         const { body } = await request(app.getHttpServer())
           .post('/auth/login')
-          .send({
-            username: DatabaseService.testUsername,
-            password: DatabaseService.testUserCorrectPassword,
-          });
+          .send(databaseService.getTestUser());
 
         access_token = body.access_token;
       });
@@ -81,6 +82,8 @@ describe('PostsController (e2e)', () => {
             .field('title', dto.title)
             .field('content', dto.content)
             .attach('titleImage', testTitleImageFile);
+
+          console.log(result.body);
 
           expect(result.body.titleImage).not.toBeNull();
           expect(result.body.title).toBe(dto.title);

@@ -7,9 +7,8 @@ import { DEV_DATABASE } from 'src/common/env';
 export class DatabaseService {
   private db: Client;
 
-  static testUsername = 'test_user';
-  static testUserCorrectPassword = 'test_correct_password';
-  static testUserWrongPassword = 'test_wrong_password';
+  private testUsername = 'test_user';
+  private testUserCorrectPassword = 'test_correct_password';
 
   constructor(configService: ConfigService) {
     this.db = new Client({
@@ -31,9 +30,16 @@ export class DatabaseService {
     return this.db.end();
   }
 
+  getTestUser() {
+    return {
+      username: this.testUsername,
+      password: this.testUserCorrectPassword,
+    };
+  }
+
   async createTestUser() {
     await this.db.query(
-      `INSERT INTO account (username,password,email) VALUES ('${DatabaseService.testUsername}','${DatabaseService.testUserCorrectPassword}','foo@gmail.com') `,
+      `INSERT INTO account (username,password,email) VALUES ('${this.testUsername}','${this.testUserCorrectPassword}','foo@gmail.com')`,
     );
   }
 

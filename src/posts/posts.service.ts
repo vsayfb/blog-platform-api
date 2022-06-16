@@ -7,12 +7,15 @@ import { Post } from './entities/post.entity';
 import uniqueID from 'short-unique-id';
 import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
+import { TagsService } from 'src/tags/tags.service';
+import { Tag } from 'src/tags/entities/tag.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     private readonly uploadService: UploadsService,
+    private readonly tagsService: TagsService,
   ) {}
 
   async create(
@@ -29,9 +32,19 @@ export class PostsService {
       titleImage = newImageUrl;
     }
 
+    let tags: Tag[] = [];
+
+    if (dto.tags && dto.tags.length) {
+      tags = await this.tagsService.createMultipleTagsIfNotExist(dto.tags);
+    }
+
+    const { content, title } = dto;
+
     return this.postsRepository.save({
-      ...dto,
+      content,
+      title,
       url,
+      tags,
       author: { id: authorID },
       titleImage,
     });

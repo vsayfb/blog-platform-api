@@ -2,11 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Account } from 'src/accounts/entities/account.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
 
 @Entity()
 export class Post {
@@ -24,6 +27,10 @@ export class Post {
     eager: true,
   })
   author: Account;
+
+  @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true, cascade: true })
+  @JoinTable()
+  tags: Tag[];
 
   @Column({ unique: true })
   url: string;

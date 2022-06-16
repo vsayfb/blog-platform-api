@@ -1,19 +1,37 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
+import { DatabaseService } from 'src/database/database.service';
+import { Tag } from 'src/tags/entities/tag.entity';
 import { TagsController } from 'src/tags/tags.controller';
+import * as request from 'supertest';
 
 describe('Tags Module (e2e)', () => {
+  let app: INestApplication;
   let tagsController: TagsController;
+  let databaseService: DatabaseService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
+    app = moduleRef.createNestApplication();
+
+    app.useGlobalPipes(new ValidationPipe());
+
+    await app.init();
+
     tagsController = moduleRef.get<TagsController>(TagsController);
+    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
   });
 
-  it('should be defined', () => {
-    expect(tagsController).toBeDefined();
+  afterAll(async () => {
+    await databaseService.clearTableRows('tag');
+    await databaseService.clearTableRows('post');
+    await databaseService.closeDatabase();
+    await app.close();
   });
+
+  it('should be defined', () => {});
 });

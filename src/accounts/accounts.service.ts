@@ -31,6 +31,7 @@ export class AccountsService {
           email: userNameOrEmail,
         },
       ],
+      select: ['id', 'username', 'password'],
     });
   }
 
