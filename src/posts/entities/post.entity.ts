@@ -38,6 +38,9 @@ export class Post {
   @Column()
   content: string;
 
+  @Column({ default: true })
+  isPublic: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

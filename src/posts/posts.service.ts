@@ -23,14 +23,19 @@ export class PostsService {
     authorID: string,
     dto: CreatePostDto,
     image: Express.Multer.File | undefined,
+    isPublic: boolean,
   ): Promise<Post> {
     const url = this.convertUrl(dto.title);
 
     let titleImage: null | string = null;
 
-    if (image) titleImage = await this.saveTitleImage(image);
+    let tags: Tag[] = [];
 
-    const tags = await this.setPostTags(dto.tags);
+    if (isPublic) {
+      tags = await this.setPostTags(dto.tags);
+    }
+
+    if (image) titleImage = await this.saveTitleImage(image);
 
     const { content, title } = dto;
 
@@ -41,15 +46,28 @@ export class PostsService {
       tags,
       author: { id: authorID },
       titleImage,
+      isPublic,
     });
   }
 
   findAll(): Promise<Post[]> {
-    return this.postsRepository.find({});
+    return this.postsRepository.find({ where: { isPublic: true } });
   }
 
-  findOne(url: string) {
-    return this.postsRepository.findOne({ where: { url } });
+  async getPost(url: string) {
+    const post = await this.postsRepository.findOne({
+      where: { url, isPublic: true },
+    });
+
+    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+
+    return post;
+  }
+
+  async getOne(url: string) {
+    return this.postsRepository.findOne({
+      where: { url },
+    });
   }
 
   async update(
@@ -64,11 +82,11 @@ export class PostsService {
     post.title = updatePostDto.title;
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
-    post.tags = await this.setPostTags(updatePostDto.tags);
 
-    if (image) {
-      post.titleImage = await this.saveTitleImage(image);
-    }
+    if (post.isPublic === true)
+      post.tags = await this.setPostTags(updatePostDto.tags);
+
+    if (image) post.titleImage = await this.saveTitleImage(image);
 
     return this.postsRepository.save(post);
   }

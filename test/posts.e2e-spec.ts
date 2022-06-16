@@ -77,7 +77,7 @@ describe('PostsController (e2e)', () => {
             .mockResolvedValue('https://fooimage.com');
 
           const result: { body: Post } = await request(app.getHttpServer())
-            .post('/posts')
+            .post(`/posts?isPublic=${false}`)
             .set('Authorization', `Bearer ${access_token}`)
             .field('title', dto.title)
             .field('content', dto.content)
@@ -93,7 +93,7 @@ describe('PostsController (e2e)', () => {
       describe('scenario : user does not upload a title image for the post', () => {
         it('should be null [titleImage] field in response', async () => {
           const result: { body: Post } = await request(app.getHttpServer())
-            .post('/posts')
+            .post(`/posts?isPublic=${true}`)
             .set('Authorization', `Bearer ${access_token}`)
             .send(dto);
 

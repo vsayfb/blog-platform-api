@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -17,6 +18,7 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/common/jwt.payload';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PostStatus } from './dto/post-status.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -29,11 +31,15 @@ export class PostsController {
     @Account() account: JwtPayload,
     @Body() createPostDto: CreatePostDto,
     @UploadedFile() titleImage: Express.Multer.File,
+    @Query('isPublic') status: PostStatus,
   ) {
+    console.log('isPublic', status);
+
     return await this.postsService.create(
       account.sub,
       createPostDto,
       titleImage,
+      status.isPublic,
     );
   }
 
@@ -44,7 +50,7 @@ export class PostsController {
 
   @Get(':url')
   findOne(@Param('url') url: string) {
-    return this.postsService.findOne(url);
+    return this.postsService.getOne(url);
   }
 
   @UseGuards(AuthGuard('jwt'))
