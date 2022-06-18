@@ -22,7 +22,6 @@ export class PostsService {
   async create(
     authorID: string,
     dto: CreatePostDto,
-    image: Express.Multer.File | undefined,
     published: boolean | undefined = true,
   ): Promise<Post> {
     const url = this.convertUrl(dto.title);
@@ -33,7 +32,7 @@ export class PostsService {
 
     if (published && dto.tags?.length) tags = await this.setPostTags(dto.tags);
 
-    if (image) titleImage = await this.saveTitleImage(image);
+    if (dto.imageUrl) titleImage = dto.imageUrl;
 
     const { content, title } = dto;
 
@@ -68,11 +67,7 @@ export class PostsService {
     });
   }
 
-  async update(
-    id: string,
-    updatePostDto: UpdatePostDto,
-    image: Express.Multer.File | undefined,
-  ): Promise<Post> {
+  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
     const post = await this.postsRepository.findOne({ where: { id } });
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
@@ -81,14 +76,16 @@ export class PostsService {
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
 
-    if (post.published) post.tags = await this.setPostTags(updatePostDto.tags);
+    if (post.published && updatePostDto.tags?.length) {
+      post.tags = await this.setPostTags(updatePostDto.tags);
+    }
 
-    if (image) post.titleImage = await this.saveTitleImage(image);
+    if (updatePostDto.imageUrl) post.titleImage = updatePostDto.imageUrl;
 
     return this.postsRepository.save(post);
   }
 
-  private async saveTitleImage(image: Express.Multer.File): Promise<string> {
+  async saveTitleImage(image: Express.Multer.File): Promise<string> {
     return await this.uploadService.uploadImage(image);
   }
 

@@ -38,7 +38,6 @@ export class PostsController {
     return await this.postsService.create(
       account.sub,
       createPostDto,
-      titleImage,
       published,
     );
   }
@@ -54,18 +53,20 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('titleImage'))
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
-    @UploadedFile() titleImage: Express.Multer.File,
-  ) {
-    return this.postsService.update(id, updatePostDto, titleImage);
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postsService.update(id, updatePostDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.remove(+id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('titleImage'))
+  @Post('upload_title_image')
+  async uploadTitleImage(@UploadedFile() titleImage: Express.Multer.File) {
+    return await this.postsService.saveTitleImage(titleImage);
   }
 }

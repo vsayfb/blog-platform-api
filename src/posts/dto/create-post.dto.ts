@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, MinLength } from 'class-validator';
+import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @MinLength(15)
@@ -6,6 +6,10 @@ export class CreatePostDto {
 
   @MinLength(15)
   content: string;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 
   @IsArray()
   @IsOptional()

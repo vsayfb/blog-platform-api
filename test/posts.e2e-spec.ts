@@ -47,6 +47,14 @@ describe('PostsController (e2e)', () => {
     access_token = body.access_token;
   });
 
+  afterAll(async () => {
+    // remove user method automatically remove posts entities of relation its, beacuse of used cascade true
+    await databaseService.removeTestUser();
+    await databaseService.clearTableRows('tag');
+    await databaseService.closeDatabase();
+    await app.close();
+  });
+
   describe('/ (POST) new post', () => {
     describe('the given user is not logged in', () => {
       it('should return 401 Unauthorized', async () => {
@@ -59,39 +67,13 @@ describe('PostsController (e2e)', () => {
     });
 
     describe('the given user is logged in', () => {
-      describe('scenario : the user uploads a title image for a post', () => {
-        it('should not be null [titleImage] field in response', async () => {
-          // don't upload an image to cloud
-          jest
-            .spyOn(uploadsService, 'uploadImage')
-            .mockResolvedValue('https://fooimage.com');
+      it('should return the post', async () => {
+        const result: { body: Post } = await request(app.getHttpServer())
+          .post(`/posts`)
+          .set('Authorization', `Bearer ${access_token}`)
+          .send(dto);
 
-          const testTitleImageFile = path.join(
-            path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
-          );
-
-          const result: { body: Post } = await request(app.getHttpServer())
-            .post(`/posts?published=false`)
-            .set('Authorization', `Bearer ${access_token}`)
-            .field('title', dto.title)
-            .field('content', dto.content)
-            .attach('titleImage', testTitleImageFile);
-
-          expect(result.body.titleImage).not.toBeNull();
-          expect(result.body.title).toBe(dto.title);
-        });
-      });
-
-      describe('scenario : user does not upload a title image for the post', () => {
-        it('should be null [titleImage] field in response', async () => {
-          const result: { body: Post } = await request(app.getHttpServer())
-            .post(`/posts`)
-            .set('Authorization', `Bearer ${access_token}`)
-            .send(dto);
-
-          expect(result.body.titleImage).toEqual(null);
-          expect(result.body.title).toBe(dto.title);
-        });
+        expect(result.body.title).toBe(dto.title);
       });
     });
   });
@@ -117,11 +99,32 @@ describe('PostsController (e2e)', () => {
     });
   });
 
-  afterAll(async () => {
-    // remove user method automatically remove posts entities of relation its, beacuse of used cascade true
-    await databaseService.removeTestUser();
-    await databaseService.clearTableRows('tag');
-    await databaseService.closeDatabase();
-    await app.close();
+  describe('/ (PATCH) update the post ', () => {
+    let createdPost: Post;
+
+    beforeAll(async () => {
+      const result: { body: Post } = await request(app.getHttpServer())
+        .post(`/posts`)
+        .set('Authorization', `Bearer ${access_token}`)
+        .send(dto);
+
+      createdPost = result.body;
+    });
+
+    it('should return the post', async () => {
+      const updateDto = {
+        title: 'post-title-update',
+        content: 'my-updated-post-content',
+        tags: ['java'],
+      };
+
+      const updated: { body: Post } = await request(app.getHttpServer())
+        .patch('/posts/' + createdPost.id)
+        .set('Authorization', `Bearer ${access_token}`)
+        .send(updateDto);
+
+      expect(updated.body.title).toBe(updateDto.title);
+      expect(updated.body.content).toBe(updateDto.content);
+    });
   });
 });
