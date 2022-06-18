@@ -23,7 +23,7 @@ export class PostsService {
     authorID: string,
     dto: CreatePostDto,
     image: Express.Multer.File | undefined,
-    isPublic: boolean,
+    published: boolean | undefined = true,
   ): Promise<Post> {
     const url = this.convertUrl(dto.title);
 
@@ -31,9 +31,7 @@ export class PostsService {
 
     let tags: Tag[] = [];
 
-    if (isPublic) {
-      tags = await this.setPostTags(dto.tags);
-    }
+    if (published && dto.tags?.length) tags = await this.setPostTags(dto.tags);
 
     if (image) titleImage = await this.saveTitleImage(image);
 
@@ -46,17 +44,17 @@ export class PostsService {
       tags,
       author: { id: authorID },
       titleImage,
-      isPublic,
+      published,
     });
   }
 
   findAll(): Promise<Post[]> {
-    return this.postsRepository.find({ where: { isPublic: true } });
+    return this.postsRepository.find();
   }
 
-  async getPost(url: string) {
+  async getPost(url: string): Promise<Post> {
     const post = await this.postsRepository.findOne({
-      where: { url, isPublic: true },
+      where: { url, published: true },
     });
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
@@ -64,7 +62,7 @@ export class PostsService {
     return post;
   }
 
-  async getOne(url: string) {
+  async getOne(url: string): Promise<Post> {
     return this.postsRepository.findOne({
       where: { url },
     });
@@ -74,7 +72,7 @@ export class PostsService {
     id: string,
     updatePostDto: UpdatePostDto,
     image: Express.Multer.File | undefined,
-  ) {
+  ): Promise<Post> {
     const post = await this.postsRepository.findOne({ where: { id } });
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
@@ -83,36 +81,22 @@ export class PostsService {
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
 
-    if (post.isPublic === true)
-      post.tags = await this.setPostTags(updatePostDto.tags);
+    if (post.published) post.tags = await this.setPostTags(updatePostDto.tags);
 
     if (image) post.titleImage = await this.saveTitleImage(image);
 
     return this.postsRepository.save(post);
   }
 
-  private async saveTitleImage(image: Express.Multer.File | undefined) {
-    let titleImage: string | null = null;
-
-    if (image) {
-      const newImageUrl = await this.uploadService.uploadImage(image);
-      titleImage = newImageUrl;
-    }
-
-    return titleImage;
+  private async saveTitleImage(image: Express.Multer.File): Promise<string> {
+    return await this.uploadService.uploadImage(image);
   }
 
-  private async setPostTags(tags: string[] | undefined) {
-    let newTags: Tag[] = [];
-
-    if (tags && tags.length) {
-      newTags = await this.tagsService.createMultipleTagsIfNotExist(tags);
-    }
-
-    return newTags;
+  private async setPostTags(tags: string[]): Promise<Tag[]> {
+    return await this.tagsService.createMultipleTagsIfNotExist(tags);
   }
 
-  private convertUrl(title: string) {
+  private convertUrl(title: string): string {
     const uniqueID = new ShortUniqueID();
 
     return `${slugify(title, { lower: true })}-${uniqueID()}`;

@@ -28,12 +28,23 @@ describe('PostsController (e2e)', () => {
     uploadsService = moduleRef.get<UploadsService>(UploadsService);
   });
 
-  afterAll(async () => {
-    // remove user method automatically remove posts entities of relation its beacuse of used cascade true
-    await databaseService.removeTestUser();
-    await databaseService.clearTableRows('tag');
-    await databaseService.closeDatabase();
-    await app.close();
+  const dto = {
+    title: 'foo-title-foo-title',
+    content: 'foo-content-foo-content',
+    tags: ['nodejs', 'software'],
+  };
+
+  let access_token: string;
+
+  beforeAll(async () => {
+    await databaseService.createTestUser();
+
+    // take a token
+    const { body } = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(databaseService.getTestUser());
+
+    access_token = body.access_token;
   });
 
   describe('/ (POST) new post', () => {
@@ -48,27 +59,6 @@ describe('PostsController (e2e)', () => {
     });
 
     describe('the given user is logged in', () => {
-      let access_token: string;
-      const dto = {
-        title: 'foo-title-foo-title',
-        content: 'foo-content-foo-content',
-        tags: ['nodejs', 'software'],
-      };
-      const testTitleImageFile = path.join(
-        path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
-      );
-
-      beforeAll(async () => {
-        await databaseService.createTestUser();
-
-        // take a token
-        const { body } = await request(app.getHttpServer())
-          .post('/auth/login')
-          .send(databaseService.getTestUser());
-
-        access_token = body.access_token;
-      });
-
       describe('scenario : the user uploads a title image for a post', () => {
         it('should not be null [titleImage] field in response', async () => {
           // don't upload an image to cloud
@@ -76,14 +66,16 @@ describe('PostsController (e2e)', () => {
             .spyOn(uploadsService, 'uploadImage')
             .mockResolvedValue('https://fooimage.com');
 
+          const testTitleImageFile = path.join(
+            path.resolve() + '/src/' + '/helpers/' + 'barisabi.jpg',
+          );
+
           const result: { body: Post } = await request(app.getHttpServer())
-            .post(`/posts?isPublic=${false}`)
+            .post(`/posts?published=false`)
             .set('Authorization', `Bearer ${access_token}`)
             .field('title', dto.title)
             .field('content', dto.content)
             .attach('titleImage', testTitleImageFile);
-
-          console.log(result.body);
 
           expect(result.body.titleImage).not.toBeNull();
           expect(result.body.title).toBe(dto.title);
@@ -93,7 +85,7 @@ describe('PostsController (e2e)', () => {
       describe('scenario : user does not upload a title image for the post', () => {
         it('should be null [titleImage] field in response', async () => {
           const result: { body: Post } = await request(app.getHttpServer())
-            .post(`/posts?isPublic=${true}`)
+            .post(`/posts`)
             .set('Authorization', `Bearer ${access_token}`)
             .send(dto);
 
@@ -102,5 +94,34 @@ describe('PostsController (e2e)', () => {
         });
       });
     });
+  });
+
+  describe('/ (GET) a post ', () => {
+    let postUrl: string = '';
+
+    beforeAll(async () => {
+      const result: { body: Post } = await request(app.getHttpServer())
+        .post(`/posts`)
+        .set('Authorization', `Bearer ${access_token}`)
+        .send(dto);
+
+      postUrl = result.body.url;
+    });
+
+    it('should return the post', async () => {
+      const result: { body: Post } = await request(app.getHttpServer()).get(
+        '/posts/' + postUrl,
+      );
+
+      expect(result.body.title).toBe(dto.title);
+    });
+  });
+
+  afterAll(async () => {
+    // remove user method automatically remove posts entities of relation its, beacuse of used cascade true
+    await databaseService.removeTestUser();
+    await databaseService.clearTableRows('tag');
+    await databaseService.closeDatabase();
+    await app.close();
   });
 });

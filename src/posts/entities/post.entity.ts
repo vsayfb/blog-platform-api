@@ -23,12 +23,12 @@ export class Post {
   titleImage: string | null;
 
   @ManyToOne((_type) => Account, (account) => account.posts, {
-    onDelete: 'CASCADE',
     eager: true,
+    onDelete: 'CASCADE',
   })
   author: Account;
 
-  @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true, cascade: true })
+  @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true })
   @JoinTable()
   tags: Tag[];
 
@@ -39,7 +39,7 @@ export class Post {
   content: string;
 
   @Column({ default: true })
-  isPublic: boolean;
+  published?: boolean | undefined;
 
   @CreateDateColumn()
   createdAt: Date;

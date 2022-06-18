@@ -17,7 +17,7 @@ export class Tag {
   @Column({ unique: true })
   name: string;
 
-  @ManyToMany(() => Post, (post) => post.tags)
+  @ManyToMany(() => Post, (post) => post.tags, { cascade: true })
   posts: Post[];
 
   @CreateDateColumn()

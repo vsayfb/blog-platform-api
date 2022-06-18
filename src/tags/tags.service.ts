@@ -20,7 +20,7 @@ export class TagsService {
   }
 
   async createMultipleTagsIfNotExist(tagNames: string[]) {
-    let tags = [];
+    let tags: Tag[] = [];
 
     for await (let name of tagNames) {
       const result = await this.createIfNotExist({ name });
