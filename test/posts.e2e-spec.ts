@@ -44,7 +44,7 @@ describe('PostsController (e2e)', () => {
       .post('/auth/login')
       .send(databaseService.getTestUser());
 
-    access_token = body.access_token;
+    access_token = 'Bearer ' + body.access_token;
   });
 
   afterAll(async () => {
@@ -70,7 +70,7 @@ describe('PostsController (e2e)', () => {
       it('should return the post', async () => {
         const result: { body: Post } = await request(app.getHttpServer())
           .post(`/posts`)
-          .set('Authorization', `Bearer ${access_token}`)
+          .set('Authorization', access_token)
           .send(dto);
 
         expect(result.body.title).toBe(dto.title);
@@ -84,7 +84,7 @@ describe('PostsController (e2e)', () => {
     beforeAll(async () => {
       const result: { body: Post } = await request(app.getHttpServer())
         .post(`/posts`)
-        .set('Authorization', `Bearer ${access_token}`)
+        .set('Authorization', access_token)
         .send(dto);
 
       postUrl = result.body.url;
@@ -105,7 +105,7 @@ describe('PostsController (e2e)', () => {
     beforeAll(async () => {
       const result: { body: Post } = await request(app.getHttpServer())
         .post(`/posts`)
-        .set('Authorization', `Bearer ${access_token}`)
+        .set('Authorization', access_token)
         .send(dto);
 
       createdPost = result.body;
@@ -120,7 +120,7 @@ describe('PostsController (e2e)', () => {
 
       const updated: { body: Post } = await request(app.getHttpServer())
         .patch('/posts/' + createdPost.id)
-        .set('Authorization', `Bearer ${access_token}`)
+        .set('Authorization', access_token)
         .send(updateDto);
 
       expect(updated.body.title).toBe(updateDto.title);

@@ -1,5 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -33,5 +35,15 @@ describe('Tags Module (e2e)', () => {
     await app.close();
   });
 
-  it('should be defined', () => {});
+  it('should be defined', async () => {
+    const file = path.join(
+      path.resolve() + '/src' + '/helpers' + '/barisabi.jpg',
+    );
+
+    const result = await request(app.getHttpServer())
+      .post('/accounts/upload_profile_photo')
+      .attach('image', file);
+
+    console.log(result.body);
+  });
 });

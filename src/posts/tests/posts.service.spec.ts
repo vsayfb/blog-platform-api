@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { mockRepository } from 'src/helpers/mockRepository';
+import { TagsService } from 'src/tags/tags.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Post } from '../entities/post.entity';
 import { PostsService } from '../posts.service';
@@ -12,18 +13,21 @@ jest.mock('src/uploads/uploads.service');
 describe('PostsService', () => {
   let service: PostsService;
   let uploadsService: UploadsService;
+  let tagsService: TagsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
         UploadsService,
+        TagsService,
         { provide: getRepositoryToken(Post), useValue: mockRepository },
       ],
     }).compile();
 
     service = module.get<PostsService>(PostsService);
     uploadsService = module.get<UploadsService>(UploadsService);
+    tagsService = module.get<TagsService>(TagsService);
   });
 
   describe('create', () => {
@@ -35,7 +39,7 @@ describe('PostsService', () => {
 
       describe('when file is null', () => {
         beforeEach(async () => {
-          result = await service.create(authorID, dto, file);
+          result = await service.create(authorID, dto);
         });
 
         it('should return a post with null [titleImage] field', () => {
@@ -52,7 +56,6 @@ describe('PostsService', () => {
         });
 
         it('should return a post with not null [titleImage] field', () => {
-
           expect(result.title).toBe(dto.title);
           expect(result.titleImage).not.toBeNull();
         });

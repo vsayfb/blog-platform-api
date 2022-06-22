@@ -21,10 +21,10 @@ import {
 } from '@nestjs/swagger';
 import { EMAIL_REGISTERED } from 'src/common/error-messages';
 import { JwtPayload } from 'src/common/jwt.payload';
+import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
 import { EmailQueryDto } from './dto/email-query.dto';
-import { FileUploadDto } from './dto/file-upload.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 
 @Controller({
@@ -72,17 +72,14 @@ export class AccountsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'A profile image',
-    type: FileUploadDto,
   })
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('image'))
   @Post('upload_profile_photo')
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(IsImageFilePipe) image: Express.Multer.File,
   ): Promise<{ newImage: string }> {
-    if (!file) throw new MethodNotAllowedException();
-
-    return await this.accountsService.changeProfileImage(account, file);
+    return await this.accountsService.changeProfileImage(account, image);
   }
 }

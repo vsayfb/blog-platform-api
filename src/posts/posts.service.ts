@@ -10,6 +10,7 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { POST_NOT_FOUND } from 'src/common/error-messages';
+import { JwtPayload } from 'src/common/jwt.payload';
 
 @Injectable()
 export class PostsService {
@@ -28,11 +29,9 @@ export class PostsService {
 
     let titleImage: null | string = null;
 
-    let tags: Tag[] = [];
+    const tags = await this.setPostTags(dto.tags);
 
-    if (published && dto.tags?.length) tags = await this.setPostTags(dto.tags);
-
-    if (dto.imageUrl) titleImage = dto.imageUrl;
+    if (dto.titleImage) titleImage = dto.titleImage;
 
     const { content, title } = dto;
 
@@ -47,8 +46,8 @@ export class PostsService {
     });
   }
 
-  findAll(): Promise<Post[]> {
-    return this.postsRepository.find();
+  getAll(): Promise<Post[]> {
+    return this.postsRepository.find({ where: { published: true } });
   }
 
   async getPost(url: string): Promise<Post> {
@@ -61,14 +60,8 @@ export class PostsService {
     return post;
   }
 
-  async getOne(url: string): Promise<Post> {
-    return this.postsRepository.findOne({
-      where: { url },
-    });
-  }
-
   async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
-    const post = await this.postsRepository.findOne({ where: { id } });
+    const post = await this.getOne(id);
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
 
@@ -76,11 +69,13 @@ export class PostsService {
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
 
-    if (post.published && updatePostDto.tags?.length) {
+    if (updatePostDto.published === true) post.published = true;
+
+    if (Array.isArray(updatePostDto.tags)) {
       post.tags = await this.setPostTags(updatePostDto.tags);
     }
 
-    if (updatePostDto.imageUrl) post.titleImage = updatePostDto.imageUrl;
+    if (updatePostDto.titleImage) post.titleImage = updatePostDto.titleImage;
 
     return this.postsRepository.save(post);
   }
@@ -99,7 +94,37 @@ export class PostsService {
     return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async changePostStatus(postID: string, me: JwtPayload) {
+    const post = await this.postsRepository.findOne({
+      where: { id: postID, author: { id: me.sub } },
+    });
+
+    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+
+    post.published = !post.published;
+
+    const { id, published } = await this.postsRepository.save(post);
+
+    return { id, published };
+  }
+
+  getMyArticles(id: string): Promise<Post[]> {
+    return this.postsRepository.find({ where: { author: { id } } });
+  }
+
+  async getOne(id: string): Promise<Post> {
+    return this.postsRepository.findOne({
+      where: { id },
+    });
+  }
+
+  async remove(id: string) {
+    const post = await this.getOne(id);
+
+    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+
+    await this.postsRepository.remove(post);
+
+    return { id, message: 'The post deleted.' };
   }
 }

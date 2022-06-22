@@ -10,9 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
-  ValidationPipe,
-  ParseBoolPipe,
-  NotAcceptableException,
+  Put,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -21,6 +19,7 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/common/jwt.payload';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
 
 @Controller('posts')
 export class PostsController {
@@ -44,12 +43,24 @@ export class PostsController {
 
   @Get()
   async findAll() {
-    return await this.postsService.findAll();
+    return await this.postsService.getAll();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  async getMyPosts(@Account() account: JwtPayload) {
+    return await this.postsService.getMyArticles(account.sub);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('id')
+  async findByID(@Query('id') id: string) {
+    return await this.postsService.getOne(id);
   }
 
   @Get(':url')
   findOne(@Param('url') url: string) {
-    return this.postsService.getOne(url);
+    return this.postsService.getPost(url);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -60,13 +71,24 @@ export class PostsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+    return this.postsService.remove(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('change_post_status/:id')
+  async changePostStatus(
+    @Param('id') id: string,
+    @Account() account: JwtPayload,
+  ) {
+    return await this.postsService.changePostStatus(id, account);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('titleImage'))
   @Post('upload_title_image')
-  async uploadTitleImage(@UploadedFile() titleImage: Express.Multer.File) {
+  async uploadTitleImage(
+    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
+  ) {
     return await this.postsService.saveTitleImage(titleImage);
   }
 }
