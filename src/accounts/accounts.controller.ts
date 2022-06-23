@@ -24,6 +24,7 @@ import { JwtPayload } from 'src/common/jwt.payload';
 import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
+import { BeginVerificationDto } from './dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 
@@ -64,7 +65,7 @@ export class AccountsController {
   @Post('begin_verification')
   @HttpCode(200)
   async beginVerification(
-    @Body() data: EmailQueryDto,
+    @Body() data: BeginVerificationDto,
   ): Promise<{ message: string } | ForbiddenException> {
     return await this.accountsService.beginRegisterVerification(
       data.username,
@@ -76,8 +77,9 @@ export class AccountsController {
   @ApiBody({
     description: 'A profile image',
   })
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('image'))
-  @Post('upload_profile_photo')
+  @Post('upload_profile_image')
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
     @UploadedFile(IsImageFilePipe) image: Express.Multer.File,

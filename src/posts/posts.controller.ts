@@ -20,6 +20,7 @@ import { JwtPayload } from 'src/common/jwt.payload';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
+import { TagNamePipe } from 'src/common/pipes/TagNamePipe';
 
 @Controller('posts')
 export class PostsController {
@@ -30,8 +31,7 @@ export class PostsController {
   @Post()
   async create(
     @Account() account: JwtPayload,
-    @Body() createPostDto: CreatePostDto,
-    @UploadedFile() titleImage: Express.Multer.File,
+    @Body(TagNamePipe) createPostDto: CreatePostDto,
     @Query('published') published: false | undefined,
   ) {
     return await this.postsService.create(
@@ -65,7 +65,10 @@ export class PostsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(
+    @Param('id') id: string,
+    @Body(TagNamePipe) updatePostDto: UpdatePostDto,
+  ) {
     return this.postsService.update(id, updatePostDto);
   }
 

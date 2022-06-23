@@ -31,7 +31,7 @@ describe('PostsController (e2e)', () => {
   const dto = {
     title: 'foo-title-foo-title',
     content: 'foo-content-foo-content',
-    tags: ['nodejs', 'software'],
+    tags: ['nodejs', 'what is software', 'js'],
   };
 
   let access_token: string;
@@ -66,12 +66,14 @@ describe('PostsController (e2e)', () => {
       });
     });
 
-    describe('the given user is logged in', () => {
+    describe.only('the given user is logged in', () => {
       it('should return the post', async () => {
         const result: { body: Post } = await request(app.getHttpServer())
           .post(`/posts`)
           .set('Authorization', access_token)
           .send(dto);
+
+        console.log(result.body);
 
         expect(result.body.title).toBe(dto.title);
       });
