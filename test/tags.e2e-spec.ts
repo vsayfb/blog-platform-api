@@ -35,15 +35,5 @@ describe('Tags Module (e2e)', () => {
     await app.close();
   });
 
-  it('should be defined', async () => {
-    const file = path.join(
-      path.resolve() + '/src' + '/helpers' + '/barisabi.jpg',
-    );
-
-    const result = await request(app.getHttpServer())
-      .post('/accounts/upload_profile_photo')
-      .attach('image', file);
-
-    console.log(result.body);
-  });
+  it('should be defined', async () => {});
 });

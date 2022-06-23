@@ -66,14 +66,16 @@ export class AccountsController {
   async beginVerification(
     @Body() data: EmailQueryDto,
   ): Promise<{ message: string } | ForbiddenException> {
-    return await this.accountsService.beginRegisterVerification(data.email);
+    return await this.accountsService.beginRegisterVerification(
+      data.username,
+      data.email,
+    );
   }
 
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'A profile image',
   })
-  // @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('image'))
   @Post('upload_profile_photo')
   async uploadProfilePhoto(

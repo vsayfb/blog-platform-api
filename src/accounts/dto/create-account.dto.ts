@@ -10,6 +10,6 @@ export class CreateAccountDto {
   @MinLength(7)
   password: string;
 
-  @MinLength(5)
+  @MinLength(6)
   verification_code: string;
 }

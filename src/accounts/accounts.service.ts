@@ -73,13 +73,22 @@ export class AccountsService {
   }
 
   async beginRegisterVerification(
+    username: string,
     email: string,
   ): Promise<{ message: string } | ForbiddenException> {
-    const account = await this.accountsRepository.findOne({ where: { email } });
+    const emailRegistered = await this.accountsRepository.findOne({
+      where: { email },
+    });
 
-    if (account) throw new ForbiddenException(EMAIL_REGISTERED);
+    if (emailRegistered) throw new ForbiddenException(EMAIL_REGISTERED);
 
-    await this.mailService.sendVerificationCode(email);
+    const usernameRegistered = await this.accountsRepository.findOne({
+      where: { username },
+    });
+
+    if (usernameRegistered) throw new ForbiddenException(USERNAME_TAKEN);
+
+    await this.mailService.sendVerificationCode({ username, email });
 
     return { message: 'A code sent.' };
   }

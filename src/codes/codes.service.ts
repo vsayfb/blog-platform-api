@@ -8,7 +8,7 @@ export class CodesService {
   constructor(@InjectRepository(Code) private repository: Repository<Code>) {}
 
   private generateCode() {
-    return Math.floor(Math.random() * 100000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
   async removeCode(codeID: string) {

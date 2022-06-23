@@ -6,6 +6,7 @@ import Client from 'mailgun.js/client';
 import {
   MAILGUN_API_KEY,
   MAILGUN_DOMAIN,
+  MAILGUN_SENDER_MAIL,
   MAILGUN_USERNAME,
 } from 'src/common/env';
 
@@ -18,13 +19,26 @@ export class MailgunService {
     this.client = this.mailgun.client({
       username: configService.get<string>(MAILGUN_USERNAME),
       key: configService.get<string>(MAILGUN_API_KEY),
+      url: 'https://api.eu.mailgun.net',
     });
   }
 
-  async sendMail(from: string, to: string, subject: string, text: string) {
+  async sendVerificationMail(
+    to: { email: string; username: string },
+    code: string,
+  ) {
     return await this.client.messages.create(
       this.configService.get<string>(MAILGUN_DOMAIN),
-      { from, to, subject, text },
+      {
+        from: this.configService.get<string>(MAILGUN_SENDER_MAIL),
+        to: to.email,
+        subject: 'Verification Code',
+        template: 'verification_code',
+        'h:X-Mailgun-Variables': JSON.stringify({
+          code,
+          username: to.username,
+        }),
+      },
     );
   }
 }

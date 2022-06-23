@@ -18,10 +18,10 @@ export class MailsService {
     this.sender = this.configService.get<string>(MAILGUN_SENDER_MAIL);
   }
 
-  async sendVerificationCode(to: string) {
-    const { code, id } = await this.codeService.createCode(to);
+  async sendVerificationCode(to: { email: string; username: string }) {
+    const { code, id } = await this.codeService.createCode(to.email);
 
-    await this.mailgun.sendMail(this.sender, to, 'Register', code);
+    await this.mailgun.sendVerificationMail(to, code);
 
     this.jobsService.execAfterTwoMinutes(() => this.codeService.removeCode(id));
 
