@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
-import { DEV_DATABASE } from 'src/lib/env';
+import { DEV_DATABASE, NODE_ENV } from 'src/lib/env';
 
 @Injectable()
 export class DatabaseService {
@@ -11,11 +11,13 @@ export class DatabaseService {
   private testUserCorrectPassword = 'test_correct_password';
 
   constructor(configService: ConfigService) {
-    this.db = new Client({
-      connectionString: configService.get<string>(DEV_DATABASE),
-    });
+    if (configService.get<string>(NODE_ENV) !== 'production') {
+      this.db = new Client({
+        connectionString: configService.get<string>(DEV_DATABASE),
+      });
 
-    this.connect();
+      this.connect();
+    }
   }
 
   private async connect() {

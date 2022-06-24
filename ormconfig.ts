@@ -15,6 +15,7 @@ export const config: TypeOrmModuleOptions = {
   migrations: [join(__dirname + '/src/database/migrations/*.{ts,js}')],
   migrationsRun: productionEnviroment,
   synchronize: !productionEnviroment,
+
   ssl: {
     rejectUnauthorized: false,
   },
