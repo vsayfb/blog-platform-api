@@ -25,7 +25,7 @@ export class Account extends BaseEntity {
   @Column({ unique: true, select: false })
   email: string;
 
-  @Column({ nullable: true, unique: true, default: null })
+  @Column({ nullable: true, default: null })
   image: string | null;
 
   @Column({ select: false })
