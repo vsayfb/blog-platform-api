@@ -19,9 +19,9 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { EMAIL_REGISTERED } from 'src/common/error-messages';
-import { JwtPayload } from 'src/common/jwt.payload';
-import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
+import { EMAIL_REGISTERED } from 'src/lib/error-messages';
+import { JwtPayload } from 'src/lib/jwt.payload';
+import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
 import { BeginVerificationDto } from './dto/begin-verification.dto';

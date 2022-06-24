@@ -9,8 +9,8 @@ import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
-import { POST_NOT_FOUND } from 'src/common/error-messages';
-import { JwtPayload } from 'src/common/jwt.payload';
+import { POST_NOT_FOUND } from 'src/lib/error-messages';
+import { JwtPayload } from 'src/lib/jwt.payload';
 
 @Injectable()
 export class PostsService {

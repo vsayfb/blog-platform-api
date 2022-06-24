@@ -9,7 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { GoogleModule } from 'src/apis/google/google.module';
 import { CodesModule } from 'src/codes/codes.module';
-import { JWT_EXPIRES_IN, JWT_SECRET } from 'src/common/env';
+import { JWT_EXPIRES_IN, JWT_SECRET } from 'src/lib/env';
 
 @Module({
   imports: [

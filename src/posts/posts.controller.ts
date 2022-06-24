@@ -16,11 +16,11 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Account } from 'src/accounts/decorator/account.decorator';
-import { JwtPayload } from 'src/common/jwt.payload';
+import { JwtPayload } from 'src/lib/jwt.payload';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsImageFilePipe } from 'src/common/pipes/IsImageFile';
-import { TagNamePipe } from 'src/common/pipes/TagNamePipe';
+import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
+import { TagNamePipe } from 'src/lib/pipes/TagNamePipe';
 
 @Controller('posts')
 export class PostsController {

@@ -6,8 +6,8 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
-import { JWT_SECRET } from 'src/common/env';
-import { INVALID_CODE, INVALID_EMAIL } from 'src/common/error-messages';
+import { JWT_SECRET } from 'src/lib/env';
+import { INVALID_CODE, INVALID_EMAIL } from 'src/lib/error-messages';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 
 @Injectable()

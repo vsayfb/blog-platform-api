@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtPayload } from 'src/common/jwt.payload';
+import { JwtPayload } from 'src/lib/jwt.payload';
 import { Post } from '../entities/post.entity';
 import { PostsController } from '../posts.controller';
 import { PostsService } from '../posts.service';

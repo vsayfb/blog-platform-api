@@ -4,8 +4,8 @@ import {
   EMAIL_REGISTERED,
   EMAIL_TAKEN,
   USERNAME_TAKEN,
-} from 'src/common/error-messages';
-import { JwtPayload } from 'src/common/jwt.payload';
+} from 'src/lib/error-messages';
+import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';

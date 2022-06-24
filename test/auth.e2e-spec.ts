@@ -10,7 +10,7 @@ import {
   INVALID_CODE,
   INVALID_CREDENTIALS,
   INVALID_EMAIL,
-} from 'src/common/error-messages';
+} from 'src/lib/error-messages';
 import { faker } from '@faker-js/faker';
 
 describe('AuthController (e2e)', () => {

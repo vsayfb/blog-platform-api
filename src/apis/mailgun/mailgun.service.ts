@@ -8,7 +8,7 @@ import {
   MAILGUN_DOMAIN,
   MAILGUN_SENDER_MAIL,
   MAILGUN_USERNAME,
-} from 'src/common/env';
+} from 'src/lib/env';
 
 @Injectable()
 export class MailgunService {
