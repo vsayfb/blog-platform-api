@@ -10,7 +10,7 @@ const productionEnviroment = env[NODE_ENV] === 'production';
 
 export const dataSource = new DataSource({
   type: 'postgres',
-  url: productionEnviroment ? env[PROD_DATABASE] : env[DEV_DATABASE],
+  url: env[PROD_DATABASE],
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname + '/src/database/migrations/*.{ts,js}')],
   ssl: {
