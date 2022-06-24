@@ -18,4 +18,7 @@ export const dataSource = new DataSource({
   },
   migrationsRun: productionEnviroment,
   synchronize: !productionEnviroment,
+  extra: {
+    ssl: false,
+  },
 });
