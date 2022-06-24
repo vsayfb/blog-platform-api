@@ -53,6 +53,7 @@ export class AccountsService {
     email: string;
     username: string;
     password: string;
+    displayName: string;
   }) {
     return await this.accountsRepository.save({
       ...data,

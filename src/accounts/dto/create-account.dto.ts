@@ -7,6 +7,9 @@ export class CreateAccountDto {
   @IsEmail()
   email: string;
 
+  @MinLength(2)
+  displayName: string;
+
   @MinLength(7)
   password: string;
 

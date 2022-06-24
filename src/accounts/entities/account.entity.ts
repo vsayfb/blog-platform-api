@@ -22,6 +22,9 @@ export class Account extends BaseEntity {
   @Column({ unique: true })
   username: string;
 
+  @Column({})
+  displayName: string;
+
   @Column({ unique: true, select: false })
   email: string;
 

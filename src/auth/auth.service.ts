@@ -40,6 +40,7 @@ export class AuthService {
     return {
       account: {
         id: account.id,
+        displayName: account.displayName,
         image: account.image,
         username: account.username,
       },
@@ -59,6 +60,7 @@ export class AuthService {
       return {
         account: {
           id: registeredUser.id,
+          displayName: registeredUser.displayName,
           image: registeredUser.image,
           username: registeredUser.username,
         },
@@ -69,6 +71,7 @@ export class AuthService {
         email,
         username: (given_name + family_name).replace(/ /g, '').toLowerCase(),
         password: Math.random().toString(36).substring(2, 8),
+        displayName: given_name + ' ' + family_name,
       });
 
       const { access_token } = this.login(newAccount);
@@ -76,6 +79,7 @@ export class AuthService {
       return {
         account: {
           id: newAccount.id,
+          displayName: newAccount.displayName,
           image: newAccount.image,
           username: newAccount.username,
         },
