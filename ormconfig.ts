@@ -14,7 +14,6 @@ export const dataSource = new DataSource({
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname + '/src/database/migrations/*.{ts,js}')],
   ssl: {
-    require: true,
     rejectUnauthorized: false,
   },
   migrationsRun: productionEnviroment,
