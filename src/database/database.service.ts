@@ -11,6 +11,7 @@ export class DatabaseService {
   private testUserCorrectPassword = 'test_correct_password';
 
   constructor(configService: ConfigService) {
+    // do not use on production
     if (configService.get<string>(NODE_ENV) !== 'production') {
       this.db = new Client({
         connectionString: configService.get<string>(DEV_DATABASE),
