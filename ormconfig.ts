@@ -16,6 +16,6 @@ export const dataSource = new DataSource({
   ssl: {
     rejectUnauthorized: false,
   },
-  migrationsRun: productionEnviroment,
-  synchronize: !productionEnviroment,
+  // migrationsRun: productionEnviroment,
+  // synchronize: !productionEnviroment,
 });
