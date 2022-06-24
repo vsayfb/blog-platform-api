@@ -13,8 +13,11 @@ export const dataSource = new DataSource({
   url: productionEnviroment ? env[PROD_DATABASE] : env[DEV_DATABASE],
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname + '/src/database/migrations/*.{ts,js}')],
-  ssl: {
-    rejectUnauthorized: false,
+  ssl: true,
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
   },
   migrationsRun: productionEnviroment,
   synchronize: !productionEnviroment,
