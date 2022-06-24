@@ -7,9 +7,6 @@ import { DEV_DATABASE, NODE_ENV, PROD_DATABASE } from 'src/lib/env';
 dotenv.config();
 
 const productionEnviroment = env[NODE_ENV] === 'production';
-console.log(productionEnviroment);
-
-console.log(env[NODE_ENV]);
 
 export const dataSource = new DataSource({
   type: 'postgres',
