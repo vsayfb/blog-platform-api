@@ -7,6 +7,8 @@ import { DatabaseService } from 'src/database/database.service';
 import { UNAUTHORIZED } from 'src/lib/error-messages';
 import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
+import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';
+import { generateFakePost } from 'src/lib/fakers/generateFakePost';
 
 describe('PostsController (e2e)', () => {
   let app: INestApplication;
@@ -28,105 +30,80 @@ describe('PostsController (e2e)', () => {
     uploadsService = moduleRef.get<UploadsService>(UploadsService);
   });
 
-  const dto = {
-    title: 'foo-title-foo-title',
-    content: 'foo-content-foo-content',
-    tags: ['nodejs', 'what is software', 'js'],
-  };
-
   let access_token: string;
 
   beforeAll(async () => {
-    await databaseService.createTestUser();
+    const user = generateFakeUser();
+
+    await databaseService.createTestUser({ ...user });
 
     // take a token
     const { body } = await request(app.getHttpServer())
       .post('/auth/login')
-      .send(databaseService.getTestUser());
+      .send(user);
 
     access_token = 'Bearer ' + body.access_token;
   });
 
   afterAll(async () => {
-    // remove user method automatically remove posts entities of relation its, beacuse of used cascade true
-    await databaseService.removeTestUser();
+    await databaseService.clearTableRows('account');
     await databaseService.clearTableRows('tag');
     await databaseService.closeDatabase();
     await app.close();
   });
 
+  async function newPostRequest(invalidToken?: string) {
+    const dto = generateFakePost();
+
+    const result = await request(app.getHttpServer())
+      .post('/posts/')
+      .set('Authorization', invalidToken || access_token)
+      .send(dto);
+
+    return result;
+  }
+
   describe('/ (POST) new post', () => {
     describe('the given user is not logged in', () => {
       it('should return 401 Unauthorized', async () => {
-        const result = await request(app.getHttpServer())
-          .post('/posts/')
-          .send({});
+        const result = await newPostRequest('invalid');
 
         expect(result.body.message).toBe(UNAUTHORIZED);
       });
     });
 
-    describe.only('the given user is logged in', () => {
-      it('should return the post', async () => {
-        const result: { body: Post } = await request(app.getHttpServer())
-          .post(`/posts`)
-          .set('Authorization', access_token)
-          .send(dto);
+    describe('the given user is logged in', () => {
+      it('should return the created post', async () => {
+        const result: { body: Post } = await newPostRequest();
 
-        console.log(result.body);
-
-        expect(result.body.title).toBe(dto.title);
+        expect(result.body.title).toEqual(expect.any(String));
       });
     });
   });
 
   describe('/ (GET) a post ', () => {
-    let postUrl: string = '';
-
-    beforeAll(async () => {
-      const result: { body: Post } = await request(app.getHttpServer())
-        .post(`/posts`)
-        .set('Authorization', access_token)
-        .send(dto);
-
-      postUrl = result.body.url;
-    });
-
     it('should return the post', async () => {
+      const createdPost: { body: Post } = await newPostRequest();
+
       const result: { body: Post } = await request(app.getHttpServer()).get(
-        '/posts/' + postUrl,
+        '/posts/' + createdPost.body.url,
       );
 
-      expect(result.body.title).toBe(dto.title);
+      expect(result.body.title).toBe(createdPost.body.title);
     });
   });
 
   describe('/ (PATCH) update the post ', () => {
-    let createdPost: Post;
-
-    beforeAll(async () => {
-      const result: { body: Post } = await request(app.getHttpServer())
-        .post(`/posts`)
-        .set('Authorization', access_token)
-        .send(dto);
-
-      createdPost = result.body;
-    });
-
-    it('should return the post', async () => {
-      const updateDto = {
-        title: 'post-title-update',
-        content: 'my-updated-post-content',
-        tags: ['java'],
-      };
+    it('should return the updated post', async () => {
+      const oldPost = await newPostRequest();
 
       const updated: { body: Post } = await request(app.getHttpServer())
-        .patch('/posts/' + createdPost.id)
+        .patch('/posts/' + oldPost.body.id)
         .set('Authorization', access_token)
-        .send(updateDto);
+        .send(generateFakePost());
 
-      expect(updated.body.title).toBe(updateDto.title);
-      expect(updated.body.content).toBe(updateDto.content);
+      expect(updated.body.title).not.toEqual(oldPost.body.title);
+      expect(updated.body.content).not.toEqual(oldPost.body.content);
     });
   });
 });

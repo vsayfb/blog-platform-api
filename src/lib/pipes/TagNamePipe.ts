@@ -5,8 +5,6 @@ export class TagNamePipe implements PipeTransform {
   transform(dto: CreatePostDto, metadata: ArgumentMetadata) {
     const transformedTags: string[] = [];
 
-    console.log(dto);
-
     if (!dto.tags || !dto.tags.length) return dto;
 
     dto.tags.map((tag) => {

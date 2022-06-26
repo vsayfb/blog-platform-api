@@ -39,16 +39,8 @@ export class DatabaseService {
     password: string;
     email: string;
   }) {
-    try {
-      await this.db.query(
-        `INSERT INTO account (username,password,email,display_name) VALUES ('${username}','${password}','${email}','fooDisplay')`,
-      );
-    } catch (error: any) {
-      console.log('*********** booom **********', error.message);
-    }
-  }
-
-  async removeTestUser() {
-    await this.db.query(`DELETE FROM account`);
+    await this.db.query(
+      `INSERT INTO account (username,password,email,display_name) VALUES ('${username}','${password}','${email}','fooDisplay')`,
+    );
   }
 }
