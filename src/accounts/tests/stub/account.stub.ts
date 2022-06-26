@@ -10,6 +10,7 @@ export type AccountStub = {
 const stub = {
   email: 'foo@gmail.com',
   password: 'foo1234',
+  display_name: 'foo_display_name',
   username: 'foo',
   image: 'foo_image',
 };

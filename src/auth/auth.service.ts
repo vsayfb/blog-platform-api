@@ -40,7 +40,7 @@ export class AuthService {
     return {
       account: {
         id: account.id,
-        displayName: account.displayName,
+        display_name: account.display_name,
         image: account.image,
         username: account.username,
       },
@@ -60,7 +60,7 @@ export class AuthService {
       return {
         account: {
           id: registeredUser.id,
-          displayName: registeredUser.displayName,
+          display_name: registeredUser.display_name,
           image: registeredUser.image,
           username: registeredUser.username,
         },
@@ -79,7 +79,7 @@ export class AuthService {
       return {
         account: {
           id: newAccount.id,
-          displayName: newAccount.displayName,
+          display_name: newAccount.displayName,
           image: newAccount.image,
           username: newAccount.username,
         },

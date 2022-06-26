@@ -13,7 +13,7 @@ export class CreateAccountDto {
   email: string;
 
   @MinLength(2)
-  displayName: string;
+  display_name: string;
 
   @MinLength(7)
   password: string;

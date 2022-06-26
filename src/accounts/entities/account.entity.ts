@@ -23,7 +23,7 @@ export class Account extends BaseEntity {
   username: string;
 
   @Column({})
-  displayName: string;
+  display_name: string;
 
   @Column({ unique: true, select: false })
   email: string;

@@ -7,9 +7,6 @@ import { DEV_DATABASE, NODE_ENV } from 'src/lib/env';
 export class DatabaseService {
   private db: Client;
 
-  private testUsername = 'test_user';
-  private testUserCorrectPassword = 'test_correct_password';
-
   constructor(configService: ConfigService) {
     // do not use on production
     if (configService.get<string>(NODE_ENV) !== 'production') {
@@ -33,17 +30,22 @@ export class DatabaseService {
     return this.db.end();
   }
 
-  getTestUser() {
-    return {
-      username: this.testUsername,
-      password: this.testUserCorrectPassword,
-    };
-  }
-
-  async createTestUser() {
-    await this.db.query(
-      `INSERT INTO account (username,password,email) VALUES ('${this.testUsername}','${this.testUserCorrectPassword}','foo@gmail.com')`,
-    );
+  async createTestUser({
+    username,
+    password,
+    email,
+  }: {
+    username: string;
+    password: string;
+    email: string;
+  }) {
+    try {
+      await this.db.query(
+        `INSERT INTO account (username,password,email,display_name) VALUES ('${username}','${password}','${email}','fooDisplay')`,
+      );
+    } catch (error: any) {
+      console.log('*********** booom **********', error.message);
+    }
   }
 
   async removeTestUser() {
