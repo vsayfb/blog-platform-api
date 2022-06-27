@@ -5,6 +5,8 @@ export type AccountStub = {
   email: string;
   username: string;
   password: string;
+  display_name: string;
+  image: null | string;
 };
 
 const stub = {
@@ -12,7 +14,7 @@ const stub = {
   password: 'foo1234',
   display_name: 'foo_display_name',
   username: 'foo',
-  image: 'foo_image',
+  image: null,
 };
 
 export const accountStub = (): AccountStub => ({

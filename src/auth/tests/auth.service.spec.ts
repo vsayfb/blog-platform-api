@@ -123,11 +123,12 @@ describe('AuthService', () => {
           result = await authService.googleAuth(access_token);
         });
 
-        test('createAccountViaGoogle method should be called with account', () => {
+        test('createAccountViaGoogle method should be called with given account', () => {
           expect(accountsService.createAccountViaGoogle).toHaveBeenCalledWith({
             email: dto.email,
             password: expect.any(String),
             username: dto.username + dto.username,
+            display_name: dto.username + ' ' + dto.username,
           });
         });
 

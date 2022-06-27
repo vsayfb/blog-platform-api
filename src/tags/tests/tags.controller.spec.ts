@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from 'src/helpers/mockRepository';
+import { mockRepository } from 'src/lib/mockRepository';
 import { Tag } from '../entities/tag.entity';
 import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';
