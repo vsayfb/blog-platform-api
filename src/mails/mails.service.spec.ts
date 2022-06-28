@@ -4,6 +4,7 @@ import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { JobsService } from 'src/jobs/jobs.service';
+import { CODE_SENT } from 'src/lib/api-messages';
 import { MailsService } from './mails.service';
 
 jest.mock('src/codes/codes.service');
@@ -59,7 +60,7 @@ describe('MailsService', () => {
       });
 
       it('should return a message', () => {
-        expect(result).toEqual({ message: 'Mail sent.' });
+        expect(result).toEqual({ message: CODE_SENT });
       });
     });
   });

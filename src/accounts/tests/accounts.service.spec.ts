@@ -1,3 +1,4 @@
+import { EMAIL_REGISTERED } from './../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -5,17 +6,18 @@ import { AccountsService } from '../accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
 import { mockRepository } from 'src/lib/mockRepository';
-import { EMAIL_TAKEN, USERNAME_TAKEN } from 'src/lib/api-messages';
+import { EMAIL_TAKEN, USERNAME_TAKEN, CODE_SENT } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
+import { ForbiddenException } from '@nestjs/common';
+
+jest.mock('src/uploads/uploads.service.ts');
+jest.mock('src/mails/mails.service.ts');
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
+  let uploadsService: UploadsService;
 
-  const mailService = {
-    sendMail: jest.fn().mockReturnValue({}),
-  };
-
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountsService,
@@ -23,15 +25,13 @@ describe('AccountsService', () => {
           provide: getRepositoryToken(Account),
           useValue: mockRepository,
         },
-        {
-          provide: MailsService,
-          useValue: mailService,
-        },
-        { provide: UploadsService, useValue: {} },
+        MailsService,
+        UploadsService,
       ],
     }).compile();
 
     accounstService = module.get<AccountsService>(AccountsService);
+    uploadsService = module.get<UploadsService>(UploadsService);
   });
 
   describe('createLocalAccount method', () => {
@@ -78,6 +78,40 @@ describe('AccountsService', () => {
             id: expect.any(String),
             ...dto,
           });
+        });
+      });
+    });
+  });
+
+  describe('beginRegisterVerification method', () => {
+    describe('when beginRegisterVerification is called', () => {
+      let { username, email } = accountStub();
+
+      describe('scenario : if email registered', () => {
+        test('should throw an error', async () => {
+          await expect(
+            accounstService.beginRegisterVerification(username, email),
+          ).rejects.toThrow(EMAIL_REGISTERED);
+        });
+      });
+
+      describe('scenario : if username registered', () => {
+        test('should throw an error', async () => {
+          jest.spyOn(mockRepository, 'findOne').mockResolvedValueOnce(null);
+
+          await expect(
+            accounstService.beginRegisterVerification(username, email),
+          ).rejects.toThrow(USERNAME_TAKEN);
+        });
+      });
+
+      describe('if unregistered credentials sent', () => {
+        test('should return the message', async () => {
+          jest.spyOn(mockRepository, 'findOne').mockResolvedValue(null);
+
+          expect(
+            await accounstService.beginRegisterVerification(username, email),
+          ).toEqual({ message: CODE_SENT });
         });
       });
     });

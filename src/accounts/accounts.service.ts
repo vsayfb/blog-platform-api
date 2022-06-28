@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  CODE_SENT,
   EMAIL_REGISTERED,
   EMAIL_TAKEN,
   USERNAME_TAKEN,
