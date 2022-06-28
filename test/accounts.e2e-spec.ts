@@ -1,4 +1,4 @@
-import { AccessToken } from './../src/auth/dto/access-token.dto';
+import { AccessToken } from '../src/auth/dto/access-token.dto';
 import {
   BadRequestException,
   INestApplication,
