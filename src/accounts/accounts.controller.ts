@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -18,7 +19,11 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { EMAIL_REGISTERED } from 'src/lib/error-messages';
+import {
+  EMAIL_REGISTERED,
+  EMAIL_TAKEN,
+  USERNAME_TAKEN,
+} from 'src/lib/error-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
@@ -51,13 +56,25 @@ export class AccountsController {
   }
 
   @Get('/is_available_username')
-  async isAvailableUsername(@Query() query: UsernameQuery): Promise<boolean> {
-    return !(await this.accountsService.getOneByUsername(query.username));
+  async isAvailableUsername(
+    @Query() { username }: UsernameQuery,
+  ): Promise<BadRequestException | { message: string }> {
+    const result = await this.accountsService.getOneByUsername(username);
+
+    if (result) throw new BadRequestException(USERNAME_TAKEN);
+
+    return { message: 'The username is available.' };
   }
 
   @Get('/is_available_email')
-  async isAvailableEmail(@Query() query: EmailQueryDto): Promise<boolean> {
-    return !(await this.accountsService.getOneByEmail(query.email));
+  async isAvailableEmail(
+    @Query() { email }: EmailQueryDto,
+  ): Promise<BadRequestException | { message: string }> {
+    const result = await this.accountsService.getOneByUsername(email);
+
+    if (result) throw new BadRequestException(EMAIL_TAKEN);
+
+    return { message: 'The email is available.' };
   }
 
   @ApiOkResponse({ schema: { example: { message: 'A code sent.' } } })

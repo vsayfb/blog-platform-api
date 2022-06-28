@@ -1,3 +1,4 @@
+import { USERNAME_TAKEN } from 'src/lib/error-messages';
 import { AccessToken } from '../src/auth/dto/access-token.dto';
 import {
   BadRequestException,
@@ -77,6 +78,7 @@ describe('AccountController (e2e)', () => {
     describe('when invalid username sent', () => {
       it('should return Bad Request', async () => {
         const result = await sendAvailableRequest('us_23_!_');
+
         expect(result.status).toBe(400);
       });
     });
@@ -85,7 +87,7 @@ describe('AccountController (e2e)', () => {
       it('should return true', async () => {
         const result = await sendAvailableRequest('micheal');
 
-        expect(result.body).toBe(true);
+        expect(result.body.message).toBe('The username is available.');
       });
     });
 
@@ -95,7 +97,7 @@ describe('AccountController (e2e)', () => {
 
         const result = await sendAvailableRequest(user.username);
 
-        expect(result.body).toBe(false);
+        expect(result.body.message).toBe(USERNAME_TAKEN);
       });
     });
   });
