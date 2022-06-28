@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  MethodNotAllowedException,
   Post,
   Query,
   UploadedFile,
@@ -42,6 +41,7 @@ export class AccountsController {
         image: 'string',
         id: 'string',
         iat: 'number',
+        exp: 'number',
       },
     },
   })
