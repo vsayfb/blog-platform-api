@@ -1,10 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  CODE_SENT,
   EMAIL_REGISTERED,
   EMAIL_TAKEN,
   USERNAME_TAKEN,
-} from 'src/lib/error-messages';
+} from 'src/lib/api-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
@@ -89,9 +90,7 @@ export class AccountsService {
 
     if (usernameRegistered) throw new ForbiddenException(USERNAME_TAKEN);
 
-    await this.mailService.sendVerificationCode({ username, email });
-
-    return { message: 'A code sent.' };
+    return await this.mailService.sendVerificationCode({ username, email });
   }
 
   async getOneByEmail(email: string) {

@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import * as path from 'path';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
-import { UNAUTHORIZED } from 'src/lib/error-messages';
+import { UNAUTHORIZED } from 'src/lib/api-messages';
 import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';

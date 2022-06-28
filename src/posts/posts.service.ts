@@ -9,7 +9,7 @@ import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
-import { POST_NOT_FOUND } from 'src/lib/error-messages';
+import { POST_DELETED, POST_NOT_FOUND } from 'src/lib/api-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 
 @Injectable()
@@ -125,6 +125,6 @@ export class PostsService {
 
     await this.postsRepository.remove(post);
 
-    return { id, message: 'The post deleted.' };
+    return { id, message: POST_DELETED };
   }
 }

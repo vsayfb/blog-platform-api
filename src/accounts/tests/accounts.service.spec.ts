@@ -5,7 +5,7 @@ import { AccountsService } from '../accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
 import { mockRepository } from 'src/lib/mockRepository';
-import { EMAIL_TAKEN, USERNAME_TAKEN } from 'src/lib/error-messages';
+import { EMAIL_TAKEN, USERNAME_TAKEN } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
 
 describe('AccountsService', () => {

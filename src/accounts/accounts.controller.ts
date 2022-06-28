@@ -1,3 +1,4 @@
+import { USERNAME_AVAILABLE } from './../lib/api-messages/api-messages';
 import {
   BadRequestException,
   Body,
@@ -20,10 +21,11 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import {
+  EMAIL_AVAILABLE,
   EMAIL_REGISTERED,
   EMAIL_TAKEN,
   USERNAME_TAKEN,
-} from 'src/lib/error-messages';
+} from 'src/lib/api-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
@@ -63,7 +65,7 @@ export class AccountsController {
 
     if (result) throw new BadRequestException(USERNAME_TAKEN);
 
-    return { message: 'The username is available.' };
+    return { message: USERNAME_AVAILABLE };
   }
 
   @Get('/is_available_email')
@@ -74,7 +76,7 @@ export class AccountsController {
 
     if (result) throw new BadRequestException(EMAIL_TAKEN);
 
-    return { message: 'The email is available.' };
+    return { message: EMAIL_AVAILABLE };
   }
 
   @ApiOkResponse({ schema: { example: { message: 'A code sent.' } } })

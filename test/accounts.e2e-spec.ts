@@ -1,11 +1,7 @@
-import { USERNAME_TAKEN } from 'src/lib/error-messages';
+import { USERNAME_AVAILABLE } from './../src/lib/api-messages/api-messages';
+import { USERNAME_TAKEN } from 'src/lib/api-messages';
 import { AccessToken } from '../src/auth/dto/access-token.dto';
-import {
-  BadRequestException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
-import { RegisterViewDto } from '../src/accounts/dto/register-view.dto';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '../src/database/database.service';
@@ -75,29 +71,31 @@ describe('AccountController (e2e)', () => {
       return result;
     }
 
-    describe('when invalid username sent', () => {
-      it('should return Bad Request', async () => {
+    describe('when a username is submitted in an inappropriate format', () => {
+      it('should return messages with error', async () => {
         const result = await sendAvailableRequest('us_23_!_');
 
-        expect(result.status).toBe(400);
+        expect(result.body.message).toEqual(expect.any(Array));
+        expect(result.body.error).toBe('Bad Request');
       });
     });
 
     describe('when unregistered username sent', () => {
-      it('should return true', async () => {
+      it('should return username available message', async () => {
         const result = await sendAvailableRequest('micheal');
 
-        expect(result.body.message).toBe('The username is available.');
+        expect(result.body.message).toBe(USERNAME_AVAILABLE);
       });
     });
 
     describe('when registered username sent', () => {
-      it('should return false', async () => {
+      it('should return username taken message with error', async () => {
         const { user } = await takeToken();
 
         const result = await sendAvailableRequest(user.username);
 
         expect(result.body.message).toBe(USERNAME_TAKEN);
+        expect(result.body.error).toBe('Bad Request');
       });
     });
   });

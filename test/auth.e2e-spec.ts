@@ -9,7 +9,7 @@ import {
   INVALID_CODE,
   INVALID_CREDENTIALS,
   INVALID_EMAIL,
-} from 'src/lib/error-messages';
+} from 'src/lib/api-messages';
 import { faker } from '@faker-js/faker';
 import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';
 

@@ -4,6 +4,7 @@ import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { MAILGUN_SENDER_MAIL } from 'src/lib/env';
 import { JobsService } from 'src/jobs/jobs.service';
+import { CODE_SENT } from 'src/lib/api-messages';
 
 @Injectable()
 export class MailsService {
@@ -25,6 +26,6 @@ export class MailsService {
 
     this.jobsService.execAfterTwoMinutes(() => this.codeService.removeCode(id));
 
-    return { message: 'Mail sent.' };
+    return { message: CODE_SENT };
   }
 }
