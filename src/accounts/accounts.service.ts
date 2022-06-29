@@ -21,7 +21,14 @@ export class AccountsService {
     private readonly uploadsService: UploadsService,
   ) {}
 
-  async getAccount(userNameOrEmail: string) {
+  async getAccount(userNameOrEmail: string): Promise<{
+    id: string;
+    username: string;
+    password: string;
+    display_name: string;
+    email: string;
+    image: string | null;
+  }> {
     return this.accountsRepository.findOne({
       where: [
         {
@@ -31,11 +38,11 @@ export class AccountsService {
           email: userNameOrEmail,
         },
       ],
-      select: ['id', 'username', 'password', 'image'],
+      select: ['id', 'username', 'password', 'email', 'display_name', 'image'],
     });
   }
 
-  async createLocalAccount(data: CreateAccountDto) {
+  async createLocalAccount(data: CreateAccountDto): Promise<Account> {
     const { email, username } = data;
 
     const usernameTaken = await this.getOneByUsername(username);
@@ -54,14 +61,17 @@ export class AccountsService {
     username: string;
     password: string;
     display_name: string;
-  }) {
+  }): Promise<Account> {
     return await this.accountsRepository.save({
       ...data,
       via: RegisterType.GOOGLE,
     });
   }
 
-  async changeProfileImage(req_account: JwtPayload, file: Express.Multer.File) {
+  async changeProfileImage(
+    req_account: JwtPayload,
+    file: Express.Multer.File,
+  ): Promise<{ newImage: string }> {
     const account = await this.getAccount(req_account.username);
 
     const newFileName = await this.uploadsService.uploadProfileImage(file);
@@ -92,11 +102,11 @@ export class AccountsService {
     return await this.mailService.sendVerificationCode({ username, email });
   }
 
-  async getOneByEmail(email: string) {
+  async getOneByEmail(email: string): Promise<Account> {
     return this.accountsRepository.findOne({ where: { email } });
   }
 
-  async getOneByUsername(username: string) {
+  async getOneByUsername(username: string): Promise<Account> {
     return this.accountsRepository.findOne({ where: { username } });
   }
 }

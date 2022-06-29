@@ -1,3 +1,4 @@
+import { RegisterType } from './../entities/account.entity';
 import { EMAIL_REGISTERED } from './../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
@@ -8,6 +9,8 @@ import { MailsService } from 'src/mails/mails.service';
 import { mockRepository } from 'src/lib/mockRepository';
 import { EMAIL_TAKEN, USERNAME_TAKEN, CODE_SENT } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
+import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
+import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');
@@ -33,7 +36,27 @@ describe('AccountsService', () => {
     uploadsService = module.get<UploadsService>(UploadsService);
   });
 
-  describe('createLocalAccount method', () => {
+  describe('getAccount', () => {
+    let result: {
+      id: string;
+      username: string;
+      password: string;
+      display_name: string;
+      email: string;
+      image: string;
+    };
+    const account = accountStub();
+
+    beforeEach(async () => {
+      result = await accounstService.getAccount(account.email);
+    });
+
+    it('should return an account', () => {
+      expect(result).toEqual(account);
+    });
+  });
+
+  describe('createLocalAccount', () => {
     const dto = { ...accountStub(), verification_code: '123456' };
 
     describe('when createLocalAccount method is called ', () => {
@@ -82,7 +105,47 @@ describe('AccountsService', () => {
     });
   });
 
-  describe('beginRegisterVerification method', () => {
+  describe('createAccountViaGoogle', () => {
+    it('should return an account', async () => {
+      expect(
+        await accounstService.createAccountViaGoogle(accountStub()),
+      ).toEqual({ ...accountStub(), via: RegisterType.GOOGLE });
+
+      expect(mockRepository.save).toHaveBeenCalledWith({
+        ...accountStub(),
+        via: RegisterType.GOOGLE,
+      });
+    });
+  });
+
+  describe('changeProfileImage', () => {
+    describe('when changeProfileImage is called', () => {
+      let result: { newImage: string };
+      const account = jwtPayloadStub;
+      let file: Express.Multer.File;
+
+      beforeEach(async () => {
+        result = await accounstService.changeProfileImage(account, file);
+      });
+
+      test('calls uploadsService.uploadProfileImage', () => {
+        expect(uploadsService.uploadProfileImage).toHaveBeenCalledWith(file);
+      });
+
+      test('calls accountsRepository.save with new uploaded image url', () => {
+        expect(mockRepository.save).toHaveBeenCalledWith({
+          ...accountStub(),
+          image: uploadProfileResultStub.newImage,
+        });
+      });
+
+      it('should return a new image url which file was uploaded', () => {
+        expect(result).toEqual({ newImage: expect.any(String) });
+      });
+    });
+  });
+
+  describe('beginRegisterVerification', () => {
     describe('when beginRegisterVerification is called', () => {
       let { username, email } = accountStub();
 

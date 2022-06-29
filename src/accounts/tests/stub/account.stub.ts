@@ -1,5 +1,3 @@
-import { randomUUID } from 'crypto';
-
 export type AccountStub = {
   id: string;
   email: string;
@@ -25,7 +23,7 @@ export const accountStub = (): AccountStub => ({
 export const resultAccountStub = (): AccountStub => {
   delete stub.password;
   return {
-    id: randomUUID(),
+    id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
     ...stub,
   };
 };
