@@ -8,7 +8,6 @@ import { MailsService } from 'src/mails/mails.service';
 import { mockRepository } from 'src/lib/mockRepository';
 import { EMAIL_TAKEN, USERNAME_TAKEN, CODE_SENT } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { ForbiddenException } from '@nestjs/common';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');

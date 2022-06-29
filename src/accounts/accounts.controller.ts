@@ -81,11 +81,11 @@ export class AccountsController {
 
   @ApiOkResponse({ schema: { example: { message: 'A code sent.' } } })
   @ApiForbiddenResponse({ schema: { example: { error: EMAIL_REGISTERED } } })
-  @Post('begin_verification')
+  @Post('begin_register_verification')
   @HttpCode(200)
   async beginVerification(
     @Body() data: BeginVerificationDto,
-  ): Promise<{ message: string } | ForbiddenException> {
+  ): Promise<{ message: string }> {
     return await this.accountsService.beginRegisterVerification(
       data.username,
       data.email,

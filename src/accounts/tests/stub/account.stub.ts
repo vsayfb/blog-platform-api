@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
 export type AccountStub = {
-  id?: string;
+  id: string;
   email: string;
   username: string;
   password: string;
@@ -10,6 +10,7 @@ export type AccountStub = {
 };
 
 const stub = {
+  id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
   email: 'foo@gmail.com',
   password: 'foo1234',
   display_name: 'foo_display_name',

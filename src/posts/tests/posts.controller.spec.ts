@@ -26,6 +26,7 @@ describe('PostsController', () => {
       iat: 12314,
       image: '123123',
       sub: '12312321',
+      exp: 123213,
     };
     let dto = postStub();
 
