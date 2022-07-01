@@ -1,9 +1,7 @@
+import { FakeUser } from './../src/lib/fakers/generateFakeUser';
+import { Role } from './../src/accounts/entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  ValidationPipe,
-  ForbiddenException,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
@@ -34,9 +32,13 @@ describe('PostsController (e2e)', () => {
 
   let access_token: string;
 
-  async function loginRandomAccount(): Promise<{ access_token: string }> {
-    const user = await databaseService.createRandomTestUser();
+  async function loginRandomAccount(
+    role?: Role,
+  ): Promise<{ access_token: string }> {
+    let user: FakeUser;
 
+    if (role) user = await databaseService.createRandomTestUser(role);
+    else user = await databaseService.createRandomTestUser(role);
     // take a token
     const { body }: { body: { access_token: string } } = await request(
       app.getHttpServer(),
@@ -100,8 +102,8 @@ describe('PostsController (e2e)', () => {
   });
 
   describe('/ (PATCH) update the post ', () => {
-    describe('user update its own post', () => {
-      it('scenario : should return the updated post', async () => {
+    describe('scenario : user update its own post', () => {
+      it('should return the updated post', async () => {
         const oldPost = await createPostRequest();
 
         const updated: { body: Post } = await request(app.getHttpServer())
@@ -109,12 +111,13 @@ describe('PostsController (e2e)', () => {
           .set('Authorization', access_token)
           .send(generateFakePost());
 
+        expect(updated.body.updatedAt).toBeDefined();
         expect(updated.body.updatedAt).not.toEqual(oldPost.body.updatedAt);
       });
     });
 
-    describe("user updates another user's post", () => {
-      it('scenario : should return the updated post', async () => {
+    describe("scenario : user updates another user's post", () => {
+      it('should throw Forbidden Error', async () => {
         const oldPost = await createPostRequest();
 
         const { access_token: invalid_token } = await loginRandomAccount();
@@ -125,6 +128,22 @@ describe('PostsController (e2e)', () => {
           .send(generateFakePost());
 
         expect(updated.statusCode).toBe(403);
+      });
+    });
+
+    describe('scenario : if user an admin', () => {
+      it('should return the updated post', async () => {
+        const oldPost = await createPostRequest();
+
+        const { access_token } = await loginRandomAccount(Role.ADMIN);
+
+        const updated: { body: Post } = await request(app.getHttpServer())
+          .patch('/posts/' + oldPost.body.id)
+          .set('Authorization', access_token)
+          .send(generateFakePost());
+
+        expect(updated.body.updatedAt).toBeDefined();
+        expect(updated.body.updatedAt).not.toEqual(oldPost.body.updatedAt);
       });
     });
   });

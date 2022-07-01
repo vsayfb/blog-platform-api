@@ -56,6 +56,7 @@ describe('AccountController (e2e)', () => {
         sub: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
+        role: expect.any(String),
       });
     });
   });

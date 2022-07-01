@@ -10,7 +10,7 @@ import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { Account, RegisterType } from './entities/account.entity';
+import { Account, RegisterType, Role } from './entities/account.entity';
 
 @Injectable()
 export class AccountsService {
@@ -28,6 +28,7 @@ export class AccountsService {
     display_name: string;
     email: string;
     image: string | null;
+    role: Role;
   }> {
     return this.accountsRepository.findOne({
       where: [
@@ -38,7 +39,15 @@ export class AccountsService {
           email: userNameOrEmail,
         },
       ],
-      select: ['id', 'username', 'password', 'email', 'display_name', 'image'],
+      select: [
+        'id',
+        'username',
+        'password',
+        'email',
+        'display_name',
+        'image',
+        'role',
+      ],
     });
   }
 

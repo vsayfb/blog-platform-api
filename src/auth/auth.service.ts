@@ -93,6 +93,7 @@ export class AuthService {
       username: account.username,
       sub: account.id,
       image: account.image,
+      role: account.role,
     };
 
     return {

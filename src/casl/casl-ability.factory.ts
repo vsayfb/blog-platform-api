@@ -8,6 +8,7 @@ import {
   InferSubjects,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
+import { Role } from 'src/accounts/entities/account.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -30,8 +31,13 @@ export class CaslAbilityFactory {
 
     // must be use dot notation because of the casl don't able to match nested object. so ts-ignore
 
-    //@ts-ignore
-    can(Action.Update, Post, { 'author.id': user.sub });
+    if (user.role === Role.ADMIN) {
+      can(Action.Manage, 'all');
+    } else if (user.role === Role.MODERATOR) {
+    } else {
+      //@ts-ignore
+      can(Action.Update, Post, { 'author.id': user.sub });
+    }
 
     return build({
       detectSubjectType: (item) => {
