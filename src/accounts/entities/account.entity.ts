@@ -14,6 +14,12 @@ export enum RegisterType {
   GOOGLE = 'google',
 }
 
+export enum Role {
+  USER = 'user',
+  MODERATOR = 'moderator',
+  ADMIN = 'admin',
+}
+
 @Entity()
 export class Account extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -39,6 +45,9 @@ export class Account extends BaseEntity {
 
   @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })
   via: RegisterType;
+
+  @Column({ type: 'enum', default: Role.USER, enum: Role })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;

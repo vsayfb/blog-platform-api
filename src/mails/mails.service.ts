@@ -19,7 +19,10 @@ export class MailsService {
     this.sender = this.configService.get<string>(MAILGUN_SENDER_MAIL);
   }
 
-  async sendVerificationCode(to: { email: string; username: string }) {
+  async sendVerificationCode(to: {
+    email: string;
+    username: string;
+  }): Promise<{ message: string }> {
     const { code, id } = await this.codeService.createCode(to.email);
 
     await this.mailgun.sendVerificationMail(to, code);

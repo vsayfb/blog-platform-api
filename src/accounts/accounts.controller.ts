@@ -19,6 +19,7 @@ import {
   ApiConsumes,
   ApiForbiddenResponse,
   ApiOkResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import {
   EMAIL_AVAILABLE,
@@ -34,9 +35,8 @@ import { BeginVerificationDto } from './dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 
-@Controller({
-  path: 'accounts',
-})
+@Controller('accounts')
+@ApiTags('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 

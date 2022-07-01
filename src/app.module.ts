@@ -10,6 +10,7 @@ import { CodesModule } from './codes/codes.module';
 import { JobsModule } from './jobs/jobs.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TagsModule } from './tags/tags.module';
     JobsModule,
     PostsModule,
     TagsModule,
+    CaslModule,
   ],
 })
 export class AppModule {}

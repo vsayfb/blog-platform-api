@@ -1,3 +1,5 @@
+import { NotFoundException } from '@nestjs/common';
+import { accountStub } from 'src/accounts/tests/stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
@@ -12,7 +14,7 @@ jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
 
 describe('PostsService', () => {
-  let service: PostsService;
+  let postsService: PostsService;
   let uploadsService: UploadsService;
   let tagsService: TagsService;
 
@@ -26,7 +28,7 @@ describe('PostsService', () => {
       ],
     }).compile();
 
-    service = module.get<PostsService>(PostsService);
+    postsService = module.get<PostsService>(PostsService);
     uploadsService = module.get<UploadsService>(UploadsService);
     tagsService = module.get<TagsService>(TagsService);
   });
@@ -34,14 +36,61 @@ describe('PostsService', () => {
   describe('create', () => {
     describe('when create is called', () => {
       let result: Post;
-      const authorID = randomUUID();
-      let dto = postStub();
+      const authorID = accountStub().id;
+      const dto = postStub();
 
-      it('should return a post with not null [titleImage] field', async () => {
-        const result = await service.create(authorID, dto);
+      beforeEach(async () => {
+        result = await postsService.create(authorID, dto);
+      });
 
+      test('calls the postsRepository.save method', () => {
+        expect(mockRepository.save).toHaveBeenCalled();
+      });
+
+      it('should return the created post', async () => {
         expect(result.title).toBe(dto.title);
-        expect(result.titleImage).toBeNull();
+      });
+    });
+  });
+
+  describe('getAll', () => {
+    it('should return the array of posts which published', async () => {
+      expect(await postsService.getAll()).toEqual(expect.any(Array));
+
+      expect(mockRepository.find).toHaveBeenCalledWith({
+        where: { published: true },
+      });
+    });
+  });
+
+  describe('getPost', () => {
+    describe('scenario : the post not found', () => {
+      it('should throw NotFoundException', async () => {
+        const { url } = postStub();
+
+        jest.spyOn(mockRepository, 'findOne').mockResolvedValueOnce(null);
+
+        await expect(postsService.getPost(url)).rejects.toThrow(
+          NotFoundException,
+        );
+
+        expect(mockRepository.findOne).toHaveBeenCalledWith({
+          where: { url, published: true },
+        });
+      });
+    });
+
+    describe('scenario : the post found', () => {
+      it('should throw NotFoundException', async () => {
+        const post = postStub();
+
+        jest.spyOn(mockRepository, 'findOne').mockResolvedValueOnce(post);
+
+        expect(await postsService.getPost(post.url)).toEqual(post);
+
+        expect(mockRepository.findOne).toHaveBeenCalledWith({
+          where: { url: post.url, published: true },
+        });
       });
     });
   });

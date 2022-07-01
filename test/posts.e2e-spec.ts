@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  ForbiddenException,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import * as path from 'path';
 import { AppModule } from 'src/app.module';
@@ -42,7 +46,7 @@ describe('PostsController (e2e)', () => {
       .post('/auth/login')
       .send(user);
 
-    access_token = 'Bearer ' + body.access_token;
+    access_token = 'Bearer' + ' ' + body.access_token;
   });
 
   afterAll(async () => {
@@ -52,7 +56,7 @@ describe('PostsController (e2e)', () => {
     await app.close();
   });
 
-  async function newPostRequest(invalidToken?: string) {
+  async function createPostRequest(invalidToken?: string) {
     const dto = generateFakePost();
 
     const result = await request(app.getHttpServer())
@@ -66,7 +70,7 @@ describe('PostsController (e2e)', () => {
   describe('/ (POST) new post', () => {
     describe('the given user is not logged in', () => {
       it('should return 401 Unauthorized', async () => {
-        const result = await newPostRequest('invalid');
+        const result = await createPostRequest('invalid');
 
         expect(result.body.message).toBe(UNAUTHORIZED);
       });
@@ -74,7 +78,7 @@ describe('PostsController (e2e)', () => {
 
     describe('the given user is logged in', () => {
       it('should return the created post', async () => {
-        const result: { body: Post } = await newPostRequest();
+        const result: { body: Post } = await createPostRequest();
 
         expect(result.body.title).toEqual(expect.any(String));
       });
@@ -83,7 +87,7 @@ describe('PostsController (e2e)', () => {
 
   describe('/ (GET) a post ', () => {
     it('should return the post', async () => {
-      const createdPost: { body: Post } = await newPostRequest();
+      const createdPost: { body: Post } = await createPostRequest();
 
       const result: { body: Post } = await request(app.getHttpServer()).get(
         '/posts/' + createdPost.body.url,
@@ -95,7 +99,7 @@ describe('PostsController (e2e)', () => {
 
   describe('/ (PATCH) update the post ', () => {
     it('should return the updated post', async () => {
-      const oldPost = await newPostRequest();
+      const oldPost = await createPostRequest();
 
       const updated: { body: Post } = await request(app.getHttpServer())
         .patch('/posts/' + oldPost.body.id)

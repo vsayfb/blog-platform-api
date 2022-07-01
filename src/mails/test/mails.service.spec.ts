@@ -5,7 +5,7 @@ import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { JobsService } from 'src/jobs/jobs.service';
 import { CODE_SENT } from 'src/lib/api-messages';
-import { MailsService } from './mails.service';
+import { MailsService } from '../mails.service';
 
 jest.mock('src/codes/codes.service');
 jest.mock('src/apis/mailgun/mailgun.service');

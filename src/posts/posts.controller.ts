@@ -1,3 +1,4 @@
+import { PermissionGuard } from './../lib/PermissionGuard';
 import {
   Controller,
   Get,
@@ -21,8 +22,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
 import { TagNamePipe } from 'src/lib/pipes/TagNamePipe';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('posts')
+@ApiTags('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
@@ -32,7 +35,7 @@ export class PostsController {
   async create(
     @Account() account: JwtPayload,
     @Body(TagNamePipe) createPostDto: CreatePostDto,
-    @Query('published') published: false | undefined,
+    @Query('published') published?: boolean,
   ) {
     return await this.postsService.create(
       account.sub,
@@ -49,7 +52,7 @@ export class PostsController {
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   async getMyPosts(@Account() account: JwtPayload) {
-    return await this.postsService.getMyArticles(account.sub);
+    return await this.postsService.getMyPosts(account.sub);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -63,7 +66,7 @@ export class PostsController {
     return this.postsService.getPost(url);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,

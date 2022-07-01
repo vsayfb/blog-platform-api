@@ -108,7 +108,7 @@ export class PostsService {
     return { id, published };
   }
 
-  getMyArticles(id: string): Promise<Post[]> {
+  getMyPosts(id: string): Promise<Post[]> {
     return this.postsRepository.find({ where: { author: { id } } });
   }
 

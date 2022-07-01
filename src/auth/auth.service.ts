@@ -55,7 +55,7 @@ export class AuthService {
     const registeredUser = await this.accountsService.getAccount(email);
 
     if (registeredUser) {
-      const { access_token } = this.login(registeredUser);
+      const { access_token } = this.login(registeredUser as Account);
 
       return {
         account: {

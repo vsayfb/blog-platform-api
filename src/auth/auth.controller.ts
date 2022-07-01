@@ -12,6 +12,7 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
@@ -20,9 +21,8 @@ import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
 import { AccessToken } from './dto/access-token.dto';
 
-@Controller({
-  path: 'auth',
-})
+@Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -30,7 +30,9 @@ export class AuthController {
   @ApiOkResponse({ type: AccessToken })
   @HttpCode(200)
   @Post('login')
-  login(@Account() account: AccountEntity): { access_token: string } {
+  async login(
+    @Account() account: AccountEntity,
+  ): Promise<{ access_token: string }> {
     return this.authService.login(account);
   }
 
