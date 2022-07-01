@@ -33,9 +33,7 @@ describe('AccountController (e2e)', () => {
   });
 
   async function takeToken() {
-    const user = generateFakeUser();
-
-    await databaseService.createTestUser({ ...user });
+    const user = await databaseService.createRandomTestUser();
 
     const result: { body: AccessToken } = await request(app.getHttpServer())
       .post('/auth/login')

@@ -5,13 +5,11 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import * as request from 'supertest';
-import * as path from 'path';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { UNAUTHORIZED } from 'src/lib/api-messages';
 import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';
 import { generateFakePost } from 'src/lib/fakers/generateFakePost';
 
 describe('PostsController (e2e)', () => {
@@ -36,17 +34,21 @@ describe('PostsController (e2e)', () => {
 
   let access_token: string;
 
-  beforeAll(async () => {
-    const user = generateFakeUser();
-
-    await databaseService.createTestUser({ ...user });
+  async function loginRandomAccount(): Promise<{ access_token: string }> {
+    const user = await databaseService.createRandomTestUser();
 
     // take a token
-    const { body } = await request(app.getHttpServer())
+    const { body }: { body: { access_token: string } } = await request(
+      app.getHttpServer(),
+    )
       .post('/auth/login')
       .send(user);
 
-    access_token = 'Bearer' + ' ' + body.access_token;
+    return { access_token: `Bearer ${body.access_token}` };
+  }
+
+  beforeAll(async () => {
+    access_token = (await loginRandomAccount()).access_token;
   });
 
   afterAll(async () => {
@@ -98,16 +100,32 @@ describe('PostsController (e2e)', () => {
   });
 
   describe('/ (PATCH) update the post ', () => {
-    it('should return the updated post', async () => {
-      const oldPost = await createPostRequest();
+    describe('user update its own post', () => {
+      it('scenario : should return the updated post', async () => {
+        const oldPost = await createPostRequest();
 
-      const updated: { body: Post } = await request(app.getHttpServer())
-        .patch('/posts/' + oldPost.body.id)
-        .set('Authorization', access_token)
-        .send(generateFakePost());
+        const updated: { body: Post } = await request(app.getHttpServer())
+          .patch('/posts/' + oldPost.body.id)
+          .set('Authorization', access_token)
+          .send(generateFakePost());
 
-      expect(updated.body.title).not.toEqual(oldPost.body.title);
-      expect(updated.body.content).not.toEqual(oldPost.body.content);
+        expect(updated.body.updatedAt).not.toEqual(oldPost.body.updatedAt);
+      });
+    });
+
+    describe("user updates another user's post", () => {
+      it('scenario : should return the updated post', async () => {
+        const oldPost = await createPostRequest();
+
+        const { access_token: invalid_token } = await loginRandomAccount();
+
+        const updated = await request(app.getHttpServer())
+          .patch('/posts/' + oldPost.body.id)
+          .set('Authorization', invalid_token)
+          .send(generateFakePost());
+
+        expect(updated.statusCode).toBe(403);
+      });
     });
   });
 });

@@ -1,6 +1,13 @@
 import { faker } from '@faker-js/faker';
 
-export function generateFakeUser() {
+export type FakeUser = {
+  email: string;
+  password: string;
+  username: string;
+  display_name: string;
+};
+
+export function generateFakeUser(): FakeUser {
   return {
     email: faker.internet.email(),
     password: faker.internet.password(7),

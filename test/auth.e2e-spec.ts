@@ -1,3 +1,5 @@
+import { CreateAccountDto } from './../src/accounts/dto/create-account.dto';
+import { FakeUser } from './../src/lib/fakers/generateFakeUser';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
@@ -55,9 +57,7 @@ describe('AuthController (e2e)', () => {
 
     describe('the given dto includes correct values', () => {
       it('should return an access_token', async () => {
-        const user = { ...generateFakeUser() };
-
-        await databaseService.createTestUser(user);
+        const user = await databaseService.createRandomTestUser();
 
         const result = await request(app.getHttpServer())
           .post('/auth/login')
@@ -70,37 +70,13 @@ describe('AuthController (e2e)', () => {
 
   describe('/ (POST) new local account', () => {
     const INVALID_VERIFICATION_CODE = '111111';
-    let verification_code: string;
+    const INVALID_EMAIL_ADDRESS = 'invalid@gmail.com';
+    let user: FakeUser = generateFakeUser();
+    let codeSentForRegister = false;
 
-    async function sendVerificationCodeForNewUser() {
-      const user = generateFakeUser();
-
-      // generate a verification code for this user
-      await request(app.getHttpServer())
-        .post('/accounts/begin_verification')
-        .send(user);
-
-      return user;
-    }
-
-    async function sendRegisterRequest(
-      invalidCode?: string,
-      invalidEmail?: string,
-    ) {
-      const user = await sendVerificationCodeForNewUser();
-
-      const dto = { ...user };
-
-      if (invalidEmail) dto.email = invalidEmail;
-
-      verification_code = invalidCode || verification_code;
-
-      const result = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({ ...dto, verification_code });
-
-      return result;
-    }
+    let verification_code = faker.datatype
+      .number({ min: 100000, max: 999999 })
+      .toString();
 
     beforeEach(async () => {
       // don't send a real mail
@@ -108,20 +84,47 @@ describe('AuthController (e2e)', () => {
         .spyOn(mailgunService, 'sendVerificationMail')
         .mockImplementation(() => Promise.resolve() as any);
 
-      verification_code = faker.datatype
-        .number({ min: 100000, max: 999999 })
-        .toString();
-
       //private method, return a custom generated code
-
       jest
         .spyOn(CodesService.prototype, 'generateCode' as any)
         .mockReturnValue(verification_code);
     });
 
+    async function sendVerificationCodeForNewUser(
+      user: FakeUser,
+    ): Promise<{ message: string } | void> {
+      // send account verification request for user
+      // create a code for given username and email
+      // then sent a code to which email address received
+
+      // just send once otherwise throws an error email or username already registered
+      if (!codeSentForRegister) {
+        const { body } = await request(app.getHttpServer())
+          .post('/accounts/begin_register_verification')
+          .send(user);
+
+        codeSentForRegister = true;
+
+        return body.message;
+      }
+    }
+
+    async function sendRegisterRequest(createAccountDto: CreateAccountDto) {
+      const result = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(createAccountDto);
+
+      return result;
+    }
+
     describe('scenario : invalid verification code is sent', () => {
       it('should return "invalid code" error', async () => {
-        const result = await sendRegisterRequest(INVALID_VERIFICATION_CODE);
+        await sendVerificationCodeForNewUser(user);
+
+        const result = await sendRegisterRequest({
+          ...user,
+          verification_code: INVALID_VERIFICATION_CODE,
+        });
 
         expect(result.body.message).toEqual(INVALID_CODE);
       });
@@ -129,7 +132,13 @@ describe('AuthController (e2e)', () => {
 
     describe('scenario : invalid email address is sent', () => {
       it('should return "invalid email" error', async () => {
-        const result = await sendRegisterRequest(null, 'invalid@gmail.com');
+        await sendVerificationCodeForNewUser(user);
+
+        const result = await sendRegisterRequest({
+          ...user,
+          verification_code,
+          email: INVALID_EMAIL_ADDRESS,
+        });
 
         expect(result.body.message).toEqual(INVALID_EMAIL);
       });
@@ -137,7 +146,12 @@ describe('AuthController (e2e)', () => {
 
     describe('valid email address & valid verification code is sent', () => {
       it('should return an access_token and account', async () => {
-        const result = await sendRegisterRequest(null);
+        await sendVerificationCodeForNewUser(user);
+
+        const result = await sendRegisterRequest({
+          ...user,
+          verification_code,
+        });
 
         const { account, access_token } = result.body;
 
