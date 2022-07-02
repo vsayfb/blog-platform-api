@@ -35,12 +35,12 @@ describe('PostsService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: Post;
+      let result: { data: Post; message: string };
       const authorID = accountStub().id;
       const dto = postStub();
 
       beforeEach(async () => {
-        result = await postsService.create(authorID, dto);
+        result = await postsService.create({ authorID, dto });
       });
 
       test('calls the postsRepository.save method', () => {
@@ -48,7 +48,7 @@ describe('PostsService', () => {
       });
 
       it('should return the created post', async () => {
-        expect(result.title).toBe(dto.title);
+        expect(result.data.title).toBe(dto.title);
       });
     });
   });

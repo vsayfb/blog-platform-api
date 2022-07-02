@@ -56,13 +56,14 @@ describe('Tags Module (e2e)', () => {
 
   describe('create', () => {
     it('should be return the tag', async () => {
-      const result: { body: Tag; statusCode: number } = await createTag(
-        await takeToken(),
-      );
+      const result: {
+        body: { data: Tag; message: string };
+        statusCode: number;
+      } = await createTag(await takeToken());
 
       expect(result.statusCode).toBe(201);
 
-      expect(result.body.id).toBeDefined();
+      expect(result.body.data.id).toBeDefined();
     });
   });
 });

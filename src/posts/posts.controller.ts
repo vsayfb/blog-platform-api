@@ -37,11 +37,12 @@ export class PostsController {
     @Body(TagNamePipe) createPostDto: CreatePostDto,
     @Query('published') published?: boolean,
   ) {
-    return await this.postsService.create(
-      account.sub,
-      createPostDto,
-      published,
-    );
+    const data = { authorID: account.sub, dto: createPostDto };
+
+    if (published)
+      return await this.postsService.create({ ...data, published });
+
+    return await this.postsService.create(data);
   }
 
   @Get()
@@ -58,12 +59,12 @@ export class PostsController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Get('id')
   async findByID(@Query('id') id: string) {
-    return await this.postsService.getOne(id);
+    return await this.postsService.getOneByID(id);
   }
 
   @Get(':url')
-  findOne(@Param('url') url: string) {
-    return this.postsService.getPost(url);
+  async findOneByUrl(@Param('url') url: string) {
+    return await this.postsService.getOne(url);
   }
 
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -78,7 +79,7 @@ export class PostsController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
+    return this.postsService.delete(id);
   }
 
   @UseGuards(AuthGuard('jwt'), PermissionGuard)

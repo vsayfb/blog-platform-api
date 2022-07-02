@@ -8,6 +8,7 @@ export const INVALID_EMAIL = 'Invalid email address.';
 export const INVALID_CREDENTIALS = 'Invalid credentials.';
 export const UNAUTHORIZED = 'Unauthorized';
 export const POST_NOT_FOUND = 'Post not found.';
+export const TAG_NOT_FOUND = 'Tag not found.';
 
 //** SUCCESS MESSAGES **/
 

@@ -58,12 +58,10 @@ describe('PostsController (e2e)', () => {
   async function createPostRequest(invalidToken?: string) {
     const dto = generateFakePost();
 
-    const result = await request(app.getHttpServer())
+    return await request(app.getHttpServer())
       .post('/posts/')
       .set('Authorization', invalidToken || access_token)
       .send(dto);
-
-    return result;
   }
 
   describe('/ (POST) new post', () => {
@@ -77,27 +75,28 @@ describe('PostsController (e2e)', () => {
 
     describe('the given user is logged in', () => {
       it('should return the created post', async () => {
-        const result: { body: Post } = await createPostRequest();
+        const result: { body: { data: Post; message: string } } =
+          await createPostRequest();
 
-        expect(result.body.title).toEqual(expect.any(String));
+        expect(result.body.data.title).toEqual(expect.any(String));
       });
     });
   });
 
   describe('/ (GET) a post with url', () => {
     it('should return the post', async () => {
-      const createdPost: { body: Post } = await createPostRequest();
+      const createdPost = await createPostRequest();
 
-      const result: { body: Post } = await request(app.getHttpServer()).get(
-        '/posts/' + createdPost.body.url,
-      );
+      const result: { body: { data: Post; message: string } } = await request(
+        app.getHttpServer(),
+      ).get('/posts/' + createdPost.body.data.url);
 
-      expect(result.body.title).toBe(createdPost.body.title);
+      expect(result.body.data.title).toBe(createdPost.body.data.title);
     });
   });
 
   describe('/ (GET) a post with id', () => {
-    let privatePost: Post;
+    let privatePost: { data: Post; message: string };
 
     beforeAll(async () => {
       privatePost = (await createPostRequest()).body;
@@ -106,7 +105,7 @@ describe('PostsController (e2e)', () => {
     describe('scenario : if user wants read own post by id', () => {
       it('should return the post', async () => {
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.id)
+          .get('/posts/id?id=' + privatePost.data.id)
           .set('Authorization', access_token);
 
         expect(result.statusCode).toBe(200);
@@ -118,7 +117,7 @@ describe('PostsController (e2e)', () => {
         const user = await takeToken();
 
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.id)
+          .get('/posts/id?id=' + privatePost.data.id)
           .set('Authorization', user.access_token);
 
         expect(result.statusCode).toBe(403);
@@ -130,7 +129,7 @@ describe('PostsController (e2e)', () => {
         const user = await takeToken(Role.ADMIN);
 
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.id)
+          .get('/posts/id?id=' + privatePost.data.id)
           .set('Authorization', user.access_token);
 
         expect(result.statusCode).toBe(200);
@@ -143,13 +142,16 @@ describe('PostsController (e2e)', () => {
       it('should return the updated post', async () => {
         const oldPost = await createPostRequest();
 
-        const updated: { body: Post } = await request(app.getHttpServer())
-          .patch('/posts/' + oldPost.body.id)
-          .set('Authorization', access_token)
-          .send(generateFakePost());
+        const updated: { body: { data: Post; message: string } } =
+          await request(app.getHttpServer())
+            .patch('/posts/' + oldPost.body.data.id)
+            .set('Authorization', access_token)
+            .send(generateFakePost());
 
-        expect(updated.body.updatedAt).toBeDefined();
-        expect(updated.body.updatedAt).not.toEqual(oldPost.body.updatedAt);
+        expect(updated.body.data.updatedAt).toBeDefined();
+        expect(updated.body.data.updatedAt).not.toEqual(
+          oldPost.body.data.updatedAt,
+        );
       });
     });
 
@@ -160,7 +162,7 @@ describe('PostsController (e2e)', () => {
         const { access_token: invalid_token } = await takeToken();
 
         const updated = await request(app.getHttpServer())
-          .patch('/posts/' + oldPost.body.id)
+          .patch('/posts/' + oldPost.body.data.id)
           .set('Authorization', invalid_token)
           .send(generateFakePost());
 
@@ -174,13 +176,16 @@ describe('PostsController (e2e)', () => {
 
         const { access_token } = await takeToken(Role.ADMIN);
 
-        const updated: { body: Post } = await request(app.getHttpServer())
-          .patch('/posts/' + oldPost.body.id)
-          .set('Authorization', access_token)
-          .send(generateFakePost());
+        const updated: { body: { data: Post; message: string } } =
+          await request(app.getHttpServer())
+            .patch('/posts/' + oldPost.body.data.id)
+            .set('Authorization', access_token)
+            .send(generateFakePost());
 
-        expect(updated.body.updatedAt).toBeDefined();
-        expect(updated.body.updatedAt).not.toEqual(oldPost.body.updatedAt);
+        expect(updated.body.data.updatedAt).toBeDefined();
+        expect(updated.body.data.updatedAt).not.toEqual(
+          oldPost.body.data.updatedAt,
+        );
       });
     });
   });

@@ -1,36 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TAG_NOT_FOUND } from 'src/lib/api-messages';
+import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { Tag } from './entities/tag.entity';
 
 @Injectable()
-export class TagsService {
+export class TagsService implements ICrudService<Tag> {
   constructor(
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
   ) {}
-
-  async create(name: string): Promise<Tag> {
-    return this.tagsRepository.save({ name });
+  async getOne(
+    name: string,
+  ): Promise<NotFoundException | { data: Tag; message: string }> {
+    return {
+      data: await this.tagsRepository.findOne({ where: { name } }),
+      message: 'A tag found.',
+    };
   }
 
-  async getOne(id: string): Promise<Tag> {
+  async getAll(): Promise<{ data: Tag[]; message: string }> {
+    return {
+      data: await this.tagsRepository.find(),
+      message: 'All tags find.',
+    };
+  }
+
+  async delete(id: string): Promise<{ id: string; message: string }> {
+    const tag = await this.tagsRepository.findOne({ where: { id } });
+
+    if (!tag) throw new ForbiddenException(TAG_NOT_FOUND);
+
+    return { id, message: 'The tag removed.' };
+  }
+
+  async create(name: string): Promise<{ data: Tag; message: string }> {
+    return {
+      data: await this.tagsRepository.save({ name }),
+      message: 'A tag created.',
+    };
+  }
+
+  async getOneByID(id: string): Promise<Tag> {
     return this.tagsRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, newName: string): Promise<Tag> {
+  async update(
+    id: string,
+    newName: string,
+  ): Promise<{ data: Tag; message: string }> {
     const tag = await this.tagsRepository.findOne({ where: { id } });
 
     tag.name = newName;
 
-    return this.tagsRepository.save(tag);
+    return {
+      data: await this.tagsRepository.save(tag),
+      message: 'The tag updated.',
+    };
   }
 
-  private async createIfNotExist(createTagDto: CreateTagDto): Promise<Tag> {
-    const tag = await this.getByName(createTagDto.name);
+  private async createIfNotExist({ name }: CreateTagDto): Promise<Tag> {
+    const tag = await this.tagsRepository.findOne({ where: { name } });
 
-    if (!tag)
-      return await this.tagsRepository.save({ name: createTagDto.name });
+    if (!tag) return await this.tagsRepository.save({ name });
 
     return tag;
   }
@@ -45,14 +82,6 @@ export class TagsService {
     }
 
     return tags;
-  }
-
-  async remove(id: string) {
-    return this.tagsRepository.remove(id);
-  }
-
-  getByName(name: string): Promise<Tag> {
-    return this.tagsRepository.findOne({ where: { name } });
   }
 
   findAll(): Promise<Tag[]> {

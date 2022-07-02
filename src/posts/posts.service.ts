@@ -1,3 +1,4 @@
+import { ICrudService } from './../lib/interfaces/ICrudService';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,18 +14,25 @@ import { POST_DELETED, POST_NOT_FOUND } from 'src/lib/api-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 
 @Injectable()
-export class PostsService {
+export class PostsService implements ICrudService<Post> {
   constructor(
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     private readonly uploadService: UploadsService,
     private readonly tagsService: TagsService,
   ) {}
 
-  async create(
-    authorID: string,
-    dto: CreatePostDto,
-    published: boolean | undefined = true,
-  ): Promise<Post> {
+  async create({
+    authorID,
+    dto,
+    published = true,
+  }: {
+    authorID: string;
+    dto: CreatePostDto;
+    published?: boolean;
+  }): Promise<{
+    data: Post;
+    message: string;
+  }> {
     const url = this.convertUrl(dto.title);
 
     let titleImage: null | string = null;
@@ -35,33 +43,44 @@ export class PostsService {
 
     const { content, title } = dto;
 
-    return this.postsRepository.save({
-      content,
-      title,
-      url,
-      tags,
-      author: { id: authorID },
-      titleImage,
-      published,
-    });
+    return {
+      data: await this.postsRepository.save({
+        content,
+        title,
+        url,
+        tags,
+        author: { id: authorID },
+        titleImage,
+        published,
+      }),
+      message: 'Created a post!',
+    };
   }
 
-  getAll(): Promise<Post[]> {
-    return this.postsRepository.find({ where: { published: true } });
+  async getAll(): Promise<{ data: Post[]; message: string }> {
+    return {
+      data: await this.postsRepository.find({ where: { published: true } }),
+      message: 'All posts find.',
+    };
   }
 
-  async getPost(url: string): Promise<Post> {
+  async getOne(
+    url: string,
+  ): Promise<{ data: Post; message: string } | NotFoundException> {
     const post = await this.postsRepository.findOne({
       where: { url, published: true },
     });
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
 
-    return post;
+    return { data: post, message: 'A post find.' };
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
-    const post = await this.getOne(id);
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<{ data: Post; message: string }> {
+    const post = await this.getOneByID(id);
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
 
@@ -77,7 +96,10 @@ export class PostsService {
 
     if (updatePostDto.titleImage) post.titleImage = updatePostDto.titleImage;
 
-    return this.postsRepository.save(post);
+    return {
+      data: await this.postsRepository.save(post),
+      message: 'Updated a post.',
+    };
   }
 
   async saveTitleImage(image: Express.Multer.File): Promise<string> {
@@ -92,6 +114,10 @@ export class PostsService {
     const uniqueID = new ShortUniqueID();
 
     return `${slugify(title, { lower: true })}-${uniqueID()}`;
+  }
+
+  async getOneByID(id: string): Promise<Post> {
+    return await this.postsRepository.findOne({ where: { id } });
   }
 
   async changePostStatus(postID: string, me: JwtPayload) {
@@ -112,14 +138,8 @@ export class PostsService {
     return this.postsRepository.find({ where: { author: { id } } });
   }
 
-  async getOne(id: string): Promise<Post> {
-    return this.postsRepository.findOne({
-      where: { id },
-    });
-  }
-
-  async remove(id: string) {
-    const post = await this.getOne(id);
+  async delete(id: string) {
+    const post = await this.getOneByID(id);
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
 

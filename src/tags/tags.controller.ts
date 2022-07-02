@@ -45,6 +45,6 @@ export class TagsController {
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   async delete(@Param('id') id: string) {
-    return await this.tagsService.remove(id);
+    return await this.tagsService.delete(id);
   }
 }
