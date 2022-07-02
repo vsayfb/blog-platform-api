@@ -1,7 +1,9 @@
+import { UpdateTagDto } from './../src/tags/dto/update-tag.dto';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Role } from 'src/accounts/entities/account.entity';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -39,31 +41,82 @@ describe('Tags Module (e2e)', () => {
     await app.close();
   });
 
-  async function takeToken(): Promise<string> {
-    const { username, password } = await databaseService.createRandomTestUser();
+  async function takeToken(role: Role = Role.USER): Promise<string> {
+    const { username, password } = await databaseService.createRandomTestUser(
+      role,
+    );
 
     const { access_token } = await loginAccount(app, username, password);
 
     return access_token;
   }
 
-  async function createTag(token: string) {
-    return await request(app.getHttpServer())
+  async function createTag(token: string): Promise<request.Response> {
+    const result = await request(app.getHttpServer())
       .post('/tags/')
       .set('Authorization', `Bearer ${token}`)
       .send(generateFakeTag());
+
+    return result;
+  }
+
+  async function updateTag(token: string, id: string, dto: UpdateTagDto) {
+    const result = await request(app.getHttpServer())
+      .patch(`/tags/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(dto);
+
+    return result;
   }
 
   describe('create', () => {
-    it('should be return the tag', async () => {
-      const result: {
-        body: { data: Tag; message: string };
-        statusCode: number;
-      } = await createTag(await takeToken());
+    describe('scenario : if user is just a user', () => {
+      it('should can not create a tag', async () => {
+        const result = await createTag(await takeToken());
 
-      expect(result.statusCode).toBe(201);
+        expect(result.statusCode).toBe(403);
+      });
+    });
 
-      expect(result.body.data.id).toBeDefined();
+    describe('scenario : if user is a moderator', () => {
+      it('should can create a tag', async () => {
+        const result = await createTag(await takeToken(Role.MODERATOR));
+
+        expect(result.statusCode).toBe(201);
+      });
+    });
+  });
+
+  describe('update', () => {
+    let createdTag: { body: { data: Tag; message: string } };
+
+    beforeEach(async () => {
+      createdTag =
+        createdTag || (await createTag(await takeToken(Role.MODERATOR)));
+    });
+
+    describe('scenario : if user is just a user', () => {
+      it('should can not update the tag', async () => {
+        const result = await updateTag(
+          await takeToken(),
+          createdTag.body.data.id,
+          generateFakeTag(),
+        );
+
+        expect(result.statusCode).toBe(403);
+      });
+    });
+
+    describe('scenario : if user is a moderator', () => {
+      it('should can update the tag', async () => {
+        const result = await updateTag(
+          await takeToken(Role.MODERATOR),
+          createdTag.body.data.id,
+          generateFakeTag(),
+        );
+
+        expect(result.statusCode).toBe(200);
+      });
     });
   });
 });

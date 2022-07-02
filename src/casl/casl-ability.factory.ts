@@ -9,6 +9,7 @@ import {
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -18,7 +19,7 @@ export enum Action {
   Delete = 'delete',
 }
 
-export type Subjects = InferSubjects<typeof Post> | 'all';
+export type Subjects = InferSubjects<typeof Post | typeof Tag> | 'all';
 
 export type AppAbility = Ability<[Action, Subjects]>;
 
@@ -32,12 +33,12 @@ export class CaslAbilityFactory {
     if (user.role === Role.ADMIN) {
       can(Action.Manage, 'all');
     } else if (user.role === Role.MODERATOR) {
+      can(Action.Manage, Tag);
     } else {
-      // must be use dot notation because of the casl don't able to match nested object. so ts-ignore
-      // can(Action.Update, Post, { author:{ id: user.sub} });
-
       //@ts-ignore
       can(Action.Manage, Post, { 'author.id': user.sub });
+      /* must be use dot notation because of the casl don't able to match nested object. so ts-ignore
+      can(Action.Update, Post, { author:{ id: user.sub} }) */
     }
 
     return build({

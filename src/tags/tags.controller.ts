@@ -13,6 +13,8 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsService } from './tags.service';
+import { NotAllowUserCreate } from 'src/lib/guards/NotAllowUserCreate';
+import { PermissionGuard } from 'src/lib/guards/PermissionGuard';
 
 @Controller('tags')
 @ApiTags('tags')
@@ -22,11 +24,11 @@ export class TagsController {
   @Get('tag')
   @UseGuards(AuthGuard('jwt'))
   async findOne(@Query('name') tag: string) {
-    return await this.tagsService.getByName(tag);
+    return await this.tagsService.getOne(tag);
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), NotAllowUserCreate)
   async create(@Body() { name }: CreateTagDto) {
     return await this.tagsService.create(name);
   }
@@ -37,7 +39,7 @@ export class TagsController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   async update(@Param('id') id: string, @Body() { name }: CreateTagDto) {
     return await this.tagsService.update(id, name);
   }
