@@ -1,4 +1,3 @@
-import { PermissionGuard } from './../lib/PermissionGuard';
 import {
   Controller,
   Get,
@@ -23,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
 import { TagNamePipe } from 'src/lib/pipes/TagNamePipe';
 import { ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from 'src/lib/guards/PermissionGuard';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -55,7 +55,7 @@ export class PostsController {
     return await this.postsService.getMyPosts(account.sub);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Get('id')
   async findByID(@Query('id') id: string) {
     return await this.postsService.getOne(id);
@@ -75,12 +75,13 @@ export class PostsController {
     return this.postsService.update(id, updatePostDto);
   }
 
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.remove(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Put('change_post_status/:id')
   async changePostStatus(
     @Param('id') id: string,

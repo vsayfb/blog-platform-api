@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
 import { DEV_DATABASE, NODE_ENV } from 'src/lib/env';
-import { FakeUser, generateFakeUser } from 'src/lib/fakers/generateFakeUser';
+import { FakeUser, generateFakeUser } from 'test/helpers/faker/generateFakeUser';
 
 @Injectable()
 export class DatabaseService {

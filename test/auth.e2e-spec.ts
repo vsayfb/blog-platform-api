@@ -1,5 +1,5 @@
 import { CreateAccountDto } from './../src/accounts/dto/create-account.dto';
-import { FakeUser } from './../src/lib/fakers/generateFakeUser';
+import { FakeUser } from './helpers/faker/generateFakeUser';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
@@ -13,7 +13,7 @@ import {
   INVALID_EMAIL,
 } from 'src/lib/api-messages';
 import { faker } from '@faker-js/faker';
-import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';
+import { generateFakeUser } from 'test/helpers/faker/generateFakeUser';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;

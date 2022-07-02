@@ -25,18 +25,19 @@ export type AppAbility = Ability<[Action, Subjects]>;
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: JwtPayload) {
-    const { can, cannot, build } = new AbilityBuilder<
-      Ability<[Action, Subjects]>
-    >(Ability as AbilityClass<AppAbility>);
-
-    // must be use dot notation because of the casl don't able to match nested object. so ts-ignore
+    const { can, build } = new AbilityBuilder<Ability<[Action, Subjects]>>(
+      Ability as AbilityClass<AppAbility>,
+    );
 
     if (user.role === Role.ADMIN) {
       can(Action.Manage, 'all');
     } else if (user.role === Role.MODERATOR) {
     } else {
+      // must be use dot notation because of the casl don't able to match nested object. so ts-ignore
+      // can(Action.Update, Post, { author:{ id: user.sub} });
+
       //@ts-ignore
-      can(Action.Update, Post, { 'author.id': user.sub });
+      can(Action.Manage, Post, { 'author.id': user.sub });
     }
 
     return build({

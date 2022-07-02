@@ -1,3 +1,5 @@
+import { Role } from 'src/accounts/entities/account.entity';
+
 export type AccountStub = {
   id: string;
   email: string;
@@ -5,6 +7,7 @@ export type AccountStub = {
   password: string;
   display_name: string;
   image: null | string;
+  role: Role;
 };
 
 const stub = {
@@ -14,6 +17,7 @@ const stub = {
   display_name: 'foo_display_name',
   username: 'foo',
   image: null,
+  role: Role.USER,
 };
 
 export const accountStub = (): AccountStub => ({

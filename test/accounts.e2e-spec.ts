@@ -6,7 +6,8 @@ import { AppModule } from '../src/app.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '../src/database/database.service';
 import * as request from 'supertest';
-import { generateFakeUser } from 'src/lib/fakers/generateFakeUser';
+import { generateFakeUser } from 'test/helpers/faker/generateFakeUser';
+import { loginAccount } from './helpers/loginAccount';
 
 describe('AccountController (e2e)', () => {
   let app: INestApplication;
@@ -32,14 +33,15 @@ describe('AccountController (e2e)', () => {
     await app.close();
   });
 
-  async function takeToken() {
-    const user = await databaseService.createRandomTestUser();
+  async function takeToken(): Promise<{
+    user: { username: string; password: string };
+    access_token: string;
+  }> {
+    const { username, password } = await databaseService.createRandomTestUser();
 
-    const result: { body: AccessToken } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ username: user.username, password: user.password });
+    const { user, access_token } = await loginAccount(app, username, password);
 
-    return { user, access_token: result.body.access_token };
+    return { user, access_token };
   }
 
   describe('GET me', () => {

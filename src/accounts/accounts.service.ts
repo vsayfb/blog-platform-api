@@ -21,6 +21,10 @@ export class AccountsService {
     private readonly uploadsService: UploadsService,
   ) {}
 
+  async getOne(id: string): Promise<Account> {
+    return this.accountsRepository.findOne({ where: { id } });
+  }
+
   async getAccount(userNameOrEmail: string): Promise<{
     id: string;
     username: string;

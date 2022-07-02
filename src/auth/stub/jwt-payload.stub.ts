@@ -7,4 +7,5 @@ export const jwtPayloadStub: JwtPayload = {
   sub: accountStub().id,
   iat: 123456,
   exp: 123456,
+  role: accountStub().role,
 };

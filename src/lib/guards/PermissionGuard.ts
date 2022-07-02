@@ -1,6 +1,6 @@
-import { PostsService } from './../posts/posts.service';
-import { Action, CaslAbilityFactory } from './../casl/casl-ability.factory';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Action, CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { PostsService } from 'src/posts/posts.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {

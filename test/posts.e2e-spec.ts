@@ -1,4 +1,4 @@
-import { FakeUser } from './../src/lib/fakers/generateFakeUser';
+import { FakeUser } from './helpers/faker/generateFakeUser';
 import { Role } from './../src/accounts/entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
@@ -8,7 +8,8 @@ import { DatabaseService } from 'src/database/database.service';
 import { UNAUTHORIZED } from 'src/lib/api-messages';
 import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { generateFakePost } from 'src/lib/fakers/generateFakePost';
+import { generateFakePost } from './helpers/faker/generateFakePost';
+import { loginAccount } from './helpers/loginAccount';
 
 describe('PostsController (e2e)', () => {
   let app: INestApplication;
@@ -32,25 +33,19 @@ describe('PostsController (e2e)', () => {
 
   let access_token: string;
 
-  async function loginRandomAccount(
-    role?: Role,
-  ): Promise<{ access_token: string }> {
+  async function takeToken(role?: Role): Promise<{ access_token: string }> {
     let user: FakeUser;
 
     if (role) user = await databaseService.createRandomTestUser(role);
     else user = await databaseService.createRandomTestUser(role);
     // take a token
-    const { body }: { body: { access_token: string } } = await request(
-      app.getHttpServer(),
-    )
-      .post('/auth/login')
-      .send(user);
+    const result = await loginAccount(app, user.username, user.password);
 
-    return { access_token: `Bearer ${body.access_token}` };
+    return { access_token: `Bearer ${result.access_token}` };
   }
 
   beforeAll(async () => {
-    access_token = (await loginRandomAccount()).access_token;
+    access_token = (await takeToken()).access_token;
   });
 
   afterAll(async () => {
@@ -89,7 +84,7 @@ describe('PostsController (e2e)', () => {
     });
   });
 
-  describe('/ (GET) a post ', () => {
+  describe('/ (GET) a post with url', () => {
     it('should return the post', async () => {
       const createdPost: { body: Post } = await createPostRequest();
 
@@ -98,6 +93,48 @@ describe('PostsController (e2e)', () => {
       );
 
       expect(result.body.title).toBe(createdPost.body.title);
+    });
+  });
+
+  describe('/ (GET) a post with id', () => {
+    let privatePost: Post;
+
+    beforeAll(async () => {
+      privatePost = (await createPostRequest()).body;
+    });
+
+    describe('scenario : if user wants read own post by id', () => {
+      it('should return the post', async () => {
+        const result = await request(app.getHttpServer())
+          .get('/posts/id?id=' + privatePost.id)
+          .set('Authorization', access_token);
+
+        expect(result.statusCode).toBe(200);
+      });
+    });
+
+    describe("scenario : if user wants read other user's post by id", () => {
+      it('should throw Forbidden Exception', async () => {
+        const user = await takeToken();
+
+        const result = await request(app.getHttpServer())
+          .get('/posts/id?id=' + privatePost.id)
+          .set('Authorization', user.access_token);
+
+        expect(result.statusCode).toBe(403);
+      });
+    });
+
+    describe('scenario : if a user wants to read a post by id when admin', () => {
+      it('should return the post', async () => {
+        const user = await takeToken(Role.ADMIN);
+
+        const result = await request(app.getHttpServer())
+          .get('/posts/id?id=' + privatePost.id)
+          .set('Authorization', user.access_token);
+
+        expect(result.statusCode).toBe(200);
+      });
     });
   });
 
@@ -120,7 +157,7 @@ describe('PostsController (e2e)', () => {
       it('should throw Forbidden Error', async () => {
         const oldPost = await createPostRequest();
 
-        const { access_token: invalid_token } = await loginRandomAccount();
+        const { access_token: invalid_token } = await takeToken();
 
         const updated = await request(app.getHttpServer())
           .patch('/posts/' + oldPost.body.id)
@@ -135,7 +172,7 @@ describe('PostsController (e2e)', () => {
       it('should return the updated post', async () => {
         const oldPost = await createPostRequest();
 
-        const { access_token } = await loginRandomAccount(Role.ADMIN);
+        const { access_token } = await takeToken(Role.ADMIN);
 
         const updated: { body: Post } = await request(app.getHttpServer())
           .patch('/posts/' + oldPost.body.id)
