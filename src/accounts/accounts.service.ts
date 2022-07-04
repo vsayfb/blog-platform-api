@@ -66,6 +66,8 @@ export class AccountsService {
 
     if (emailTaken) throw new ForbiddenException(EMAIL_TAKEN);
 
+    delete data.verification_code;
+
     return await this.accountsRepository.save(data);
   }
 

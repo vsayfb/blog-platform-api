@@ -1,9 +1,9 @@
-import { BeginVerificationDto } from './../dto/begin-verification.dto';
-import { UsernameQuery } from './../dto/username-query.dto';
+import { BeginVerificationDto } from '../dto/begin-verification.dto';
+import { UsernameQuery } from '../dto/username-query.dto';
 import {
   USERNAME_AVAILABLE,
   CODE_SENT,
-} from './../../lib/api-messages/api-messages';
+} from '../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from '../accounts.controller';

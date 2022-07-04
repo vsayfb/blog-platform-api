@@ -39,7 +39,7 @@ export class PostsService implements ICrudService<Post> {
 
     const tags = await this.setPostTags(dto.tags);
 
-    if (dto.titleImage) titleImage = dto.titleImage;
+    if (dto.title_image) titleImage = dto.title_image;
 
     const { content, title } = dto;
 
@@ -64,9 +64,7 @@ export class PostsService implements ICrudService<Post> {
     };
   }
 
-  async getOne(
-    url: string,
-  ): Promise<{ data: Post; message: string } | NotFoundException> {
+  async getOne(url: string): Promise<{ data: Post; message: string }> {
     const post = await this.postsRepository.findOne({
       where: { url, published: true },
     });
@@ -82,28 +80,34 @@ export class PostsService implements ICrudService<Post> {
   ): Promise<{ data: Post; message: string }> {
     const post = await this.getOneByID(id);
 
-    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+    if (!post && post.data) throw new NotFoundException(POST_NOT_FOUND);
 
-    post.title = updatePostDto.title;
-    post.url = this.convertUrl(post.title);
-    post.content = updatePostDto.content;
+    post.data.title = updatePostDto.title;
+    post.data.url = this.convertUrl(post.data.title);
+    post.data.content = updatePostDto.content;
 
-    if (updatePostDto.published === true) post.published = true;
+    if (updatePostDto.published === true) post.data.published = true;
 
     if (Array.isArray(updatePostDto.tags)) {
-      post.tags = await this.setPostTags(updatePostDto.tags);
+      post.data.tags = await this.setPostTags(updatePostDto.tags);
     }
 
-    if (updatePostDto.titleImage) post.titleImage = updatePostDto.titleImage;
+    if (updatePostDto.title_image)
+      post.data.title_image = updatePostDto.title_image;
 
     return {
-      data: await this.postsRepository.save(post),
+      data: await this.postsRepository.save(post.data),
       message: 'Updated a post.',
     };
   }
 
-  async saveTitleImage(image: Express.Multer.File): Promise<string> {
-    return await this.uploadService.uploadImage(image);
+  async saveTitleImage(
+    image: Express.Multer.File,
+  ): Promise<{ data: string; message: string }> {
+    return {
+      data: await this.uploadService.uploadImage(image),
+      message: 'Uploaded an image.',
+    };
   }
 
   private async setPostTags(tags: string[]): Promise<Tag[]> {
@@ -116,11 +120,17 @@ export class PostsService implements ICrudService<Post> {
     return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
-  async getOneByID(id: string): Promise<Post> {
-    return await this.postsRepository.findOne({ where: { id } });
+  async getOneByID(id: string) {
+    return {
+      data: await this.postsRepository.findOne({ where: { id } }),
+      message: 'A post find.',
+    };
   }
 
-  async changePostStatus(postID: string, me: JwtPayload) {
+  async changePostStatus(
+    postID: string,
+    me: JwtPayload,
+  ): Promise<{ id: string; published: boolean; message: string }> {
     const post = await this.postsRepository.findOne({
       where: { id: postID, author: { id: me.sub } },
     });
@@ -131,19 +141,22 @@ export class PostsService implements ICrudService<Post> {
 
     const { id, published } = await this.postsRepository.save(post);
 
-    return { id, published };
+    return { id, published, message: 'Changed post status.' };
   }
 
-  getMyPosts(id: string): Promise<Post[]> {
-    return this.postsRepository.find({ where: { author: { id } } });
+  async getMyPosts(id: string): Promise<{ data: Post[]; message: string }> {
+    return {
+      data: await this.postsRepository.find({ where: { author: { id } } }),
+      message: 'Posts find.',
+    };
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<{ id: string; message: string }> {
     const post = await this.getOneByID(id);
 
     if (!post) throw new NotFoundException(POST_NOT_FOUND);
 
-    await this.postsRepository.remove(post);
+    await this.postsRepository.remove(post.data);
 
     return { id, message: POST_DELETED };
   }

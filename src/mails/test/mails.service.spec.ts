@@ -1,8 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { accountStub } from 'src/accounts/tests/stub/account.stub';
+import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
+import { codeStub } from 'src/codes/stub/code.stub';
 import { JobsService } from 'src/jobs/jobs.service';
 import { CODE_SENT } from 'src/lib/api-messages';
 import { MailsService } from '../mails.service';
@@ -17,7 +18,7 @@ describe('MailsService', () => {
   let mailgunService: MailgunService;
   let jobsService: JobsService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MailsService,
@@ -34,9 +35,16 @@ describe('MailsService', () => {
     jobsService = module.get<JobsService>(JobsService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('sendVerificationCode', () => {
     describe('when sendVerificationCode is called', () => {
-      const to = accountStub();
+      const to = {
+        email: accountStub().email,
+        username: accountStub().username,
+      };
       let result: { message: string };
 
       beforeEach(
@@ -47,16 +55,21 @@ describe('MailsService', () => {
           })),
       );
 
-      test('codeService.createCode should be called', () => {
+      test('calls codeService.createCode', () => {
         expect(codesService.createCode).toHaveBeenCalledWith(to.email);
       });
 
-      test('mockMailgunService.sendMail should be called', () => {
-        expect(mailgunService.sendVerificationMail).toHaveBeenCalled();
+      test('calls mailgunService.sendVerificationMail', () => {
+        expect(mailgunService.sendVerificationMail).toHaveBeenCalledWith(
+          to,
+          codeStub.code,
+        );
       });
 
-      test('jobsService.execAfterTwoMinutes should be called', () => {
-        expect(jobsService.execAfterTwoMinutes).toHaveBeenCalled();
+      test('calls jobsService.execAfterTwoMinutes', () => {
+        expect(jobsService.execAfterTwoMinutes).toHaveBeenCalledWith(
+          expect.any(Function),
+        );
       });
 
       it('should return a message', () => {

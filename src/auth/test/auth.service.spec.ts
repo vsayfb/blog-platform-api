@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { Account } from 'src/accounts/entities/account.entity';
-import { accountStub } from 'src/accounts/tests/stub/account.stub';
+import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { AuthService } from '../auth.service';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { GoogleService } from 'src/apis/google/google.service';
@@ -80,7 +80,7 @@ describe('AuthService', () => {
 
         it('should create an account and return access_token', async () => {
           expect(result).toMatchObject({
-            account: expect.anything(),
+            data: expect.anything(),
             access_token: expect.any(String),
           });
         });
@@ -111,7 +111,7 @@ describe('AuthService', () => {
       describe('if : registered user', () => {
         it('should return an access token and an account', () => {
           expect(result).toMatchObject({
-            account: expect.anything(),
+            data: expect.anything(),
             access_token: expect.any(String),
           });
         });
@@ -134,7 +134,7 @@ describe('AuthService', () => {
 
         it('should return an access token and an account', () => {
           expect(result).toMatchObject({
-            account: expect.anything(),
+            data: expect.anything(),
             access_token: expect.any(String),
           });
         });

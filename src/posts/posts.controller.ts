@@ -13,6 +13,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { Post as PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -36,29 +37,33 @@ export class PostsController {
     @Account() account: JwtPayload,
     @Body(TagNamePipe) createPostDto: CreatePostDto,
     @Query('published') published?: boolean,
-  ) {
+  ): Promise<{ data: PostEntity; message: string }> {
     const data = { authorID: account.sub, dto: createPostDto };
 
-    if (published)
-      return await this.postsService.create({ ...data, published });
-
-    return await this.postsService.create(data);
+    if (published === undefined) {
+      return await this.postsService.create(data);
+    }
+    return await this.postsService.create({ ...data, published });
   }
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<{ data: PostEntity[]; message: string }> {
     return await this.postsService.getAll();
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  async getMyPosts(@Account() account: JwtPayload) {
+  async getMyPosts(
+    @Account() account: JwtPayload,
+  ): Promise<{ data: PostEntity[]; message: string }> {
     return await this.postsService.getMyPosts(account.sub);
   }
 
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Get('id')
-  async findByID(@Query('id') id: string) {
+  async findByID(
+    @Query('id') id: string,
+  ): Promise<{ data: PostEntity; message: string }> {
     return await this.postsService.getOneByID(id);
   }
 
@@ -96,7 +101,7 @@ export class PostsController {
   @Post('upload_title_image')
   async uploadTitleImage(
     @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
-  ) {
+  ): Promise<{ data: string; message: string }> {
     return await this.postsService.saveTitleImage(titleImage);
   }
 }

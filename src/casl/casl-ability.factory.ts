@@ -25,16 +25,18 @@ export type AppAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
-  createForUser(user: JwtPayload) {
+  createForUser({ user }: { user: JwtPayload }) {
     const { can, build } = new AbilityBuilder<Ability<[Action, Subjects]>>(
       Ability as AbilityClass<AppAbility>,
     );
 
     if (user.role === Role.ADMIN) {
       can(Action.Manage, 'all');
-    } else if (user.role === Role.MODERATOR) {
+    } //
+    else if (user.role === Role.MODERATOR) {
       can(Action.Manage, Tag);
-    } else {
+    } //
+    else {
       //@ts-ignore
       can(Action.Manage, Post, { 'author.id': user.sub });
       /* must be use dot notation because of the casl don't able to match nested object. so ts-ignore

@@ -9,6 +9,7 @@ import {
   MAILGUN_SENDER_MAIL,
   MAILGUN_USERNAME,
 } from 'src/lib/env';
+import { MailgunMessageData } from 'mailgun.js/interfaces/Messages';
 
 @Injectable()
 export class MailgunService {
@@ -23,22 +24,39 @@ export class MailgunService {
     });
   }
 
+  private async sendMail(
+    from: string,
+    to: string,
+    subject: string,
+    options?: { [key: string]: any },
+  ) {
+    const data: MailgunMessageData = {
+      from,
+      to,
+      subject,
+      ...options,
+    };
+
+    await this.client.messages.create(
+      this.configService.get<string>(MAILGUN_DOMAIN),
+      data,
+    );
+  }
+
   async sendVerificationMail(
     to: { email: string; username: string },
     code: string,
   ) {
-    return await this.client.messages.create(
-      this.configService.get<string>(MAILGUN_DOMAIN),
-      {
-        from: this.configService.get<string>(MAILGUN_SENDER_MAIL),
-        to: to.email,
-        subject: 'Verification Code',
-        template: 'verification_code',
-        'h:X-Mailgun-Variables': JSON.stringify({
-          code,
-          username: to.username,
-        }),
-      },
-    );
+    const from = this.configService.get<string>(MAILGUN_SENDER_MAIL);
+
+    await this.sendMail(from, to.email, 'Verification Code', {
+      template: 'verification_code',
+      'h:X-Mailgun-Variables': JSON.stringify({
+        code,
+        username: to.username,
+      }),
+    });
+
+    return true;
   }
 }

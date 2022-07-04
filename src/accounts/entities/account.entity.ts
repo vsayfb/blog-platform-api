@@ -21,7 +21,7 @@ export enum Role {
 }
 
 @Entity()
-export class Account extends BaseEntity {
+export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

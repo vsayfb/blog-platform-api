@@ -20,7 +20,7 @@ export class NotAllowUserCreate implements CanActivate {
 
     if (req.method !== 'POST') throw new MethodNotAllowedException();
 
-    const ability = this.caslAbilityFactory.createForUser(req.user);
+    const ability = this.caslAbilityFactory.createForUser({ user: req.user });
 
     if (ability.can(Action.Create, this.subject)) return true;
 

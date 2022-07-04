@@ -20,9 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(
-    data: CreateAccountDto,
-  ): Promise<RegisterViewDto | ForbiddenException> {
+  async register(data: CreateAccountDto): Promise<RegisterViewDto> {
     const code = await this.codeService.getCode(data.verification_code);
 
     if (!code) throw new ForbiddenException(INVALID_CODE);
@@ -38,7 +36,7 @@ export class AuthService {
     const { access_token } = this.login(account);
 
     return {
-      account: {
+      data: {
         id: account.id,
         display_name: account.display_name,
         image: account.image,
@@ -58,7 +56,7 @@ export class AuthService {
       const { access_token } = this.login(registeredUser as Account);
 
       return {
-        account: {
+        data: {
           id: registeredUser.id,
           display_name: registeredUser.display_name,
           image: registeredUser.image,
@@ -77,7 +75,7 @@ export class AuthService {
       const { access_token } = this.login(newAccount);
 
       return {
-        account: {
+        data: {
           id: newAccount.id,
           display_name: newAccount.display_name,
           image: newAccount.image,

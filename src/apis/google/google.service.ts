@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 
-type UserInfo = {
+export type GoogleUserCredentials = {
   sub: string;
   name: string;
   given_name: string;
@@ -20,12 +20,15 @@ export class GoogleService {
   async getUserCredentials(
     access_token: string,
   ): Promise<{ email: string; given_name: string; family_name: string }> {
-    const { data }: { data: UserInfo } = await axios.get(this.userInfoURL, {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
+    const { data }: { data: GoogleUserCredentials } = await axios.get(
+      this.userInfoURL,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+        method: 'GET',
       },
-      method: 'GET',
-    });
+    );
 
     return {
       email: data.email,

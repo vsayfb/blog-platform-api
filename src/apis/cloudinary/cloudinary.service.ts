@@ -50,20 +50,22 @@ export class CloudinaryService {
     return parser;
   }
 
-  async uploadImage(file: Express.Multer.File) {
+  private async upload(file: Express.Multer.File, transformation: Object = {}) {
     const { secure_url } = await cloudinaryV2.uploader.upload(
       await this.convertBase64(file),
+      transformation,
     );
 
     return secure_url;
   }
 
-  async uploadProfileImage(file: Express.Multer.File): Promise<string> {
-    const { secure_url } = await cloudinaryV2.uploader.upload(
-      await this.convertBase64(file),
-      this.getProfileImageTransformation(),
-    );
+  async uploadImage(file: Express.Multer.File) {
+    return await this.upload(file);
+  }
 
-    return secure_url;
+  async uploadProfileImage(file: Express.Multer.File): Promise<string> {
+    const transformation = this.getProfileImageTransformation();
+
+    return await this.upload(file, transformation);
   }
 }

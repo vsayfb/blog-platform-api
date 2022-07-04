@@ -9,7 +9,7 @@ export class CreatePostDto {
 
   @IsString()
   @IsOptional()
-  titleImage?: string;
+  title_image?: string;
 
   @IsArray()
   @IsOptional()

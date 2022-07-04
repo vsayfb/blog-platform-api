@@ -1,5 +1,6 @@
-import { RegisterType } from './../entities/account.entity';
-import { EMAIL_REGISTERED } from './../../lib/api-messages/api-messages';
+import { randomUUID } from 'crypto';
+import { RegisterType } from '../entities/account.entity';
+import { EMAIL_REGISTERED } from '../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -11,12 +12,14 @@ import { EMAIL_TAKEN, USERNAME_TAKEN, CODE_SENT } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
+import { Repository } from 'typeorm';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
+  let accountsRepository: Repository<Account>;
   let uploadsService: UploadsService;
 
   beforeAll(async () => {
@@ -25,7 +28,7 @@ describe('AccountsService', () => {
         AccountsService,
         {
           provide: getRepositoryToken(Account),
-          useValue: mockRepository,
+          useClass: Repository,
         },
         MailsService,
         UploadsService,
@@ -33,7 +36,33 @@ describe('AccountsService', () => {
     }).compile();
 
     accounstService = module.get<AccountsService>(AccountsService);
+    accountsRepository = module.get<Repository<Account>>(
+      getRepositoryToken(Account),
+    );
     uploadsService = module.get<UploadsService>(UploadsService);
+
+    mockRepository(accountsRepository, Account);
+  });
+
+  describe('getOne', () => {
+    describe('when getOne is called', () => {
+      let result: Account;
+      let id = randomUUID();
+
+      beforeEach(async () => {
+        result = await accounstService.getOne(id);
+      });
+
+      test('calls accountsRepository.findOne method', () => {
+        expect(accountsRepository.findOne).toHaveBeenCalledWith({
+          where: { id },
+        });
+      });
+
+      it('should return an account', () => {
+        expect(result).toEqual(accountStub());
+      });
+    });
   });
 
   describe('getAccount', () => {
@@ -49,6 +78,10 @@ describe('AccountsService', () => {
 
     beforeEach(async () => {
       result = await accounstService.getAccount(account.email);
+    });
+
+    test('calls accountsRepository.findOne method', () => {
+      expect(accountsRepository.findOne).toHaveBeenCalled();
     });
 
     it('should return an account', () => {
@@ -96,36 +129,40 @@ describe('AccountsService', () => {
         });
 
         it('then should return an account', () => {
-          expect(result).toEqual({
-            id: expect.any(String),
-            ...dto,
-          });
+          expect(result).toEqual(accountStub());
         });
       });
     });
   });
 
   describe('createAccountViaGoogle', () => {
-    it('should return an account', async () => {
-      expect(
-        await accounstService.createAccountViaGoogle(accountStub()),
-      ).toEqual({ ...accountStub(), via: RegisterType.GOOGLE });
+    let result: Account;
+    let dto = accountStub();
 
-      expect(mockRepository.save).toHaveBeenCalledWith({
-        ...accountStub(),
+    beforeEach(async () => {
+      result = await accounstService.createAccountViaGoogle(dto);
+    });
+
+    test('calls accountsRepository.save method', () => {
+      expect(accountsRepository.save).toHaveBeenCalledWith({
+        ...dto,
         via: RegisterType.GOOGLE,
       });
+    });
+
+    it('should return an account', async () => {
+      expect(result).toEqual({ ...dto, via: RegisterType.GOOGLE });
     });
   });
 
   describe('changeProfileImage', () => {
     describe('when changeProfileImage is called', () => {
       let result: { newImage: string };
-      const account = jwtPayloadStub;
+      const jwtPayload = jwtPayloadStub;
       let file: Express.Multer.File;
 
       beforeEach(async () => {
-        result = await accounstService.changeProfileImage(account, file);
+        result = await accounstService.changeProfileImage(jwtPayload, file);
       });
 
       test('calls uploadsService.uploadProfileImage', () => {
@@ -133,7 +170,7 @@ describe('AccountsService', () => {
       });
 
       test('calls accountsRepository.save with new uploaded image url', () => {
-        expect(mockRepository.save).toHaveBeenCalledWith({
+        expect(accountsRepository.save).toHaveBeenCalledWith({
           ...accountStub(),
           image: uploadProfileResultStub.newImage,
         });
@@ -159,7 +196,7 @@ describe('AccountsService', () => {
 
       describe('scenario : if username registered', () => {
         test('should throw an error', async () => {
-          jest.spyOn(mockRepository, 'findOne').mockResolvedValueOnce(null);
+          jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce(null);
 
           await expect(
             accounstService.beginRegisterVerification(username, email),
@@ -169,7 +206,7 @@ describe('AccountsService', () => {
 
       describe('if unregistered credentials sent', () => {
         test('should return the message', async () => {
-          jest.spyOn(mockRepository, 'findOne').mockResolvedValue(null);
+          jest.spyOn(accountsRepository, 'findOne').mockResolvedValue(null);
 
           expect(
             await accounstService.beginRegisterVerification(username, email),

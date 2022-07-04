@@ -3,15 +3,12 @@ import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import {
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   Inject,
   Injectable,
   MethodNotAllowedException,
 } from '@nestjs/common';
 import { Action, CaslAbilityFactory } from 'src/casl/casl-ability.factory';
-import { PostsService } from 'src/posts/posts.service';
 import { Request } from 'express';
-import { Tag } from 'src/tags/entities/tag.entity';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -29,14 +26,14 @@ export class PermissionGuard implements CanActivate {
 
     const subject = await this.service.getOneByID(req.params.id);
 
-    const ability = this.caslAbilityFactory.createForUser(req.user);
+    const ability = this.caslAbilityFactory.createForUser({ user: req.user });
 
-    if (ability.can(action, subject)) return true;
+    if (ability.can(action, subject.data)) return true;
 
     return false;
   }
 
-  detectActionType(method: string): Action {
+  private detectActionType(method: string): Action {
     /** just allow below methods because if req method is post
      * there is no subject will find by getOneByID method
      * so the subject will be undefined

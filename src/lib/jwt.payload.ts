@@ -1,4 +1,5 @@
 import { Role } from './../accounts/entities/account.entity';
+
 export type JwtPayload = {
   username: string;
   sub: string;

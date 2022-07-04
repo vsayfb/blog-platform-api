@@ -6,7 +6,7 @@ export interface ICrudService<T> {
   ): Promise<{ data: T; message: string } | NotFoundException>;
   getAll(): Promise<{ data: T[]; message: string }>;
   create(data: any): Promise<{ data: T; message: string }>;
-  getOneByID(id: string): Promise<T>;
+  getOneByID(id: string): Promise<{ data: T; message: string }>;
   delete(id: string): Promise<{ id: string; message: string }>;
   update(id: string, data: any): Promise<{ data: T; message: string }>;
 }

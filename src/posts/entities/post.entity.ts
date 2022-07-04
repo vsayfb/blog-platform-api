@@ -20,7 +20,7 @@ export class Post {
   title: string;
 
   @Column({ default: null })
-  titleImage: string | null;
+  title_image: string | null;
 
   @ManyToOne((_type) => Account, (account) => account.posts, {
     eager: true,

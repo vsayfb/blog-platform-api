@@ -11,7 +11,7 @@ export class MailsService {
   private sender: string;
 
   constructor(
-    private readonly mailgun: MailgunService,
+    private readonly mailgunService: MailgunService,
     private readonly codeService: CodesService,
     private readonly jobsService: JobsService,
     private readonly configService: ConfigService,
@@ -25,7 +25,7 @@ export class MailsService {
   }): Promise<{ message: string }> {
     const { code, id } = await this.codeService.createCode(to.email);
 
-    await this.mailgun.sendVerificationMail(to, code);
+    await this.mailgunService.sendVerificationMail(to, code);
 
     this.jobsService.execAfterTwoMinutes(() => this.codeService.removeCode(id));
 

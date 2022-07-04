@@ -49,7 +49,7 @@ export class AuthController {
   @Post('register')
   async register(
     @Body() createAccountDto: CreateAccountDto,
-  ): Promise<RegisterViewDto | ForbiddenException> {
+  ): Promise<RegisterViewDto> {
     return await this.authService.register(createAccountDto);
   }
 

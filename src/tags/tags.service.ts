@@ -46,8 +46,11 @@ export class TagsService implements ICrudService<Tag> {
     };
   }
 
-  async getOneByID(id: string): Promise<Tag> {
-    return this.tagsRepository.findOne({ where: { id } });
+  async getOneByID(id: string): Promise<{ data: Tag; message: string }> {
+    return {
+      data: await this.tagsRepository.findOne({ where: { id } }),
+      message: '',
+    };
   }
 
   async update(

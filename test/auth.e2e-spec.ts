@@ -153,9 +153,9 @@ describe('AuthController (e2e)', () => {
           verification_code,
         });
 
-        const { account, access_token } = result.body;
+        const { data, access_token } = result.body;
 
-        expect(account).toEqual({
+        expect(data).toEqual({
           id: expect.any(String),
           image: null,
           display_name: expect.any(String),
