@@ -11,6 +11,8 @@ import { postStub } from '../stub/post-stub';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
+import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
+import { UpdatePostDto } from '../dto/update-post.dto';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
@@ -19,9 +21,8 @@ describe('PostsService', () => {
   let postsService: PostsService;
   let postsRepository: Repository<Post>;
   let uploadsService: UploadsService;
-  let tagsService: TagsService;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
@@ -34,39 +35,131 @@ describe('PostsService', () => {
     postsService = module.get<PostsService>(PostsService);
     postsRepository = module.get<Repository<Post>>(getRepositoryToken(Post));
     uploadsService = module.get<UploadsService>(UploadsService);
-    tagsService = module.get<TagsService>(TagsService);
 
     mockRepository(postsRepository, Post);
   });
 
+  afterEach(() => jest.clearAllMocks());
   describe('create', () => {
     describe('when create is called', () => {
       let result: { data: Post; message: string };
-      const authorID = accountStub().id;
-      const dto = postStub();
+
+      let authorID = accountStub().id;
+
+      let dto = postStub();
+
+      beforeEach(() => {
+        // spyOn private methods
+        jest
+          .spyOn(PostsService.prototype, 'convertUrl' as any)
+          .mockReturnValue(dto.url);
+        jest.spyOn(PostsService.prototype, 'setPostTags' as any);
+      });
+
+      describe('scenario : user create a post as private and without title image url', () => {
+        beforeEach(async () => {
+          result = await postsService.create({
+            authorID,
+            dto,
+            published: false,
+          });
+        });
+
+        test('calls convertUrl method', () => {
+          //@ts-ignore private method
+          expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
+        });
+
+        test('calls setPostTags method', () => {
+          //@ts-ignore private method
+          expect(postsService.setPostTags).toHaveBeenCalledWith(dto.tags);
+        });
+
+        it('should return the created post as private and title image null', () => {
+          expect(result.data).toEqual({
+            ...postStub(),
+            author: { id: postStub().author.id },
+            title_image: null,
+            published: false,
+          });
+        });
+      });
+
+      describe('scenario : user create a post as private and a title image url', () => {
+        beforeEach(async () => {
+          dto.title_image = uploadProfileResultStub.newImage;
+
+          result = await postsService.create({
+            authorID,
+            dto,
+          });
+        });
+
+        test('calls convertUrl method', () => {
+          //@ts-ignore private method
+          expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
+        });
+
+        test('calls setPostTags method', () => {
+          //@ts-ignore private method
+          expect(postsService.setPostTags).toHaveBeenCalledWith(dto.tags);
+        });
+
+        it('should return the created post with title image url and published', () => {
+          expect(result.data).toEqual({
+            ...postStub(),
+            author: { id: postStub().author.id },
+            title_image: expect.any(String),
+            published: true,
+          });
+        });
+      });
+    });
+  });
+
+  describe('update', () => {
+    describe('when update is called', () => {
+      let result: { data: Post; message: string };
+      const postID = postStub().id;
+
+      const updatePostDto: UpdatePostDto = {
+        content: 'updated-post-content',
+        title: 'updated-post-title',
+      };
 
       beforeEach(async () => {
-        result = await postsService.create({ authorID, dto });
+        result = await postsService.update(postID, updatePostDto);
       });
 
-      test('calls the postsRepository.save method', () => {
-        expect(postsRepository.save).toHaveBeenCalled();
+      test('calls postsRepository.save', () => {
+        expect(postsRepository.save).toHaveBeenCalledWith({
+          ...postStub(),
+          ...updatePostDto,
+        });
       });
 
-      it('should return the created post', () => {
-        expect(result.data.title).toBe(dto.title);
+      it('should return the updated post', () => {
+        expect(result.data.content).toBe(updatePostDto.content);
       });
     });
   });
 
   describe('getAll', () => {
-    it('should return the array of posts which published', async () => {
-      const { data } = await postsService.getAll();
+    describe('when getAll is called', () => {
+      let result: { data: Post[]; message: string };
 
-      expect(data).toEqual([postStub()]);
+      beforeEach(async () => {
+        result = await postsService.getAll();
+      });
 
-      expect(postsRepository.find).toHaveBeenCalledWith({
-        where: { published: true },
+      test('calls postsRepository.find method', () => {
+        expect(postsRepository.find).toHaveBeenCalledWith({
+          where: { published: true },
+        });
+      });
+
+      it('should return the array of published posts', async () => {
+        expect(result.data).toEqual([postStub()]);
       });
     });
   });
@@ -114,15 +207,12 @@ describe('PostsService', () => {
         result = await postsService.getOneByID(id);
       });
 
-      test('calls the postsRepository.findOne method', () => {
+      test('calls postsRepository.findOne method', () => {
         expect(postsRepository.findOne).toHaveBeenCalledWith({ where: { id } });
       });
 
       it('should return a post', () => {
-        expect(result).toEqual({
-          data: postStub(),
-          message: expect.any(String),
-        });
+        expect(result.data).toEqual(postStub());
       });
     });
   });

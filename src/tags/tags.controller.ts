@@ -14,7 +14,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsService } from './tags.service';
 import { NotAllowUserCreate } from 'src/lib/guards/NotAllowUserCreate';
-import { PermissionGuard } from 'src/lib/guards/PermissionGuard';
+import { CanManageData } from 'src/lib/guards/CanManageData';
+import { Data } from 'src/lib/decorators/request-data.decorator';
+import { Tag } from './entities/tag.entity';
 
 @Controller('tags')
 @ApiTags('tags')
@@ -39,14 +41,14 @@ export class TagsController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  async update(@Param('id') id: string, @Body() { name }: CreateTagDto) {
-    return await this.tagsService.update(id, name);
+  @UseGuards(AuthGuard('jwt'), CanManageData)
+  async update(@Data() tag: Tag, @Body() { name }: CreateTagDto) {
+    return await this.tagsService.update(tag, name);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  async delete(@Param('id') id: string) {
-    return await this.tagsService.delete(id);
+  async delete(@Data() tag: Tag) {
+    return await this.tagsService.delete(tag);
   }
 }

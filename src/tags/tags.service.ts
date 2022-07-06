@@ -31,10 +31,10 @@ export class TagsService implements ICrudService<Tag> {
     };
   }
 
-  async delete(id: string): Promise<{ id: string; message: string }> {
-    const tag = await this.tagsRepository.findOne({ where: { id } });
+  async delete(tag: Tag): Promise<{ id: string; message: string }> {
+    const id = tag.id;
 
-    if (!tag) throw new ForbiddenException(TAG_NOT_FOUND);
+    await this.tagsRepository.remove(tag);
 
     return { id, message: 'The tag removed.' };
   }
@@ -54,11 +54,9 @@ export class TagsService implements ICrudService<Tag> {
   }
 
   async update(
-    id: string,
+    tag: Tag,
     newName: string,
   ): Promise<{ data: Tag; message: string }> {
-    const tag = await this.tagsRepository.findOne({ where: { id } });
-
     tag.name = newName;
 
     return {

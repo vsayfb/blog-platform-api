@@ -7,6 +7,6 @@ export interface ICrudService<T> {
   getAll(): Promise<{ data: T[]; message: string }>;
   create(data: any): Promise<{ data: T; message: string }>;
   getOneByID(id: string): Promise<{ data: T; message: string }>;
-  delete(id: string): Promise<{ id: string; message: string }>;
-  update(id: string, data: any): Promise<{ data: T; message: string }>;
+  delete(subject: T): Promise<{ id: string; message: string }>;
+  update(subject: T, data: any): Promise<{ data: T; message: string }>;
 }

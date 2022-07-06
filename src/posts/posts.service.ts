@@ -11,7 +11,6 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { POST_DELETED, POST_NOT_FOUND } from 'src/lib/api-messages';
-import { JwtPayload } from 'src/lib/jwt.payload';
 
 @Injectable()
 export class PostsService implements ICrudService<Post> {
@@ -35,11 +34,7 @@ export class PostsService implements ICrudService<Post> {
   }> {
     const url = this.convertUrl(dto.title);
 
-    let titleImage: null | string = null;
-
     const tags = await this.setPostTags(dto.tags);
-
-    if (dto.title_image) titleImage = dto.title_image;
 
     const { content, title } = dto;
 
@@ -50,7 +45,7 @@ export class PostsService implements ICrudService<Post> {
         url,
         tags,
         author: { id: authorID },
-        titleImage,
+        title_image: dto.title_image || null,
         published,
       }),
       message: 'Created a post!',
@@ -75,28 +70,23 @@ export class PostsService implements ICrudService<Post> {
   }
 
   async update(
-    id: string,
+    post: Post,
     updatePostDto: UpdatePostDto,
   ): Promise<{ data: Post; message: string }> {
-    const post = await this.getOneByID(id);
+    post.title = updatePostDto.title;
+    post.url = this.convertUrl(post.title);
+    post.content = updatePostDto.content;
 
-    if (!post && post.data) throw new NotFoundException(POST_NOT_FOUND);
-
-    post.data.title = updatePostDto.title;
-    post.data.url = this.convertUrl(post.data.title);
-    post.data.content = updatePostDto.content;
-
-    if (updatePostDto.published === true) post.data.published = true;
+    if (updatePostDto.published === true) post.published = true;
 
     if (Array.isArray(updatePostDto.tags)) {
-      post.data.tags = await this.setPostTags(updatePostDto.tags);
+      post.tags = await this.setPostTags(updatePostDto.tags);
     }
 
-    if (updatePostDto.title_image)
-      post.data.title_image = updatePostDto.title_image;
+    if (updatePostDto.title_image) post.title_image = updatePostDto.title_image;
 
     return {
-      data: await this.postsRepository.save(post.data),
+      data: await this.postsRepository.save(post),
       message: 'Updated a post.',
     };
   }
@@ -128,15 +118,8 @@ export class PostsService implements ICrudService<Post> {
   }
 
   async changePostStatus(
-    postID: string,
-    me: JwtPayload,
+    post: Post,
   ): Promise<{ id: string; published: boolean; message: string }> {
-    const post = await this.postsRepository.findOne({
-      where: { id: postID, author: { id: me.sub } },
-    });
-
-    if (!post) throw new NotFoundException(POST_NOT_FOUND);
-
     post.published = !post.published;
 
     const { id, published } = await this.postsRepository.save(post);
@@ -151,12 +134,10 @@ export class PostsService implements ICrudService<Post> {
     };
   }
 
-  async delete(id: string): Promise<{ id: string; message: string }> {
-    const post = await this.getOneByID(id);
+  async delete(post: Post): Promise<{ id: string; message: string }> {
+    const id = post.id;
 
-    if (!post) throw new NotFoundException(POST_NOT_FOUND);
-
-    await this.postsRepository.remove(post.data);
+    await this.postsRepository.remove(post);
 
     return { id, message: POST_DELETED };
   }

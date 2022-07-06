@@ -12,11 +12,13 @@ import { codeStub } from 'src/codes/stub/code.stub';
 type Entities = typeof Account | typeof Tag | typeof Post | typeof Code;
 
 const stubs = (entity: Entities, id?: string) => {
+  const entityID = id || randomUUID();
+
   const entities = {
-    Tag: { id: id || randomUUID(), ...tagStub() },
-    Account: { id: id || randomUUID(), ...accountStub() },
-    Post: { id: id || randomUUID(), ...postStub() },
-    Code: { ...codeStub },
+    Tag: { id: entityID, ...tagStub() },
+    Account: { id: entityID, ...accountStub() },
+    Post: { id: entityID, ...postStub() },
+    Code: { id: entityID, ...codeStub },
   };
 
   return entities[entity.name];
@@ -26,7 +28,6 @@ export function mockRepository<T>(
   repository: Repository<T>,
   entity: Entities,
 ): void {
-  
   jest
     .spyOn(repository, 'save')
     .mockImplementation((dto) => Promise.resolve({ ...stubs(entity), ...dto }));

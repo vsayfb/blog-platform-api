@@ -1,4 +1,4 @@
-import { JwtPayload } from './../jwt.payload';
+import { JwtPayload } from '../jwt.payload';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import {
   CanActivate,
@@ -11,14 +11,14 @@ import { Action, CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Request } from 'express';
 
 @Injectable()
-export class PermissionGuard implements CanActivate {
+export class CanManageData implements CanActivate {
   constructor(
     @Inject('SERVICE') private readonly service: ICrudService<any>,
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request & { user: JwtPayload } = context
+    const req: Request & { user: JwtPayload; data: any } = context
       .switchToHttp()
       .getRequest();
 
@@ -28,7 +28,10 @@ export class PermissionGuard implements CanActivate {
 
     const ability = this.caslAbilityFactory.createForUser({ user: req.user });
 
-    if (ability.can(action, subject.data)) return true;
+    if (ability.can(action, subject.data)) {
+      req.data = subject.data;
+      return true;
+    }
 
     return false;
   }
