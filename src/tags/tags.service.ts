@@ -15,9 +15,7 @@ export class TagsService implements ICrudService<Tag> {
   constructor(
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
   ) {}
-  async getOne(
-    name: string,
-  ): Promise<NotFoundException | { data: Tag; message: string }> {
+  async getOne(name: string): Promise<{ data: Tag; message: string }> {
     return {
       data: await this.tagsRepository.findOne({ where: { name } }),
       message: 'A tag found.',
@@ -83,9 +81,5 @@ export class TagsService implements ICrudService<Tag> {
     }
 
     return tags;
-  }
-
-  findAll(): Promise<Tag[]> {
-    return this.tagsRepository.find();
   }
 }

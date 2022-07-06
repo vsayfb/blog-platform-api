@@ -13,6 +13,7 @@ import { randomUUID } from 'crypto';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { tagStub } from 'src/tags/stub/tag.stub';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
@@ -39,7 +40,6 @@ describe('PostsService', () => {
     mockRepository(postsRepository, Post);
   });
 
-  afterEach(() => jest.clearAllMocks());
   describe('create', () => {
     describe('when create is called', () => {
       let result: { data: Post; message: string };
@@ -79,6 +79,7 @@ describe('PostsService', () => {
           expect(result.data).toEqual({
             ...postStub(),
             author: { id: postStub().author.id },
+            tags: expect.any(Array),
             title_image: null,
             published: false,
           });
@@ -109,6 +110,7 @@ describe('PostsService', () => {
           expect(result.data).toEqual({
             ...postStub(),
             author: { id: postStub().author.id },
+            tags: expect.any(Array),
             title_image: expect.any(String),
             published: true,
           });
@@ -120,7 +122,7 @@ describe('PostsService', () => {
   describe('update', () => {
     describe('when update is called', () => {
       let result: { data: Post; message: string };
-      const postID = postStub().id;
+      const post = postStub() as unknown as Post;
 
       const updatePostDto: UpdatePostDto = {
         content: 'updated-post-content',
@@ -128,7 +130,7 @@ describe('PostsService', () => {
       };
 
       beforeEach(async () => {
-        result = await postsService.update(postID, updatePostDto);
+        result = await postsService.update(post, updatePostDto);
       });
 
       test('calls postsRepository.save', () => {

@@ -17,6 +17,7 @@ import { NotAllowUserCreate } from 'src/lib/guards/NotAllowUserCreate';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { Tag } from './entities/tag.entity';
+import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Controller('tags')
 @ApiTags('tags')
@@ -25,30 +26,37 @@ export class TagsController {
 
   @Get('tag')
   @UseGuards(AuthGuard('jwt'))
-  async findOne(@Query('name') tag: string) {
+  async findOne(
+    @Query('name') tag: string,
+  ): Promise<{ data: Tag; message: string }> {
     return await this.tagsService.getOne(tag);
   }
 
   @Post()
   @UseGuards(AuthGuard('jwt'), NotAllowUserCreate)
-  async create(@Body() { name }: CreateTagDto) {
+  async create(
+    @Body() { name }: CreateTagDto,
+  ): Promise<{ data: Tag; message: string }> {
     return await this.tagsService.create(name);
   }
 
   @Get()
-  async findAll() {
-    return await this.tagsService.findAll();
+  async findAll(): Promise<{ data: Tag[]; message: string }> {
+    return await this.tagsService.getAll();
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'), CanManageData)
-  async update(@Data() tag: Tag, @Body() { name }: CreateTagDto) {
+  async update(
+    @Body() { name }: UpdateTagDto,
+    @Data() tag: Tag,
+  ): Promise<{ data: Tag; message: string }> {
     return await this.tagsService.update(tag, name);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  async delete(@Data() tag: Tag) {
+  async delete(@Data() tag: Tag): Promise<{ id: string; message: string }> {
     return await this.tagsService.delete(tag);
   }
 }

@@ -156,15 +156,15 @@ describe('PostsController', () => {
   describe('update', () => {
     let result: { data: Post; message: string };
     const dto = postStub();
-    let id = randomUUID();
+    let post = postStub() as unknown as Post;
 
     describe('when update is called', () => {
       beforeEach(async () => {
-        result = await controller.update(id, dto);
+        result = await controller.update(dto, post);
       });
 
       test('calls postsService.update method', () => {
-        expect(postsService.update).toHaveBeenCalledWith(id, dto);
+        expect(postsService.update).toHaveBeenCalledWith(post, dto);
       });
 
       it('should return the post', () => {
@@ -175,44 +175,40 @@ describe('PostsController', () => {
 
   describe('remove', () => {
     let result: { id: string; message: string };
-    let id = randomUUID();
+    const post = postStub() as unknown as Post;
 
     describe('when remove is called', () => {
       beforeEach(async () => {
-        result = await controller.remove(id);
+        result = await controller.remove(post);
       });
 
       test('calls postsService.delete method', () => {
-        expect(postsService.delete).toHaveBeenCalledWith(id);
+        expect(postsService.delete).toHaveBeenCalledWith(post);
       });
 
       it('should return the post', () => {
-        expect(result).toEqual({ id, message: expect.any(String) });
+        expect(result).toEqual({ id: post.id, message: expect.any(String) });
       });
     });
   });
 
   describe('changePostStatus', () => {
     let result: { id: any; published: boolean };
-    let jwtPayload = jwtPayloadStub;
-    let id = randomUUID();
+    const post = postStub() as unknown as Post;
 
     describe('when changePostStatus is called', () => {
       beforeEach(async () => {
-        result = await controller.changePostStatus(id, jwtPayload);
+        result = await controller.changePostStatus(post);
       });
 
       test('calls postsService.changePostStatus method', () => {
-        expect(postsService.changePostStatus).toHaveBeenCalledWith(
-          id,
-          jwtPayload,
-        );
+        expect(postsService.changePostStatus).toHaveBeenCalledWith(post);
       });
 
       it('should return the post', () => {
         expect(result).toEqual({
-          id,
-          published: true,
+          id: post.id,
+          published: !post.published,
           message: expect.any(String),
         });
       });

@@ -5,11 +5,13 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
-import { UNAUTHORIZED } from 'src/lib/api-messages';
+import { POST_DELETED, UNAUTHORIZED } from 'src/lib/api-messages';
 import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { generateFakePost } from './helpers/faker/generateFakePost';
 import { loginAccount } from './helpers/loginAccount';
+import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
+import { CreatePostDto } from 'src/posts/dto/create-post.dto';
 
 describe('PostsController (e2e)', () => {
   let app: INestApplication;
@@ -31,9 +33,9 @@ describe('PostsController (e2e)', () => {
     uploadsService = moduleRef.get<UploadsService>(UploadsService);
   });
 
-  let access_token: string;
+  let userAccessToken: string;
 
-  async function takeToken(role?: Role): Promise<{ access_token: string }> {
+  async function takeToken(role?: Role): Promise<{ userAccessToken: string }> {
     let user: FakeUser;
 
     if (role) user = await databaseService.createRandomTestUser(role);
@@ -41,11 +43,11 @@ describe('PostsController (e2e)', () => {
     // take a token
     const result = await loginAccount(app, user.username, user.password);
 
-    return { access_token: `Bearer ${result.access_token}` };
+    return { userAccessToken: `Bearer ${result.access_token}` };
   }
 
   beforeAll(async () => {
-    access_token = (await takeToken()).access_token;
+    userAccessToken = (await takeToken()).userAccessToken;
   });
 
   afterAll(async () => {
@@ -55,19 +57,23 @@ describe('PostsController (e2e)', () => {
     await app.close();
   });
 
-  async function createPostRequest(invalidToken?: string) {
+  async function createPostRequest(
+    invalidToken?: string,
+  ): Promise<{ body: { data: Post; message: string } }> {
     const dto = generateFakePost();
 
-    return await request(app.getHttpServer())
+    const { body } = await request(app.getHttpServer())
       .post('/posts/')
-      .set('Authorization', invalidToken || access_token)
+      .set('Authorization', invalidToken || userAccessToken)
       .send(dto);
+
+    return { body };
   }
 
   describe('/ (POST) new post', () => {
     describe('the given user is not logged in', () => {
       it('should return 401 Unauthorized', async () => {
-        const result = await createPostRequest('invalid');
+        const result = await createPostRequest('invalidAccessToken');
 
         expect(result.body.message).toBe(UNAUTHORIZED);
       });
@@ -106,7 +112,7 @@ describe('PostsController (e2e)', () => {
       it('should return the post', async () => {
         const result = await request(app.getHttpServer())
           .get('/posts/id?id=' + privatePost.data.id)
-          .set('Authorization', access_token);
+          .set('Authorization', userAccessToken);
 
         expect(result.statusCode).toBe(200);
       });
@@ -118,7 +124,7 @@ describe('PostsController (e2e)', () => {
 
         const result = await request(app.getHttpServer())
           .get('/posts/id?id=' + privatePost.data.id)
-          .set('Authorization', user.access_token);
+          .set('Authorization', user.userAccessToken);
 
         expect(result.statusCode).toBe(403);
       });
@@ -130,7 +136,7 @@ describe('PostsController (e2e)', () => {
 
         const result = await request(app.getHttpServer())
           .get('/posts/id?id=' + privatePost.data.id)
-          .set('Authorization', user.access_token);
+          .set('Authorization', user.userAccessToken);
 
         expect(result.statusCode).toBe(200);
       });
@@ -138,15 +144,25 @@ describe('PostsController (e2e)', () => {
   });
 
   describe('/ (PATCH) update the post ', () => {
+    async function updatePostRequest(
+      id: string,
+      accessToken?: string,
+    ): Promise<{ body: { data: Post; message: string }; statusCode: number }> {
+      const dto: UpdatePostDto = generateFakePost();
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .patch('/posts/' + id)
+        .set('Authorization', accessToken || userAccessToken)
+        .send(dto);
+
+      return { body, statusCode };
+    }
+
     describe('scenario : user update its own post', () => {
       it('should return the updated post', async () => {
         const oldPost = await createPostRequest();
 
-        const updated: { body: { data: Post; message: string } } =
-          await request(app.getHttpServer())
-            .patch('/posts/' + oldPost.body.data.id)
-            .set('Authorization', access_token)
-            .send(generateFakePost());
+        const updated = await updatePostRequest(oldPost.body.data.id);
 
         expect(updated.body.data.updatedAt).toBeDefined();
         expect(updated.body.data.updatedAt).not.toEqual(
@@ -159,12 +175,12 @@ describe('PostsController (e2e)', () => {
       it('should throw Forbidden Error', async () => {
         const oldPost = await createPostRequest();
 
-        const { access_token: invalid_token } = await takeToken();
+        const { userAccessToken: invalid_token } = await takeToken();
 
-        const updated = await request(app.getHttpServer())
-          .patch('/posts/' + oldPost.body.data.id)
-          .set('Authorization', invalid_token)
-          .send(generateFakePost());
+        const updated = await updatePostRequest(
+          oldPost.body.data.id,
+          invalid_token,
+        );
 
         expect(updated.statusCode).toBe(403);
       });
@@ -174,17 +190,129 @@ describe('PostsController (e2e)', () => {
       it('should return the updated post', async () => {
         const oldPost = await createPostRequest();
 
-        const { access_token } = await takeToken(Role.ADMIN);
+        const { userAccessToken } = await takeToken(Role.ADMIN);
 
-        const updated: { body: { data: Post; message: string } } =
-          await request(app.getHttpServer())
-            .patch('/posts/' + oldPost.body.data.id)
-            .set('Authorization', access_token)
-            .send(generateFakePost());
+        const updated = await updatePostRequest(
+          oldPost.body.data.id,
+          userAccessToken,
+        );
 
         expect(updated.body.data.updatedAt).toBeDefined();
         expect(updated.body.data.updatedAt).not.toEqual(
           oldPost.body.data.updatedAt,
+        );
+      });
+    });
+  });
+
+  describe('/ (DELETE) delete a post ', () => {
+    async function deletePostRequest(
+      id: string,
+      accessToken?: string,
+    ): Promise<{ body: { id: string; message: string }; statusCode: number }> {
+      const { body, statusCode } = await request(app.getHttpServer())
+        .delete('/posts/' + id)
+        .set('Authorization', accessToken || userAccessToken);
+
+      return { body, statusCode };
+    }
+
+    describe('scenario : user delete its own post', () => {
+      it('should return the deleted post id', async () => {
+        const createdPost = await createPostRequest();
+
+        const deleted = await deletePostRequest(createdPost.body.data.id);
+
+        expect(deleted.body.message).toEqual(POST_DELETED);
+      });
+    });
+
+    describe("scenario : user delete another user's post", () => {
+      it('should throw Forbidden Error', async () => {
+        const createdPost = await createPostRequest();
+
+        const { userAccessToken: invalid_token } = await takeToken();
+
+        const updated = await deletePostRequest(
+          createdPost.body.data.id,
+          invalid_token,
+        );
+
+        expect(updated.statusCode).toBe(403);
+      });
+    });
+
+    describe('scenario : if user an admin', () => {
+      it('should return the deleted post id', async () => {
+        const createdPost = await createPostRequest();
+
+        const { userAccessToken } = await takeToken(Role.ADMIN);
+
+        const deleted = await deletePostRequest(
+          createdPost.body.data.id,
+          userAccessToken,
+        );
+
+        expect(deleted.body.message).toEqual(POST_DELETED);
+      });
+    });
+  });
+
+  describe('/ (PUT) change the post status ', () => {
+    async function changePostStatusRequest(
+      id: string,
+      accessToken?: string,
+    ): Promise<{
+      body: { id: string; published: boolean; message: string };
+      statusCode: number;
+    }> {
+      const { body, statusCode } = await request(app.getHttpServer())
+        .put('/posts/change_post_status/' + id)
+        .set('Authorization', accessToken || userAccessToken);
+
+      return { body, statusCode };
+    }
+
+    describe('scenario : user change its own post status', () => {
+      it('should return the post id', async () => {
+        const createdPost = await createPostRequest();
+
+        const updated = await changePostStatusRequest(createdPost.body.data.id);
+
+        expect(createdPost.body.data.published).not.toBe(
+          updated.body.published,
+        );
+      });
+    });
+
+    describe("scenario : user change another user's post status", () => {
+      it('should throw Forbidden Error', async () => {
+        const createdPost = await createPostRequest();
+
+        const { userAccessToken: invalid_token } = await takeToken();
+
+        const updated = await changePostStatusRequest(
+          createdPost.body.data.id,
+          invalid_token,
+        );
+
+        expect(updated.statusCode).toBe(403);
+      });
+    });
+
+    describe('scenario : if user an admin', () => {
+      it('should return the post id', async () => {
+        const createdPost = await createPostRequest();
+
+        const { userAccessToken } = await takeToken(Role.ADMIN);
+
+        const updated = await changePostStatusRequest(
+          createdPost.body.data.id,
+          userAccessToken,
+        );
+
+        expect(createdPost.body.data.published).not.toBe(
+          updated.body.published,
         );
       });
     });

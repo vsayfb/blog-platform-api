@@ -3,11 +3,16 @@ import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';
+import { tagStub } from '../stub/tag.stub';
+import { NotFoundException } from '@nestjs/common';
+import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
+import { UpdateTagDto } from '../dto/update-tag.dto';
 
 jest.mock('src/tags/tags.service.ts');
 
 describe('TagsController', () => {
-  let controller: TagsController;
+  let tagsController: TagsController;
+  let tagsService: TagsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,10 +25,103 @@ describe('TagsController', () => {
       ],
     }).compile();
 
-    controller = module.get<TagsController>(TagsController);
+    tagsController = module.get<TagsController>(TagsController);
+    tagsService = module.get<TagsService>(TagsService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('findOne', () => {
+    describe('when findOne is called', () => {
+      let result: { data: Tag; message: string };
+      const dto = tagStub();
+
+      beforeEach(async () => {
+        result = await tagsController.findOne(dto.name);
+      });
+
+      test('calls tagsService.getOne method', () => {
+        expect(tagsService.getOne).toHaveBeenCalledWith(dto.name);
+      });
+
+      it('should return a tag', () => {
+        expect(result.data).toEqual(dto);
+      });
+    });
+  });
+
+  describe('create', () => {
+    describe('when create is called', () => {
+      let result: { data: Tag; message: string };
+      const createTagDto = tagStub();
+
+      beforeEach(async () => {
+        result = await tagsController.create(createTagDto);
+      });
+
+      test('calls tagsService.create method', () => {
+        expect(tagsService.create).toHaveBeenCalledWith(createTagDto.name);
+      });
+
+      it('should return a tag', () => {
+        expect(result.data).toEqual(createTagDto);
+      });
+    });
+  });
+
+  describe('findAll', () => {
+    describe('when findAll is called', () => {
+      let result: { data: Tag[]; message: string };
+      const dto = tagStub();
+
+      beforeEach(async () => {
+        result = await tagsController.findAll();
+      });
+
+      test('calls tagsService.getAll method', () => {
+        expect(tagsService.getAll).toHaveBeenCalled();
+      });
+
+      it('should return an array of tags', () => {
+        expect(result.data).toEqual(expect.any(Array));
+      });
+    });
+  });
+
+  describe('update', () => {
+    describe('when update is called', () => {
+      let result: { data: Tag; message: string };
+      const tag = tagStub() as unknown as Tag;
+      const updateDto: UpdateTagDto = { name: 'new_tag' };
+
+      beforeEach(async () => {
+        result = await tagsController.update(updateDto, tag);
+      });
+
+      test('calls tagsService.update method', () => {
+        expect(tagsService.update).toHaveBeenCalledWith(tag, updateDto.name);
+      });
+
+      it('should return the updated post', () => {
+        expect(tag.name).not.toEqual(updateDto.name);
+      });
+    });
+  });
+
+  describe('delete', () => {
+    describe('when delete is called', () => {
+      let result: { id: string; message: string };
+      const tag = tagStub() as unknown as Tag;
+
+      beforeEach(async () => {
+        result = await tagsController.delete(tag);
+      });
+
+      test('calls tagsService.delete method', () => {
+        expect(tagsService.delete).toHaveBeenCalledWith(tag);
+      });
+
+      it("should return the deleted tag's id", () => {
+        expect(result.id).toEqual(tag.id);
+      });
+    });
   });
 });
