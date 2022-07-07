@@ -1,1 +1,1 @@
-web: npm run start:prod
+web: sh -c 'npm install && npm run generate:migration && npm run migration:run && npm run start:prod'
