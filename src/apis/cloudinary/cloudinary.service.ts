@@ -2,19 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinaryV2 } from 'cloudinary';
 import * as path from 'path';
-import {
-  CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET,
-  CLOUDINARY_CLOUD_NAME,
-} from 'src/lib/env';
+import { ProcessEnv } from 'src/lib/enums/env';
 
 @Injectable()
 export class CloudinaryService {
   constructor(configService: ConfigService) {
     cloudinaryV2.config({
-      cloud_name: configService.get<string>(CLOUDINARY_CLOUD_NAME),
-      api_key: configService.get<string>(CLOUDINARY_API_KEY),
-      api_secret: configService.get<string>(CLOUDINARY_API_SECRET),
+      cloud_name: configService.get<string>(ProcessEnv.CLOUDINARY_CLOUD_NAME),
+      api_key: configService.get<string>(ProcessEnv.CLOUDINARY_API_KEY),
+      api_secret: configService.get<string>(ProcessEnv.CLOUDINARY_API_SECRET),
     });
   }
 

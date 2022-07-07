@@ -9,7 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { GoogleModule } from 'src/apis/google/google.module';
 import { CodesModule } from 'src/codes/codes.module';
-import { JWT_EXPIRES_IN, JWT_SECRET } from 'src/lib/env';
+import { ProcessEnv } from 'src/lib/enums/env';
 
 @Module({
   imports: [
@@ -19,8 +19,10 @@ import { JWT_EXPIRES_IN, JWT_SECRET } from 'src/lib/env';
     GoogleModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>(JWT_SECRET),
-        signOptions: { expiresIn: configService.get<string>(JWT_EXPIRES_IN) },
+        secret: configService.get<string>(ProcessEnv.JWT_SECRET),
+        signOptions: {
+          expiresIn: configService.get<string>(ProcessEnv.JWT_EXPIRES_IN),
+        },
       }),
       inject: [ConfigService],
     }),

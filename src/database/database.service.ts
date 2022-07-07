@@ -2,11 +2,11 @@ import { Role } from './../accounts/entities/account.entity';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
-import { DEV_DATABASE, NODE_ENV } from 'src/lib/env';
 import {
   FakeUser,
   generateFakeUser,
 } from 'test/helpers/faker/generateFakeUser';
+import { ProcessEnv } from 'src/lib/enums/env';
 
 @Injectable()
 export class DatabaseService {
@@ -14,9 +14,9 @@ export class DatabaseService {
 
   constructor(configService: ConfigService) {
     // do not use on production
-    if (configService.get<string>(NODE_ENV) !== 'production') {
+    if (configService.get<string>(ProcessEnv.NODE_ENV) !== 'production') {
       this.db = new Client({
-        connectionString: configService.get<string>(DEV_DATABASE),
+        connectionString: configService.get<string>(ProcessEnv.DEV_DATABASE),
       });
 
       this.connect();

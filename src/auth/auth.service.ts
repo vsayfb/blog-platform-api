@@ -6,10 +6,10 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
-import { JWT_SECRET } from 'src/lib/env';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { ProcessEnv } from 'src/lib/enums/env';
 
 @Injectable()
 export class AuthService {
@@ -97,7 +97,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>(JWT_SECRET),
+        secret: this.configService.get<string>(ProcessEnv.JWT_SECRET),
       }),
     };
   }

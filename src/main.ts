@@ -2,7 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { CORS_ORIGIN } from './lib/env';
+import { ProcessEnv } from './lib/enums/env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +15,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: process.env[CORS_ORIGIN],
+    origin: process.env[ProcessEnv.CORS_ORIGIN],
   });
 
   app.setGlobalPrefix('api');
