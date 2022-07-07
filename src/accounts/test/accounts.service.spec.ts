@@ -1,18 +1,18 @@
 import { randomUUID } from 'crypto';
 import { RegisterType } from '../entities/account.entity';
-import { EMAIL_REGISTERED } from '../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsService } from '../accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
-import { mockRepository } from 'src/lib/mockRepository';
-import { EMAIL_TAKEN, USERNAME_TAKEN, CODE_SENT } from 'src/lib/api-messages';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { Repository } from 'typeorm';
+import { mockRepository } from '../../../test/helpers/mockRepository';
+import { AccountMessages } from '../enums/account-messages';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');
@@ -47,7 +47,7 @@ describe('AccountsService', () => {
   describe('getOne', () => {
     describe('when getOne is called', () => {
       let result: Account;
-      let id = randomUUID();
+      const id = randomUUID();
 
       beforeEach(async () => {
         result = await accounstService.getOne(id);
@@ -96,7 +96,7 @@ describe('AccountsService', () => {
       describe('if : username exists in the db', () => {
         test('throws "Username taken." error', async () => {
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
-            USERNAME_TAKEN,
+            AccountMessages.USERNAME_TAKEN,
           );
         });
       });
@@ -108,7 +108,7 @@ describe('AccountsService', () => {
             .mockResolvedValueOnce(null);
 
           await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
-            EMAIL_TAKEN,
+            AccountMessages.EMAIL_TAKEN,
           );
         });
       });
@@ -137,7 +137,7 @@ describe('AccountsService', () => {
 
   describe('createAccountViaGoogle', () => {
     let result: Account;
-    let dto = accountStub();
+    const dto = accountStub();
 
     beforeEach(async () => {
       result = await accounstService.createAccountViaGoogle(dto);
@@ -184,23 +184,23 @@ describe('AccountsService', () => {
 
   describe('beginRegisterVerification', () => {
     describe('when beginRegisterVerification is called', () => {
-      let { username, email } = accountStub();
+      const { username, email } = accountStub();
 
       describe('scenario : if email registered', () => {
-        test('should throw an error', async () => {
+        test('should throw email taken error', async () => {
           await expect(
             accounstService.beginRegisterVerification(username, email),
-          ).rejects.toThrow(EMAIL_REGISTERED);
+          ).rejects.toThrow(AccountMessages.EMAIL_TAKEN);
         });
       });
 
       describe('scenario : if username registered', () => {
-        test('should throw an error', async () => {
+        test('should throw username taken error', async () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce(null);
 
           await expect(
             accounstService.beginRegisterVerification(username, email),
-          ).rejects.toThrow(USERNAME_TAKEN);
+          ).rejects.toThrow(AccountMessages.USERNAME_TAKEN);
         });
       });
 
@@ -210,7 +210,7 @@ describe('AccountsService', () => {
 
           expect(
             await accounstService.beginRegisterVerification(username, email),
-          ).toEqual({ message: CODE_SENT });
+          ).toEqual({ message: CodeMessages.CODE_SENT });
         });
       });
     });

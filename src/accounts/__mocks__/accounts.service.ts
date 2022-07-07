@@ -1,5 +1,5 @@
-import { CODE_SENT } from './../../lib/api-messages/api-messages';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 
 export const AccountsService = jest.fn().mockReturnValue({
@@ -10,7 +10,7 @@ export const AccountsService = jest.fn().mockReturnValue({
   createAccountViaGoogle: jest.fn().mockResolvedValue(accountStub()),
   beginRegisterVerification: jest
     .fn()
-    .mockResolvedValue({ message: CODE_SENT }),
+    .mockResolvedValue({ message: CodeMessages.CODE_SENT }),
   changeProfileImage: jest
     .fn()
     .mockResolvedValue({ newImage: uploadProfileResultStub.newImage }),

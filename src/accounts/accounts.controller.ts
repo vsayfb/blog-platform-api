@@ -1,9 +1,7 @@
-import { USERNAME_AVAILABLE } from './../lib/api-messages/api-messages';
 import {
   BadRequestException,
   Body,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
   Post,
@@ -21,19 +19,16 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  EMAIL_AVAILABLE,
-  EMAIL_REGISTERED,
-  EMAIL_TAKEN,
-  USERNAME_TAKEN,
-} from 'src/lib/api-messages';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
+import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
 import { BeginVerificationDto } from './dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
+import { AccountMessages } from './enums/account-messages';
+import { AccountRoutes } from './enums/account-routes';
 
 @Controller('accounts')
 @ApiTags('accounts')
@@ -52,36 +47,38 @@ export class AccountsController {
       },
     },
   })
-  @Get('me')
+  @Get(AccountRoutes.FIND_ME)
   findMe(@Account() account: JwtPayload): JwtPayload {
     return account;
   }
 
-  @Get('/is_available_username')
+  @Get(AccountRoutes.IS_AVAILABLE_USERNAME)
   async isAvailableUsername(
     @Query() { username }: UsernameQuery,
-  ): Promise<BadRequestException | { message: string }> {
+  ): Promise<{ message: string }> {
     const result = await this.accountsService.getOneByUsername(username);
 
-    if (result) throw new BadRequestException(USERNAME_TAKEN);
+    if (result) throw new BadRequestException(AccountMessages.USERNAME_TAKEN);
 
-    return { message: USERNAME_AVAILABLE };
+    return { message: AccountMessages.USERNAME_AVAILABLE };
   }
 
-  @Get('/is_available_email')
+  @Get(AccountRoutes.IS_AVAILABLE_USERNAME)
   async isAvailableEmail(
     @Query() { email }: EmailQueryDto,
-  ): Promise<BadRequestException | { message: string }> {
+  ): Promise<{ message: string }> {
     const result = await this.accountsService.getOneByUsername(email);
 
-    if (result) throw new BadRequestException(EMAIL_TAKEN);
+    if (result) throw new BadRequestException(AccountMessages.EMAIL_TAKEN);
 
-    return { message: EMAIL_AVAILABLE };
+    return { message: AccountMessages.EMAIL_AVAILABLE };
   }
 
-  @ApiOkResponse({ schema: { example: { message: 'A code sent.' } } })
-  @ApiForbiddenResponse({ schema: { example: { error: EMAIL_REGISTERED } } })
-  @Post('begin_register_verification')
+  @ApiOkResponse({ schema: { example: { message: CodeMessages.CODE_SENT } } })
+  @ApiForbiddenResponse({
+    schema: { example: { error: AccountMessages.EMAIL_TAKEN } },
+  })
+  @Post(AccountRoutes.BEGIN_REGISTER_VERIFICATION)
   @HttpCode(200)
   async beginVerification(
     @Body() data: BeginVerificationDto,
@@ -98,7 +95,7 @@ export class AccountsController {
   })
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('image'))
-  @Post('upload_profile_image')
+  @Post(AccountRoutes.UPLOAD_PROFILE_PHOTO)
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
     @UploadedFile(IsImageFilePipe) image: Express.Multer.File,

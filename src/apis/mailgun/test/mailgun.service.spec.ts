@@ -25,7 +25,7 @@ describe('MailgunService', () => {
 
     const from = configService.get();
 
-    let to = { email: accountStub().email, username: accountStub().username };
+    const to = { email: accountStub().email, username: accountStub().username };
 
     const verificationMailOptions = {
       template: 'verification_code',

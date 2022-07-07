@@ -2,17 +2,13 @@ import { tagStub } from 'src/tags/stub/tag.stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
 import { postStub } from 'src/posts/stub/post-stub';
-import { Subjects } from 'src/casl/casl-ability.factory';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { Test } from '@nestjs/testing';
 import { CaslAbilityFactory, Action } from 'src/casl/casl-ability.factory';
-import { Ability, MongoQuery } from '@casl/ability';
-import { AnyObject } from '@casl/ability/dist/types/types';
 import { Post } from 'src/posts/entities/post.entity';
 import { Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 describe('CaslAbilityFactory', () => {
-  let caslAbilityFactory = new CaslAbilityFactory();
+  const caslAbilityFactory = new CaslAbilityFactory();
 
   describe('when CaslAbilityFactoryCalled', () => {
     const userJesse = { ...jwtPayloadStub, sub: postStub().author.id };

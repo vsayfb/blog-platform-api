@@ -1,22 +1,19 @@
 import { UpdateTagDto } from './../src/tags/dto/update-tag.dto';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as fs from 'fs';
-import * as path from 'path';
 import { Role } from 'src/accounts/entities/account.entity';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { Tag } from 'src/tags/entities/tag.entity';
-import { TagsController } from 'src/tags/tags.controller';
 import * as request from 'supertest';
-import { generateFakePost } from './helpers/faker/generateFakePost';
 import { generateFakeTag } from './helpers/faker/generateFakeTag';
-import { generateFakeUser } from './helpers/faker/generateFakeUser';
 import { loginAccount } from './helpers/loginAccount';
+import { TagRoutes } from 'src/tags/enums/tag-routes';
+
+const PREFIX = '/tags';
 
 describe('Tags Module (e2e)', () => {
   let app: INestApplication;
-  let tagsController: TagsController;
   let databaseService: DatabaseService;
 
   beforeAll(async () => {
@@ -30,7 +27,6 @@ describe('Tags Module (e2e)', () => {
 
     await app.init();
 
-    tagsController = moduleRef.get<TagsController>(TagsController);
     databaseService = moduleRef.get<DatabaseService>(DatabaseService);
   });
 
@@ -53,7 +49,7 @@ describe('Tags Module (e2e)', () => {
 
   async function createTag(token: string): Promise<request.Response> {
     const result = await request(app.getHttpServer())
-      .post('/tags/')
+      .post(PREFIX + TagRoutes.CREATE)
       .set('Authorization', `Bearer ${token}`)
       .send(generateFakeTag());
 
@@ -62,7 +58,7 @@ describe('Tags Module (e2e)', () => {
 
   async function updateTag(token: string, id: string, dto: UpdateTagDto) {
     const result = await request(app.getHttpServer())
-      .patch(`/tags/${id}`)
+      .patch(PREFIX + TagRoutes.UPDATE + id)
       .set('Authorization', `Bearer ${token}`)
       .send(dto);
 

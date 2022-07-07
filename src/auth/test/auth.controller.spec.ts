@@ -65,7 +65,7 @@ describe('AuthController', () => {
 
   describe('authGoogle', () => {
     describe('when authGoogle is called', () => {
-      let dto: AccessToken = {
+      const dto: AccessToken = {
         access_token: '',
       };
       let result: RegisterViewDto;

@@ -18,7 +18,7 @@ export class MaxTwoUnderscores implements ValidatorConstraintInterface {
     return true;
   }
 
-  defaultMessage(args:ValidationArguments) {
+  defaultMessage(args: ValidationArguments) {
     return `The ${args.property} must contain no more than two underscores.`;
   }
 }

@@ -11,7 +11,6 @@ import {
   UploadedFile,
   Query,
   Put,
-  Req,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
@@ -21,11 +20,12 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsImageFilePipe } from 'src/lib/pipes/IsImageFile';
-import { TagNamePipe } from 'src/lib/pipes/TagNamePipe';
+import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
+import { TagNamePipe } from 'src/tags/pipes/TagNamePipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
+import { PostRoutes } from './enums/post-routes';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -34,7 +34,7 @@ export class PostsController {
 
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('titleImage'))
-  @Post()
+  @Post(PostRoutes.CREATE)
   async create(
     @Account() account: JwtPayload,
     @Body(TagNamePipe) createPostDto: CreatePostDto,
@@ -48,13 +48,13 @@ export class PostsController {
     return await this.postsService.create({ ...data, published });
   }
 
-  @Get()
+  @Get(PostRoutes.FIND_ALL)
   async findAll(): Promise<{ data: PostEntity[]; message: string }> {
     return await this.postsService.getAll();
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('me')
+  @Get(PostRoutes.GET_MY_POSTS)
   async getMyPosts(
     @Account() account: JwtPayload,
   ): Promise<{ data: PostEntity[]; message: string }> {
@@ -62,20 +62,20 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard('jwt'), CanManageData)
-  @Get('id')
+  @Get(PostRoutes.FIND_BY_ID)
   async findByID(
     @Query('id') id: string,
   ): Promise<{ data: PostEntity; message: string }> {
     return await this.postsService.getOneByID(id);
   }
 
-  @Get(':url')
+  @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOneByUrl(@Param('url') url: string) {
     return await this.postsService.getOne(url);
   }
 
   @UseGuards(AuthGuard('jwt'), CanManageData)
-  @Patch(':id')
+  @Patch(PostRoutes.UPDATE + ':id')
   update(
     @Body(TagNamePipe) updatePostDto: UpdatePostDto,
     @Data() post: PostEntity,
@@ -84,20 +84,20 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard('jwt'), CanManageData)
-  @Delete(':id')
+  @Delete(PostRoutes.REMOVE + ':id')
   remove(@Data() post: PostEntity) {
     return this.postsService.delete(post);
   }
 
   @UseGuards(AuthGuard('jwt'), CanManageData)
-  @Put('change_post_status/:id')
+  @Put(PostRoutes.CHANGE_POST_STATUS + ':id')
   async changePostStatus(@Data() post: PostEntity) {
     return await this.postsService.changePostStatus(post);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('titleImage'))
-  @Post('upload_title_image')
+  @Post(PostRoutes.UPLOAD_TITLE_IMAGE)
   async uploadTitleImage(
     @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
   ): Promise<{ data: string; message: string }> {

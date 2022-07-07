@@ -1,13 +1,13 @@
-import { USERNAME_AVAILABLE } from './../src/lib/api-messages/api-messages';
-import { USERNAME_TAKEN } from 'src/lib/api-messages';
-import { AccessToken } from '../src/auth/dto/access-token.dto';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '../src/database/database.service';
 import * as request from 'supertest';
-import { generateFakeUser } from 'test/helpers/faker/generateFakeUser';
 import { loginAccount } from './helpers/loginAccount';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { AccountRoutes } from 'src/accounts/enums/account-routes';
+
+const PREFIX = '/accounts';
 
 describe('AccountController (e2e)', () => {
   let app: INestApplication;
@@ -49,7 +49,7 @@ describe('AccountController (e2e)', () => {
       const { access_token, user } = await takeToken();
 
       const expected = await request(app.getHttpServer())
-        .get('/accounts/me')
+        .get(PREFIX + AccountRoutes.FIND_ME)
         .set('Authorization', `Bearer ${access_token}`);
 
       expect(expected.body).toEqual({
@@ -66,7 +66,9 @@ describe('AccountController (e2e)', () => {
   describe('GET is_available_username', () => {
     async function sendAvailableRequest(username: string) {
       const result = await request(app.getHttpServer()).get(
-        `/accounts/is_available_username?username=${username}`,
+        '/accounts' +
+          AccountRoutes.IS_AVAILABLE_USERNAME +
+          `?username=${username}`,
       );
 
       return result;
@@ -85,7 +87,7 @@ describe('AccountController (e2e)', () => {
       it('should return username available message', async () => {
         const result = await sendAvailableRequest('micheal');
 
-        expect(result.body.message).toBe(USERNAME_AVAILABLE);
+        expect(result.body.message).toBe(AccountMessages.USERNAME_AVAILABLE);
       });
     });
 
@@ -95,8 +97,8 @@ describe('AccountController (e2e)', () => {
 
         const result = await sendAvailableRequest(user.username);
 
-        expect(result.body.message).toBe(USERNAME_TAKEN);
-        expect(result.body.error).toBe('Bad Request');
+        expect(result.body.message).toBe(AccountMessages.USERNAME_TAKEN);
+        expect(result.statusCode).toBe(400);
       });
     });
   });

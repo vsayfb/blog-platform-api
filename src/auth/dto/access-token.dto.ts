@@ -1,4 +1,4 @@
-import { IsByteLength, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class AccessToken {
   @IsString()

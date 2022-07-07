@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TAG_NOT_FOUND } from 'src/lib/api-messages';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { Tag } from './entities/tag.entity';
+import { TagMessages } from './enums/tag-messages';
 
 @Injectable()
 export class TagsService implements ICrudService<Tag> {
@@ -18,14 +14,14 @@ export class TagsService implements ICrudService<Tag> {
   async getOne(name: string): Promise<{ data: Tag; message: string }> {
     return {
       data: await this.tagsRepository.findOne({ where: { name } }),
-      message: 'A tag found.',
+      message: TagMessages.FOUND,
     };
   }
 
   async getAll(): Promise<{ data: Tag[]; message: string }> {
     return {
       data: await this.tagsRepository.find(),
-      message: 'All tags find.',
+      message: TagMessages.ALL_FOUND,
     };
   }
 
@@ -34,20 +30,20 @@ export class TagsService implements ICrudService<Tag> {
 
     await this.tagsRepository.remove(tag);
 
-    return { id, message: 'The tag removed.' };
+    return { id, message: TagMessages.DELETED };
   }
 
   async create(name: string): Promise<{ data: Tag; message: string }> {
     return {
       data: await this.tagsRepository.save({ name }),
-      message: 'A tag created.',
+      message: TagMessages.CREATED,
     };
   }
 
   async getOneByID(id: string): Promise<{ data: Tag; message: string }> {
     return {
       data: await this.tagsRepository.findOne({ where: { id } }),
-      message: '',
+      message: TagMessages.FOUND,
     };
   }
 
@@ -59,7 +55,7 @@ export class TagsService implements ICrudService<Tag> {
 
     return {
       data: await this.tagsRepository.save(tag),
-      message: 'The tag updated.',
+      message: TagMessages.UPDATED,
     };
   }
 
@@ -72,9 +68,9 @@ export class TagsService implements ICrudService<Tag> {
   }
 
   async createMultipleTagsIfNotExist(tagNames: string[]): Promise<Tag[]> {
-    let tags: Tag[] = [];
+    const tags: Tag[] = [];
 
-    for await (let name of tagNames) {
+    for await (const name of tagNames) {
       const result = await this.createIfNotExist({ name });
 
       tags.push(result);

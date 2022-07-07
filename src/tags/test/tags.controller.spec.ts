@@ -4,8 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
-import { NotFoundException } from '@nestjs/common';
-import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
 import { UpdateTagDto } from '../dto/update-tag.dto';
 
 jest.mock('src/tags/tags.service.ts');
@@ -70,7 +68,6 @@ describe('TagsController', () => {
   describe('findAll', () => {
     describe('when findAll is called', () => {
       let result: { data: Tag[]; message: string };
-      const dto = tagStub();
 
       beforeEach(async () => {
         result = await tagsController.findAll();
@@ -101,7 +98,7 @@ describe('TagsController', () => {
       });
 
       it('should return the updated post', () => {
-        expect(tag.name).not.toEqual(updateDto.name);
+        expect(result.data.name).toEqual(updateDto.name);
       });
     });
   });

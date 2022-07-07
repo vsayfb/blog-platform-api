@@ -2,7 +2,7 @@ describe('TagNamePipe', () => {
   it('should be return an array of containing clear values', () => {
     const tags = ['what is nodejs?', 'How-To-Code', 'nodejs'];
 
-    let transformedTags: string[] = [];
+    const transformedTags: string[] = [];
 
     tags.map((tag) => {
       transformedTags.push(

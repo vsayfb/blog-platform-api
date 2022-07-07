@@ -1,15 +1,13 @@
 import { BeginVerificationDto } from '../dto/begin-verification.dto';
 import { UsernameQuery } from '../dto/username-query.dto';
-import {
-  USERNAME_AVAILABLE,
-  CODE_SENT,
-} from '../../lib/api-messages/api-messages';
 import { accountStub } from './stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from '../accounts.controller';
 import { AccountsService } from '../accounts.service';
 import { BadRequestException } from '@nestjs/common';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
+import { AccountMessages } from '../enums/account-messages';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 
 jest.mock('../accounts.service');
 
@@ -58,7 +56,7 @@ describe('AccountsController', () => {
 
         expect(
           await accountsController.isAvailableUsername(usernameQuery),
-        ).toEqual({ message: USERNAME_AVAILABLE });
+        ).toEqual({ message: AccountMessages.USERNAME_AVAILABLE });
 
         expect(accountsService.getOneByUsername).toHaveBeenCalledWith(
           usernameQuery.username,
@@ -69,7 +67,7 @@ describe('AccountsController', () => {
 
   describe('beginVerification', () => {
     describe('when beginVerification is called', () => {
-      let beginVerificationDto: BeginVerificationDto = {
+      const beginVerificationDto: BeginVerificationDto = {
         email: accountStub().email,
         username: accountStub().username,
       };
@@ -89,7 +87,7 @@ describe('AccountsController', () => {
       });
 
       it('should return a message', async () => {
-        expect(result).toEqual({ message: CODE_SENT });
+        expect(result).toEqual({ message: CodeMessages.CODE_SENT });
       });
     });
   });

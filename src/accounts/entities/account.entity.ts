@@ -3,7 +3,6 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  BaseEntity,
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
@@ -40,7 +39,7 @@ export class Account {
   @Column({ select: false })
   password: string;
 
-  @OneToMany((_type) => Post, (post) => post.author)
+  @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
   @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })

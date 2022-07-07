@@ -1,11 +1,10 @@
-import { randomUUID } from 'crypto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from 'src/lib/mockRepository';
 import { Tag } from '../entities/tag.entity';
 import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
 import { Repository } from 'typeorm';
+import { mockRepository } from '../../../test/helpers/mockRepository';
 
 describe('TagsService', () => {
   let tagsService: TagsService;

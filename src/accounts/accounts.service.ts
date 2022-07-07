@@ -1,16 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  EMAIL_REGISTERED,
-  EMAIL_TAKEN,
-  USERNAME_TAKEN,
-} from 'src/lib/api-messages';
+
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { Account, RegisterType, Role } from './entities/account.entity';
+import { AccountMessages } from './enums/account-messages';
 
 @Injectable()
 export class AccountsService {
@@ -60,11 +57,12 @@ export class AccountsService {
 
     const usernameTaken = await this.getOneByUsername(username);
 
-    if (usernameTaken) throw new ForbiddenException(USERNAME_TAKEN);
+    if (usernameTaken)
+      throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
 
     const emailTaken = await this.getOneByEmail(email);
 
-    if (emailTaken) throw new ForbiddenException(EMAIL_TAKEN);
+    if (emailTaken) throw new ForbiddenException(AccountMessages.EMAIL_TAKEN);
 
     delete data.verification_code;
 
@@ -106,13 +104,15 @@ export class AccountsService {
       where: { email },
     });
 
-    if (emailRegistered) throw new ForbiddenException(EMAIL_REGISTERED);
+    if (emailRegistered)
+      throw new ForbiddenException(AccountMessages.EMAIL_TAKEN);
 
     const usernameRegistered = await this.accountsRepository.findOne({
       where: { username },
     });
 
-    if (usernameRegistered) throw new ForbiddenException(USERNAME_TAKEN);
+    if (usernameRegistered)
+      throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
 
     return await this.mailService.sendVerificationCode({ username, email });
   }

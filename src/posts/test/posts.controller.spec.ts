@@ -30,7 +30,7 @@ describe('PostsController', () => {
   describe('when create method is called', () => {
     let result: { data: Post; message: string };
 
-    let dto = postStub();
+    const dto = postStub();
 
     delete dto.author;
 
@@ -98,7 +98,6 @@ describe('PostsController', () => {
 
   describe('getMyPosts', () => {
     let result: { data: Post[]; message: string };
-    const jwtPayload = jwtPayloadStub;
 
     describe('when getMyPosts is called', () => {
       beforeEach(async () => {
@@ -117,7 +116,7 @@ describe('PostsController', () => {
 
   describe('findOneByUrl', () => {
     let result: { data: Post; message: string };
-    let id = randomUUID();
+    const id = randomUUID();
 
     describe('when findByID is called', () => {
       beforeEach(async () => {
@@ -136,7 +135,7 @@ describe('PostsController', () => {
 
   describe('findByID', () => {
     let result: { data: Post; message: string };
-    let id = randomUUID();
+    const id = randomUUID();
 
     describe('when findByID is called', () => {
       beforeEach(async () => {
@@ -156,7 +155,7 @@ describe('PostsController', () => {
   describe('update', () => {
     let result: { data: Post; message: string };
     const dto = postStub();
-    let post = postStub() as unknown as Post;
+    const post = postStub() as unknown as Post;
 
     describe('when update is called', () => {
       beforeEach(async () => {

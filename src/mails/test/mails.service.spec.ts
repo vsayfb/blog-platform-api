@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 import { codeStub } from 'src/codes/stub/code.stub';
 import { JobsService } from 'src/jobs/jobs.service';
-import { CODE_SENT } from 'src/lib/api-messages';
 import { MailsService } from '../mails.service';
 
 jest.mock('src/codes/codes.service');
@@ -73,7 +73,7 @@ describe('MailsService', () => {
       });
 
       it('should return a message', () => {
-        expect(result).toEqual({ message: CODE_SENT });
+        expect(result).toEqual({ message: CodeMessages.CODE_SENT });
       });
     });
   });

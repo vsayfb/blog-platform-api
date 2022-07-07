@@ -1,4 +1,7 @@
-import { CODE_SENT } from 'src/lib/api-messages';
+import { CodeMessages } from 'src/codes/enums/code-messages';
+
 export const MailsService = jest.fn().mockReturnValue({
-  sendVerificationCode: jest.fn().mockResolvedValue({ message: CODE_SENT }),
+  sendVerificationCode: jest
+    .fn()
+    .mockResolvedValue({ message: CodeMessages.CODE_SENT }),
 });

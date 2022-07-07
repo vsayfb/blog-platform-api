@@ -2,7 +2,6 @@ import { NotFoundException } from '@nestjs/common';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from 'src/lib/mockRepository';
 import { TagsService } from 'src/tags/tags.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Post } from '../entities/post.entity';
@@ -13,7 +12,7 @@ import { randomUUID } from 'crypto';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { UpdatePostDto } from '../dto/update-post.dto';
-import { tagStub } from 'src/tags/stub/tag.stub';
+import { mockRepository } from '../../../test/helpers/mockRepository';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
@@ -44,9 +43,9 @@ describe('PostsService', () => {
     describe('when create is called', () => {
       let result: { data: Post; message: string };
 
-      let authorID = accountStub().id;
+      const authorID = accountStub().id;
 
-      let dto = postStub();
+      const dto = postStub();
 
       beforeEach(() => {
         // spyOn private methods
@@ -202,7 +201,7 @@ describe('PostsService', () => {
 
   describe('getOneByID', () => {
     describe('when getOneByID is called', () => {
-      let id = randomUUID();
+      const id = randomUUID();
       let result: { data: Post; message: string };
 
       beforeEach(async () => {

@@ -9,6 +9,7 @@ import { GoogleService } from 'src/apis/google/google.service';
 import { ForbiddenException } from '@nestjs/common';
 import { CodesService } from 'src/codes/codes.service';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
+import { CodeMessages } from 'src/codes/enums/code-messages';
 
 jest.mock('src/accounts/accounts.service');
 jest.mock('src/codes/codes.service');
@@ -53,7 +54,7 @@ describe('AuthService', () => {
     });
 
     describe('when register method is called', () => {
-      test('getCode method should be called with code in dto', () => {
+      test('calls codesService.getCode', () => {
         expect(codesService.getCode).toHaveBeenCalledWith(
           dto.verification_code,
         );
@@ -64,17 +65,17 @@ describe('AuthService', () => {
           jest.spyOn(codesService, 'getCode').mockResolvedValueOnce(null);
 
           await expect(authService.register(dto)).rejects.toThrow(
-            'Invalid Code!',
+            CodeMessages.INVALID_CODE,
           );
         });
       });
 
       describe('if : code is verified', () => {
-        test('getCode method should be called with code id', () => {
+        test('calls codesService.removeCode', () => {
           expect(codesService.removeCode).toHaveBeenCalled();
         });
 
-        test('createLocalAccount method should be called with dto', () => {
+        test('calls accountsService.createLocalAccount', () => {
           expect(accountsService.createLocalAccount).toHaveBeenCalled();
         });
 
@@ -98,13 +99,13 @@ describe('AuthService', () => {
         result = await authService.googleAuth(access_token);
       });
 
-      test('getUserCredentials in google service should be called with access_token', () => {
+      test('calls googleService.getUserCredentials', () => {
         expect(googleService.getUserCredentials).toHaveBeenCalledWith(
           access_token,
         );
       });
 
-      test('getAccount method should be called with email', () => {
+      test('calls accountsService.getAccount', () => {
         expect(accountsService.getAccount).toHaveBeenCalledWith(dto.email);
       });
 
@@ -123,7 +124,7 @@ describe('AuthService', () => {
           result = await authService.googleAuth(access_token);
         });
 
-        test('createAccountViaGoogle method should be called with given account', () => {
+        test('calls accountsService.createAccountViaGoogle', () => {
           expect(accountsService.createAccountViaGoogle).toHaveBeenCalledWith({
             email: dto.email,
             password: expect.any(String),
@@ -143,7 +144,7 @@ describe('AuthService', () => {
   });
 
   describe('validateAccount', () => {
-    const { username, email, password } = accountStub();
+    const { username, password } = accountStub();
     let result: Account;
 
     describe('when validateAccount is called', () => {
@@ -151,7 +152,7 @@ describe('AuthService', () => {
         result = await authService.validateAccount(username, password);
       });
 
-      test('getAccount method should be called with username ', () => {
+      test('calls accountsService.getAccount', () => {
         expect(accountsService.getAccount).toHaveBeenCalledWith(username);
       });
 

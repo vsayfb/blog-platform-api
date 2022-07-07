@@ -7,18 +7,19 @@ import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
 import { CodesService } from 'src/codes/codes.service';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
-import {
-  INVALID_CODE,
-  INVALID_CREDENTIALS,
-  INVALID_EMAIL,
-} from 'src/lib/api-messages';
 import { faker } from '@faker-js/faker';
 import { generateFakeUser } from 'test/helpers/faker/generateFakeUser';
+import { AuthMessages } from 'src/auth/enums/auth-messages';
+import { CodeMessages } from 'src/codes/enums/code-messages';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { AuthRoutes } from 'src/auth/enums/auth-routes';
+import { AccountRoutes } from 'src/accounts/enums/account-routes';
+
+const PREFIX = '/auth';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let databaseService: DatabaseService;
-  let codesService: CodesService;
   let mailgunService: MailgunService;
 
   beforeAll(async () => {
@@ -33,7 +34,6 @@ describe('AuthController (e2e)', () => {
     await app.init();
 
     databaseService = moduleRef.get<DatabaseService>(DatabaseService);
-    codesService = moduleRef.get<CodesService>(CodesService);
     mailgunService = moduleRef.get<MailgunService>(MailgunService);
   });
 
@@ -48,10 +48,10 @@ describe('AuthController (e2e)', () => {
     describe('the given dto includes wrong values', () => {
       it('should return Invalid Credentials error', async () => {
         const result = await request(app.getHttpServer())
-          .post('/auth/login')
+          .post(PREFIX + AuthRoutes.LOGIN)
           .send({ ...generateFakeUser() });
 
-        expect(result.body.message).toBe(INVALID_CREDENTIALS);
+        expect(result.body.message).toBe(AuthMessages.INVALID_CREDENTIALS);
       });
     });
 
@@ -60,7 +60,7 @@ describe('AuthController (e2e)', () => {
         const user = await databaseService.createRandomTestUser();
 
         const result = await request(app.getHttpServer())
-          .post('/auth/login')
+          .post(PREFIX + AuthRoutes.LOGIN)
           .send(user);
 
         expect(result.body.access_token).toEqual(expect.any(String));
@@ -71,10 +71,10 @@ describe('AuthController (e2e)', () => {
   describe('/ (POST) new local account', () => {
     const INVALID_VERIFICATION_CODE = '111111';
     const INVALID_EMAIL_ADDRESS = 'invalid@gmail.com';
-    let user: FakeUser = generateFakeUser();
+    const user: FakeUser = generateFakeUser();
     let codeSentForRegister = false;
 
-    let verification_code = faker.datatype
+    const verification_code = faker.datatype
       .number({ min: 100000, max: 999999 })
       .toString();
 
@@ -100,7 +100,7 @@ describe('AuthController (e2e)', () => {
       // just send once otherwise throws an error email or username already registered
       if (!codeSentForRegister) {
         const { body } = await request(app.getHttpServer())
-          .post('/accounts/begin_register_verification')
+          .post('/accounts' + AccountRoutes.BEGIN_REGISTER_VERIFICATION)
           .send(user);
 
         codeSentForRegister = true;
@@ -111,7 +111,7 @@ describe('AuthController (e2e)', () => {
 
     async function sendRegisterRequest(createAccountDto: CreateAccountDto) {
       const result = await request(app.getHttpServer())
-        .post('/auth/register')
+        .post(PREFIX + AuthRoutes.REGISTER)
         .send(createAccountDto);
 
       return result;
@@ -126,7 +126,7 @@ describe('AuthController (e2e)', () => {
           verification_code: INVALID_VERIFICATION_CODE,
         });
 
-        expect(result.body.message).toEqual(INVALID_CODE);
+        expect(result.body.message).toEqual(CodeMessages.INVALID_CODE);
       });
     });
 
@@ -140,7 +140,7 @@ describe('AuthController (e2e)', () => {
           email: INVALID_EMAIL_ADDRESS,
         });
 
-        expect(result.body.message).toEqual(INVALID_EMAIL);
+        expect(result.body.message).toEqual(AccountMessages.INVALID_EMAIL);
       });
     });
 

@@ -5,18 +5,19 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
-import { POST_DELETED, UNAUTHORIZED } from 'src/lib/api-messages';
 import { Post } from 'src/posts/entities/post.entity';
-import { UploadsService } from 'src/uploads/uploads.service';
 import { generateFakePost } from './helpers/faker/generateFakePost';
 import { loginAccount } from './helpers/loginAccount';
 import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
-import { CreatePostDto } from 'src/posts/dto/create-post.dto';
+import { AuthMessages } from 'src/auth/enums/auth-messages';
+import { PostMessages } from 'src/posts/enums/post-messages';
+import { PostRoutes } from 'src/posts/enums/post-routes';
+
+const PREFIX = '/posts';
 
 describe('PostsController (e2e)', () => {
   let app: INestApplication;
   let databaseService: DatabaseService;
-  let uploadsService: UploadsService;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -30,7 +31,6 @@ describe('PostsController (e2e)', () => {
     await app.init();
 
     databaseService = moduleRef.get<DatabaseService>(DatabaseService);
-    uploadsService = moduleRef.get<UploadsService>(UploadsService);
   });
 
   let userAccessToken: string;
@@ -63,7 +63,7 @@ describe('PostsController (e2e)', () => {
     const dto = generateFakePost();
 
     const { body } = await request(app.getHttpServer())
-      .post('/posts/')
+      .post(PREFIX + PostRoutes.CREATE)
       .set('Authorization', invalidToken || userAccessToken)
       .send(dto);
 
@@ -75,7 +75,7 @@ describe('PostsController (e2e)', () => {
       it('should return 401 Unauthorized', async () => {
         const result = await createPostRequest('invalidAccessToken');
 
-        expect(result.body.message).toBe(UNAUTHORIZED);
+        expect(result.body.message).toBe(AuthMessages.UNAUTHORIZED);
       });
     });
 
@@ -95,7 +95,7 @@ describe('PostsController (e2e)', () => {
 
       const result: { body: { data: Post; message: string } } = await request(
         app.getHttpServer(),
-      ).get('/posts/' + createdPost.body.data.url);
+      ).get(PREFIX + PostRoutes.CREATE + createdPost.body.data.url);
 
       expect(result.body.data.title).toBe(createdPost.body.data.title);
     });
@@ -111,7 +111,7 @@ describe('PostsController (e2e)', () => {
     describe('scenario : if user wants read own post by id', () => {
       it('should return the post', async () => {
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.data.id)
+          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
           .set('Authorization', userAccessToken);
 
         expect(result.statusCode).toBe(200);
@@ -123,7 +123,7 @@ describe('PostsController (e2e)', () => {
         const user = await takeToken();
 
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.data.id)
+          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
           .set('Authorization', user.userAccessToken);
 
         expect(result.statusCode).toBe(403);
@@ -135,7 +135,7 @@ describe('PostsController (e2e)', () => {
         const user = await takeToken(Role.ADMIN);
 
         const result = await request(app.getHttpServer())
-          .get('/posts/id?id=' + privatePost.data.id)
+          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
           .set('Authorization', user.userAccessToken);
 
         expect(result.statusCode).toBe(200);
@@ -151,7 +151,7 @@ describe('PostsController (e2e)', () => {
       const dto: UpdatePostDto = generateFakePost();
 
       const { body, statusCode } = await request(app.getHttpServer())
-        .patch('/posts/' + id)
+        .patch(PREFIX + PostRoutes.UPDATE + id)
         .set('Authorization', accessToken || userAccessToken)
         .send(dto);
 
@@ -211,7 +211,7 @@ describe('PostsController (e2e)', () => {
       accessToken?: string,
     ): Promise<{ body: { id: string; message: string }; statusCode: number }> {
       const { body, statusCode } = await request(app.getHttpServer())
-        .delete('/posts/' + id)
+        .delete(PREFIX + PostRoutes.REMOVE + id)
         .set('Authorization', accessToken || userAccessToken);
 
       return { body, statusCode };
@@ -223,7 +223,8 @@ describe('PostsController (e2e)', () => {
 
         const deleted = await deletePostRequest(createdPost.body.data.id);
 
-        expect(deleted.body.message).toEqual(POST_DELETED);
+        expect(deleted.body.message).toEqual(PostMessages.DELETED);
+        expect(deleted.body.id).toBe(createdPost.body.data.id);
       });
     });
 
@@ -253,7 +254,7 @@ describe('PostsController (e2e)', () => {
           userAccessToken,
         );
 
-        expect(deleted.body.message).toEqual(POST_DELETED);
+        expect(deleted.body.message).toEqual(PostMessages.DELETED);
       });
     });
   });

@@ -10,7 +10,8 @@ import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
-import { POST_DELETED, POST_NOT_FOUND } from 'src/lib/api-messages';
+import { PostMessages } from './enums/post-messages';
+import { UploadMessages } from 'src/uploads/enums/upload-messages';
 
 @Injectable()
 export class PostsService implements ICrudService<Post> {
@@ -48,14 +49,14 @@ export class PostsService implements ICrudService<Post> {
         title_image: dto.title_image || null,
         published,
       }),
-      message: 'Created a post!',
+      message: PostMessages.CREATED,
     };
   }
 
   async getAll(): Promise<{ data: Post[]; message: string }> {
     return {
       data: await this.postsRepository.find({ where: { published: true } }),
-      message: 'All posts find.',
+      message: PostMessages.ALL_FOUND,
     };
   }
 
@@ -64,9 +65,9 @@ export class PostsService implements ICrudService<Post> {
       where: { url, published: true },
     });
 
-    if (!post) throw new NotFoundException(POST_NOT_FOUND);
+    if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
 
-    return { data: post, message: 'A post find.' };
+    return { data: post, message: PostMessages.FOUND };
   }
 
   async update(
@@ -87,7 +88,7 @@ export class PostsService implements ICrudService<Post> {
 
     return {
       data: await this.postsRepository.save(post),
-      message: 'Updated a post.',
+      message: PostMessages.UPDATED,
     };
   }
 
@@ -96,7 +97,7 @@ export class PostsService implements ICrudService<Post> {
   ): Promise<{ data: string; message: string }> {
     return {
       data: await this.uploadService.uploadImage(image),
-      message: 'Uploaded an image.',
+      message: UploadMessages.IMAGE_UPLOADED,
     };
   }
 
@@ -113,7 +114,7 @@ export class PostsService implements ICrudService<Post> {
   async getOneByID(id: string) {
     return {
       data: await this.postsRepository.findOne({ where: { id } }),
-      message: 'A post find.',
+      message: PostMessages.FOUND,
     };
   }
 
@@ -124,13 +125,13 @@ export class PostsService implements ICrudService<Post> {
 
     const { id, published } = await this.postsRepository.save(post);
 
-    return { id, published, message: 'Changed post status.' };
+    return { id, published, message: PostMessages.FOUND };
   }
 
   async getMyPosts(id: string): Promise<{ data: Post[]; message: string }> {
     return {
       data: await this.postsRepository.find({ where: { author: { id } } }),
-      message: 'Posts find.',
+      message: PostMessages.ALL_FOUND,
     };
   }
 
@@ -139,6 +140,6 @@ export class PostsService implements ICrudService<Post> {
 
     await this.postsRepository.remove(post);
 
-    return { id, message: POST_DELETED };
+    return { id, message: PostMessages.DELETED };
   }
 }

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  ForbiddenException,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
@@ -20,6 +13,7 @@ import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
 import { AccessToken } from './dto/access-token.dto';
+import { AuthRoutes } from './enums/auth-routes';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -29,7 +23,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @ApiOkResponse({ type: AccessToken })
   @HttpCode(200)
-  @Post('login')
+  @Post(AuthRoutes.LOGIN)
   async login(
     @Account() account: AccountEntity,
   ): Promise<{ access_token: string }> {
@@ -46,7 +40,7 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: 'An array of errors.' })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
-  @Post('register')
+  @Post(AuthRoutes.REGISTER)
   async register(
     @Body() createAccountDto: CreateAccountDto,
   ): Promise<RegisterViewDto> {
@@ -65,7 +59,7 @@ export class AuthController {
     },
   })
   @HttpCode(200)
-  @Post('google')
+  @Post(AuthRoutes.AUTH_GOOGLE)
   async authGoogle(@Body() body: AccessToken): Promise<RegisterViewDto> {
     return await this.authService.googleAuth(body.access_token);
   }

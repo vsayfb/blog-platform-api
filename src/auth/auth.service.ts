@@ -7,8 +7,9 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
 import { JWT_SECRET } from 'src/lib/env';
-import { INVALID_CODE, INVALID_EMAIL } from 'src/lib/api-messages';
 import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
+import { CodeMessages } from 'src/codes/enums/code-messages';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
 
 @Injectable()
 export class AuthService {
@@ -23,10 +24,10 @@ export class AuthService {
   async register(data: CreateAccountDto): Promise<RegisterViewDto> {
     const code = await this.codeService.getCode(data.verification_code);
 
-    if (!code) throw new ForbiddenException(INVALID_CODE);
+    if (!code) throw new ForbiddenException(CodeMessages.INVALID_CODE);
 
     if (code.receiver !== data.email) {
-      throw new ForbiddenException(INVALID_EMAIL);
+      throw new ForbiddenException(AccountMessages.INVALID_EMAIL);
     }
 
     this.codeService.removeCode(code.id);

@@ -5,7 +5,9 @@ import {
 } from 'class-validator';
 
 @ValidatorConstraint({ async: false })
-export class NotAllowSpecialCharsExcludeUnderScore implements ValidatorConstraintInterface {
+export class NotAllowSpecialCharsExcludeUnderScore
+  implements ValidatorConstraintInterface
+{
   validate(text: string) {
     if (!text) return false;
 

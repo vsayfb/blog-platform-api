@@ -5,7 +5,7 @@ import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { CodesService } from 'src/codes/codes.service';
 import { Code } from '../entities/code.entity';
 import { Repository } from 'typeorm';
-import { mockRepository } from 'src/lib/mockRepository';
+import { mockRepository } from '../../../test/helpers/mockRepository';
 
 describe('CodeService', () => {
   let codesService: CodesService;
@@ -79,7 +79,6 @@ describe('CodeService', () => {
   describe('removeCode', () => {
     describe('when removeCode is called', () => {
       let result: Code;
-      const receiver = accountStub().username;
 
       beforeEach(async () => {
         result = await codesService.removeCode(codeStub.id);
