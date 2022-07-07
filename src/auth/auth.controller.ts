@@ -1,5 +1,4 @@
 import { Controller, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -14,13 +13,14 @@ import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
 import { AccessToken } from './dto/access-token.dto';
 import { AuthRoutes } from './enums/auth-routes';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @ApiOkResponse({ type: AccessToken })
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)

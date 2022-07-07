@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
@@ -35,7 +36,7 @@ import { AccountRoutes } from './enums/account-routes';
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
     schema: {
       example: {
@@ -93,7 +94,7 @@ export class AccountsController {
   @ApiBody({
     description: 'A profile image',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   @Post(AccountRoutes.UPLOAD_PROFILE_PHOTO)
   async uploadProfilePhoto(
