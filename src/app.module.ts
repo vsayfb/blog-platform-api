@@ -11,6 +11,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { CaslModule } from './casl/casl.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CaslModule } from './casl/casl.module';
     PostsModule,
     TagsModule,
     CaslModule,
+    CommentsModule,
   ],
 })
 export class AppModule {}

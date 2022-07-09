@@ -1,3 +1,4 @@
+import { Comment } from 'src/comments/entities/comment.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import {
   Column,
@@ -41,6 +42,9 @@ export class Account {
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 
   @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })
   via: RegisterType;

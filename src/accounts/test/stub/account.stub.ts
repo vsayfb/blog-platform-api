@@ -10,6 +10,7 @@ const stub: Account = {
   image: null,
   role: Role.USER,
   posts: [],
+  comments: [],
   via: RegisterType.LOCAL,
   createdAt: undefined,
   updatedAt: undefined,

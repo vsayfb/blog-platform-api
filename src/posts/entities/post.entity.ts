@@ -5,11 +5,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 
 @Entity()
 export class Post {
@@ -27,6 +29,12 @@ export class Post {
     onDelete: 'CASCADE',
   })
   author: Account;
+
+  @OneToMany((_type) => Comment, (comment) => comment.post, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  comments: Comment;
 
   @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true })
   @JoinTable()
