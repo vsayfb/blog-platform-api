@@ -29,8 +29,13 @@ export class MailgunService {
       from,
       to,
       subject,
-      ...options,
     };
+
+    if (options) {
+      for (const key in options) {
+        data[key] = options[key];
+      }
+    }
 
     await this.client.messages.create(
       this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
