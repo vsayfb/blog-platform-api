@@ -6,7 +6,9 @@ import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
 import { CommentsService } from '../comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
+import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
 
 jest.mock('src/comments/comments.service');
@@ -27,6 +29,25 @@ describe('CommentsController', () => {
 
     commentsController = module.get<CommentsController>(CommentsController);
     commentsService = module.get<CommentsService>(CommentsService);
+  });
+
+  describe('findPostComments', () => {
+    describe('when findPostComments is called', () => {
+      let result: { data: Comment[]; message: CommentMessages };
+      const postID = postStub().id;
+
+      beforeEach(async () => {
+        result = await commentsController.findPostComments(postID);
+      });
+
+      test('calls commentsService.getPostComments', () => {
+        expect(commentsService.getPostComments).toHaveBeenCalledWith(postID);
+      });
+
+      it('should return an array of comments of the found post', () => {
+        expect(result.data).toEqual([commentStub()]);
+      });
+    });
   });
 
   describe('create', () => {
@@ -72,6 +93,29 @@ describe('CommentsController', () => {
 
       it("should return the deleted comment's id", () => {
         expect(result.id).toEqual(comment.id);
+      });
+    });
+  });
+
+  describe('update', () => {
+    describe('when update is called', () => {
+      let result: { data: Comment; message: string };
+
+      const comment = commentStub() as unknown as Comment;
+      const dto: UpdateCommentDto = {
+        content: 'updated-comment',
+      };
+
+      beforeEach(async () => {
+        result = await commentsController.update(comment, dto);
+      });
+
+      test('calls commentsService.update', () => {
+        expect(commentsService.update).toHaveBeenCalledWith(comment, dto);
+      });
+
+      it('should return the updated comment', () => {
+        expect(result.data.content).toEqual(dto.content);
       });
     });
   });

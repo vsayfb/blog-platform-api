@@ -38,7 +38,7 @@ export class CaslAbilityFactory {
     } //
     else if (user.role === Role.MODERATOR) {
       can(Action.Manage, Tag);
-      can(Action.Delete, Comment);
+      can(Action.Manage, Comment);
     } //
     else {
       //@ts-ignore
@@ -46,7 +46,7 @@ export class CaslAbilityFactory {
       //@ts-ignore
       can(Action.Manage, Comment, { 'author.id': user.sub });
 
-      /* must be use dot notation because of the casl don't able to match nested object. so ts-ignore
+      /* since casl cannot match nested objects, dot notation must be used. so ts-ignore
       can(Action.Update, Post, { author:{ id: user.sub} }) */
     }
 

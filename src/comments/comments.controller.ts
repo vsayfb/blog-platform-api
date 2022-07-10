@@ -25,6 +25,11 @@ import { CommentRoutes } from './enums/comment-routes';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
+  @Get(CommentRoutes.POST_COMMENTS + ':id')
+  async findPostComments(@Param('id') id: string) {
+    return await this.commentsService.getPostComments(id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post(CommentRoutes.CREATE + ':id')
   async create(

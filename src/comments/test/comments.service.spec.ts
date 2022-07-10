@@ -9,6 +9,8 @@ import { CommentsService } from '../comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { commentStub } from '../stub/comment.stub';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CommentMessages } from '../enums/comment-messages';
 
 describe('CommentsService', () => {
   let commentsService: CommentsService;
@@ -31,6 +33,27 @@ describe('CommentsService', () => {
     );
 
     mockRepository(commentsRepository, Comment);
+  });
+
+  describe('findPostComments', () => {
+    describe('when findPostComments is called', () => {
+      let result: { data: Comment[]; message: CommentMessages };
+      const postID = postStub().id;
+
+      beforeEach(async () => {
+        result = await commentsService.getPostComments(postID);
+      });
+
+      test('calls commentsRepository.find', () => {
+        expect(commentsRepository.find).toHaveBeenCalledWith({
+          where: { post: { id: postID } },
+        });
+      });
+
+      it('should return an array of comments of the found post', () => {
+        expect(result.data).toEqual([commentStub()]);
+      });
+    });
   });
 
   describe('create', () => {
@@ -80,6 +103,29 @@ describe('CommentsService', () => {
 
       it("should return the deleted comment's id", () => {
         expect(result.id).toEqual(comment.id);
+      });
+    });
+  });
+
+  describe('update', () => {
+    describe('when update is called', () => {
+      let result: { data: Comment; message: string };
+
+      const comment = commentStub() as unknown as Comment;
+      const dto: UpdateCommentDto = {
+        content: 'updated-comment',
+      };
+
+      beforeEach(async () => {
+        result = await commentsService.update(comment, dto);
+      });
+
+      test('calls commentsRepository.save', () => {
+        expect(commentsRepository.save).toHaveBeenCalledWith(comment);
+      });
+
+      it('should return the updated comment', () => {
+        expect(result.data.content).toEqual(dto.content);
       });
     });
   });

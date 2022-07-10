@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 
@@ -34,6 +35,16 @@ export class CommentsService implements ICrudService<Comment> {
       message: CommentMessages.ALL_FOUND,
     };
   }
+
+  async getPostComments(postID: string) {
+    return {
+      data: await this.commentRepository.find({
+        where: { post: { id: postID } },
+      }),
+      message:CommentMessages.POST_COMMENTS_FOUND
+    };
+  }
+
   async getOneByID(id: string): Promise<{ data: Comment; message: string }> {
     return {
       data: await this.commentRepository.findOne({ where: { id } }),
@@ -57,10 +68,15 @@ export class CommentsService implements ICrudService<Comment> {
   ): Promise<NotFoundException | { data: Comment; message: string }> {
     throw new Error('Method not implemented.');
   }
-  update(
-    subject: Comment,
-    data: any,
+  async update(
+    comment: Comment,
+    dto: UpdateCommentDto,
   ): Promise<{ data: Comment; message: string }> {
-    throw new Error('Method not implemented.');
+    comment.content = dto.content;
+
+    return {
+      data: await this.commentRepository.save(comment),
+      message: CommentMessages.UPDATED,
+    };
   }
 }

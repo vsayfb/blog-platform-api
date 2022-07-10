@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { Role } from 'src/accounts/entities/account.entity';
 import { AppModule } from 'src/app.module';
 import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
+import { UpdateCommentDto } from 'src/comments/dto/update-comment.dto';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { CommentMessages } from 'src/comments/enums/comment-messages';
 import { CommentRoutes } from 'src/comments/enums/comment-routes';
@@ -65,6 +66,25 @@ describe('Comments (e2e)', () => {
     return { body, statusCode };
   }
 
+  async function updateCommentRequest(
+    commentID: string,
+    updateCommentDto: UpdateCommentDto,
+    access_token?: string,
+  ): Promise<{ body: { data: Comment; message: string }; statusCode: number }> {
+    // create a post for new comment
+    const post: { body: { data: Post } } = await request(server)
+      .post('/posts/')
+      .set('Authorization', await takeToken())
+      .send(generateFakePost());
+
+    const { body, statusCode } = await request(server)
+      .patch(PREFIX + CommentRoutes.PATCH + commentID)
+      .set('Authorization', access_token || (await takeToken()))
+      .send(updateCommentDto);
+
+    return { body, statusCode };
+  }
+
   async function deleteCommentRequest(
     commentID: string,
     access_token: string,
@@ -76,6 +96,20 @@ describe('Comments (e2e)', () => {
 
     return { body: result.body, statusCode: result.statusCode };
   }
+
+  describe('findPostComments', () => {
+    describe('when findPostComments is called', () => {
+      it('should return an array of comments of the found post', async () => {
+        const comment = await createCommentRequest(generateFakeComment());
+
+        const { body }: { body: { data: Comment[] } } = await request(
+          server,
+        ).get(PREFIX + CommentRoutes.POST_COMMENTS + comment.body.data.post.id);
+
+        expect(body.data).toEqual(expect.any(Array));
+      });
+    });
+  });
 
   describe('create', () => {
     describe('when create is called', () => {
@@ -137,6 +171,60 @@ describe('Comments (e2e)', () => {
 
           expect(removed.body.message).toBe(CommentMessages.DELETED);
           expect(removed.body.id).toBe(comment.body.data.id);
+        });
+      });
+    });
+  });
+
+  describe('update', () => {
+    describe('when update is called', () => {
+      const updateCommentDto: UpdateCommentDto = generateFakeComment();
+
+      describe('scenario : user update own comment', () => {
+        it('should return the updated comment', async () => {
+          const token = await takeToken();
+
+          const comment = await createCommentRequest(
+            generateFakeComment(),
+            token,
+          );
+
+          const updated = await updateCommentRequest(
+            comment.body.data.id,
+            updateCommentDto,
+            token,
+          );
+
+          expect(updated.body.message).toBe(CommentMessages.UPDATED);
+          expect(updated.body.data.content).toBe(updateCommentDto.content);
+        });
+      });
+
+      describe("scenario : user update other user's comment", () => {
+        it('should return 403 status code', async () => {
+          const comment = await createCommentRequest(generateFakeComment());
+
+          const updated = await updateCommentRequest(
+            comment.body.data.id,
+            updateCommentDto,
+          );
+
+          expect(updated.statusCode).toBe(403);
+        });
+      });
+
+      describe('scenario : a moderator update comment', () => {
+        it('should return the updated comment', async () => {
+          const comment = await createCommentRequest(generateFakeComment());
+
+          const updated = await updateCommentRequest(
+            comment.body.data.id,
+            updateCommentDto,
+            await takeToken(Role.MODERATOR),
+          );
+
+          expect(updated.body.message).toBe(CommentMessages.UPDATED);
+          expect(updated.body.data.content).toBe(updateCommentDto.content);
         });
       });
     });
