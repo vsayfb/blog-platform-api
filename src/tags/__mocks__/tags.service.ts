@@ -5,14 +5,19 @@ import { tagStub } from '../stub/tag.stub';
 
 export const TagsService = jest.fn().mockReturnValue({
   createMultipleTagsIfNotExist: jest.fn().mockResolvedValue([tagStub()]),
-  getOne: jest.fn().mockResolvedValue({ data: tagStub(), message: '' }),
-  create: jest.fn().mockResolvedValue({ data: tagStub(), message: '' }),
-  delete: jest.fn((tag: Tag) => Promise.resolve({ id: tag.id, message: '' })),
+
+  getOne: jest.fn().mockResolvedValue(tagStub()),
+
+  create: jest.fn().mockResolvedValue(tagStub()),
+
+  delete: jest.fn((tag: Tag) => Promise.resolve(tagStub().id)),
+
   update: jest.fn((tag: Tag, newName: string) =>
     Promise.resolve({
-      data: { ...tag, name: newName },
-      message: TagMessages.UPDATED,
+      ...tag,
+      name: newName,
     }),
   ),
-  getAll: jest.fn().mockResolvedValue({ data: [tagStub()], message: '' }),
+  
+  getAll: jest.fn().mockResolvedValue([tagStub()]),
 });

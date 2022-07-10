@@ -5,28 +5,13 @@ import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
 
 export const CommentsService = jest.fn().mockReturnValue({
-  getPostComments: jest
-    .fn()
-    .mockResolvedValue({
-      data: [commentStub()],
-      message: CommentMessages.POST_COMMENTS_FOUND,
-    }),
+  getPostComments: jest.fn().mockResolvedValue([commentStub()]),
 
-  create: jest.fn(
-    (_authorID: string, _postID: string, _createCommentDto: CreateCommentDto) =>
-      Promise.resolve({
-        data: commentStub(),
-        message: CommentMessages.CREATED,
-      }),
-  ),
+  create: jest.fn().mockResolvedValue(commentStub()),
 
-  delete: jest.fn((comment: Comment) =>
-    Promise.resolve({ id: comment.id, message: CommentMessages.DELETED }),
-  ),
+  delete: jest.fn().mockResolvedValue(commentStub().id),
+
   update: jest.fn((comment: Comment, dto: UpdateCommentDto) =>
-    Promise.resolve({
-      data: { ...comment, ...dto },
-      message: CommentMessages.UPDATED,
-    }),
+    Promise.resolve({ ...comment, ...dto }),
   ),
 });

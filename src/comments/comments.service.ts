@@ -18,65 +18,43 @@ export class CommentsService implements ICrudService<Comment> {
     authorID: string;
     postID: string;
     createCommentDto: CreateCommentDto;
-  }): Promise<{ data: Comment; message: string }> {
-    return {
-      data: await this.commentRepository.save({
-        ...dto.createCommentDto,
-        author: { id: dto.authorID },
-        post: { id: dto.postID },
-      }),
-      message: CommentMessages.CREATED,
-    };
+  }): Promise<Comment> {
+    return await this.commentRepository.save({
+      ...dto.createCommentDto,
+      author: { id: dto.authorID },
+      post: { id: dto.postID },
+    });
   }
 
-  async getAll(): Promise<{ data: Comment[]; message: string }> {
-    return {
-      data: await this.commentRepository.find(),
-      message: CommentMessages.ALL_FOUND,
-    };
+  async getAll(): Promise<Comment[]> {
+    return await this.commentRepository.find();
   }
 
-  async getPostComments(postID: string) {
-    return {
-      data: await this.commentRepository.find({
-        where: { post: { id: postID } },
-      }),
-      message:CommentMessages.POST_COMMENTS_FOUND
-    };
+  async getPostComments(postID: string): Promise<Comment[]> {
+    return await this.commentRepository.find({
+      where: { post: { id: postID } },
+    });
   }
 
-  async getOneByID(id: string): Promise<{ data: Comment; message: string }> {
-    return {
-      data: await this.commentRepository.findOne({ where: { id } }),
-      message: CommentMessages.FOUND,
-    };
+  async getOneByID(id: string): Promise<Comment> {
+    return await this.commentRepository.findOne({ where: { id } });
   }
 
-  async delete(subject: Comment): Promise<{ id: string; message: string }> {
+  async delete(subject: Comment): Promise<string> {
     const commentID = subject.id;
 
     await this.commentRepository.remove(subject);
 
-    return {
-      id: commentID,
-      message: CommentMessages.DELETED,
-    };
+    return commentID;
   }
 
-  getOne(
-    where: string,
-  ): Promise<NotFoundException | { data: Comment; message: string }> {
-    throw new Error('Method not implemented.');
-  }
-  async update(
-    comment: Comment,
-    dto: UpdateCommentDto,
-  ): Promise<{ data: Comment; message: string }> {
+  async update(comment: Comment, dto: UpdateCommentDto): Promise<Comment> {
     comment.content = dto.content;
 
-    return {
-      data: await this.commentRepository.save(comment),
-      message: CommentMessages.UPDATED,
-    };
+    return await this.commentRepository.save(comment);
+  }
+
+  getOne(where: string): Promise<Comment> {
+    throw new Error('Method not implemented.');
   }
 }

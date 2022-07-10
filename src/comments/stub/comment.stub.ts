@@ -7,7 +7,6 @@ export const commentStub = (): Comment => ({
   author: accountStub(),
   content: 'comment-content',
   post: postStub() as any,
-  replies: [] as any,
   createdAt: undefined,
   updatedAt: undefined,
 });

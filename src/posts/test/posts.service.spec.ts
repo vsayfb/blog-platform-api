@@ -41,7 +41,7 @@ describe('PostsService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Post; message: string };
+      let result: Post;
 
       const authorID = accountStub().id;
 
@@ -75,7 +75,7 @@ describe('PostsService', () => {
         });
 
         it('should return the created post as private and title image null', () => {
-          expect(result.data).toEqual({
+          expect(result).toEqual({
             ...postStub(),
             author: { id: postStub().author.id },
             tags: expect.any(Array),
@@ -106,7 +106,7 @@ describe('PostsService', () => {
         });
 
         it('should return the created post with title image url and published', () => {
-          expect(result.data).toEqual({
+          expect(result).toEqual({
             ...postStub(),
             author: { id: postStub().author.id },
             tags: expect.any(Array),
@@ -120,7 +120,7 @@ describe('PostsService', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: Post; message: string };
+      let result: Post;
       const post = postStub() as unknown as Post;
 
       const updatePostDto: UpdatePostDto = {
@@ -140,14 +140,14 @@ describe('PostsService', () => {
       });
 
       it('should return the updated post', () => {
-        expect(result.data.content).toBe(updatePostDto.content);
+        expect(result.content).toBe(updatePostDto.content);
       });
     });
   });
 
   describe('getAll', () => {
     describe('when getAll is called', () => {
-      let result: { data: Post[]; message: string };
+      let result: Post[];
 
       beforeEach(async () => {
         result = await postsService.getAll();
@@ -160,7 +160,7 @@ describe('PostsService', () => {
       });
 
       it('should return the array of published posts', async () => {
-        expect(result.data).toEqual([postStub()]);
+        expect(result).toEqual([postStub()]);
       });
     });
   });
@@ -187,9 +187,9 @@ describe('PostsService', () => {
         it('should return a post', async () => {
           const { url } = postStub();
 
-          const { data } = await postsService.getOne(url);
+          const result = await postsService.getOne(url);
 
-          expect(data).toEqual(data);
+          expect(result).toEqual(postStub());
 
           expect(postsRepository.findOne).toHaveBeenCalledWith({
             where: { url, published: true },
@@ -202,7 +202,7 @@ describe('PostsService', () => {
   describe('getOneByID', () => {
     describe('when getOneByID is called', () => {
       const id = randomUUID();
-      let result: { data: Post; message: string };
+      let result: Post;
 
       beforeEach(async () => {
         result = await postsService.getOneByID(id);
@@ -213,7 +213,7 @@ describe('PostsService', () => {
       });
 
       it('should return a post', () => {
-        expect(result.data).toEqual(postStub());
+        expect(result).toEqual(postStub());
       });
     });
   });
@@ -221,7 +221,7 @@ describe('PostsService', () => {
   describe('saveTitleImage', () => {
     describe('when saveTitleImage is called', () => {
       let image: Express.Multer.File;
-      let result: { data: string; message: string };
+      let result: string;
 
       beforeEach(async () => {
         result = await postsService.saveTitleImage(image);
@@ -232,10 +232,7 @@ describe('PostsService', () => {
       });
 
       it('should return the uploaded image url', () => {
-        expect(result).toEqual({
-          data: expect.any(String),
-          message: expect.any(String),
-        });
+        expect(result).toEqual(expect.any(String));
       });
     });
   });
@@ -243,7 +240,7 @@ describe('PostsService', () => {
   describe('getMyPosts', () => {
     describe('when getMyPosts is called', () => {
       const authorID = jwtPayloadStub.sub;
-      let result: { data: Post[]; message: string };
+      let result: Post[];
 
       beforeEach(async () => {
         result = await postsService.getMyPosts(authorID);
@@ -256,10 +253,7 @@ describe('PostsService', () => {
       });
 
       it('should return an array of posts', () => {
-        expect(result).toEqual({
-          data: [postStub()],
-          message: expect.any(String),
-        });
+        expect(result).toEqual([postStub()]);
       });
     });
   });

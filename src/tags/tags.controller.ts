@@ -18,10 +18,12 @@ import { Tag } from './entities/tag.entity';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { TagRoutes } from './enums/tag-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ICrudController } from 'src/lib/interfaces/ICrudController';
+import { TagMessages } from './enums/tag-messages';
 
 @Controller('tags')
 @ApiTags('tags')
-export class TagsController {
+export class TagsController implements ICrudController<Tag> {
   constructor(private readonly tagsService: TagsService) {}
 
   @Get(TagRoutes.FIND_ONE)
@@ -29,7 +31,10 @@ export class TagsController {
   async findOne(
     @Query('name') tag: string,
   ): Promise<{ data: Tag; message: string }> {
-    return await this.tagsService.getOne(tag);
+    return {
+      data: await this.tagsService.getOne(tag),
+      message: TagMessages.FOUND,
+    };
   }
 
   @Post(TagRoutes.CREATE)
@@ -37,12 +42,18 @@ export class TagsController {
   async create(
     @Body() { name }: CreateTagDto,
   ): Promise<{ data: Tag; message: string }> {
-    return await this.tagsService.create(name);
+    return {
+      data: await this.tagsService.create(name),
+      message: TagMessages.CREATED,
+    };
   }
 
   @Get()
   async findAll(): Promise<{ data: Tag[]; message: string }> {
-    return await this.tagsService.getAll();
+    return {
+      data: await this.tagsService.getAll(),
+      message: TagMessages.ALL_FOUND,
+    };
   }
 
   @Patch(TagRoutes.UPDATE + ':id')
@@ -51,12 +62,18 @@ export class TagsController {
     @Body() { name }: UpdateTagDto,
     @Data() tag: Tag,
   ): Promise<{ data: Tag; message: string }> {
-    return await this.tagsService.update(tag, name);
+    return {
+      data: await this.tagsService.update(tag, name),
+      message: TagMessages.UPDATED,
+    };
   }
 
   @Delete(TagRoutes.DELETE + ':id')
   @UseGuards(JwtAuthGuard)
-  async delete(@Data() tag: Tag): Promise<{ id: string; message: string }> {
-    return await this.tagsService.delete(tag);
+  async remove(@Data() tag: Tag): Promise<{ id: string; message: string }> {
+    return {
+      id: await this.tagsService.delete(tag),
+      message: TagMessages.DELETED,
+    };
   }
 }

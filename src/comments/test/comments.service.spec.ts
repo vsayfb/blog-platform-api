@@ -37,7 +37,7 @@ describe('CommentsService', () => {
 
   describe('findPostComments', () => {
     describe('when findPostComments is called', () => {
-      let result: { data: Comment[]; message: CommentMessages };
+      let result: Comment[];
       const postID = postStub().id;
 
       beforeEach(async () => {
@@ -51,14 +51,14 @@ describe('CommentsService', () => {
       });
 
       it('should return an array of comments of the found post', () => {
-        expect(result.data).toEqual([commentStub()]);
+        expect(result).toEqual([commentStub()]);
       });
     });
   });
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Comment; message: string };
+      let result: Comment;
       const account: JwtPayload = jwtPayloadStub;
       const postID = postStub().id;
       const createCommentDto: CreateCommentDto = {
@@ -82,14 +82,14 @@ describe('CommentsService', () => {
       });
 
       it('should return the created comment', () => {
-        expect(result.data.content).toEqual(createCommentDto.content);
+        expect(result.content).toEqual(createCommentDto.content);
       });
     });
   });
 
   describe('delete', () => {
     describe('when delete is called', () => {
-      let result: { id: string; message?: string };
+      let result: string;
 
       const comment = commentStub();
 
@@ -102,14 +102,14 @@ describe('CommentsService', () => {
       });
 
       it("should return the deleted comment's id", () => {
-        expect(result.id).toEqual(comment.id);
+        expect(result).toEqual(comment.id);
       });
     });
   });
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: Comment; message: string };
+      let result: Comment;
 
       const comment = commentStub() as unknown as Comment;
       const dto: UpdateCommentDto = {
@@ -125,7 +125,7 @@ describe('CommentsService', () => {
       });
 
       it('should return the updated comment', () => {
-        expect(result.data.content).toEqual(dto.content);
+        expect(result.content).toEqual(dto.content);
       });
     });
   });

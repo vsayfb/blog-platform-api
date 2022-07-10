@@ -9,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Reply } from './reply.entity';
 
 @Entity()
 export class Comment {
@@ -24,9 +23,6 @@ export class Comment {
 
   @Column()
   content: string;
-
-  @OneToMany(() => Reply, (reply) => reply.to)
-  replies: Reply;
 
   @CreateDateColumn()
   createdAt: Date;

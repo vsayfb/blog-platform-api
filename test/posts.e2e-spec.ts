@@ -71,21 +71,11 @@ describe('PostsController (e2e)', () => {
   }
 
   describe('/ (POST) new post', () => {
-    describe('the given user is not logged in', () => {
-      it('should return 401 Unauthorized', async () => {
-        const result = await createPostRequest('invalidAccessToken');
+    it('should return the created post', async () => {
+      const result: { body: { data: Post; message: string } } =
+        await createPostRequest();
 
-        expect(result.body.message).toBe(AuthMessages.UNAUTHORIZED);
-      });
-    });
-
-    describe('the given user is logged in', () => {
-      it('should return the created post', async () => {
-        const result: { body: { data: Post; message: string } } =
-          await createPostRequest();
-
-        expect(result.body.data.title).toEqual(expect.any(String));
-      });
+      expect(result.body.data.title).toEqual(expect.any(String));
     });
   });
 
@@ -105,7 +95,9 @@ describe('PostsController (e2e)', () => {
     let privatePost: { data: Post; message: string };
 
     beforeAll(async () => {
-      privatePost = (await createPostRequest()).body;
+      const post = await createPostRequest();
+
+      privatePost = post.body;
     });
 
     describe('scenario : if user wants read own post by id', () => {
@@ -120,11 +112,11 @@ describe('PostsController (e2e)', () => {
 
     describe("scenario : if user wants read other user's post by id", () => {
       it('should throw Forbidden Exception', async () => {
-        const user = await takeToken();
+        const forbiddenUser = await takeToken();
 
         const result = await request(app.getHttpServer())
           .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
-          .set('Authorization', user.userAccessToken);
+          .set('Authorization', forbiddenUser.userAccessToken);
 
         expect(result.statusCode).toBe(403);
       });

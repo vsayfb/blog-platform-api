@@ -28,8 +28,8 @@ export class CanManageData implements CanActivate {
 
     const ability = this.caslAbilityFactory.createForUser({ user: req.user });
 
-    if (ability.can(action, subject.data)) {
-      req.data = subject.data;
+    if (ability.can(action, subject)) {
+      req.data = subject;
       return true;
     }
 

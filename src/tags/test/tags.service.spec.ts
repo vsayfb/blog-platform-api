@@ -26,7 +26,7 @@ describe('TagsService', () => {
 
   describe('getOne', () => {
     describe('when getOne is called', () => {
-      let result: { data: Tag; message: string };
+      let result: Tag;
       const tag = tagStub();
 
       beforeEach(async () => {
@@ -40,14 +40,14 @@ describe('TagsService', () => {
       });
 
       it('should return a tag', () => {
-        expect(result.data).toEqual(tag);
+        expect(result).toEqual(tag);
       });
     });
   });
 
   describe('getOne', () => {
     describe('when getAll is called', () => {
-      let result: { data: Tag[]; message: string };
+      let result: Tag[];
 
       beforeEach(async () => {
         result = await tagsService.getAll();
@@ -58,14 +58,14 @@ describe('TagsService', () => {
       });
 
       it('should return a tag', () => {
-        expect(result.data).toEqual([tagStub()]);
+        expect(result).toEqual([tagStub()]);
       });
     });
   });
 
   describe('delete', () => {
     describe('when delete is called', () => {
-      let result: { id: string; message: string };
+      let result: string;
 
       const tag = tagStub() as unknown as Tag;
 
@@ -78,14 +78,14 @@ describe('TagsService', () => {
       });
 
       it("should return the tag's id", () => {
-        expect(result.id).toEqual(tag.id);
+        expect(result).toEqual(tag.id);
       });
     });
   });
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Tag; message?: string };
+      let result: Tag;
 
       const tagName = 'nodejs';
 
@@ -98,14 +98,14 @@ describe('TagsService', () => {
       });
 
       it("should return the tag's id", () => {
-        expect(result.data.name).toEqual(tagName);
+        expect(result.name).toEqual(tagName);
       });
     });
   });
 
   describe('getOneByID', () => {
     describe('when getOneByID is called', () => {
-      let result: { data: Tag; message?: string };
+      let result: Tag;
 
       const tagID = tagStub().id;
 
@@ -120,14 +120,14 @@ describe('TagsService', () => {
       });
 
       it('should return a tag', () => {
-        expect(result.data).toEqual(tagStub());
+        expect(result).toEqual(tagStub());
       });
     });
   });
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: Tag; message?: string };
+      let result: Tag;
 
       const newTagName = 'nodejs';
       const tag = tagStub() as unknown as Tag;
@@ -141,7 +141,7 @@ describe('TagsService', () => {
       });
 
       it('should return the updated tag', () => {
-        expect(result.data.name).toEqual(newTagName);
+        expect(result.name).toEqual(newTagName);
       });
     });
   });

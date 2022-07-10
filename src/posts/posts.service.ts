@@ -11,7 +11,6 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { PostMessages } from './enums/post-messages';
-import { UploadMessages } from 'src/uploads/enums/upload-messages';
 
 @Injectable()
 export class PostsService implements ICrudService<Post> {
@@ -29,51 +28,39 @@ export class PostsService implements ICrudService<Post> {
     authorID: string;
     dto: CreatePostDto;
     published?: boolean;
-  }): Promise<{
-    data: Post;
-    message: string;
-  }> {
+  }): Promise<Post> {
     const url = this.convertUrl(dto.title);
 
     const tags = await this.setPostTags(dto.tags);
 
     const { content, title } = dto;
 
-    return {
-      data: await this.postsRepository.save({
-        content,
-        title,
-        url,
-        tags,
-        author: { id: authorID },
-        title_image: dto.title_image || null,
-        published,
-      }),
-      message: PostMessages.CREATED,
-    };
+    return await this.postsRepository.save({
+      content,
+      title,
+      url,
+      tags,
+      author: { id: authorID },
+      title_image: dto.title_image || null,
+      published,
+    });
   }
 
-  async getAll(): Promise<{ data: Post[]; message: string }> {
-    return {
-      data: await this.postsRepository.find({ where: { published: true } }),
-      message: PostMessages.ALL_FOUND,
-    };
+  async getAll(): Promise<Post[]> {
+    return await this.postsRepository.find({ where: { published: true } });
   }
 
-  async getOne(url: string): Promise<{ data: Post; message: string }> {
+  async getOne(url: string): Promise<Post> {
     const post = await this.postsRepository.findOne({
       where: { url, published: true },
     });
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
 
-    return { data: post, message: PostMessages.FOUND };
+    return post;
   }
 
-  async update(
-    post: Post,
-    updatePostDto: UpdatePostDto,
-  ): Promise<{ data: Post; message: string }> {
+  async update(post: Post, updatePostDto: UpdatePostDto): Promise<Post> {
     post.title = updatePostDto.title;
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
@@ -86,19 +73,11 @@ export class PostsService implements ICrudService<Post> {
 
     if (updatePostDto.title_image) post.title_image = updatePostDto.title_image;
 
-    return {
-      data: await this.postsRepository.save(post),
-      message: PostMessages.UPDATED,
-    };
+    return await this.postsRepository.save(post);
   }
 
-  async saveTitleImage(
-    image: Express.Multer.File,
-  ): Promise<{ data: string; message: string }> {
-    return {
-      data: await this.uploadService.uploadImage(image),
-      message: UploadMessages.IMAGE_UPLOADED,
-    };
+  async saveTitleImage(image: Express.Multer.File): Promise<string> {
+    return await this.uploadService.uploadImage(image);
   }
 
   private async setPostTags(tags: string[]): Promise<Tag[]> {
@@ -111,35 +90,29 @@ export class PostsService implements ICrudService<Post> {
     return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
-  async getOneByID(id: string) {
-    return {
-      data: await this.postsRepository.findOne({ where: { id } }),
-      message: PostMessages.FOUND,
-    };
+  async getOneByID(id: string): Promise<Post> {
+    return await this.postsRepository.findOne({ where: { id } });
   }
 
   async changePostStatus(
     post: Post,
-  ): Promise<{ id: string; published: boolean; message: string }> {
+  ): Promise<{ id: string; published: boolean }> {
     post.published = !post.published;
 
     const { id, published } = await this.postsRepository.save(post);
 
-    return { id, published, message: PostMessages.FOUND };
+    return { id, published };
   }
 
-  async getMyPosts(id: string): Promise<{ data: Post[]; message: string }> {
-    return {
-      data: await this.postsRepository.find({ where: { author: { id } } }),
-      message: PostMessages.ALL_FOUND,
-    };
+  async getMyPosts(id: string): Promise<Post[]> {
+    return await this.postsRepository.find({ where: { author: { id } } });
   }
 
-  async delete(post: Post): Promise<{ id: string; message: string }> {
+  async delete(post: Post): Promise<string> {
     const id = post.id;
 
     await this.postsRepository.remove(post);
 
-    return { id, message: PostMessages.DELETED };
+    return id;
   }
 }

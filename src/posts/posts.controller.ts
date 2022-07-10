@@ -26,39 +26,52 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { PostRoutes } from './enums/post-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { PostMessages } from './enums/post-messages';
+import { UploadMessages } from 'src/uploads/enums/upload-messages';
+import { ICrudController } from 'src/lib/interfaces/ICrudController';
 
 @Controller('posts')
 @ApiTags('posts')
-export class PostsController {
+export class PostsController implements ICrudController<PostEntity> {
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('titleImage'))
   @Post(PostRoutes.CREATE)
   async create(
-    @Account() account: JwtPayload,
     @Body(TagNamePipe) createPostDto: CreatePostDto,
+    @Account() account: JwtPayload,
     @Query('published') published?: boolean,
   ): Promise<{ data: PostEntity; message: string }> {
-    const data = { authorID: account.sub, dto: createPostDto };
+    let data: PostEntity;
+
+    const saveData = { authorID: account.sub, dto: createPostDto };
 
     if (published === undefined) {
-      return await this.postsService.create(data);
+      data = await this.postsService.create(saveData);
     }
-    return await this.postsService.create({ ...data, published });
+    data = await this.postsService.create({ ...saveData, published });
+
+    return { data, message: PostMessages.CREATED };
   }
 
   @Get(PostRoutes.FIND_ALL)
   async findAll(): Promise<{ data: PostEntity[]; message: string }> {
-    return await this.postsService.getAll();
+    return {
+      data: await this.postsService.getAll(),
+      message: PostMessages.ALL_FOUND,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(PostRoutes.GET_MY_POSTS)
   async getMyPosts(
     @Account() account: JwtPayload,
-  ): Promise<{ data: PostEntity[]; message: string }> {
-    return await this.postsService.getMyPosts(account.sub);
+  ): Promise<{ data: PostEntity[]; message: PostMessages }> {
+    return {
+      data: await this.postsService.getMyPosts(account.sub),
+      message: PostMessages.ALL_FOUND,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
@@ -66,33 +79,52 @@ export class PostsController {
   async findByID(
     @Query('id') id: string,
   ): Promise<{ data: PostEntity; message: string }> {
-    return await this.postsService.getOneByID(id);
+    return {
+      data: await this.postsService.getOneByID(id),
+      message: PostMessages.FOUND,
+    };
   }
 
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
-  async findOneByUrl(@Param('url') url: string) {
-    return await this.postsService.getOne(url);
+  async findOne(
+    @Param('url') url: string,
+  ): Promise<{ data: PostEntity; message: PostMessages }> {
+    return {
+      data: await this.postsService.getOne(url),
+      message: PostMessages.FOUND,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(PostRoutes.UPDATE + ':id')
-  update(
+  async update(
     @Body(TagNamePipe) updatePostDto: UpdatePostDto,
     @Data() post: PostEntity,
   ) {
-    return this.postsService.update(post, updatePostDto);
+    return {
+      data: await this.postsService.update(post, updatePostDto),
+      message: PostMessages.UPDATED,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(PostRoutes.REMOVE + ':id')
-  remove(@Data() post: PostEntity) {
-    return this.postsService.delete(post);
+  async remove(
+    @Data() post: PostEntity,
+  ): Promise<{ id: string; message: PostMessages }> {
+    return {
+      id: await this.postsService.delete(post),
+      message: PostMessages.DELETED,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Put(PostRoutes.CHANGE_POST_STATUS + ':id')
   async changePostStatus(@Data() post: PostEntity) {
-    return await this.postsService.changePostStatus(post);
+    return {
+      ...(await this.postsService.changePostStatus(post)),
+      message: PostMessages.UPDATED,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -101,6 +133,9 @@ export class PostsController {
   async uploadTitleImage(
     @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
   ): Promise<{ data: string; message: string }> {
-    return await this.postsService.saveTitleImage(titleImage);
+    return {
+      data: await this.postsService.saveTitleImage(titleImage),
+      message: UploadMessages.IMAGE_UPLOADED,
+    };
   }
 }

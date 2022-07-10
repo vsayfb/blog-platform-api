@@ -38,7 +38,7 @@ describe('PostsController', () => {
       const published = false;
 
       beforeEach(async () => {
-        result = await controller.create(jwtPayloadStub, dto, false);
+        result = await controller.create(dto, jwtPayloadStub, false);
       });
 
       test('calls postsService.create with authorID dto and published', () => {
@@ -59,7 +59,7 @@ describe('PostsController', () => {
 
     describe("scenario : when published query doesn't received", () => {
       beforeEach(async () => {
-        result = await controller.create(jwtPayloadStub, dto);
+        result = await controller.create(dto, jwtPayloadStub);
       });
 
       test('calls postsService.create with authorID and dto', () => {
@@ -114,17 +114,17 @@ describe('PostsController', () => {
     });
   });
 
-  describe('findOneByUrl', () => {
+  describe('findOne', () => {
     let result: { data: Post; message: string };
-    const id = randomUUID();
+    const url = postStub().url;
 
-    describe('when findByID is called', () => {
+    describe('when findOne is called', () => {
       beforeEach(async () => {
-        result = await controller.findByID(id);
+        result = await controller.findOne(url);
       });
 
-      test('calls postsService.getOneByID method', () => {
-        expect(postsService.getOneByID).toHaveBeenCalledWith(id);
+      test('calls postsService.getOne method', () => {
+        expect(postsService.getOne).toHaveBeenCalledWith(url);
       });
 
       it('should return a post', () => {
@@ -139,11 +139,11 @@ describe('PostsController', () => {
 
     describe('when findByID is called', () => {
       beforeEach(async () => {
-        result = await controller.findOneByUrl(id);
+        result = await controller.findByID(id);
       });
 
       test('calls postsService.getOne method', () => {
-        expect(postsService.getOne).toHaveBeenCalledWith(id);
+        expect(postsService.getOneByID).toHaveBeenCalledWith(id);
       });
 
       it('should return a post', () => {
@@ -192,7 +192,7 @@ describe('PostsController', () => {
   });
 
   describe('changePostStatus', () => {
-    let result: { id: any; published: boolean };
+    let result: { id: string; published: boolean; message: string };
     const post = postStub() as unknown as Post;
 
     describe('when changePostStatus is called', () => {
@@ -228,10 +228,7 @@ describe('PostsController', () => {
       });
 
       it('should return the post', () => {
-        expect(result).toEqual({
-          data: expect.any(String),
-          message: expect.any(String),
-        });
+        expect(result.data).toEqual(expect.any(String));
       });
     });
   });

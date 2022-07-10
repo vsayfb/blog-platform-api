@@ -84,7 +84,7 @@ describe('CommentsController', () => {
       const comment = commentStub();
 
       beforeEach(async () => {
-        result = await commentsController.delete(comment);
+        result = await commentsController.remove(comment);
       });
 
       test('calls commentsService.delete', () => {

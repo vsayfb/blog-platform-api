@@ -13,21 +13,28 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
+import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
+import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
 
 @Controller('comments')
 @ApiTags('comments')
-export class CommentsController {
+export class CommentsController implements ICrudController<Comment> {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get(CommentRoutes.POST_COMMENTS + ':id')
-  async findPostComments(@Param('id') id: string) {
-    return await this.commentsService.getPostComments(id);
+  async findPostComments(
+    @Param('id') id: string,
+  ): Promise<{ data: Comment[]; message: CommentMessages }> {
+    return {
+      data: await this.commentsService.getPostComments(id),
+      message: CommentMessages.ALL_FOUND,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,19 +44,25 @@ export class CommentsController {
     @Param('id') postID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: Comment; message: string }> {
-    return await this.commentsService.create({
-      authorID: account.sub,
-      postID,
-      createCommentDto,
-    });
+    return {
+      data: await this.commentsService.create({
+        authorID: account.sub,
+        postID,
+        createCommentDto,
+      }),
+      message: CommentMessages.CREATED,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(CommentRoutes.DELETE + ':id')
-  async delete(
+  async remove(
     @Data() comment: Comment,
   ): Promise<{ id: string; message: string }> {
-    return await this.commentsService.delete(comment);
+    return {
+      id: await this.commentsService.delete(comment),
+      message: CommentMessages.DELETED,
+    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
@@ -58,6 +71,16 @@ export class CommentsController {
     @Data() comment: Comment,
     @Body() updateCommentDto: UpdateCommentDto,
   ): Promise<{ data: Comment; message: string }> {
-    return await this.commentsService.update(comment, updateCommentDto);
+    return {
+      data: await this.commentsService.update(comment, updateCommentDto),
+      message: CommentMessages.UPDATED,
+    };
+  }
+
+  findAll(): Promise<{ data: any[]; message: string }> {
+    throw new Error('Method not implemented.');
+  }
+  findOne(id: string): Promise<{ data: any; message: string }> {
+    throw new Error('Method not implemented.');
   }
 }

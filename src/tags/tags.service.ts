@@ -11,52 +11,35 @@ export class TagsService implements ICrudService<Tag> {
   constructor(
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
   ) {}
-  async getOne(name: string): Promise<{ data: Tag; message: string }> {
-    return {
-      data: await this.tagsRepository.findOne({ where: { name } }),
-      message: TagMessages.FOUND,
-    };
+
+  async getOne(name: string): Promise<Tag> {
+    return await this.tagsRepository.findOne({ where: { name } });
   }
 
-  async getAll(): Promise<{ data: Tag[]; message: string }> {
-    return {
-      data: await this.tagsRepository.find(),
-      message: TagMessages.ALL_FOUND,
-    };
+  async getAll(): Promise<Tag[]> {
+    return await this.tagsRepository.find();
   }
 
-  async delete(tag: Tag): Promise<{ id: string; message: string }> {
+  async delete(tag: Tag): Promise<string> {
     const id = tag.id;
 
     await this.tagsRepository.remove(tag);
 
-    return { id, message: TagMessages.DELETED };
+    return id;
   }
 
-  async create(name: string): Promise<{ data: Tag; message: string }> {
-    return {
-      data: await this.tagsRepository.save({ name }),
-      message: TagMessages.CREATED,
-    };
+  async create(name: string): Promise<Tag> {
+    return await this.tagsRepository.save({ name });
   }
 
-  async getOneByID(id: string): Promise<{ data: Tag; message: string }> {
-    return {
-      data: await this.tagsRepository.findOne({ where: { id } }),
-      message: TagMessages.FOUND,
-    };
+  async getOneByID(id: string): Promise<any> {
+    return await this.tagsRepository.findOne({ where: { id } });
   }
 
-  async update(
-    tag: Tag,
-    newName: string,
-  ): Promise<{ data: Tag; message: string }> {
+  async update(tag: Tag, newName: string): Promise<Tag> {
     tag.name = newName;
 
-    return {
-      data: await this.tagsRepository.save(tag),
-      message: TagMessages.UPDATED,
-    };
+    return await this.tagsRepository.save(tag);
   }
 
   private async createIfNotExist({ name }: CreateTagDto): Promise<Tag> {
