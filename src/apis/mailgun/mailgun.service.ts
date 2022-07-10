@@ -25,7 +25,7 @@ export class MailgunService {
     subject: string,
     options?: { [key: string]: any },
   ) {
-    const data: MailgunMessageData = {
+    const data = {
       from,
       to,
       subject,
