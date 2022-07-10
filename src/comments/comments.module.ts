@@ -8,6 +8,9 @@ import { Reply } from './entities/reply.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Comment, Reply])],
   controllers: [CommentsController],
-  providers: [CommentsService],
+  providers: [
+    CommentsService,
+    { provide: 'SERVICE', useClass: CommentsService },
+  ],
 })
 export class CommentsModule {}

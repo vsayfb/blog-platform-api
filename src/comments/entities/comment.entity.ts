@@ -16,7 +16,7 @@ export class Comment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, (account) => account.comments)
+  @ManyToOne(() => Account, (account) => account.comments, { eager: true })
   author: Account;
 
   @ManyToOne(() => Post, (post) => post.comments)

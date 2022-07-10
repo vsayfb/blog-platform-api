@@ -8,8 +8,15 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
+import { commentStub } from 'src/comments/stub/comment.stub';
+import { Comment } from 'src/comments/entities/comment.entity';
 
-type Entities = typeof Account | typeof Tag | typeof Post | typeof Code;
+type Entities =
+  | typeof Account
+  | typeof Tag
+  | typeof Post
+  | typeof Code
+  | typeof Comment;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -18,6 +25,7 @@ const stubs = (entity: Entities, id?: string) => {
     Tag: { id: entityID, ...tagStub() },
     Account: { id: entityID, ...accountStub() },
     Post: { id: entityID, ...postStub() },
+    Comment: { id: entityID, ...commentStub() },
     Code: { id: entityID, ...codeStub },
   };
 
