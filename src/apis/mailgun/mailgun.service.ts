@@ -3,7 +3,6 @@ import Mailgun from 'mailgun.js';
 import * as formData from 'form-data';
 import { ConfigService } from '@nestjs/config';
 import Client from 'mailgun.js/client';
-import { MailgunMessageData } from 'mailgun.js/interfaces/Messages';
 import { ProcessEnv } from 'src/lib/enums/env';
 
 @Injectable()
@@ -39,7 +38,7 @@ export class MailgunService {
 
     await this.client.messages.create(
       this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
-      { ...data },
+      data,
     );
   }
 

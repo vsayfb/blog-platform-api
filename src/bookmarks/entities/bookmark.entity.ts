@@ -1,34 +1,28 @@
 import { Account } from 'src/accounts/entities/account.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import {
-  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Comment {
+export class Bookmark {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, (account) => account.comments, {
-    eager: true,
-    onDelete: 'CASCADE',
-  })
-  author: Account;
-
-  @ManyToOne(() => Post, (post) => post.comments, {
+  @ManyToOne(() => Post, (post) => post.bookmarks, {
     eager: true,
     onDelete: 'CASCADE',
   })
   post: Post;
 
-  @Column()
-  content: string;
+  @ManyToOne(() => Account, (account) => account.bookmarks, {
+    onDelete: 'CASCADE',
+  })
+  account: Account;
 
   @CreateDateColumn()
   createdAt: Date;

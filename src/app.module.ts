@@ -12,6 +12,7 @@ import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { CaslModule } from './casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommentsModule } from './comments/comments.module';
     TagsModule,
     CaslModule,
     CommentsModule,
+    BookmarksModule,
   ],
 })
 export class AppModule {}

@@ -10,13 +10,16 @@ import { Post } from 'src/posts/entities/post.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { commentStub } from 'src/comments/stub/comment.stub';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { bookmarkStub } from 'src/bookmarks/stub/bookmark-stub';
+import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 
 type Entities =
   | typeof Account
   | typeof Tag
   | typeof Post
   | typeof Code
-  | typeof Comment;
+  | typeof Comment
+  | typeof Bookmark;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -27,6 +30,7 @@ const stubs = (entity: Entities, id?: string) => {
     Post: { id: entityID, ...postStub() },
     Comment: { id: entityID, ...commentStub() },
     Code: { id: entityID, ...codeStub },
+    Bookmark: { id: entityID, ...bookmarkStub() },
   };
 
   return entities[entity.name];

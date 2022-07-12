@@ -1,0 +1,109 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { postStub } from 'src/posts/stub/post-stub';
+import { BookmarksController } from '../bookmarks.controller';
+import { BookmarksService } from '../bookmarks.service';
+import { Bookmark } from '../entities/bookmark.entity';
+import { bookmarkStub } from '../stub/bookmark-stub';
+
+jest.mock('src/bookmarks/bookmarks.service');
+
+describe('BookmarksController', () => {
+  let bookmarksController: BookmarksController;
+  let bookmarksService: BookmarksService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [BookmarksController],
+      providers: [
+        BookmarksService,
+        { provide: 'SERVICE', useClass: BookmarksService },
+        CaslAbilityFactory,
+      ],
+    }).compile();
+
+    bookmarksController = module.get<BookmarksController>(BookmarksController);
+    bookmarksService = module.get<BookmarksService>(BookmarksService);
+  });
+
+  describe('create', () => {
+    describe('when create is called', () => {
+      let result: { data: Bookmark; message: string };
+      const POST_ID = postStub().id;
+      const account = jwtPayloadStub;
+
+      beforeEach(async () => {
+        result = await bookmarksController.create(POST_ID, account);
+      });
+
+      test('calls bookmarksService.create', () => {
+        expect(bookmarksService.create).toHaveBeenCalledWith({
+          postID: POST_ID,
+          accountID: account.sub,
+        });
+      });
+
+      it('should return the created bookmark', () => {
+        expect(result.data).toEqual(bookmarkStub());
+      });
+    });
+  });
+
+  describe('findOne', () => {
+    describe('when findOne is called', () => {
+      let result: { data: Bookmark; message: string };
+      const bookmark = bookmarkStub();
+
+      beforeEach(async () => {
+        result = await bookmarksController.findOne(bookmark.id);
+      });
+
+      test('calls bookmarksService.getOneById', () => {
+        expect(bookmarksService.getOneByID).toHaveBeenCalledWith(bookmark.id);
+      });
+
+      it('should return a bookmark', () => {
+        expect(result.data).toEqual(bookmark);
+      });
+    });
+  });
+
+  describe('findPostBookmarks', () => {
+    describe('when findPostBookmarks is called', () => {
+      let result: { data: Bookmark[]; message: string };
+      const postID = postStub().id;
+
+      beforeEach(async () => {
+        result = await bookmarksController.findPostBookmarks(postID);
+      });
+
+      test('calls bookmarksService.getPostBookmarks', () => {
+        expect(bookmarksService.getPostBookmarks).toHaveBeenCalledWith(postID);
+      });
+
+      it('should return a bookmark', () => {
+        expect(result.data).toEqual([bookmarkStub()]);
+      });
+    });
+  });
+
+  describe('remove', () => {
+    describe('when remove is called', () => {
+      let result: { id: string; message: string };
+      const bookmark = bookmarkStub();
+
+      beforeEach(async () => {
+        result = await bookmarksController.remove(bookmark);
+      });
+
+      test('calls bookmarksService.delete', () => {
+        expect(bookmarksService.delete).toHaveBeenCalledWith(bookmark);
+      });
+
+      it("should return the deleted bookmark's id", () => {
+        expect(result.id).toEqual(bookmark.id);
+      });
+    });
+  });
+});

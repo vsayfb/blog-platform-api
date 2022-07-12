@@ -11,6 +11,7 @@ const stub: Account = {
   role: Role.USER,
   posts: [],
   comments: [],
+  bookmarks: [],
   via: RegisterType.LOCAL,
   createdAt: undefined,
   updatedAt: undefined,

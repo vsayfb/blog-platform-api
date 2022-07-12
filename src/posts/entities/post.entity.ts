@@ -12,6 +12,7 @@ import {
 import { Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 
 @Entity()
 export class Post {
@@ -30,11 +31,11 @@ export class Post {
   })
   author: Account;
 
-  @OneToMany((_type) => Comment, (comment) => comment.post, {
-    eager: true,
-    onDelete: 'CASCADE',
-  })
+  @OneToMany((_type) => Comment, (comment) => comment.post)
   comments: Comment;
+
+  @OneToMany((_type) => Bookmark, (bookmark) => bookmark.post)
+  bookmarks: Bookmark;
 
   @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true })
   @JoinTable()
