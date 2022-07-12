@@ -1,8 +1,7 @@
-import { Get, Injectable, Param } from '@nestjs/common';
+import { Injectable, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
-import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 
 @Injectable()
@@ -30,11 +29,17 @@ export class BookmarksService implements ICrudService<Bookmark> {
   }
 
   getPostBookmarks(@Param('postId') postId: string) {
-    return this.bookmarksRepository.find({ where: { post: { id: postId } } });
+    return this.bookmarksRepository.find({
+      where: { post: { id: postId } },
+      relations: ['account'],
+    });
   }
 
   getOneByID(id: string): Promise<Bookmark> {
-    return this.bookmarksRepository.findOne({ where: { id } });
+    return this.bookmarksRepository.findOne({
+      where: { id },
+      relations: ['account', 'post'],
+    });
   }
 
   getAll(): Promise<Bookmark[]> {

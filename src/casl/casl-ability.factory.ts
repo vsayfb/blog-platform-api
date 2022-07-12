@@ -11,6 +11,7 @@ import { Injectable } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -21,7 +22,7 @@ export enum Action {
 }
 
 export type Subjects =
-  | InferSubjects<typeof Post | typeof Tag | typeof Comment>
+  | InferSubjects<typeof Post | typeof Tag | typeof Comment | typeof Bookmark>
   | 'all';
 
 export type AppAbility = Ability<[Action, Subjects]>;
@@ -45,6 +46,9 @@ export class CaslAbilityFactory {
       can(Action.Manage, Post, { 'author.id': user.sub });
       //@ts-ignore
       can(Action.Manage, Comment, { 'author.id': user.sub });
+
+      //@ts-ignore
+      can(Action.Manage, Bookmark, { 'account.id': user.sub });
 
       /* since casl cannot match nested objects, dot notation must be used. so ts-ignore
       can(Action.Update, Post, { author:{ id: user.sub} }) */

@@ -1,13 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -15,18 +7,19 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { BookmarksService } from './bookmarks.service';
-import { CreateBookmarkDto } from './dto/create-bookmark.dto';
-import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
+import { BookmarkRoutes } from './enums/bookmark-routes';
 
 @Controller('bookmarks')
+@ApiTags('bookmarks')
 export class BookmarksController implements ICrudController<Bookmark> {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Get(BookmarkRoutes.CREATE + ':postId')
   async create(
-    @Param() postID: string,
+    @Param('postId') postID: string,
     @Account() account: JwtPayload,
   ): Promise<{ data: any; message: string }> {
     return {
@@ -39,7 +32,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
+  @Get(BookmarkRoutes.FIND_ONE + ':id')
   async findOne(
     @Param('id') id: string,
   ): Promise<{ data: any; message: string }> {
@@ -49,7 +42,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
     };
   }
 
-  @Get('post/:postId')
+  @Get(BookmarkRoutes.FIND_POST_BOOKMARKS + ':postId')
   async findPostBookmarks(
     @Param('postId') postId: string,
   ): Promise<{ data: any; message: string }> {
@@ -59,7 +52,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
     };
   }
 
-  @Delete(':id')
+  @Delete(BookmarkRoutes.REMOVE + ':id')
   @UseGuards(JwtAuthGuard, CanManageData)
   async remove(
     @Data() subject: Bookmark,
