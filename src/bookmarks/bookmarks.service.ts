@@ -28,17 +28,25 @@ export class BookmarksService implements ICrudService<Bookmark> {
     return id;
   }
 
-  getPostBookmarks(@Param('postId') postId: string) {
+  getPostBookmarks(postId: string): Promise<Bookmark[]> {
     return this.bookmarksRepository.find({
       where: { post: { id: postId } },
-      relations: ['account'],
+      relations: { account: true },
+      loadEagerRelations: false,
+    });
+  }
+
+  getUserBookmarks(accountID: string): Promise<Bookmark[]> {
+    return this.bookmarksRepository.find({
+      where: { account: { id: accountID } },
+      relations: { post: true },
+      loadEagerRelations: false,
     });
   }
 
   getOneByID(id: string): Promise<Bookmark> {
     return this.bookmarksRepository.findOne({
       where: { id },
-      relations: ['account', 'post'],
     });
   }
 

@@ -54,12 +54,25 @@ describe('Bookmark (e2e)', () => {
     return post.body;
   }
 
+  async function readBookmarkRequest(
+    bookmarkID: string,
+    token: string,
+  ): Promise<{ body: { data: Bookmark }; statusCode: number }> {
+    const bookmark: { body: { data: Bookmark }; statusCode: number } =
+      await request(server)
+        .get(PREFIX + BookmarkRoutes.FIND_ONE + bookmarkID)
+        .set('Authorization', token);
+
+    return bookmark;
+  }
+
   async function createBookmarkRequest(
-    postID: string,
     access_token: string,
   ): Promise<{ data: Bookmark }> {
+    const post = await createPost();
+
     const bookmark: { body: { data: Bookmark } } = await request(server)
-      .get(PREFIX + BookmarkRoutes.CREATE + postID)
+      .post(PREFIX + BookmarkRoutes.CREATE + post.data.id)
       .set('Authorization', access_token);
 
     return bookmark.body;
@@ -88,27 +101,42 @@ describe('Bookmark (e2e)', () => {
   describe('create', () => {
     describe('when create is called', () => {
       test('should return the created bookmark', async () => {
-        const token = await takeToken();
+        const bookmark = await createBookmarkRequest(await takeToken());
 
-        const post = await createPost();
-
-        const bookmark = await createBookmarkRequest(post.data.id, token);
-
-        expect(bookmark.data.id).toBeDefined();
+        expect(bookmark.data.id).toEqual(expect.any(String));
       });
     });
   });
 
   describe('findOne', () => {
     describe('when findOne is called', () => {
-      test('should return a bookmark', async () => {
-        const token = await takeToken();
+      describe('scenario : user read own bookmark', () => {
+        test('should return a bookmark', async () => {
+          const token = await takeToken();
 
-        const post = await createPost();
+          const bookmark = await createBookmarkRequest(token);
 
-        const bookmark = await createBookmarkRequest(post.data.id, token);
+          const result = await readBookmarkRequest(bookmark.data.id, token);
 
-        expect(bookmark.data.id).toBeDefined();
+          expect(result.body.data.id).toEqual(expect.any(String));
+        });
+      });
+
+      describe("scenario : user read other user's  bookmark", () => {
+        test('should return 403 status code', async () => {
+          const token = await takeToken();
+
+          const bookmark = await createBookmarkRequest(token);
+
+          const otherUserToken = await takeToken();
+
+          const result = await readBookmarkRequest(
+            bookmark.data.id,
+            otherUserToken,
+          );
+
+          expect(result.statusCode).toBe(403);
+        });
       });
     });
   });
@@ -116,15 +144,12 @@ describe('Bookmark (e2e)', () => {
   describe('findPostBookmarks', () => {
     describe('when findPostBookmarks is called', () => {
       test("should return an array of post's bookmarks", async () => {
-        const token = await takeToken();
+        const bookmark = await createBookmarkRequest(await takeToken());
 
-        const post = await createPost();
-
-        await createBookmarkRequest(post.data.id, token);
-        await createBookmarkRequest(post.data.id, token);
-
-        const result: { body: { data: Bookmark } } = await request(server).get(
-          PREFIX + BookmarkRoutes.FIND_POST_BOOKMARKS + post.data.id,
+        const result: { body: { data: Bookmark[] } } = await request(
+          server,
+        ).get(
+          PREFIX + BookmarkRoutes.FIND_POST_BOOKMARKS + bookmark.data.post.id,
         );
 
         expect(result.body.data).toEqual(expect.any(Array));
@@ -132,15 +157,29 @@ describe('Bookmark (e2e)', () => {
     });
   });
 
-  describe.only('delete', () => {
+  describe('findMyBookmarks', () => {
+    describe('when findMyBookmarks is called', () => {
+      test("should return an array of user's bookmarks", async () => {
+        const me = await takeToken();
+
+        const bookmark = await createBookmarkRequest(me);
+
+        const result: { body: { data: Bookmark[] } } = await request(server)
+          .get(PREFIX + BookmarkRoutes.FIND_MY_BOOKMARKS)
+          .set('Authorization', me);
+
+        expect(result.body.data[0].id).toEqual(bookmark.data.id);
+      });
+    });
+  });
+
+  describe('delete', () => {
     describe('when delete is called', () => {
       describe('scenario : user delete own bookmark', () => {
         test("should return deleted bookmark's id", async () => {
           const token = await takeToken();
 
-          const post = await createPost();
-
-          const bookmark = await createBookmarkRequest(post.data.id, token);
+          const bookmark = await createBookmarkRequest(token);
 
           const deleted = await deleteBookmarkRequest(bookmark.data.id, token);
 
@@ -150,13 +189,11 @@ describe('Bookmark (e2e)', () => {
 
       describe("scenario : user delete other user's bookmark", () => {
         test('should return 403 status code', async () => {
-          const post = await createPost();
-
           const token = await takeToken();
 
           const otherUserToken = await takeToken();
 
-          const bookmark = await createBookmarkRequest(post.data.id, token);
+          const bookmark = await createBookmarkRequest(token);
 
           const deleted = await deleteBookmarkRequest(
             bookmark.data.id,

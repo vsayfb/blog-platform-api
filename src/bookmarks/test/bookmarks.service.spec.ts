@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { BookmarksService } from '../bookmarks.service';
 import { Bookmark } from '../entities/bookmark.entity';
 import { bookmarkStub } from '../stub/bookmark-stub';
+import { accountStub } from 'src/accounts/test/stub/account.stub';
+import { Account } from 'src/accounts/entities/account.entity';
 
 describe('BookmarksService', () => {
   let bookmarksService: BookmarksService;
@@ -93,11 +95,40 @@ describe('BookmarksService', () => {
 
       test('calls bookmarksRepository.find', () => {
         expect(bookmarksRepository.find).toHaveBeenCalledWith({
-          where: { post: { id: POST_ID } },
+          where: {
+            post: { id: POST_ID },
+          },
+          relations: { account: true },
+          loadEagerRelations: false,
         });
       });
 
       it("should return the array of post's bookmarks", () => {
+        expect(result).toEqual([bookmarkStub()]);
+      });
+    });
+  });
+
+  describe('getUserBookmarks', () => {
+    describe('when getUserBookmarks is called', () => {
+      let result: Bookmark[];
+      const user = accountStub();
+
+      beforeEach(async () => {
+        result = await bookmarksService.getUserBookmarks(user.id);
+      });
+
+      test('calls bookmarksRepository.find', () => {
+        expect(bookmarksRepository.find).toHaveBeenCalledWith({
+          where: {
+            account: { id: user.id },
+          },
+          relations: { post: true },
+          loadEagerRelations: false,
+        });
+      });
+
+      it("should return the array of user's bookmarks", () => {
         expect(result).toEqual([bookmarkStub()]);
       });
     });
@@ -118,7 +149,7 @@ describe('BookmarksService', () => {
         });
       });
 
-      it("should return a bookmark", () => {
+      it('should return a bookmark', () => {
         expect(result).toEqual(bookmarkStub());
       });
     });

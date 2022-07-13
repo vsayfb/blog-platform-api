@@ -50,17 +50,13 @@ describe('BookmarksController', () => {
     });
   });
 
-  describe('findOne', () => {
-    describe('when findOne is called', () => {
+  describe('findBookmark', () => {
+    describe('when findBookmark is called', () => {
       let result: { data: Bookmark; message: string };
       const bookmark = bookmarkStub();
 
       beforeEach(async () => {
-        result = await bookmarksController.findOne(bookmark.id);
-      });
-
-      test('calls bookmarksService.getOneById', () => {
-        expect(bookmarksService.getOneByID).toHaveBeenCalledWith(bookmark.id);
+        result = await bookmarksController.findBookmark(bookmark);
       });
 
       it('should return a bookmark', () => {
@@ -83,6 +79,25 @@ describe('BookmarksController', () => {
       });
 
       it('should return a bookmark', () => {
+        expect(result.data).toEqual([bookmarkStub()]);
+      });
+    });
+  });
+
+  describe('findMyBookmarks', () => {
+    describe('when findMyBookmarks is called', () => {
+      let result: { data: Bookmark[]; message: string };
+      const me = jwtPayloadStub;
+
+      beforeEach(async () => {
+        result = await bookmarksController.findMyBookmarks(me);
+      });
+
+      test('calls bookmarksService.getUserBookmarks', () => {
+        expect(bookmarksService.getUserBookmarks).toHaveBeenCalledWith(me.sub);
+      });
+
+      it('should return an array of bookmarks', () => {
         expect(result.data).toEqual([bookmarkStub()]);
       });
     });

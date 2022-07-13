@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Delete,
+  UseGuards,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -17,11 +24,11 @@ export class BookmarksController implements ICrudController<Bookmark> {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get(BookmarkRoutes.CREATE + ':postId')
+  @Post(BookmarkRoutes.CREATE + ':postId')
   async create(
     @Param('postId') postID: string,
     @Account() account: JwtPayload,
-  ): Promise<{ data: any; message: string }> {
+  ): Promise<{ data: Bookmark; message: string }> {
     return {
       data: await this.bookmarksService.create({
         postID,
@@ -32,12 +39,23 @@ export class BookmarksController implements ICrudController<Bookmark> {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(BookmarkRoutes.FIND_ONE + ':id')
-  async findOne(
-    @Param('id') id: string,
-  ): Promise<{ data: any; message: string }> {
+  @Get(BookmarkRoutes.FIND_MY_BOOKMARKS)
+  async findMyBookmarks(
+    @Account() me: JwtPayload,
+  ): Promise<{ data: Bookmark[]; message: string }> {
     return {
-      data: await this.bookmarksService.getOneByID(id),
+      data: await this.bookmarksService.getUserBookmarks(me.sub),
+      message: BookmarkMessages.ALL_FOUND,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard, CanManageData)
+  @Get(BookmarkRoutes.FIND_ONE + ':id')
+  async findBookmark(
+    @Data() data: Bookmark,
+  ): Promise<{ data: Bookmark; message: string }> {
+    return {
+      data,
       message: BookmarkMessages.FOUND,
     };
   }
@@ -45,7 +63,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
   @Get(BookmarkRoutes.FIND_POST_BOOKMARKS + ':postId')
   async findPostBookmarks(
     @Param('postId') postId: string,
-  ): Promise<{ data: any; message: string }> {
+  ): Promise<{ data: Bookmark[]; message: string }> {
     return {
       data: await this.bookmarksService.getPostBookmarks(postId),
       message: BookmarkMessages.POST_BOOKMARKS_FOUND,
@@ -61,6 +79,10 @@ export class BookmarksController implements ICrudController<Bookmark> {
       id: await this.bookmarksService.delete(subject),
       message: BookmarkMessages.DELETED,
     };
+  }
+
+  findOne(id: string): Promise<{ data: any; message: string }> {
+    throw new Error('Method not implemented.');
   }
 
   findAll(): Promise<{ data: any[]; message: string }> {

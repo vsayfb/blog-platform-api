@@ -21,6 +21,7 @@ export class Bookmark {
 
   @ManyToOne(() => Account, (account) => account.bookmarks, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   account: Account;
 
