@@ -12,6 +12,8 @@ const stub: Account = {
   posts: [],
   comments: [],
   bookmarks: [],
+  followed: [] as any,
+  followers: [] as any,
   via: RegisterType.LOCAL,
   createdAt: undefined,
   updatedAt: undefined,

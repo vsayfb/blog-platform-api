@@ -12,6 +12,8 @@ import { commentStub } from 'src/comments/stub/comment.stub';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { bookmarkStub } from 'src/bookmarks/stub/bookmark-stub';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { Follow } from 'src/follow/entities/follow.entity';
+import { followStub } from 'src/follow/stub/follow-stub';
 
 type Entities =
   | typeof Account
@@ -19,7 +21,8 @@ type Entities =
   | typeof Post
   | typeof Code
   | typeof Comment
-  | typeof Bookmark;
+  | typeof Bookmark
+  | typeof Follow;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -31,6 +34,7 @@ const stubs = (entity: Entities, id?: string) => {
     Comment: { id: entityID, ...commentStub() },
     Code: { id: entityID, ...codeStub },
     Bookmark: { id: entityID, ...bookmarkStub() },
+    Follow: { id: entityID, ...followStub() },
   };
 
   return entities[entity.name];

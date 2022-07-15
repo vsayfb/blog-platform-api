@@ -13,6 +13,7 @@ import { TagsModule } from './tags/tags.module';
 import { CaslModule } from './casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     CaslModule,
     CommentsModule,
     BookmarksModule,
+    FollowModule,
   ],
 })
 export class AppModule {}

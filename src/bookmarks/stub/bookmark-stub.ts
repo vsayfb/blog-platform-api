@@ -8,5 +8,4 @@ export const bookmarkStub = (): Bookmark => ({
   post: postStub() as unknown as Post,
   account: accountStub(),
   createdAt: undefined,
-  updatedAt: undefined,
 });

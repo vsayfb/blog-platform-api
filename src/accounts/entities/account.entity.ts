@@ -1,5 +1,6 @@
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Follow } from 'src/follow/entities/follow.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import {
   Column,
@@ -8,6 +9,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 export enum RegisterType {
@@ -55,6 +57,12 @@ export class Account {
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })
   role: Role;
+
+  @OneToMany(() => Follow, (follow) => follow.follower)
+  followed: Follow;
+
+  @OneToMany(() => Follow, (follow) => follow.followed)
+  followers: Follow;
 
   @CreateDateColumn()
   createdAt: Date;

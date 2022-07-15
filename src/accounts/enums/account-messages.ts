@@ -4,4 +4,5 @@ export enum AccountMessages {
   USERNAME_AVAILABLE = 'The username is available.',
   EMAIL_AVAILABLE = 'The email is available.',
   INVALID_EMAIL = 'Invalid email address.',
+  NOT_FOUND = 'Account not found.',
 }
