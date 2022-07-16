@@ -6,6 +6,7 @@ import * as request from 'supertest';
 import { loginAccount } from './helpers/loginAccount';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AccountRoutes } from 'src/accounts/enums/account-routes';
+import { generateFakeUser } from './helpers/faker/generateFakeUser';
 
 const PREFIX = '/accounts';
 
@@ -59,6 +60,30 @@ describe('AccountController (e2e)', () => {
         iat: expect.any(Number),
         exp: expect.any(Number),
         role: expect.any(String),
+      });
+    });
+  });
+
+  describe('GET profile', () => {
+    describe('scenario : a profile found', () => {
+      test('it should return an account found', async () => {
+        const user = await takeToken();
+
+        const result = await request(app.getHttpServer()).get(
+          PREFIX + AccountRoutes.PROFILE + user.user.username,
+        );
+
+        expect(result.body.message).toBe(AccountMessages.FOUND);
+      });
+    });
+
+    describe('scenario : a profile not found', () => {
+      test('it should return account not found', async () => {
+        const result = await request(app.getHttpServer()).get(
+          PREFIX + AccountRoutes.PROFILE + generateFakeUser().username,
+        );
+
+        expect(result.body.message).toBe(AccountMessages.NOT_FOUND);
       });
     });
   });

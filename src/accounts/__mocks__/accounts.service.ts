@@ -4,6 +4,7 @@ import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 
 export const AccountsService = jest.fn().mockReturnValue({
   getAccount: jest.fn().mockResolvedValue(accountStub()),
+  getProfile: jest.fn().mockResolvedValue(accountStub()),
   getOneByUsername: jest.fn().mockResolvedValue(accountStub()),
   getOneByEmail: jest.fn().mockResolvedValue(accountStub()),
   createLocalAccount: jest.fn().mockResolvedValue(accountStub()),

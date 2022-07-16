@@ -89,6 +89,47 @@ describe('AccountsService', () => {
     });
   });
 
+  describe('getProfile', () => {
+    const USERNAME = accountStub().username;
+
+    describe('when getProfile is called', () => {
+      let createQueryBuilder: any;
+
+      beforeEach(() => {
+        createQueryBuilder = {
+          where: () => createQueryBuilder,
+          leftJoinAndSelect: () => createQueryBuilder,
+          leftJoin: () => createQueryBuilder,
+          loadRelationCountAndMap: () => createQueryBuilder,
+        };
+
+        jest
+          .spyOn(accountsRepository, 'createQueryBuilder' as any)
+          .mockImplementation(() => createQueryBuilder);
+      });
+
+      describe('scenario : an account not found with given username', () => {
+        test('should throw Account not found error', async () => {
+          createQueryBuilder.getOne = () => null;
+
+          await expect(accounstService.getProfile(USERNAME)).rejects.toThrow(
+            AccountMessages.NOT_FOUND,
+          );
+        });
+      });
+
+      describe('scenario : an account found with given username', () => {
+        test('should return to the found account', async () => {
+          createQueryBuilder.getOne = () => accountStub();
+
+          await expect(accounstService.getProfile(USERNAME)).resolves.toEqual(
+            accountStub(),
+          );
+        });
+      });
+    });
+  });
+
   describe('createLocalAccount', () => {
     const dto = { ...accountStub(), verification_code: '123456' };
 

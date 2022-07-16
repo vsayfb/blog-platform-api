@@ -1,8 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
+import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -50,6 +55,36 @@ export class AccountsService {
         'role',
       ],
     });
+  }
+
+  async getProfile(username: string): Promise<{
+    id: string;
+    username: string;
+    display_name: string;
+    image: string | null;
+    via: string;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+    posts: Post[];
+    comments: Comment[];
+    followers: number;
+    followed: number;
+  }> {
+    const profile: any = await this.accountsRepository
+      .createQueryBuilder('account')
+      .where('account.username=:username', { username })
+      .leftJoinAndSelect('account.posts', 'posts')
+      .leftJoinAndSelect('account.comments', 'comments')
+      .leftJoin('account.followers', 'followers')
+      .loadRelationCountAndMap('account.followers', 'account.followers')
+      .leftJoin('account.followed', 'followed')
+      .loadRelationCountAndMap('account.followed', 'account.followed')
+      .getOne();
+
+    if (!profile) throw new NotFoundException(AccountMessages.NOT_FOUND);
+
+    return profile;
   }
 
   async createLocalAccount(data: CreateAccountDto): Promise<Account> {

@@ -8,6 +8,7 @@ import { BadRequestException } from '@nestjs/common';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
+import { Post } from 'src/posts/entities/post.entity';
 
 jest.mock('../accounts.service');
 
@@ -27,6 +28,31 @@ describe('AccountsController', () => {
 
   describe('findMe', () => {
     it('should return the jwt payload', () => {
+      expect(accountsController.findMe(jwtPayloadStub)).toEqual(jwtPayloadStub);
+    });
+  });
+
+  describe('findAccount', () => {
+    describe('when findAccount is called', () => {
+      let result: {
+        data: any;
+        message: AccountMessages;
+      };
+      const USERNAME = accountStub().username;
+
+      beforeEach(async () => {
+        result = await accountsController.findProfile(USERNAME);
+      });
+
+      test('calls accountsService.getProfile', () => {
+        expect(accountsService.getProfile).toHaveBeenCalledWith(USERNAME);
+      });
+
+      it('should return the account', () => {
+        expect(result.data).toEqual(accountStub());
+      });
+    });
+    it('should return the account', () => {
       expect(accountsController.findMe(jwtPayloadStub)).toEqual(jwtPayloadStub);
     });
   });

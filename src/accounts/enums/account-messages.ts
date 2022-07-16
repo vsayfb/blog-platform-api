@@ -5,4 +5,5 @@ export enum AccountMessages {
   EMAIL_AVAILABLE = 'The email is available.',
   INVALID_EMAIL = 'Invalid email address.',
   NOT_FOUND = 'Account not found.',
+  FOUND = 'An account found.',
 }

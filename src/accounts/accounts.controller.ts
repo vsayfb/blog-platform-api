@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Post,
   Query,
   UploadedFile,
@@ -50,6 +51,14 @@ export class AccountsController {
   @Get(AccountRoutes.FIND_ME)
   findMe(@Account() account: JwtPayload): JwtPayload {
     return account;
+  }
+
+  @Get(AccountRoutes.PROFILE + ':username')
+  async findProfile(@Param('username') username: string) {
+    return {
+      data: await this.accountsService.getProfile(username),
+      message: AccountMessages.FOUND,
+    };
   }
 
   @Get(AccountRoutes.IS_AVAILABLE_USERNAME)
