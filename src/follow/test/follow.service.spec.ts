@@ -46,8 +46,20 @@ describe('FollowService', () => {
       const followerID = jwtPayloadStub.sub;
       const followedUsername = accountStub().username;
 
+      beforeEach(() => {
+        //private method
+        jest
+          .spyOn(FollowService.prototype, 'alreadyFollowed' as any)
+          .mockResolvedValue(false);
+
+        // return random id so that the function does not throw an error(CANNOT_FOLLOW_YOURSELF)
+        jest
+          .spyOn(accountsService, 'getAccount')
+          .mockResolvedValue({ ...accountStub(), id: randomUUID() });
+      });
+
       describe('scenario : account not found with given followedUsername', () => {
-        test('should throw Accont not found error', async () => {
+        test('should throw Account not found error', async () => {
           jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
 
           await expect(
@@ -55,9 +67,26 @@ describe('FollowService', () => {
           ).rejects.toThrow(AccountMessages.NOT_FOUND);
         });
       });
+      describe('scenario : user re-follows the user', () => {
+        test('should throw Already followed error', async () => {
+          //private method
+          jest
+            .spyOn(FollowService.prototype, 'alreadyFollowed' as any)
+            .mockResolvedValueOnce(true);
+
+          await expect(
+            followService.followAccount(followerID, followedUsername),
+          ).rejects.toThrow(FollowMessages.ALREADY_FOLLOWED);
+        });
+      });
 
       describe('scenario : followedUsername and followerUsername is same', () => {
         test('should throw You cannot follow yourself error', async () => {
+          // restore mock
+          jest
+            .spyOn(accountsService, 'getAccount')
+            .mockResolvedValue(accountStub());
+
           await expect(
             followService.followAccount(followerID, followerID),
           ).rejects.toThrow(FollowMessages.CANNOT_FOLLOW_YOURSELF);
@@ -68,11 +97,6 @@ describe('FollowService', () => {
         let result: string;
 
         beforeEach(async () => {
-          // return random id so that the function does not throw an error(CANNOT_FOLLOW_YOURSELF)
-          jest
-            .spyOn(accountsService, 'getAccount')
-            .mockResolvedValue({ ...accountStub(), id: randomUUID() });
-
           result = await followService.followAccount(
             followerID,
             followedUsername,

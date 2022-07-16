@@ -19,10 +19,23 @@ export class FollowService {
     private readonly accountsService: AccountsService,
   ) {}
 
+  private async alreadyFollowed(
+    followerID: string,
+    followedID: string,
+  ): Promise<boolean> {
+    return !!(await this.followRepository.findOne({
+      where: { followed: { id: followedID }, follower: { id: followerID } },
+    }));
+  }
+
   async followAccount(followerID: string, followedUsername: string) {
     const followed = await this.accountsService.getAccount(followedUsername);
 
     if (!followed) throw new NotFoundException(AccountMessages.NOT_FOUND);
+
+    if (await this.alreadyFollowed(followerID, followed.id)) {
+      throw new ForbiddenException(FollowMessages.ALREADY_FOLLOWED);
+    }
 
     if (followerID === followed.id) {
       throw new ForbiddenException(FollowMessages.CANNOT_FOLLOW_YOURSELF);

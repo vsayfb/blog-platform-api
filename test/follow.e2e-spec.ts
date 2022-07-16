@@ -95,6 +95,23 @@ describe('Follow (e2e)', () => {
         });
       });
 
+      describe('scenario : user re-follows the user', () => {
+        test('should return Already followed message', async () => {
+          const user = await takeToken();
+
+          const follewedUser = await takeToken();
+
+          await followAccount(user.token, follewedUser.user.username);
+
+          const result = await followAccount(
+            user.token,
+            follewedUser.user.username,
+          );
+
+          expect(result.body.message).toBe(FollowMessages.ALREADY_FOLLOWED);
+        });
+      });
+
       describe('scenario : user follows ownself', () => {
         test('should return You cannot follow yourself.', async () => {
           const user = await takeToken();
