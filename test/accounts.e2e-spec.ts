@@ -6,7 +6,10 @@ import * as request from 'supertest';
 import { loginAccount } from './helpers/loginAccount';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AccountRoutes } from 'src/accounts/enums/account-routes';
-import { generateFakeUser } from './helpers/faker/generateFakeUser';
+import { FakeUser, generateFakeUser } from './helpers/faker/generateFakeUser';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { JwtPayload } from 'src/lib/jwt.payload';
+import { AccountProfileDto } from 'src/accounts/dto/account-profile.dto';
 
 const PREFIX = '/accounts';
 
@@ -35,26 +38,34 @@ describe('AccountController (e2e)', () => {
   });
 
   async function takeToken(): Promise<{
-    user: { username: string; password: string };
+    user: { username: string; display_name: string };
     access_token: string;
   }> {
-    const { username, password } = await databaseService.createRandomTestUser();
+    const { email, password, ...createdUser } =
+      await databaseService.createRandomTestUser();
 
-    const { user, access_token } = await loginAccount(app, username, password);
+    const { access_token } = await loginAccount(
+      app,
+      createdUser.username,
+      password,
+    );
 
-    return { user, access_token };
+    return { user: createdUser, access_token };
   }
 
   describe('GET me', () => {
     it('should return the jwt payload', async () => {
       const { access_token, user } = await takeToken();
 
-      const expected = await request(app.getHttpServer())
+      const result: {
+        body: JwtPayload;
+      } = await request(app.getHttpServer())
         .get(PREFIX + AccountRoutes.FIND_ME)
         .set('Authorization', `Bearer ${access_token}`);
 
-      expect(expected.body).toEqual({
+      expect(result.body).toEqual({
         username: user.username,
+        display_name: user.display_name,
         image: null,
         sub: expect.any(String),
         iat: expect.any(Number),
@@ -69,7 +80,9 @@ describe('AccountController (e2e)', () => {
       test('it should return an account found', async () => {
         const user = await takeToken();
 
-        const result = await request(app.getHttpServer()).get(
+        const result: {
+          body: { data: AccountProfileDto; message: AccountMessages.FOUND };
+        } = await request(app.getHttpServer()).get(
           PREFIX + AccountRoutes.PROFILE + user.user.username,
         );
 

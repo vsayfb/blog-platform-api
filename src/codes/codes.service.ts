@@ -9,23 +9,25 @@ export class CodesService {
     @InjectRepository(Code) private codesRepository: Repository<Code>,
   ) {}
 
-  private generateCode() {
+  private generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async createCode(receiver: string) {
+  async createCode(
+    receiver: string,
+  ): Promise<{ code: string; receiver: string }> {
     const code = this.generateCode();
 
     return this.codesRepository.save({ code, receiver });
   }
 
-  async getCode(code: string) {
+  async getCode(code: string): Promise<Code> {
     return this.codesRepository.findOne({ where: { code } });
   }
 
-  async removeCode(codeID: string) {
+  async removeCode(codeID: string): Promise<void> {
     const code = await this.codesRepository.findOne({ where: { id: codeID } });
 
-    return this.codesRepository.remove(code);
+    await this.codesRepository.remove(code);
   }
 }

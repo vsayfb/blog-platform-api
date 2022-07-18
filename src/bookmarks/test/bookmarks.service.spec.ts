@@ -8,7 +8,9 @@ import { BookmarksService } from '../bookmarks.service';
 import { Bookmark } from '../entities/bookmark.entity';
 import { bookmarkStub } from '../stub/bookmark-stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { Account } from 'src/accounts/entities/account.entity';
+import { SelectedBookmarkFields } from '../types/selected-bookmark-fields';
+import { PostBookmarks } from '../dto/post-bookmarks.dto';
+import { AccountBookmarks } from '../dto/account-bookmarks.dto';
 
 describe('BookmarksService', () => {
   let bookmarksService: BookmarksService;
@@ -35,9 +37,9 @@ describe('BookmarksService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: Bookmark;
+      let result: SelectedBookmarkFields;
       const POST_ID = postStub().id;
-      const account = jwtPayloadStub;
+      const account = jwtPayloadStub();
 
       beforeEach(async () => {
         result = await bookmarksService.create({
@@ -60,7 +62,7 @@ describe('BookmarksService', () => {
       });
 
       it('should return the created bookmark', () => {
-        expect(result.post.id).toEqual(POST_ID);
+        expect(result).toEqual(bookmarkStub());
       });
     });
   });
@@ -68,7 +70,7 @@ describe('BookmarksService', () => {
   describe('delete', () => {
     describe('when delete is called', () => {
       let result: string;
-      const bookmark = bookmarkStub();
+      const bookmark = bookmarkStub() as Bookmark;
 
       beforeEach(async () => {
         result = await bookmarksService.delete(bookmark);
@@ -86,7 +88,7 @@ describe('BookmarksService', () => {
 
   describe('getPostBookmarks', () => {
     describe('when getPostBookmarks is called', () => {
-      let result: Bookmark[];
+      let result: PostBookmarks;
       const POST_ID = postStub().id;
 
       beforeEach(async () => {
@@ -95,11 +97,8 @@ describe('BookmarksService', () => {
 
       test('calls bookmarksRepository.find', () => {
         expect(bookmarksRepository.find).toHaveBeenCalledWith({
-          where: {
-            post: { id: POST_ID },
-          },
+          where: { post: { id: POST_ID } },
           relations: { account: true },
-          loadEagerRelations: false,
         });
       });
 
@@ -109,22 +108,19 @@ describe('BookmarksService', () => {
     });
   });
 
-  describe('getUserBookmarks', () => {
-    describe('when getUserBookmarks is called', () => {
-      let result: Bookmark[];
+  describe('getAccountBookmarks', () => {
+    describe('when getAccountBookmarks is called', () => {
+      let result: AccountBookmarks;
       const user = accountStub();
 
       beforeEach(async () => {
-        result = await bookmarksService.getUserBookmarks(user.id);
+        result = await bookmarksService.getAccountBookmarks(user.id);
       });
 
       test('calls bookmarksRepository.find', () => {
         expect(bookmarksRepository.find).toHaveBeenCalledWith({
-          where: {
-            account: { id: user.id },
-          },
+          where: { account: { id: user.id } },
           relations: { post: true },
-          loadEagerRelations: false,
         });
       });
 
@@ -143,9 +139,10 @@ describe('BookmarksService', () => {
         result = await bookmarksService.getOneByID(BOOKMARK_ID);
       });
 
-      test('calls bookmarksRepository.find', () => {
+      test('calls bookmarksRepository.findOne', () => {
         expect(bookmarksRepository.findOne).toHaveBeenCalledWith({
           where: { id: BOOKMARK_ID },
+          relations: { account: true, post: true },
         });
       });
 

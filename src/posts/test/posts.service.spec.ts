@@ -13,6 +13,13 @@ import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { mockRepository } from '../../../test/helpers/mockRepository';
+import { CreatedPostDto } from '../dto/created-post.dto';
+import { tagStub } from 'src/tags/stub/tag.stub';
+import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatedPostDto } from '../dto/updated-post.dto';
+import { PublicPostsDto } from '../dto/public-posts.dto';
+import { PostDto } from '../dto/post.dto';
+import { PostsDto } from '../dto/posts.dto';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
@@ -41,113 +48,112 @@ describe('PostsService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: Post;
+      let result: CreatedPostDto;
 
       const authorID = accountStub().id;
 
-      const dto = postStub();
+      const dto: CreatePostDto = {
+        title: postStub().title,
+        content: postStub().content,
+      };
 
-      beforeEach(() => {
+      beforeEach(async () => {
         // spyOn private methods
         jest
           .spyOn(PostsService.prototype, 'convertUrl' as any)
-          .mockReturnValue(dto.url);
+          .mockReturnValue('url');
         jest.spyOn(PostsService.prototype, 'setPostTags' as any);
-      });
 
-      describe('scenario : user create a post as private and without title image url', () => {
-        beforeEach(async () => {
-          result = await postsService.create({
-            authorID,
-            dto,
-            published: false,
-          });
-        });
-
-        test('calls convertUrl method', () => {
-          //@ts-ignore private method
-          expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
-        });
-
-        test('calls setPostTags method', () => {
-          //@ts-ignore private method
-          expect(postsService.setPostTags).toHaveBeenCalledWith(dto.tags);
-        });
-
-        it('should return the created post as private and title image null', () => {
-          expect(result).toEqual({
-            ...postStub(),
-            author: { id: postStub().author.id },
-            tags: expect.any(Array),
-            title_image: null,
-            published: false,
-          });
+        result = await postsService.create({
+          authorID,
+          dto,
         });
       });
 
-      describe('scenario : user create a post as private and a title image url', () => {
-        beforeEach(async () => {
-          dto.title_image = uploadProfileResultStub.newImage;
+      test('calls convertUrl method', () => {
+        //@ts-ignore private method
+        expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
+      });
 
-          result = await postsService.create({
-            authorID,
-            dto,
-          });
-        });
+      test('calls setPostTags method', () => {
+        //@ts-ignore private method
+        expect(postsService.setPostTags).toHaveBeenCalledWith(dto.tags);
+      });
 
-        test('calls convertUrl method', () => {
-          //@ts-ignore private method
-          expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
+      test('calls postsRepository.save method', () => {
+        expect(postsRepository.save).toHaveBeenCalledWith({
+          content: dto.content,
+          title: dto.title,
+          url: expect.any(String),
+          tags: expect.any(Array),
+          author: { id: authorID },
+          title_image: dto.title_image || null,
+          published: expect.any(Boolean),
         });
+      });
 
-        test('calls setPostTags method', () => {
-          //@ts-ignore private method
-          expect(postsService.setPostTags).toHaveBeenCalledWith(dto.tags);
+      test('calls postsRepository.findOne method', () => {
+        expect(postsRepository.findOne).toHaveBeenCalledWith({
+          where: { id: postStub().id },
+          relations: { tags: true, author: true },
         });
+      });
 
-        it('should return the created post with title image url and published', () => {
-          expect(result).toEqual({
-            ...postStub(),
-            author: { id: postStub().author.id },
-            tags: expect.any(Array),
-            title_image: expect.any(String),
-            published: true,
-          });
-        });
+      it('should return the created post', () => {
+        expect(result).toEqual(postStub());
       });
     });
   });
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: Post;
+      let result: UpdatedPostDto;
       const post = postStub() as unknown as Post;
 
       const updatePostDto: UpdatePostDto = {
         content: 'updated-post-content',
         title: 'updated-post-title',
+        tags: [tagStub().name],
       };
 
       beforeEach(async () => {
+        jest
+          .spyOn(PostsService.prototype, 'setPostTags' as any)
+          .mockResolvedValueOnce(tagStub());
+
         result = await postsService.update(post, updatePostDto);
+      });
+
+      test('calls postsService.setPostTags', () => {
+        //@ts-ignore private method
+        expect(postsService.setPostTags).toHaveBeenCalled();
       });
 
       test('calls postsRepository.save', () => {
         expect(postsRepository.save).toHaveBeenCalledWith({
           ...postStub(),
           ...updatePostDto,
+          tags: tagStub(),
+          url: expect.any(String), // converted url
         });
       });
 
-      it('should return the updated post', () => {
-        expect(result.content).toBe(updatePostDto.content);
+      test('calls postsRepository.findOne', () => {
+        expect(postsRepository.findOne).toHaveBeenCalledWith({
+          where: { id: postStub().id },
+          relations: { tags: true },
+        });
+      });
+
+      it('should return the post', () => {
+        expect(result).toEqual(postStub());
       });
     });
   });
 
   describe('getAll', () => {
     describe('when getAll is called', () => {
-      let result: Post[];
+      let result: PublicPostsDto;
 
       beforeEach(async () => {
         result = await postsService.getAll();
@@ -156,10 +162,11 @@ describe('PostsService', () => {
       test('calls postsRepository.find method', () => {
         expect(postsRepository.find).toHaveBeenCalledWith({
           where: { published: true },
+          relations: { tags: true, author: true },
         });
       });
 
-      it('should return the array of published posts', async () => {
+      it('should return the array of posts', async () => {
         expect(result).toEqual([postStub()]);
       });
     });
@@ -171,15 +178,22 @@ describe('PostsService', () => {
         it('should throw NotFoundException', async () => {
           const { url } = postStub();
 
-          jest.spyOn(postsRepository, 'findOne').mockResolvedValueOnce(null);
+          const createQueryBuilder = {
+            where: () => createQueryBuilder,
+            leftJoinAndSelect: () => createQueryBuilder,
+            leftJoin: () => createQueryBuilder,
+            loadRelationCountAndMap: () => createQueryBuilder,
+            getOne: () => null,
+            getMany: () => [],
+          };
+
+          jest
+            .spyOn(postsRepository, 'createQueryBuilder' as any)
+            .mockImplementation(() => createQueryBuilder);
 
           await expect(postsService.getOne(url)).rejects.toThrow(
             NotFoundException,
           );
-
-          expect(postsRepository.findOne).toHaveBeenCalledWith({
-            where: { url, published: true },
-          });
         });
       });
 
@@ -190,10 +204,6 @@ describe('PostsService', () => {
           const result = await postsService.getOne(url);
 
           expect(result).toEqual(postStub());
-
-          expect(postsRepository.findOne).toHaveBeenCalledWith({
-            where: { url, published: true },
-          });
         });
       });
     });
@@ -202,14 +212,17 @@ describe('PostsService', () => {
   describe('getOneByID', () => {
     describe('when getOneByID is called', () => {
       const id = randomUUID();
-      let result: Post;
+      let result: PostDto;
 
       beforeEach(async () => {
         result = await postsService.getOneByID(id);
       });
 
       test('calls postsRepository.findOne method', () => {
-        expect(postsRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+        expect(postsRepository.findOne).toHaveBeenCalledWith({
+          where: { id },
+          relations: { author: true, tags: true },
+        });
       });
 
       it('should return a post', () => {
@@ -239,17 +252,15 @@ describe('PostsService', () => {
 
   describe('getMyPosts', () => {
     describe('when getMyPosts is called', () => {
-      const authorID = jwtPayloadStub.sub;
-      let result: Post[];
+      const authorID = jwtPayloadStub().sub;
+      let result: PostsDto;
 
       beforeEach(async () => {
         result = await postsService.getMyPosts(authorID);
       });
 
-      test('calls the postsRepository.find method', () => {
-        expect(postsRepository.find).toHaveBeenCalledWith({
-          where: { author: { id: authorID } },
-        });
+      test('calls the postsRepository.createQueryBuilder method', () => {
+        expect(postsRepository.createQueryBuilder).toHaveBeenCalled();
       });
 
       it('should return an array of posts', () => {

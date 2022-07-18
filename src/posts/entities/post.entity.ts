@@ -26,7 +26,6 @@ export class Post {
   title_image: string | null;
 
   @ManyToOne((_type) => Account, (account) => account.posts, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   author: Account;
@@ -37,7 +36,7 @@ export class Post {
   @OneToMany((_type) => Bookmark, (bookmark) => bookmark.post)
   bookmarks: Bookmark;
 
-  @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true })
+  @ManyToMany(() => Tag, (tag) => tag.posts)
   @JoinTable()
   tags: Tag[];
 
@@ -51,8 +50,26 @@ export class Post {
   published?: boolean | undefined;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
+  jessePost: {
+    id: any;
+    username: string;
+    display_name: string;
+    image: string;
+    role: import('/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity').Role;
+    created_at: Date;
+  };
+  walterPost: {
+    id: string;
+    username: string;
+    display_name: string;
+    image: string;
+    role: import('/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity').Role;
+    created_at: Date;
+  };
+  jessePost: { id: any; username: string; display_name: string; image: string; role: import("/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity").Role; created_at: Date; };
+  walterPost: { id: string; username: string; display_name: string; image: string; role: import("/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity").Role; created_at: Date; };
 }

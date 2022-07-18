@@ -13,6 +13,8 @@ import { Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
+import { SelectedAccountFields } from '../types/selected-account-fields';
+import { CreateAccountDto } from '../dto/create-account.dto';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');
@@ -46,7 +48,7 @@ describe('AccountsService', () => {
 
   describe('getOne', () => {
     describe('when getOne is called', () => {
-      let result: Account;
+      let result: SelectedAccountFields;
       const id = randomUUID();
 
       beforeEach(async () => {
@@ -66,26 +68,37 @@ describe('AccountsService', () => {
   });
 
   describe('getAccount', () => {
-    let result: {
-      id: string;
-      username: string;
-      password: string;
-      display_name: string;
-      email: string;
-      image: string;
-    };
+    let result: SelectedAccountFields & { email: string; password: string };
     const account = accountStub();
 
     beforeEach(async () => {
-      result = await accounstService.getAccount(account.email);
+      result = await accounstService.getAccount(account.username);
     });
 
     test('calls accountsRepository.findOne method', () => {
-      expect(accountsRepository.findOne).toHaveBeenCalled();
+      expect(accountsRepository.findOne).toHaveBeenCalledWith({
+        where: [
+          {
+            username: account.username,
+          },
+          {
+            email: account.username,
+          },
+        ],
+        select: {
+          id: true,
+          username: true,
+          display_name: true,
+          image: true,
+          role: true,
+          email: true,
+          password: true,
+        },
+      });
     });
 
     it('should return an account', () => {
-      expect(result).toEqual(account);
+      expect(result).toEqual(accountStub());
     });
   });
 
@@ -131,7 +144,12 @@ describe('AccountsService', () => {
   });
 
   describe('createLocalAccount', () => {
-    const dto = { ...accountStub(), verification_code: '123456' };
+    const dto: CreateAccountDto = {
+      ...accountStub(),
+      verification_code: '123456',
+      email: 'foo@gmail.com',
+      password: 'foo_password',
+    };
 
     describe('when createLocalAccount method is called ', () => {
       describe('if : username exists in the db', () => {
@@ -155,7 +173,7 @@ describe('AccountsService', () => {
       });
 
       describe('if: unique username and email', () => {
-        let result: Account;
+        let result: SelectedAccountFields;
 
         beforeEach(async () => {
           jest
@@ -177,33 +195,30 @@ describe('AccountsService', () => {
   });
 
   describe('createAccountViaGoogle', () => {
-    let result: Account;
+    let result: SelectedAccountFields;
     const dto = accountStub();
 
     beforeEach(async () => {
-      result = await accounstService.createAccountViaGoogle(dto);
-    });
-
-    test('calls accountsRepository.save method', () => {
-      expect(accountsRepository.save).toHaveBeenCalledWith({
+      result = await accounstService.createAccountViaGoogle({
         ...dto,
-        via: RegisterType.GOOGLE,
+        password: 'foo_password',
+        email: 'foo@gmail.com',
       });
     });
 
     it('should return an account', async () => {
-      expect(result).toEqual({ ...dto, via: RegisterType.GOOGLE });
+      expect(result).toEqual(accountStub());
     });
   });
 
   describe('changeProfileImage', () => {
     describe('when changeProfileImage is called', () => {
       let result: { newImage: string };
-      const jwtPayload = jwtPayloadStub;
+      const account = jwtPayloadStub();
       let file: Express.Multer.File;
 
       beforeEach(async () => {
-        result = await accounstService.changeProfileImage(jwtPayload, file);
+        result = await accounstService.changeProfileImage(account, file);
       });
 
       test('calls uploadsService.uploadProfileImage', () => {
@@ -213,7 +228,7 @@ describe('AccountsService', () => {
       test('calls accountsRepository.save with new uploaded image url', () => {
         expect(accountsRepository.save).toHaveBeenCalledWith({
           ...accountStub(),
-          image: uploadProfileResultStub.newImage,
+          image: uploadProfileResultStub().newImage,
         });
       });
 
@@ -225,12 +240,16 @@ describe('AccountsService', () => {
 
   describe('beginRegisterVerification', () => {
     describe('when beginRegisterVerification is called', () => {
-      const { username, email } = accountStub();
+      const account = accountStub();
+      const accountEmail = 'foo@gmail.com';
 
       describe('scenario : if email registered', () => {
         test('should throw email taken error', async () => {
           await expect(
-            accounstService.beginRegisterVerification(username, email),
+            accounstService.beginRegisterVerification(
+              account.username,
+              accountEmail,
+            ),
           ).rejects.toThrow(AccountMessages.EMAIL_TAKEN);
         });
       });
@@ -240,7 +259,10 @@ describe('AccountsService', () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce(null);
 
           await expect(
-            accounstService.beginRegisterVerification(username, email),
+            accounstService.beginRegisterVerification(
+              account.username,
+              accountEmail,
+            ),
           ).rejects.toThrow(AccountMessages.USERNAME_TAKEN);
         });
       });
@@ -250,7 +272,10 @@ describe('AccountsService', () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValue(null);
 
           expect(
-            await accounstService.beginRegisterVerification(username, email),
+            await accounstService.beginRegisterVerification(
+              account.username,
+              accountEmail,
+            ),
           ).toEqual({ message: CodeMessages.CODE_SENT });
         });
       });

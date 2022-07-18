@@ -6,6 +6,12 @@ import { PostsController } from 'src/posts/posts.controller';
 import { PostsService } from 'src/posts/posts.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { randomUUID } from 'crypto';
+import { SelectedPostFields } from '../types/selected-post-fields';
+import { PostMessages } from '../enums/post-messages';
+import { PostsDto } from '../dto/posts.dto';
+import { PublicPostDto } from '../dto/public-post.dto';
+import { PostDto } from '../dto/post.dto';
+import { UpdatedPostDto } from '../dto/updated-post.dto';
 
 jest.mock('src/posts/posts.service');
 
@@ -28,7 +34,7 @@ describe('PostsController', () => {
   });
 
   describe('when create method is called', () => {
-    let result: { data: Post; message: string };
+    let result: { data: SelectedPostFields; message: string };
 
     const dto = postStub();
 
@@ -38,12 +44,12 @@ describe('PostsController', () => {
       const published = false;
 
       beforeEach(async () => {
-        result = await controller.create(dto, jwtPayloadStub, false);
+        result = await controller.create(dto, jwtPayloadStub(), false);
       });
 
       test('calls postsService.create with authorID dto and published', () => {
         expect(postsService.create).toHaveBeenCalledWith({
-          authorID: jwtPayloadStub.sub,
+          authorID: jwtPayloadStub().sub,
           dto,
           published,
         });
@@ -59,12 +65,12 @@ describe('PostsController', () => {
 
     describe("scenario : when published query doesn't received", () => {
       beforeEach(async () => {
-        result = await controller.create(dto, jwtPayloadStub);
+        result = await controller.create(dto, jwtPayloadStub());
       });
 
       test('calls postsService.create with authorID and dto', () => {
         expect(postsService.create).toHaveBeenCalledWith({
-          authorID: jwtPayloadStub.sub,
+          authorID: jwtPayloadStub().sub,
           dto,
         });
       });
@@ -79,7 +85,7 @@ describe('PostsController', () => {
   });
 
   describe('findAll', () => {
-    let result: { data: Post[]; message: string };
+    let result: { data: any; message?: string };
 
     describe('when findAll is called', () => {
       beforeEach(async () => {
@@ -97,11 +103,11 @@ describe('PostsController', () => {
   });
 
   describe('getMyPosts', () => {
-    let result: { data: Post[]; message: string };
+    let result: { data: PostsDto; message: PostMessages };
 
     describe('when getMyPosts is called', () => {
       beforeEach(async () => {
-        result = await controller.getMyPosts(jwtPayloadStub);
+        result = await controller.getMyPosts(jwtPayloadStub());
       });
 
       test('calls postsService.getMyPosts method', () => {
@@ -115,7 +121,7 @@ describe('PostsController', () => {
   });
 
   describe('findOne', () => {
-    let result: { data: Post; message: string };
+    let result: { data: PublicPostDto; message?: PostMessages };
     const url = postStub().url;
 
     describe('when findOne is called', () => {
@@ -134,7 +140,7 @@ describe('PostsController', () => {
   });
 
   describe('findByID', () => {
-    let result: { data: Post; message: string };
+    let result: { data: PostDto; message: PostMessages };
     const id = randomUUID();
 
     describe('when findByID is called', () => {
@@ -153,8 +159,8 @@ describe('PostsController', () => {
   });
 
   describe('update', () => {
-    let result: { data: Post; message: string };
-    const dto = postStub();
+    let result: { data: UpdatedPostDto; message?: PostMessages };
+    const dto = { content: 'updated-content-field' };
     const post = postStub() as unknown as Post;
 
     describe('when update is called', () => {
@@ -166,8 +172,8 @@ describe('PostsController', () => {
         expect(postsService.update).toHaveBeenCalledWith(post, dto);
       });
 
-      it('should return the post', () => {
-        expect(result.data).toEqual(dto);
+      it('should return the updated post', () => {
+        expect(result.data).toEqual({ ...postStub(), content: dto.content });
       });
     });
   });

@@ -8,9 +8,12 @@ import { BadRequestException } from '@nestjs/common';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
-import { Post } from 'src/posts/entities/post.entity';
+import { AccountProfileDto } from '../dto/account-profile.dto';
 
 jest.mock('../accounts.service');
+
+
+
 
 describe('AccountsController', () => {
   let accountsController: AccountsController;
@@ -28,14 +31,16 @@ describe('AccountsController', () => {
 
   describe('findMe', () => {
     it('should return the jwt payload', () => {
-      expect(accountsController.findMe(jwtPayloadStub)).toEqual(jwtPayloadStub);
+      expect(accountsController.findMe(jwtPayloadStub())).toEqual(
+        jwtPayloadStub(),
+      );
     });
   });
 
   describe('findAccount', () => {
     describe('when findAccount is called', () => {
       let result: {
-        data: any;
+        data: AccountProfileDto;
         message: AccountMessages;
       };
       const USERNAME = accountStub().username;
@@ -51,9 +56,6 @@ describe('AccountsController', () => {
       it('should return the account', () => {
         expect(result.data).toEqual(accountStub());
       });
-    });
-    it('should return the account', () => {
-      expect(accountsController.findMe(jwtPayloadStub)).toEqual(jwtPayloadStub);
     });
   });
 
@@ -94,7 +96,7 @@ describe('AccountsController', () => {
   describe('beginVerification', () => {
     describe('when beginVerification is called', () => {
       const beginVerificationDto: BeginVerificationDto = {
-        email: accountStub().email,
+        email: 'foo@gmail.com',
         username: accountStub().username,
       };
       let result: { message: string };
@@ -124,14 +126,14 @@ describe('AccountsController', () => {
     describe('when uploadProfilePhoto is called', () => {
       beforeEach(async () => {
         result = await accountsController.uploadProfilePhoto(
-          jwtPayloadStub,
+          jwtPayloadStub(),
           photo,
         );
       });
 
       test('calls the accountsService.changeProfileImage', () => {
         expect(accountsService.changeProfileImage).toHaveBeenCalledWith(
-          jwtPayloadStub,
+          jwtPayloadStub(),
           photo,
         );
       });

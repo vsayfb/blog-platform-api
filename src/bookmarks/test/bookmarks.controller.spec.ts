@@ -4,8 +4,11 @@ import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { postStub } from 'src/posts/stub/post-stub';
 import { BookmarksController } from '../bookmarks.controller';
 import { BookmarksService } from '../bookmarks.service';
+import { AccountBookmarks } from '../dto/account-bookmarks.dto';
+import { PostBookmarks } from '../dto/post-bookmarks.dto';
 import { Bookmark } from '../entities/bookmark.entity';
 import { bookmarkStub } from '../stub/bookmark-stub';
+import { SelectedBookmarkFields } from '../types/selected-bookmark-fields';
 
 jest.mock('src/bookmarks/bookmarks.service');
 
@@ -29,9 +32,9 @@ describe('BookmarksController', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Bookmark; message: string };
+      let result: { data: SelectedBookmarkFields; message: string };
       const POST_ID = postStub().id;
-      const account = jwtPayloadStub;
+      const account = jwtPayloadStub();
 
       beforeEach(async () => {
         result = await bookmarksController.create(POST_ID, account);
@@ -53,7 +56,7 @@ describe('BookmarksController', () => {
   describe('findBookmark', () => {
     describe('when findBookmark is called', () => {
       let result: { data: Bookmark; message: string };
-      const bookmark = bookmarkStub();
+      const bookmark = bookmarkStub() as Bookmark;
 
       beforeEach(async () => {
         result = await bookmarksController.findBookmark(bookmark);
@@ -67,7 +70,7 @@ describe('BookmarksController', () => {
 
   describe('findPostBookmarks', () => {
     describe('when findPostBookmarks is called', () => {
-      let result: { data: Bookmark[]; message: string };
+      let result: { data: PostBookmarks; message: string };
       const postID = postStub().id;
 
       beforeEach(async () => {
@@ -86,15 +89,17 @@ describe('BookmarksController', () => {
 
   describe('findMyBookmarks', () => {
     describe('when findMyBookmarks is called', () => {
-      let result: { data: Bookmark[]; message: string };
-      const me = jwtPayloadStub;
+      let result: { data: AccountBookmarks; message: string };
+      const me = jwtPayloadStub();
 
       beforeEach(async () => {
         result = await bookmarksController.findMyBookmarks(me);
       });
 
-      test('calls bookmarksService.getUserBookmarks', () => {
-        expect(bookmarksService.getUserBookmarks).toHaveBeenCalledWith(me.sub);
+      test('calls bookmarksService.getAccountBookmarks', () => {
+        expect(bookmarksService.getAccountBookmarks).toHaveBeenCalledWith(
+          me.sub,
+        );
       });
 
       it('should return an array of bookmarks', () => {
@@ -106,7 +111,7 @@ describe('BookmarksController', () => {
   describe('remove', () => {
     describe('when remove is called', () => {
       let result: { id: string; message: string };
-      const bookmark = bookmarkStub();
+      const bookmark = bookmarkStub() as Bookmark;
 
       beforeEach(async () => {
         result = await bookmarksController.remove(bookmark);

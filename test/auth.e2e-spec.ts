@@ -153,16 +153,16 @@ describe('AuthController (e2e)', () => {
           verification_code,
         });
 
-        const { data, access_token } = result.body;
-
-        expect(data).toEqual({
-          id: expect.any(String),
-          image: null,
-          display_name: expect.any(String),
-          username: expect.any(String),
+        expect(result.body).toEqual({
+          data: {
+            id: expect.any(String),
+            image: null,
+            display_name: expect.any(String),
+            username: expect.any(String),
+            role: expect.any(String),
+          },
+          access_token: expect.any(String),
         });
-
-        expect(access_token).toEqual(expect.any(String));
       });
     });
   });

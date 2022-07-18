@@ -14,5 +14,5 @@ export const AccountsService = jest.fn().mockReturnValue({
     .mockResolvedValue({ message: CodeMessages.CODE_SENT }),
   changeProfileImage: jest
     .fn()
-    .mockResolvedValue({ newImage: uploadProfileResultStub.newImage }),
+    .mockResolvedValue({ newImage: uploadProfileResultStub().newImage }),
 });

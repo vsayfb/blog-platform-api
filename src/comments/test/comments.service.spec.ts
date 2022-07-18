@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { JwtPayload } from 'src/lib/jwt.payload';
 import { postStub } from 'src/posts/stub/post-stub';
 import { mockRepository } from '../../../test/helpers/mockRepository';
 import { Repository } from 'typeorm';
@@ -10,7 +9,10 @@ import { CreateCommentDto } from '../dto/create-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { commentStub } from '../stub/comment.stub';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
-import { CommentMessages } from '../enums/comment-messages';
+import { PostCommentsDto } from '../dto/post-comments.dto';
+import { SelectedCommentFields } from '../types/selected-comment-fields';
+
+
 
 describe('CommentsService', () => {
   let commentsService: CommentsService;
@@ -35,9 +37,9 @@ describe('CommentsService', () => {
     mockRepository(commentsRepository, Comment);
   });
 
-  describe('findPostComments', () => {
-    describe('when findPostComments is called', () => {
-      let result: Comment[];
+  describe('getPostComments', () => {
+    describe('when getPostComments is called', () => {
+      let result: PostCommentsDto;
       const postID = postStub().id;
 
       beforeEach(async () => {
@@ -47,6 +49,7 @@ describe('CommentsService', () => {
       test('calls commentsRepository.find', () => {
         expect(commentsRepository.find).toHaveBeenCalledWith({
           where: { post: { id: postID } },
+          relations: { author: true },
         });
       });
 
@@ -58,8 +61,8 @@ describe('CommentsService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: Comment;
-      const account: JwtPayload = jwtPayloadStub;
+      let result: SelectedCommentFields;
+      const account = jwtPayloadStub();
       const postID = postStub().id;
       const createCommentDto: CreateCommentDto = {
         content: commentStub().content,
@@ -91,7 +94,7 @@ describe('CommentsService', () => {
     describe('when delete is called', () => {
       let result: string;
 
-      const comment = commentStub();
+      const comment = commentStub() as Comment;
 
       beforeEach(async () => {
         result = await commentsService.delete(comment);
@@ -109,7 +112,7 @@ describe('CommentsService', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: Comment;
+      let result: SelectedCommentFields;
 
       const comment = commentStub() as unknown as Comment;
       const dto: UpdateCommentDto = {

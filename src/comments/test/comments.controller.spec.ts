@@ -6,10 +6,12 @@ import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
 import { CommentsService } from '../comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
+import { PostCommentsDto } from '../dto/post-comments.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
+import { SelectedCommentFields } from '../types/selected-comment-fields';
 
 jest.mock('src/comments/comments.service');
 
@@ -33,7 +35,7 @@ describe('CommentsController', () => {
 
   describe('findPostComments', () => {
     describe('when findPostComments is called', () => {
-      let result: { data: Comment[]; message: CommentMessages };
+      let result: { data: PostCommentsDto; message?: CommentMessages };
       const postID = postStub().id;
 
       beforeEach(async () => {
@@ -52,8 +54,8 @@ describe('CommentsController', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Comment; message: string };
-      const account: JwtPayload = jwtPayloadStub;
+      let result: { data: SelectedCommentFields; message: string };
+      const account: JwtPayload = jwtPayloadStub();
       const postID = postStub().id;
       const dto: CreateCommentDto = {
         content: commentStub().content,
@@ -81,7 +83,7 @@ describe('CommentsController', () => {
     describe('when delete is called', () => {
       let result: { id: string; message?: string };
 
-      const comment = commentStub();
+      const comment = commentStub() as Comment;
 
       beforeEach(async () => {
         result = await commentsController.remove(comment);
@@ -99,9 +101,9 @@ describe('CommentsController', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: Comment; message: string };
+      let result: { data: SelectedCommentFields; message: string };
 
-      const comment = commentStub() as unknown as Comment;
+      const comment = commentStub() as Comment;
       const dto: UpdateCommentDto = {
         content: 'updated-comment',
       };

@@ -5,6 +5,8 @@ import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
 import { Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/mockRepository';
+import { SelectedTagFields } from '../types/selected-tag-fields';
+import { TagsDto } from '../dto/tags.dto';
 
 describe('TagsService', () => {
   let tagsService: TagsService;
@@ -26,7 +28,7 @@ describe('TagsService', () => {
 
   describe('getOne', () => {
     describe('when getOne is called', () => {
-      let result: Tag;
+      let result: SelectedTagFields;
       const tag = tagStub();
 
       beforeEach(async () => {
@@ -47,7 +49,7 @@ describe('TagsService', () => {
 
   describe('getOne', () => {
     describe('when getAll is called', () => {
-      let result: Tag[];
+      let result: TagsDto[];
 
       beforeEach(async () => {
         result = await tagsService.getAll();
@@ -85,9 +87,9 @@ describe('TagsService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: Tag;
+      let result: { name: any; id: string };
 
-      const tagName = 'nodejs';
+      const tagName = 'node-js';
 
       beforeEach(async () => {
         result = await tagsService.create(tagName);
@@ -97,8 +99,8 @@ describe('TagsService', () => {
         expect(tagsRepository.save).toHaveBeenCalledWith({ name: tagName });
       });
 
-      it("should return the tag's id", () => {
-        expect(result.name).toEqual(tagName);
+      it('should return the created tag', () => {
+        expect(result).toEqual(tagStub());
       });
     });
   });
@@ -127,10 +129,10 @@ describe('TagsService', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: Tag;
+      let result: { name: any; id: string };
 
       const newTagName = 'nodejs';
-      const tag = tagStub() as unknown as Tag;
+      const tag = tagStub() as Tag;
 
       beforeEach(async () => {
         result = await tagsService.update(tag, newTagName);
@@ -141,7 +143,7 @@ describe('TagsService', () => {
       });
 
       it('should return the updated tag', () => {
-        expect(result.name).toEqual(newTagName);
+        expect(result).toEqual(tagStub());
       });
     });
   });

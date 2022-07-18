@@ -6,10 +6,11 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
-import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { RegisterViewDto } from './dto/register-view.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,12 +18,12 @@ export class AuthService {
     private readonly accountsService: AccountsService,
     private readonly googleService: GoogleService,
     private readonly configService: ConfigService,
-    private readonly codeService: CodesService,
+    private readonly codesService: CodesService,
     private readonly jwtService: JwtService,
   ) {}
 
   async register(data: CreateAccountDto): Promise<RegisterViewDto> {
-    const code = await this.codeService.getCode(data.verification_code);
+    const code = await this.codesService.getCode(data.verification_code);
 
     if (!code) throw new ForbiddenException(CodeMessages.INVALID_CODE);
 
@@ -30,19 +31,14 @@ export class AuthService {
       throw new ForbiddenException(AccountMessages.INVALID_EMAIL);
     }
 
-    this.codeService.removeCode(code.id);
+    this.codesService.removeCode(code.id);
 
     const account = await this.accountsService.createLocalAccount(data);
 
     const { access_token } = this.login(account);
 
     return {
-      data: {
-        id: account.id,
-        display_name: account.display_name,
-        image: account.image,
-        username: account.username,
-      },
+      data: account,
       access_token,
     };
   }
@@ -57,12 +53,7 @@ export class AuthService {
       const { access_token } = this.login(registeredUser as Account);
 
       return {
-        data: {
-          id: registeredUser.id,
-          display_name: registeredUser.display_name,
-          image: registeredUser.image,
-          username: registeredUser.username,
-        },
+        data: registeredUser,
         access_token,
       };
     } else {
@@ -76,21 +67,17 @@ export class AuthService {
       const { access_token } = this.login(newAccount);
 
       return {
-        data: {
-          id: newAccount.id,
-          display_name: newAccount.display_name,
-          image: newAccount.image,
-          username: newAccount.username,
-        },
+        data: newAccount,
         access_token,
       };
     }
   }
 
-  login(account: Account): { access_token: string } {
+  login(account: SelectedAccountFields): { access_token: string } {
     const payload = {
-      username: account.username,
       sub: account.id,
+      username: account.username,
+      display_name: account.display_name,
       image: account.image,
       role: account.role,
     };
@@ -102,11 +89,14 @@ export class AuthService {
     };
   }
 
-  async validateAccount(username: string, pass: string): Promise<any> {
+  async validateAccount(
+    username: string,
+    pass: string,
+  ): Promise<SelectedAccountFields> | null {
     const account = await this.accountsService.getAccount(username);
 
     if (account && account.password === pass) {
-      const { password, ...result } = account;
+      const { password, email, ...result } = account;
 
       return result;
     }

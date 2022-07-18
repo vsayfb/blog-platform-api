@@ -5,13 +5,16 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { DatabaseService } from 'src/database/database.service';
-import { Post } from 'src/posts/entities/post.entity';
 import { generateFakePost } from './helpers/faker/generateFakePost';
 import { loginAccount } from './helpers/loginAccount';
 import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
-import { AuthMessages } from 'src/auth/enums/auth-messages';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { PostRoutes } from 'src/posts/enums/post-routes';
+import { CreatedPostDto } from 'src/posts/dto/created-post.dto';
+import { PublicPostDto } from 'src/posts/dto/public-post.dto';
+import { PostDto } from 'src/posts/dto/post.dto';
+import { UpdatedPostDto } from 'src/posts/dto/updated-post.dto';
+import { PublicPostsDto } from 'src/posts/dto/public-posts.dto';
 
 const PREFIX = '/posts';
 
@@ -59,7 +62,7 @@ describe('PostsController (e2e)', () => {
 
   async function createPostRequest(
     invalidToken?: string,
-  ): Promise<{ body: { data: Post; message: string } }> {
+  ): Promise<{ body: { data: CreatedPostDto; message: string } }> {
     const dto = generateFakePost();
 
     const { body } = await request(app.getHttpServer())
@@ -72,10 +75,24 @@ describe('PostsController (e2e)', () => {
 
   describe('/ (POST) new post', () => {
     it('should return the created post', async () => {
-      const result: { body: { data: Post; message: string } } =
+      const result: { body: { data: CreatedPostDto; message: string } } =
         await createPostRequest();
 
-      expect(result.body.data.title).toEqual(expect.any(String));
+      expect(result.body.message).toBe(PostMessages.CREATED);
+    });
+  });
+
+  describe('/ (GET) all posts', () => {
+    it('should return the post', async () => {
+      await createPostRequest();
+
+      await createPostRequest();
+
+      const result: {
+        body: { data: PublicPostsDto; message: string };
+      } = await request(app.getHttpServer()).get(PREFIX + PostRoutes.FIND_ALL);
+
+      expect(result.body.message).toBe(PostMessages.ALL_FOUND);
     });
   });
 
@@ -83,16 +100,17 @@ describe('PostsController (e2e)', () => {
     it('should return the post', async () => {
       const createdPost = await createPostRequest();
 
-      const result: { body: { data: Post; message: string } } = await request(
-        app.getHttpServer(),
-      ).get(PREFIX + PostRoutes.CREATE + createdPost.body.data.url);
+      const result: { body: { data: PublicPostDto; message: string } } =
+        await request(app.getHttpServer()).get(
+          PREFIX + PostRoutes.CREATE + createdPost.body.data.url,
+        );
 
-      expect(result.body.data.title).toBe(createdPost.body.data.title);
+      expect(result.body.message).toBe(PostMessages.FOUND);
     });
   });
 
   describe('/ (GET) a post with id', () => {
-    let privatePost: { data: Post; message: string };
+    let privatePost: { data: PostDto; message: string };
 
     beforeAll(async () => {
       const post = await createPostRequest();
@@ -102,11 +120,12 @@ describe('PostsController (e2e)', () => {
 
     describe('scenario : if user wants read own post by id', () => {
       it('should return the post', async () => {
-        const result = await request(app.getHttpServer())
-          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
-          .set('Authorization', userAccessToken);
+        const result: { body: { data: PostDto; message: string } } =
+          await request(app.getHttpServer())
+            .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
+            .set('Authorization', userAccessToken);
 
-        expect(result.statusCode).toBe(200);
+        expect(result.body.message).toBe(PostMessages.FOUND);
       });
     });
 
@@ -126,11 +145,12 @@ describe('PostsController (e2e)', () => {
       it('should return the post', async () => {
         const user = await takeToken(Role.ADMIN);
 
-        const result = await request(app.getHttpServer())
-          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
-          .set('Authorization', user.userAccessToken);
+        const result: { body: { data: PostDto; message: string } } =
+          await request(app.getHttpServer())
+            .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${privatePost.data.id}`)
+            .set('Authorization', user.userAccessToken);
 
-        expect(result.statusCode).toBe(200);
+        expect(result.body.message).toBe(PostMessages.FOUND);
       });
     });
   });
@@ -139,7 +159,10 @@ describe('PostsController (e2e)', () => {
     async function updatePostRequest(
       id: string,
       accessToken?: string,
-    ): Promise<{ body: { data: Post; message: string }; statusCode: number }> {
+    ): Promise<{
+      body: { data: UpdatedPostDto; message: string };
+      statusCode: number;
+    }> {
       const dto: UpdatePostDto = generateFakePost();
 
       const { body, statusCode } = await request(app.getHttpServer())
@@ -156,10 +179,7 @@ describe('PostsController (e2e)', () => {
 
         const updated = await updatePostRequest(oldPost.body.data.id);
 
-        expect(updated.body.data.updatedAt).toBeDefined();
-        expect(updated.body.data.updatedAt).not.toEqual(
-          oldPost.body.data.updatedAt,
-        );
+        expect(updated.body.message).toBe(PostMessages.UPDATED);
       });
     });
 
@@ -189,10 +209,7 @@ describe('PostsController (e2e)', () => {
           userAccessToken,
         );
 
-        expect(updated.body.data.updatedAt).toBeDefined();
-        expect(updated.body.data.updatedAt).not.toEqual(
-          oldPost.body.data.updatedAt,
-        );
+        expect(updated.body.message).toBe(PostMessages.UPDATED);
       });
     });
   });
@@ -216,7 +233,6 @@ describe('PostsController (e2e)', () => {
         const deleted = await deletePostRequest(createdPost.body.data.id);
 
         expect(deleted.body.message).toEqual(PostMessages.DELETED);
-        expect(deleted.body.id).toBe(createdPost.body.data.id);
       });
     });
 
@@ -275,6 +291,8 @@ describe('PostsController (e2e)', () => {
         expect(createdPost.body.data.published).not.toBe(
           updated.body.published,
         );
+
+        expect(createdPost.body.message).toBe(PostMessages.UPDATED);
       });
     });
 
@@ -307,6 +325,8 @@ describe('PostsController (e2e)', () => {
         expect(createdPost.body.data.published).not.toBe(
           updated.body.published,
         );
+
+        expect(createdPost.body.message).toBe(PostMessages.UPDATED);
       });
     });
   });

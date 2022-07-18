@@ -29,6 +29,11 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PostMessages } from './enums/post-messages';
 import { UploadMessages } from 'src/uploads/enums/upload-messages';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
+import { SelectedPostFields } from './types/selected-post-fields';
+import { PublicPostDto } from './dto/public-post.dto';
+import { PublicPostsDto } from './dto/public-posts.dto';
+import { PostsDto } from './dto/posts.dto';
+import { PostDto } from './dto/post.dto';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -42,8 +47,8 @@ export class PostsController implements ICrudController<PostEntity> {
     @Body(TagNamePipe) createPostDto: CreatePostDto,
     @Account() account: JwtPayload,
     @Query('published') published?: boolean,
-  ): Promise<{ data: PostEntity; message: string }> {
-    let data: PostEntity;
+  ): Promise<{ data: SelectedPostFields; message: PostMessages }> {
+    let data: SelectedPostFields;
 
     const saveData = { authorID: account.sub, dto: createPostDto };
 
@@ -56,7 +61,10 @@ export class PostsController implements ICrudController<PostEntity> {
   }
 
   @Get(PostRoutes.FIND_ALL)
-  async findAll(): Promise<{ data: PostEntity[]; message: string }> {
+  async findAll(): Promise<{
+    data: PublicPostsDto;
+    message: string;
+  }> {
     return {
       data: await this.postsService.getAll(),
       message: PostMessages.ALL_FOUND,
@@ -67,7 +75,7 @@ export class PostsController implements ICrudController<PostEntity> {
   @Get(PostRoutes.GET_MY_POSTS)
   async getMyPosts(
     @Account() account: JwtPayload,
-  ): Promise<{ data: PostEntity[]; message: PostMessages }> {
+  ): Promise<{ data: PostsDto; message: PostMessages }> {
     return {
       data: await this.postsService.getMyPosts(account.sub),
       message: PostMessages.ALL_FOUND,
@@ -78,7 +86,7 @@ export class PostsController implements ICrudController<PostEntity> {
   @Get(PostRoutes.FIND_BY_ID)
   async findByID(
     @Query('id') id: string,
-  ): Promise<{ data: PostEntity; message: string }> {
+  ): Promise<{ data: PostDto; message: PostMessages }> {
     return {
       data: await this.postsService.getOneByID(id),
       message: PostMessages.FOUND,
@@ -88,7 +96,7 @@ export class PostsController implements ICrudController<PostEntity> {
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOne(
     @Param('url') url: string,
-  ): Promise<{ data: PostEntity; message: PostMessages }> {
+  ): Promise<{ data: PublicPostDto; message: PostMessages }> {
     return {
       data: await this.postsService.getOne(url),
       message: PostMessages.FOUND,
@@ -132,7 +140,7 @@ export class PostsController implements ICrudController<PostEntity> {
   @Post(PostRoutes.UPLOAD_TITLE_IMAGE)
   async uploadTitleImage(
     @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
-  ): Promise<{ data: string; message: string }> {
+  ): Promise<{ data: string; message: UploadMessages }> {
     return {
       data: await this.postsService.saveTitleImage(titleImage),
       message: UploadMessages.IMAGE_UPLOADED,

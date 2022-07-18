@@ -3,4 +3,5 @@ export enum CommentRoutes {
   DELETE = '/',
   PATCH = '/',
   POST_COMMENTS = '/post/',
+  ACCOUNT_COMMENTS = '/account/',
 }

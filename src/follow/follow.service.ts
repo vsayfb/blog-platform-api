@@ -8,6 +8,8 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { Repository } from 'typeorm';
+import { UserFollowed } from './dto/user-followed.dto';
+import { UserFollowers } from './dto/user-followers.dto';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
 
@@ -19,21 +21,27 @@ export class FollowService {
     private readonly accountsService: AccountsService,
   ) {}
 
-  private async alreadyFollowed(
+  private async getFollow(
     followerID: string,
     followedID: string,
-  ): Promise<boolean> {
-    return !!(await this.followRepository.findOne({
+  ): Promise<Follow> {
+    return await this.followRepository.findOne({
       where: { followed: { id: followedID }, follower: { id: followerID } },
-    }));
+      relations: { followed: true, follower: true },
+    });
   }
 
-  async followAccount(followerID: string, followedUsername: string) {
+  async followAccount(
+    followerID: string,
+    followedUsername: string,
+  ): Promise<Follow> {
     const followed = await this.accountsService.getAccount(followedUsername);
 
     if (!followed) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
-    if (await this.alreadyFollowed(followerID, followed.id)) {
+    const alreadyFollowed = await this.getFollow(followerID, followed.id);
+
+    if (alreadyFollowed) {
       throw new ForbiddenException(FollowMessages.ALREADY_FOLLOWED);
     }
 
@@ -46,7 +54,7 @@ export class FollowService {
       follower: { id: followerID },
     });
 
-    return followedUsername;
+    return await this.getFollow(followerID, followed.id);
   }
 
   async unfollowAccount(followerUsername: string, unfollowedUsername: string) {
@@ -64,25 +72,21 @@ export class FollowService {
     return unfollowedUsername;
   }
 
-  async getUserFollowers(
-    username: string,
-  ): Promise<{ createdAt: Date; id: string; follower: Account }[]> {
-    return await this.followRepository.find({
+  async getUserFollowers(username: string): Promise<UserFollowers> {
+    return (await this.followRepository.find({
       where: {
         followed: { username },
       },
       relations: { follower: true },
-    });
+    })) as any;
   }
 
-  async getUserFollowed(
-    username: string,
-  ): Promise<{ createdAt: Date; id: string; followed: Account }[]> {
-    return await this.followRepository.find({
+  async getUserFollowed(username: string): Promise<UserFollowed> {
+    return (await this.followRepository.find({
       where: {
         follower: { username },
       },
       relations: { followed: true },
-    });
+    })) as any;
   }
 }

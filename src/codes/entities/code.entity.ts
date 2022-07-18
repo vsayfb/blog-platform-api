@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,7 +6,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Code extends BaseEntity {
+export class Code {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -18,5 +17,5 @@ export class Code extends BaseEntity {
   receiver: string;
 
   @CreateDateColumn()
-  senderTime: string;
+  created_at: Date;
 }

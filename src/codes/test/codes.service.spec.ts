@@ -30,7 +30,7 @@ describe('CodeService', () => {
       let result: { code: string; receiver: string };
       const receiver = accountStub().username;
 
-      const code = codeStub.code;
+      const code = codeStub().code;
 
       beforeEach(async () => {
         jest
@@ -58,7 +58,7 @@ describe('CodeService', () => {
   describe('getCode', () => {
     describe('when getCode is called', () => {
       let result: Code;
-      const codeID = codeStub.id;
+      const codeID = codeStub().id;
 
       beforeEach(async () => {
         result = await codesService.getCode(codeID);
@@ -71,31 +71,31 @@ describe('CodeService', () => {
       });
 
       it('should return a code', () => {
-        expect(result).toEqual(codeStub);
+        expect(result).toEqual({ ...codeStub(), id: expect.any(String) });
       });
     });
   });
 
   describe('removeCode', () => {
     describe('when removeCode is called', () => {
-      let result: Code;
+      let result: void;
 
       beforeEach(async () => {
-        result = await codesService.removeCode(codeStub.id);
+        result = await codesService.removeCode(codeStub().id);
       });
 
       test('calls repository.findOne method ', () => {
         expect(codesRepository.findOne).toHaveBeenCalledWith({
-          where: { id: codeStub.id },
+          where: { id: codeStub().id },
         });
       });
 
       test('calls repository.remove method ', () => {
-        expect(codesRepository.remove).toHaveBeenCalledWith(codeStub);
+        expect(codesRepository.remove).toHaveBeenCalledWith(codeStub());
       });
 
       it('should return removed code', () => {
-        expect(result).toEqual(codeStub);
+        expect(result).toEqual(undefined);
       });
     });
   });

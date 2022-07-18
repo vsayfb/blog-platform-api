@@ -14,9 +14,12 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { BookmarksService } from './bookmarks.service';
+import { PostBookmarks } from './dto/post-bookmarks.dto';
+import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
 import { BookmarkRoutes } from './enums/bookmark-routes';
+import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 
 @Controller('bookmarks')
 @ApiTags('bookmarks')
@@ -28,7 +31,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
   async create(
     @Param('postId') postID: string,
     @Account() account: JwtPayload,
-  ): Promise<{ data: Bookmark; message: string }> {
+  ): Promise<{ data: SelectedBookmarkFields; message: string }> {
     return {
       data: await this.bookmarksService.create({
         postID,
@@ -42,9 +45,9 @@ export class BookmarksController implements ICrudController<Bookmark> {
   @Get(BookmarkRoutes.FIND_MY_BOOKMARKS)
   async findMyBookmarks(
     @Account() me: JwtPayload,
-  ): Promise<{ data: Bookmark[]; message: string }> {
+  ): Promise<{ data: AccountBookmarks; message: string }> {
     return {
-      data: await this.bookmarksService.getUserBookmarks(me.sub),
+      data: await this.bookmarksService.getAccountBookmarks(me.sub),
       message: BookmarkMessages.ALL_FOUND,
     };
   }
@@ -63,7 +66,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
   @Get(BookmarkRoutes.FIND_POST_BOOKMARKS + ':postId')
   async findPostBookmarks(
     @Param('postId') postId: string,
-  ): Promise<{ data: Bookmark[]; message: string }> {
+  ): Promise<{ data: PostBookmarks; message: string }> {
     return {
       data: await this.bookmarksService.getPostBookmarks(postId),
       message: BookmarkMessages.POST_BOOKMARKS_FOUND,

@@ -42,7 +42,7 @@ describe('MailsService', () => {
   describe('sendVerificationCode', () => {
     describe('when sendVerificationCode is called', () => {
       const to = {
-        email: accountStub().email,
+        email: "foo@gmail.com",
         username: accountStub().username,
       };
       let result: { message: string };
@@ -62,7 +62,7 @@ describe('MailsService', () => {
       test('calls mailgunService.sendVerificationMail', () => {
         expect(mailgunService.sendVerificationMail).toHaveBeenCalledWith(
           to,
-          codeStub.code,
+          codeStub().code,
         );
       });
 

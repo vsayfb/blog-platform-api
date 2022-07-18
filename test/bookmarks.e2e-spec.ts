@@ -2,8 +2,12 @@ import { INestApplication } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
+import { AccountBookmarks } from 'src/bookmarks/dto/account-bookmarks.dto';
+import { PostBookmarks } from 'src/bookmarks/dto/post-bookmarks.dto';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { BookmarkMessages } from 'src/bookmarks/enums/bookmark-messages';
 import { BookmarkRoutes } from 'src/bookmarks/enums/bookmark-routes';
+import { SelectedBookmarkFields } from 'src/bookmarks/types/selected-bookmark-fields';
 import { DatabaseService } from 'src/database/database.service';
 import { Post } from 'src/posts/entities/post.entity';
 import { PostRoutes } from 'src/posts/enums/post-routes';
@@ -57,21 +61,28 @@ describe('Bookmark (e2e)', () => {
   async function readBookmarkRequest(
     bookmarkID: string,
     token: string,
-  ): Promise<{ body: { data: Bookmark }; statusCode: number }> {
-    const bookmark: { body: { data: Bookmark }; statusCode: number } =
-      await request(server)
-        .get(PREFIX + BookmarkRoutes.FIND_ONE + bookmarkID)
-        .set('Authorization', token);
+  ): Promise<{
+    body: { data: Bookmark; message: BookmarkMessages };
+    statusCode: number;
+  }> {
+    const bookmark: {
+      body: { data: Bookmark; message: BookmarkMessages };
+      statusCode: number;
+    } = await request(server)
+      .get(PREFIX + BookmarkRoutes.FIND_ONE + bookmarkID)
+      .set('Authorization', token);
 
     return bookmark;
   }
 
   async function createBookmarkRequest(
     access_token: string,
-  ): Promise<{ data: Bookmark }> {
+  ): Promise<{ data: SelectedBookmarkFields; message: BookmarkMessages }> {
     const post = await createPost();
 
-    const bookmark: { body: { data: Bookmark } } = await request(server)
+    const bookmark: {
+      body: { data: SelectedBookmarkFields; message: BookmarkMessages };
+    } = await request(server)
       .post(PREFIX + BookmarkRoutes.CREATE + post.data.id)
       .set('Authorization', access_token);
 
@@ -84,14 +95,16 @@ describe('Bookmark (e2e)', () => {
   ): Promise<{
     body: {
       id: string;
+      message: string;
     };
     statusCode: number;
   }> {
     const token = access_token || (await takeToken());
 
-    const deleted: { body: { id: string }; statusCode: number } = await request(
-      server,
-    )
+    const deleted: {
+      body: { id: string; message: string };
+      statusCode: number;
+    } = await request(server)
       .delete(PREFIX + BookmarkRoutes.REMOVE + bookmarkID)
       .set('Authorization', token);
 
@@ -103,7 +116,7 @@ describe('Bookmark (e2e)', () => {
       test('should return the created bookmark', async () => {
         const bookmark = await createBookmarkRequest(await takeToken());
 
-        expect(bookmark.data.id).toEqual(expect.any(String));
+        expect(bookmark.message).toBe(BookmarkMessages.CREATED);
       });
     });
   });
@@ -118,7 +131,7 @@ describe('Bookmark (e2e)', () => {
 
           const result = await readBookmarkRequest(bookmark.data.id, token);
 
-          expect(result.body.data.id).toEqual(expect.any(String));
+          expect(result.body.message).toBe(BookmarkMessages.FOUND);
         });
       });
 
@@ -144,15 +157,24 @@ describe('Bookmark (e2e)', () => {
   describe('findPostBookmarks', () => {
     describe('when findPostBookmarks is called', () => {
       test("should return an array of post's bookmarks", async () => {
-        const bookmark = await createBookmarkRequest(await takeToken());
+        const token = await takeToken();
 
-        const result: { body: { data: Bookmark[] } } = await request(
-          server,
-        ).get(
-          PREFIX + BookmarkRoutes.FIND_POST_BOOKMARKS + bookmark.data.post.id,
+        const createdBookmark = await createBookmarkRequest(token);
+
+        const bookmark = await readBookmarkRequest(
+          createdBookmark.data.id,
+          token,
         );
 
-        expect(result.body.data).toEqual(expect.any(Array));
+        const result: {
+          body: { data: PostBookmarks; message: BookmarkMessages };
+        } = await request(server).get(
+          PREFIX +
+            BookmarkRoutes.FIND_POST_BOOKMARKS +
+            bookmark.body.data.post.id,
+        );
+
+        expect(result.body.message).toBe(BookmarkMessages.POST_BOOKMARKS_FOUND);
       });
     });
   });
@@ -162,13 +184,15 @@ describe('Bookmark (e2e)', () => {
       test("should return an array of user's bookmarks", async () => {
         const me = await takeToken();
 
-        const bookmark = await createBookmarkRequest(me);
+        await createBookmarkRequest(me);
 
-        const result: { body: { data: Bookmark[] } } = await request(server)
+        const result: {
+          body: { data: AccountBookmarks; message: BookmarkMessages };
+        } = await request(server)
           .get(PREFIX + BookmarkRoutes.FIND_MY_BOOKMARKS)
           .set('Authorization', me);
 
-        expect(result.body.data[0].id).toEqual(bookmark.data.id);
+        expect(result.body.message).toBe(BookmarkMessages.ALL_FOUND);
       });
     });
   });
@@ -183,7 +207,7 @@ describe('Bookmark (e2e)', () => {
 
           const deleted = await deleteBookmarkRequest(bookmark.data.id, token);
 
-          expect(deleted.body.id).toEqual(expect.any(String));
+          expect(deleted.body.message).toBe(BookmarkMessages.DELETED);
         });
       });
 

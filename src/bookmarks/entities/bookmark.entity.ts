@@ -5,7 +5,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -14,17 +13,15 @@ export class Bookmark {
   id: string;
 
   @ManyToOne(() => Post, (post) => post.bookmarks, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   post: Post;
 
   @ManyToOne(() => Account, (account) => account.bookmarks, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   account: Account;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 }

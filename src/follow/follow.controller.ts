@@ -7,12 +7,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Account } from 'src/accounts/decorator/account.decorator';
-import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FollowService } from './follow.service';
 import { FollowMessages } from './enums/follow-messages';
 import { FollowRoutes } from './enums/follow-routes';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { Follow } from './entities/follow.entity';
+import { UserFollowers } from './dto/user-followers.dto';
+import { UserFollowed } from './dto/user-followed.dto';
 
 @Controller('follow')
 export class FollowController {
@@ -23,7 +26,7 @@ export class FollowController {
   async follow(
     @Account() account: JwtPayload,
     @Param('username') followedUsername: string,
-  ): Promise<{ data: string; message: FollowMessages }> {
+  ): Promise<{ data: Follow; message: FollowMessages }> {
     return {
       data: await this.followService.followAccount(
         account.sub,
@@ -49,10 +52,8 @@ export class FollowController {
   }
 
   @Get(FollowRoutes.USER_FOLLOWERS + ':username')
-  async findUserFollowers(
-    @Param('username') username: string,
-  ): Promise<{
-    data: { createdAt: Date; id: string; follower: AccountEntity }[];
+  async findUserFollowers(@Param('username') username: string): Promise<{
+    data: UserFollowers;
     message: FollowMessages;
   }> {
     return {
@@ -63,7 +64,7 @@ export class FollowController {
 
   @Get(FollowRoutes.USER_FOLLOWED + ':username')
   async findUserFollowed(@Param('username') username: string): Promise<{
-    data: { createdAt: Date; id: string; followed: AccountEntity }[];
+    data: UserFollowed;
     message: FollowMessages;
   }> {
     return {

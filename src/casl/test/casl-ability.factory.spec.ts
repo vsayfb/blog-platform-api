@@ -5,21 +5,24 @@ import { postStub } from 'src/posts/stub/post-stub';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory, Action } from 'src/casl/casl-ability.factory';
 import { Post } from 'src/posts/entities/post.entity';
-import { Role } from 'src/accounts/entities/account.entity';
+import { Account, Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
+
+
+
 describe('CaslAbilityFactory', () => {
   const caslAbilityFactory = new CaslAbilityFactory();
 
-  describe('when CaslAbilityFactoryCalled', () => {
-    const userJesse = { ...jwtPayloadStub, sub: postStub().author.id };
+  describe('when CaslAbilityFactory called', () => {
+    const userJesse = jwtPayloadStub();
 
     const tag = new Tag();
     tag.name = tagStub().name;
 
     const jessePost = new Post();
     const walterPost = new Post();
-    jessePost.author = { ...accountStub(), id: userJesse.sub };
-    walterPost.author = { ...accountStub(), id: randomUUID() };
+    jessePost.author = { ...accountStub(), id: userJesse.sub } as Account;
+    walterPost.author = { ...accountStub(), id: randomUUID() } as Account;
 
     const ability = caslAbilityFactory.createForUser({ user: userJesse });
 
@@ -34,7 +37,7 @@ describe('CaslAbilityFactory', () => {
     });
 
     describe('if user is a moderator', () => {
-      const moderator = { ...jwtPayloadStub, role: Role.MODERATOR };
+      const moderator = { ...jwtPayloadStub(), role: Role.MODERATOR };
 
       const ability = caslAbilityFactory.createForUser({ user: moderator });
 
@@ -49,7 +52,7 @@ describe('CaslAbilityFactory', () => {
     });
 
     describe('if user is an admin', () => {
-      const admin = { ...jwtPayloadStub, role: Role.ADMIN };
+      const admin = { ...jwtPayloadStub(), role: Role.ADMIN };
 
       const ability = caslAbilityFactory.createForUser({ user: admin });
 

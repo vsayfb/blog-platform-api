@@ -1,11 +1,12 @@
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { JwtPayload } from './../../lib/jwt.payload';
 
-export const jwtPayloadStub: JwtPayload = {
+export const jwtPayloadStub = (): JwtPayload => ({
+  sub: accountStub().id,
   username: accountStub().username,
   image: accountStub().image,
-  sub: accountStub().id,
+  display_name: accountStub().display_name,
   iat: 123456,
   exp: 123456,
   role: accountStub().role,
-};
+});

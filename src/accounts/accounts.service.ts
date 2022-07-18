@@ -4,15 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
-import { Post } from 'src/posts/entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
+import { AccountProfileDto } from './dto/account-profile.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { Account, RegisterType, Role } from './entities/account.entity';
+import { Account, RegisterType } from './entities/account.entity';
 import { AccountMessages } from './enums/account-messages';
+import { SelectedAccountFields } from './types/selected-account-fields';
 
 @Injectable()
 export class AccountsService {
@@ -23,20 +23,14 @@ export class AccountsService {
     private readonly uploadsService: UploadsService,
   ) {}
 
-  async getOne(id: string): Promise<Account> {
+  async getOne(id: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { id } });
   }
 
-  async getAccount(userNameOrEmail: string): Promise<{
-    id: string;
-    username: string;
-    password: string;
-    display_name: string;
-    email: string;
-    image: string | null;
-    role: Role;
-  }> {
-    return this.accountsRepository.findOne({
+  async getAccount(
+    userNameOrEmail: string,
+  ): Promise<SelectedAccountFields & { email: string; password: string }> {
+    return await this.accountsRepository.findOne({
       where: [
         {
           username: userNameOrEmail,
@@ -45,33 +39,20 @@ export class AccountsService {
           email: userNameOrEmail,
         },
       ],
-      select: [
-        'id',
-        'username',
-        'password',
-        'email',
-        'display_name',
-        'image',
-        'role',
-      ],
+      select: {
+        id: true,
+        username: true,
+        display_name: true,
+        image: true,
+        role: true,
+        email: true,
+        password: true,
+      },
     });
   }
 
-  async getProfile(username: string): Promise<{
-    id: string;
-    username: string;
-    display_name: string;
-    image: string | null;
-    via: string;
-    role: string;
-    createdAt: Date;
-    updatedAt: Date;
-    posts: Post[];
-    comments: Comment[];
-    followers: number;
-    followed: number;
-  }> {
-    const profile: any = await this.accountsRepository
+  async getProfile(username: string): Promise<AccountProfileDto> {
+    const profile = await this.accountsRepository
       .createQueryBuilder('account')
       .where('account.username=:username', { username })
       .leftJoinAndSelect('account.posts', 'posts')
@@ -84,24 +65,24 @@ export class AccountsService {
 
     if (!profile) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
-    return profile;
+    return profile as any;
   }
 
-  async createLocalAccount(data: CreateAccountDto): Promise<Account> {
-    const { email, username } = data;
-
-    const usernameTaken = await this.getOneByUsername(username);
+  async createLocalAccount(
+    data: CreateAccountDto,
+  ): Promise<SelectedAccountFields> {
+    const usernameTaken = await this.getOneByUsername(data.username);
 
     if (usernameTaken)
       throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
 
-    const emailTaken = await this.getOneByEmail(email);
+    const emailTaken = await this.getOneByEmail(data.email);
 
     if (emailTaken) throw new ForbiddenException(AccountMessages.EMAIL_TAKEN);
 
     delete data.verification_code;
 
-    return await this.accountsRepository.save(data);
+    return await this.saveAccount(data);
   }
 
   async createAccountViaGoogle(data: {
@@ -109,11 +90,22 @@ export class AccountsService {
     username: string;
     password: string;
     display_name: string;
-  }): Promise<Account> {
-    return await this.accountsRepository.save({
-      ...data,
-      via: RegisterType.GOOGLE,
-    });
+  }): Promise<SelectedAccountFields> {
+    return await this.saveAccount(data, RegisterType.GOOGLE);
+  }
+
+  private async saveAccount(data: CreateAccountDto, via?: RegisterType) {
+    const { display_name, username, id, image, role, created_at } =
+      await this.accountsRepository.save({ ...data, via });
+
+    return {
+      display_name,
+      username,
+      id,
+      image,
+      role,
+      created_at,
+    };
   }
 
   async changeProfileImage(
@@ -134,7 +126,7 @@ export class AccountsService {
   async beginRegisterVerification(
     username: string,
     email: string,
-  ): Promise<{ message: string } | ForbiddenException> {
+  ): Promise<{ message: string }> {
     const emailRegistered = await this.accountsRepository.findOne({
       where: { email },
     });
@@ -152,11 +144,11 @@ export class AccountsService {
     return await this.mailService.sendVerificationCode({ username, email });
   }
 
-  async getOneByEmail(email: string): Promise<Account> {
+  async getOneByEmail(email: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { email } });
   }
 
-  async getOneByUsername(username: string): Promise<Account> {
+  async getOneByUsername(username: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { username } });
   }
 }

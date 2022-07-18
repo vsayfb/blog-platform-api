@@ -19,5 +19,5 @@ export class CreateAccountDto {
   password: string;
 
   @MinLength(6)
-  verification_code: string;
+  verification_code?: string;
 }

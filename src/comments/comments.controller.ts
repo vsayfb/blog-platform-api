@@ -16,11 +16,14 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
+import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { PostCommentsDto } from './dto/post-comments.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
+import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -30,7 +33,7 @@ export class CommentsController implements ICrudController<Comment> {
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(
     @Param('id') id: string,
-  ): Promise<{ data: Comment[]; message: CommentMessages }> {
+  ): Promise<{ data: PostCommentsDto; message: CommentMessages }> {
     return {
       data: await this.commentsService.getPostComments(id),
       message: CommentMessages.ALL_FOUND,
@@ -43,7 +46,7 @@ export class CommentsController implements ICrudController<Comment> {
     @Account() account: JwtPayload,
     @Param('id') postID: string,
     @Body() createCommentDto: CreateCommentDto,
-  ): Promise<{ data: Comment; message: string }> {
+  ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {
       data: await this.commentsService.create({
         authorID: account.sub,
@@ -70,7 +73,7 @@ export class CommentsController implements ICrudController<Comment> {
   async update(
     @Data() comment: Comment,
     @Body() updateCommentDto: UpdateCommentDto,
-  ): Promise<{ data: Comment; message: string }> {
+  ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {
       data: await this.commentsService.update(comment, updateCommentDto),
       message: CommentMessages.UPDATED,

@@ -1,15 +1,19 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
-import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { AuthService } from '../auth.service';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { GoogleService } from 'src/apis/google/google.service';
-import { ForbiddenException } from '@nestjs/common';
 import { CodesService } from 'src/codes/codes.service';
-import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { CodeMessages } from 'src/codes/enums/code-messages';
+import { RegisterViewDto } from '../dto/register-view.dto';
+import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { codeStub } from 'src/codes/stub/code.stub';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { googleUserCredentialsStub } from 'src/apis/google/stub/google-credentials.stub';
+import { Account } from 'src/accounts/entities/account.entity';
 
 jest.mock('src/accounts/accounts.service');
 jest.mock('src/codes/codes.service');
@@ -45,22 +49,16 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    const dto = { ...accountStub(), verification_code: '21345' };
+    describe('when register is called', () => {
+      const dto: CreateAccountDto = {
+        verification_code: '21345',
+        email: 'foo@gmail.com',
+        password: 'foo_password',
+        username: accountStub().username,
+        display_name: accountStub().display_name,
+      };
 
-    let result: RegisterViewDto | ForbiddenException;
-
-    beforeEach(async () => {
-      result = await authService.register(dto);
-    });
-
-    describe('when register method is called', () => {
-      test('calls codesService.getCode', () => {
-        expect(codesService.getCode).toHaveBeenCalledWith(
-          dto.verification_code,
-        );
-      });
-
-      describe('if : code is null', () => {
+      describe('scenario : if code is null', () => {
         test('register method throws an error', async () => {
           jest.spyOn(codesService, 'getCode').mockResolvedValueOnce(null);
 
@@ -70,18 +68,33 @@ describe('AuthService', () => {
         });
       });
 
-      describe('if : code is verified', () => {
+      describe('scenario : if email is invalid', () => {
+        test('register method throws Invalid Email', async () => {
+          await expect(authService.register(dto)).rejects.toThrow(
+            AccountMessages.INVALID_EMAIL,
+          );
+        });
+      });
+
+      describe('scenario : all conditions are meet', () => {
+        let result: RegisterViewDto;
+
+        beforeEach(async () => {
+          jest.spyOn(codesService, 'getCode').mockResolvedValueOnce({
+            ...codeStub(),
+            receiver: 'foo@gmail.com',
+          });
+
+          result = await authService.register(dto);
+        });
+
         test('calls codesService.removeCode', () => {
-          expect(codesService.removeCode).toHaveBeenCalled();
+          expect(codesService.removeCode).toHaveBeenCalledWith(codeStub().id);
         });
 
-        test('calls accountsService.createLocalAccount', () => {
-          expect(accountsService.createLocalAccount).toHaveBeenCalled();
-        });
-
-        it('should create an account and return access_token', async () => {
-          expect(result).toMatchObject({
-            data: expect.anything(),
+        test('shold return account and access token', () => {
+          expect(result).toEqual({
+            data: accountStub(),
             access_token: expect.any(String),
           });
         });
@@ -93,7 +106,6 @@ describe('AuthService', () => {
     describe('when googleAuth is called', () => {
       const access_token = 'ksadjsjdidwq';
       let result: RegisterViewDto;
-      const dto = accountStub();
 
       beforeEach(async () => {
         result = await authService.googleAuth(access_token);
@@ -106,13 +118,15 @@ describe('AuthService', () => {
       });
 
       test('calls accountsService.getAccount', () => {
-        expect(accountsService.getAccount).toHaveBeenCalledWith(dto.email);
+        expect(accountsService.getAccount).toHaveBeenCalledWith(
+          googleUserCredentialsStub().email,
+        );
       });
 
       describe('if : registered user', () => {
         it('should return an access token and an account', () => {
-          expect(result).toMatchObject({
-            data: expect.anything(),
+          expect(result).toEqual({
+            data: accountStub(),
             access_token: expect.any(String),
           });
         });
@@ -126,15 +140,20 @@ describe('AuthService', () => {
 
         test('calls accountsService.createAccountViaGoogle', () => {
           expect(accountsService.createAccountViaGoogle).toHaveBeenCalledWith({
-            email: dto.email,
+            email: googleUserCredentialsStub().email,
             password: expect.any(String),
-            username: dto.username + dto.username,
-            display_name: dto.username + ' ' + dto.username,
+            username:
+              googleUserCredentialsStub().given_name +
+              googleUserCredentialsStub().family_name,
+            display_name:
+              googleUserCredentialsStub().given_name +
+              ' ' +
+              googleUserCredentialsStub().family_name,
           });
         });
 
         it('should return an access token and an account', () => {
-          expect(result).toMatchObject({
+          expect(result).toEqual({
             data: expect.anything(),
             access_token: expect.any(String),
           });
@@ -144,33 +163,45 @@ describe('AuthService', () => {
   });
 
   describe('validateAccount', () => {
-    const { username, password } = accountStub();
-    let result: Account;
+    const { username } = accountStub();
+    const accountPassword = 'foo_password';
+    let result: SelectedAccountFields;
 
     describe('when validateAccount is called', () => {
-      beforeEach(async () => {
-        result = await authService.validateAccount(username, password);
-      });
+      describe('if : an account was found and passwords matched', () => {
+        let result: SelectedAccountFields;
 
-      test('calls accountsService.getAccount', () => {
-        expect(accountsService.getAccount).toHaveBeenCalledWith(username);
-      });
+        beforeEach(async () => {
+          // return same password
+          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce({
+            ...accountStub(),
+            password: accountPassword,
+          } as Account);
 
-      describe('if : an account found', () => {
+          result = await authService.validateAccount(username, accountPassword);
+        });
+
+        test('calls accountsService.getAccount', () => {
+          expect(accountsService.getAccount).toHaveBeenCalledWith(username);
+        });
+
         it('should return the account', () => {
-          expect(result).toEqual({
-            id: expect.any(String),
-            ...result,
-          });
+          expect(result).toEqual(accountStub());
         });
       });
 
-      describe('if : an account not found', () => {
+      describe('if : an account was not found or passwords do not match', () => {
+        let result: SelectedAccountFields;
+
+        beforeEach(async () => {
+          result = await authService.validateAccount(username, accountPassword);
+        });
+
+        test('calls accountsService.getAccount', () => {
+          expect(accountsService.getAccount).toHaveBeenCalledWith(username);
+        });
+
         it('should return null', async () => {
-          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
-
-          result = await authService.validateAccount(username, password);
-
           expect(result).toEqual(null);
         });
       });

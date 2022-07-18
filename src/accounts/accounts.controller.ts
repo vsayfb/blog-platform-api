@@ -25,6 +25,7 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
 import { Account } from './decorator/account.decorator';
+import { AccountProfileDto } from './dto/account-profile.dto';
 import { BeginVerificationDto } from './dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
@@ -54,7 +55,10 @@ export class AccountsController {
   }
 
   @Get(AccountRoutes.PROFILE + ':username')
-  async findProfile(@Param('username') username: string) {
+  async findProfile(@Param('username') username: string): Promise<{
+    data: AccountProfileDto;
+    message: AccountMessages;
+  }> {
     return {
       data: await this.accountsService.getProfile(username),
       message: AccountMessages.FOUND,

@@ -32,7 +32,7 @@ const stubs = (entity: Entities, id?: string) => {
     Account: { id: entityID, ...accountStub() },
     Post: { id: entityID, ...postStub() },
     Comment: { id: entityID, ...commentStub() },
-    Code: { id: entityID, ...codeStub },
+    Code: { id: entityID, ...codeStub() },
     Bookmark: { id: entityID, ...bookmarkStub() },
     Follow: { id: entityID, ...followStub() },
   };
@@ -55,4 +55,17 @@ export function mockRepository<T>(
   jest
     .spyOn(repository, 'remove')
     .mockImplementation((dto) => Promise.resolve(dto));
+
+  const createQueryBuilder = {
+    where: () => createQueryBuilder,
+    leftJoinAndSelect: () => createQueryBuilder,
+    leftJoin: () => createQueryBuilder,
+    loadRelationCountAndMap: () => createQueryBuilder,
+    getOne: () => stubs(entity),
+    getMany: () => [stubs(entity)],
+  };
+
+  jest
+    .spyOn(repository, 'createQueryBuilder' as any)
+    .mockImplementation(() => createQueryBuilder);
 }

@@ -19,9 +19,9 @@ export class Tag {
   @ManyToMany(() => Post, (post) => post.tags, { cascade: true })
   posts: Post[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updatedAt: Date;
 }

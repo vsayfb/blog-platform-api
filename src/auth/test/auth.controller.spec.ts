@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
+import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AccessToken } from '../dto/access-token.dto';
+import { RegisterViewDto } from '../dto/register-view.dto';
 
 jest.mock('../auth.service');
 
@@ -44,7 +45,13 @@ describe('AuthController', () => {
   describe('register', () => {
     describe('when register is called', () => {
       let result: RegisterViewDto;
-      const dto = { ...accountStub(), verification_code: '123456' };
+      const dto: CreateAccountDto = {
+        verification_code: '123456',
+        username: accountStub().username,
+        email: 'foo@gmail.com',
+        display_name: accountStub().display_name,
+        password: 'foo_password'
+      };
 
       beforeEach(async () => {
         result = await authController.register(dto);

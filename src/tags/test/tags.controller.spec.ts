@@ -5,6 +5,8 @@ import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
 import { UpdateTagDto } from '../dto/update-tag.dto';
+import { SelectedTagFields } from '../types/selected-tag-fields';
+import { TagsDto } from '../dto/tags.dto';
 
 jest.mock('src/tags/tags.service.ts');
 
@@ -29,7 +31,7 @@ describe('TagsController', () => {
 
   describe('findOne', () => {
     describe('when findOne is called', () => {
-      let result: { data: Tag; message: string };
+      let result: { data: SelectedTagFields; message: string; };
       const dto = tagStub();
 
       beforeEach(async () => {
@@ -48,7 +50,7 @@ describe('TagsController', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { data: Tag; message: string };
+      let result: { data: SelectedTagFields; message: string };
       const createTagDto = tagStub();
 
       beforeEach(async () => {
@@ -67,7 +69,7 @@ describe('TagsController', () => {
 
   describe('findAll', () => {
     describe('when findAll is called', () => {
-      let result: { data: Tag[]; message: string };
+      let result: { data: TagsDto; message: string };
 
       beforeEach(async () => {
         result = await tagsController.findAll();
@@ -85,7 +87,7 @@ describe('TagsController', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: Tag; message: string };
+      let result: { data: SelectedTagFields; message?: string; };
       const tag = tagStub() as unknown as Tag;
       const updateDto: UpdateTagDto = { name: 'new_tag' };
 

@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,13 +15,11 @@ export class Comment {
   id: string;
 
   @ManyToOne(() => Account, (account) => account.comments, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   author: Account;
 
   @ManyToOne(() => Post, (post) => post.comments, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   post: Post;
@@ -31,8 +28,8 @@ export class Comment {
   content: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

@@ -1,12 +1,8 @@
-import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { postStub } from 'src/posts/stub/post-stub';
-import { Comment } from '../entities/comment.entity';
+import { SelectedCommentFields } from '../types/selected-comment-fields';
 
-export const commentStub = (): Comment => ({
+export const commentStub = (): SelectedCommentFields => ({
   id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dce4f',
-  author: accountStub(),
   content: 'comment-content',
-  post: postStub() as any,
-  createdAt: undefined,
-  updatedAt: undefined,
+  created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
+  updated_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
 });

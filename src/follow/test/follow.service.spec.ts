@@ -12,6 +12,8 @@ import { FollowMessages } from '../enums/follow-messages';
 import { followStub } from '../stub/follow-stub';
 import { randomUUID } from 'crypto';
 import { Account } from 'src/accounts/entities/account.entity';
+import { UserFollowers } from '../dto/user-followers.dto';
+import { UserFollowed } from '../dto/user-followed.dto';
 
 jest.mock('src/accounts/accounts.service');
 
@@ -43,20 +45,8 @@ describe('FollowService', () => {
 
   describe('followAccount', () => {
     describe('when followAccount is called', () => {
-      const followerID = jwtPayloadStub.sub;
+      const followerID = jwtPayloadStub().sub;
       const followedUsername = accountStub().username;
-
-      beforeEach(() => {
-        //private method
-        jest
-          .spyOn(FollowService.prototype, 'alreadyFollowed' as any)
-          .mockResolvedValue(false);
-
-        // return random id so that the function does not throw an error(CANNOT_FOLLOW_YOURSELF)
-        jest
-          .spyOn(accountsService, 'getAccount')
-          .mockResolvedValue({ ...accountStub(), id: randomUUID() });
-      });
 
       describe('scenario : account not found with given followedUsername', () => {
         test('should throw Account not found error', async () => {
@@ -71,7 +61,7 @@ describe('FollowService', () => {
         test('should throw Already followed error', async () => {
           //private method
           jest
-            .spyOn(FollowService.prototype, 'alreadyFollowed' as any)
+            .spyOn(FollowService.prototype, 'getFollow' as any)
             .mockResolvedValueOnce(true);
 
           await expect(
@@ -82,10 +72,16 @@ describe('FollowService', () => {
 
       describe('scenario : followedUsername and followerUsername is same', () => {
         test('should throw You cannot follow yourself error', async () => {
-          // restore mock
+          //private method
+          jest
+            .spyOn(FollowService.prototype, 'getFollow' as any)
+            .mockResolvedValueOnce(false);
+
+          //
+          // return random id so that the function does not throw an error(CANNOT_FOLLOW_YOURSELF)
           jest
             .spyOn(accountsService, 'getAccount')
-            .mockResolvedValue(accountStub());
+            .mockResolvedValueOnce(accountStub() as Account);
 
           await expect(
             followService.followAccount(followerID, followerID),
@@ -94,9 +90,20 @@ describe('FollowService', () => {
       });
 
       describe('scenario : all conditions are met', () => {
-        let result: string;
+        let result: Follow;
 
         beforeEach(async () => {
+          //private method, return false so the function does not throw error (ALREADY_FOLLOWED)
+          jest
+            .spyOn(FollowService.prototype, 'getFollow' as any)
+            .mockResolvedValueOnce(false);
+
+          // return random id so that the function does not throw an error(CANNOT_FOLLOW_YOURSELF)
+          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce({
+            ...accountStub(),
+            id: randomUUID(),
+          } as Account);
+
           result = await followService.followAccount(
             followerID,
             followedUsername,
@@ -105,13 +112,13 @@ describe('FollowService', () => {
 
         test('calls followRepository.save', () => {
           expect(followRepository.save).toHaveBeenCalledWith({
-            followed: { ...accountStub(), id: expect.any(String) },
+            followed: { ...accountStub(), id: expect.any(String) }, // id = randomUUID,
             follower: { id: followerID },
           });
         });
 
-        test('should return followed username', async () => {
-          expect(result).toEqual(followedUsername);
+        test('should return follow entity', async () => {
+          expect(result).toEqual(followStub());
         });
       });
     });
@@ -119,7 +126,7 @@ describe('FollowService', () => {
 
   describe('unfollowAccount', () => {
     describe('when unfollowAccount is called', () => {
-      const followerUsername = jwtPayloadStub.username;
+      const followerUsername = jwtPayloadStub().username;
       const unfollowedUsername = accountStub().username;
 
       describe("scenario : a follow entity doesn't found with given parameters", () => {
@@ -155,11 +162,18 @@ describe('FollowService', () => {
 
   describe('getUserFollowers', () => {
     describe('when getUserFollowers is called', () => {
-      let result: { createdAt: Date; id: string; follower: Account }[];
+      let result: UserFollowers;
 
       const username = accountStub().username;
 
       beforeEach(async () => {
+        jest.spyOn(followRepository, 'find').mockResolvedValue([
+          {
+            ...followStub(),
+            followed: accountStub(),
+          },
+        ] as any);
+
         result = await followService.getUserFollowers(username);
       });
 
@@ -173,21 +187,25 @@ describe('FollowService', () => {
       });
 
       it("should return an array of user's followers", () => {
-        expect(result[0].follower).toEqual({
-          ...accountStub(),
-          username: 'follower',
-        });
+        expect(result).toEqual([{ ...followStub(), followed: accountStub() }]);
       });
     });
   });
 
   describe('getUserFollowed', () => {
     describe('when getUserFollowed is called', () => {
-      let result: { createdAt: Date; id: string; followed: Account }[];
+      let result: UserFollowed;
 
       const username = accountStub().username;
 
       beforeEach(async () => {
+        jest.spyOn(followRepository, 'find').mockResolvedValue([
+          {
+            ...followStub(),
+            follower: accountStub(),
+          },
+        ] as any);
+
         result = await followService.getUserFollowed(username);
       });
 
@@ -201,7 +219,7 @@ describe('FollowService', () => {
       });
 
       it("should return an array of user's followed", () => {
-        expect(result[0].followed).toEqual(accountStub());
+        expect(result).toEqual([{ ...followStub(), follower: accountStub() }]);
       });
     });
   });

@@ -22,7 +22,7 @@ describe('GoogleService', () => {
       beforeEach(async () => {
         jest
           .spyOn(axios, 'get')
-          .mockResolvedValue({ data: googleUserCredentialsStub });
+          .mockResolvedValue({ data: googleUserCredentialsStub() });
 
         result = await googleService.getUserCredentials(access_token);
       });
@@ -33,9 +33,9 @@ describe('GoogleService', () => {
 
       it('should return the google user credentials', () => {
         expect(result).toEqual({
-          email: googleUserCredentialsStub.email,
-          given_name: googleUserCredentialsStub.given_name,
-          family_name: googleUserCredentialsStub.family_name,
+          email: googleUserCredentialsStub().email,
+          given_name: googleUserCredentialsStub().given_name,
+          family_name: googleUserCredentialsStub().family_name,
         });
       });
     });

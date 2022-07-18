@@ -3,6 +3,9 @@ import { Test } from '@nestjs/testing';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { ConfigService } from '@nestjs/config';
 import { codeStub } from 'src/codes/stub/code.stub';
+
+
+
 describe('MailgunService', () => {
   let mailgunService: MailgunService;
   const configService = { get: jest.fn().mockReturnValue('mailgun_username') };
@@ -21,11 +24,11 @@ describe('MailgunService', () => {
   describe('sendVerificationMail', () => {
     let result: boolean;
 
-    const code = codeStub.code.toString();
+    const code = codeStub().code;
 
     const from = configService.get();
 
-    const to = { email: accountStub().email, username: accountStub().username };
+    const to = { email: 'foo@gmail.com', username: accountStub().username };
 
     const verificationMailOptions = {
       template: 'verification_code',

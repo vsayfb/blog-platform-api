@@ -9,6 +9,9 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { CommentMessages } from 'src/comments/enums/comment-messages';
 import { CommentRoutes } from 'src/comments/enums/comment-routes';
 import { DatabaseService } from 'src/database/database.service';
+import { UserFollowed } from 'src/follow/dto/user-followed.dto';
+import { UserFollowers } from 'src/follow/dto/user-followers.dto';
+import { Follow } from 'src/follow/entities/follow.entity';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
 import { FollowRoutes } from 'src/follow/enums/follow-routes';
 import { Post } from 'src/posts/entities/post.entity';
@@ -56,7 +59,7 @@ describe('Follow (e2e)', () => {
     followerToken: string,
     followedUsername: string,
   ): Promise<{
-    body: { data: string; message: FollowMessages };
+    body: { data: Follow; message: FollowMessages };
     statusCode: number;
   }> {
     const follow = await request(server)
@@ -135,7 +138,6 @@ describe('Follow (e2e)', () => {
             followedUser.user.username,
           );
 
-          expect(result.body.data).toBe(followedUser.user.username);
           expect(result.body.message).toBe(FollowMessages.FOLLOWED);
         });
       });
@@ -193,7 +195,7 @@ describe('Follow (e2e)', () => {
 
         const user_1_followers: {
           body: {
-            data: { createdAt: Date; id: string; follower: Account }[];
+            data: UserFollowers;
             message: FollowMessages;
           };
         } = await request(server).get(
@@ -231,7 +233,7 @@ describe('Follow (e2e)', () => {
 
         const user_1_followed: {
           body: {
-            data: { createdAt: Date; id: string; followed: Account }[];
+            data: UserFollowed;
             message: FollowMessages;
           };
         } = await request(server).get(

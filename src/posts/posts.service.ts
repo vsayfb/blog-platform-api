@@ -11,6 +11,13 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { PostMessages } from './enums/post-messages';
+import { CreatedPostDto } from './dto/created-post.dto';
+import { PublicPostsDto } from './dto/public-posts.dto';
+import { PublicPostDto } from './dto/public-post.dto';
+import { UpdatedPostDto } from './dto/updated-post.dto';
+import { PostDto } from './dto/post.dto';
+import { PostsDto } from './dto/posts.dto';
+import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 
 @Injectable()
 export class PostsService implements ICrudService<Post> {
@@ -28,39 +35,59 @@ export class PostsService implements ICrudService<Post> {
     authorID: string;
     dto: CreatePostDto;
     published?: boolean;
-  }): Promise<Post> {
+  }): Promise<CreatedPostDto> {
     const url = this.convertUrl(dto.title);
 
     const tags = await this.setPostTags(dto.tags);
 
-    const { content, title } = dto;
-
-    return await this.postsRepository.save({
-      content,
-      title,
+    const created = await this.postsRepository.save({
+      content: dto.content,
+      title: dto.title,
       url,
       tags,
       author: { id: authorID },
       title_image: dto.title_image || null,
       published,
     });
-  }
 
-  async getAll(): Promise<Post[]> {
-    return await this.postsRepository.find({ where: { published: true } });
-  }
-
-  async getOne(url: string): Promise<Post> {
-    const post = await this.postsRepository.findOne({
-      where: { url, published: true },
+    const result = await this.postsRepository.findOne({
+      where: { id: created.id },
+      relations: { tags: true, author: true },
     });
+
+    return result as any;
+  }
+
+  async getAll(): Promise<PublicPostsDto> {
+    const posts = await this.postsRepository.find({
+      where: { published: true },
+      relations: { tags: true, author: true },
+    });
+
+    return posts as any;
+  }
+
+  async getOne(url: string): Promise<PublicPostDto> {
+    const post = await this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.url=:url', { url })
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.tags', 'tags')
+      .leftJoin('post.comments', 'comments')
+      .loadRelationCountAndMap('post.comments', 'post.comments')
+      .leftJoin('post.bookmarks', 'bookmarks')
+      .loadRelationCountAndMap('post.bookmarks', 'post.bookmarks')
+      .getOne();
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
 
-    return post;
+    return post as any;
   }
 
-  async update(post: Post, updatePostDto: UpdatePostDto): Promise<Post> {
+  async update(
+    post: Post,
+    updatePostDto: UpdatePostDto,
+  ): Promise<UpdatedPostDto> {
     post.title = updatePostDto.title;
     post.url = this.convertUrl(post.title);
     post.content = updatePostDto.content;
@@ -68,19 +95,26 @@ export class PostsService implements ICrudService<Post> {
     if (updatePostDto.published === true) post.published = true;
 
     if (Array.isArray(updatePostDto.tags)) {
-      post.tags = await this.setPostTags(updatePostDto.tags);
+      post.tags = (await this.setPostTags(updatePostDto.tags)) as Tag[];
     }
 
     if (updatePostDto.title_image) post.title_image = updatePostDto.title_image;
 
-    return await this.postsRepository.save(post);
+    const updated = await this.postsRepository.save(post);
+
+    const result = await this.postsRepository.findOne({
+      where: { id: updated.id },
+      relations: { tags: true },
+    });
+
+    return result as any;
   }
 
   async saveTitleImage(image: Express.Multer.File): Promise<string> {
     return await this.uploadService.uploadImage(image);
   }
 
-  private async setPostTags(tags: string[]): Promise<Tag[]> {
+  private async setPostTags(tags: string[]): Promise<SelectedTagFields[]> {
     return await this.tagsService.createMultipleTagsIfNotExist(tags);
   }
 
@@ -90,8 +124,11 @@ export class PostsService implements ICrudService<Post> {
     return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
-  async getOneByID(id: string): Promise<Post> {
-    return await this.postsRepository.findOne({ where: { id } });
+  async getOneByID(id: string): Promise<PostDto> {
+    return (await this.postsRepository.findOne({
+      where: { id },
+      relations: { author: true, tags: true },
+    })) as any;
   }
 
   async changePostStatus(
@@ -104,8 +141,19 @@ export class PostsService implements ICrudService<Post> {
     return { id, published };
   }
 
-  async getMyPosts(id: string): Promise<Post[]> {
-    return await this.postsRepository.find({ where: { author: { id } } });
+  async getMyPosts(id: string): Promise<PostsDto> {
+    const posts = await this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.author=:id', { id })
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.tags', 'tags')
+      .leftJoin('post.comments', 'comments')
+      .loadRelationCountAndMap('post.comments', 'post.comments')
+      .leftJoin('post.bookmarks', 'bookmarks')
+      .loadRelationCountAndMap('post.bookmarks', 'post.bookmarks')
+      .getMany();
+
+    return posts as any;
   }
 
   async delete(post: Post): Promise<string> {

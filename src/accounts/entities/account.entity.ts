@@ -31,7 +31,7 @@ export class Account {
   @Column({ unique: true })
   username: string;
 
-  @Column({})
+  @Column()
   display_name: string;
 
   @Column({ unique: true, select: false })
@@ -52,7 +52,12 @@ export class Account {
   @OneToMany(() => Bookmark, (bookmark) => bookmark.account)
   bookmarks: Bookmark[];
 
-  @Column({ type: 'enum', default: RegisterType.LOCAL, enum: RegisterType })
+  @Column({
+    type: 'enum',
+    default: RegisterType.LOCAL,
+    enum: RegisterType,
+    select: false,
+  })
   via: RegisterType;
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })
@@ -65,8 +70,8 @@ export class Account {
   followers: Follow;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn({ select: false })
+  updated_at: Date;
 }

@@ -18,5 +18,5 @@ export class Follow {
   followed: Account;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 }

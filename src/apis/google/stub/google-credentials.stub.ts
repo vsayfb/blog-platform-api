@@ -1,6 +1,6 @@
 import { GoogleUserCredentials } from './../google.service';
 
-export const googleUserCredentialsStub: GoogleUserCredentials = {
+export const googleUserCredentialsStub = (): GoogleUserCredentials => ({
   sub: Date.now().toString(),
   name: 'google_user',
   given_name: 'google',
@@ -10,4 +10,4 @@ export const googleUserCredentialsStub: GoogleUserCredentials = {
   email_verified: true,
   locale: '',
   hd: '',
-};
+});

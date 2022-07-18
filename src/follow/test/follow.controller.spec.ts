@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
+import { UserFollowed } from '../dto/user-followed.dto';
+import { UserFollowers } from '../dto/user-followers.dto';
 import { Follow } from '../entities/follow.entity';
 import { FollowMessages } from '../enums/follow-messages';
 import { FollowController } from '../follow.controller';
@@ -25,8 +27,8 @@ describe('FollowController', () => {
 
   describe('follow', () => {
     describe('when follow is called', () => {
-      let result: { data: string; message: FollowMessages };
-      const account = jwtPayloadStub;
+      let result: { data: Follow; message?: FollowMessages };
+      const account = jwtPayloadStub();
       const followedUsername = accountStub().username;
 
       beforeEach(async () => {
@@ -49,7 +51,7 @@ describe('FollowController', () => {
   describe('unfollow', () => {
     describe('when unfollow is called', () => {
       let result: { data: string; message: FollowMessages };
-      const account = jwtPayloadStub;
+      const account = jwtPayloadStub();
       const followedUsername = accountStub().username;
 
       beforeEach(async () => {
@@ -71,10 +73,7 @@ describe('FollowController', () => {
 
   describe('findUserFollowers', () => {
     describe('when findUserFollowers is called', () => {
-      let result: {
-        data: { createdAt: Date; id: string; follower: Account }[];
-        message: FollowMessages;
-      };
+      let result: { data: UserFollowers; message: FollowMessages };
       const username = accountStub().username;
 
       beforeEach(async () => {
@@ -99,10 +98,7 @@ describe('FollowController', () => {
 
   describe('findUserFollowed', () => {
     describe('when findUserFollowed is called', () => {
-      let result: {
-        data: { createdAt: Date; id: string; followed: Account }[];
-        message: FollowMessages;
-      };
+      let result: { data: UserFollowed; message: FollowMessages };
       const username = accountStub().username;
 
       beforeEach(async () => {
