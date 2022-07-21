@@ -8,10 +8,10 @@ import {
 } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
-import { RegisterViewDto } from 'src/accounts/dto/register-view.dto';
 import { Account as AccountEntity } from 'src/accounts/entities/account.entity';
 import { AuthService } from './auth.service';
 import { AccessToken } from './dto/access-token.dto';
+import { RegisterViewDto } from './dto/register-view.dto';
 import { AuthRoutes } from './enums/auth-routes';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 

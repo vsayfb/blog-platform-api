@@ -38,7 +38,7 @@ export class MailgunService {
 
     await this.client.messages.create(
       this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
-      data,
+      data as any,
     );
   }
 

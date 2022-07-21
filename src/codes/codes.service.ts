@@ -15,10 +15,12 @@ export class CodesService {
 
   async createCode(
     receiver: string,
-  ): Promise<{ code: string; receiver: string }> {
+  ): Promise<{ code: string; codeID: string }> {
     const code = this.generateCode();
 
-    return this.codesRepository.save({ code, receiver });
+    const { id } = await this.codesRepository.save({ code, receiver });
+
+    return { code, codeID: id };
   }
 
   async getCode(code: string): Promise<Code> {

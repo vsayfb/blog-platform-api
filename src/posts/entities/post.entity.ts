@@ -54,22 +54,4 @@ export class Post {
 
   @UpdateDateColumn()
   updated_at: Date;
-  jessePost: {
-    id: any;
-    username: string;
-    display_name: string;
-    image: string;
-    role: import('/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity').Role;
-    created_at: Date;
-  };
-  walterPost: {
-    id: string;
-    username: string;
-    display_name: string;
-    image: string;
-    role: import('/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity').Role;
-    created_at: Date;
-  };
-  jessePost: { id: any; username: string; display_name: string; image: string; role: import("/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity").Role; created_at: Date; };
-  walterPost: { id: string; username: string; display_name: string; image: string; role: import("/home/raton/Desktop/code/blog-platform-api/src/accounts/entities/account.entity").Role; created_at: Date; };
 }
