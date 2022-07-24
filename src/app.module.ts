@@ -14,6 +14,7 @@ import { CaslModule } from './casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { FollowModule } from './follow/follow.module';
     CommentsModule,
     BookmarksModule,
     FollowModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

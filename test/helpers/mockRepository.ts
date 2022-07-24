@@ -14,6 +14,8 @@ import { bookmarkStub } from 'src/bookmarks/stub/bookmark-stub';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { followStub } from 'src/follow/stub/follow-stub';
+import { Notification } from 'src/notifications/entities/notification.entity';
+import { notificationStub } from 'src/notifications/stub/notification-stub';
 
 type Entities =
   | typeof Account
@@ -22,7 +24,8 @@ type Entities =
   | typeof Code
   | typeof Comment
   | typeof Bookmark
-  | typeof Follow;
+  | typeof Follow
+  | typeof Notification;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -35,6 +38,7 @@ const stubs = (entity: Entities, id?: string) => {
     Code: { id: entityID, ...codeStub() },
     Bookmark: { id: entityID, ...bookmarkStub() },
     Follow: { id: entityID, ...followStub() },
+    Notification: { id: entityID, ...notificationStub() },
   };
 
   return entities[entity.name];

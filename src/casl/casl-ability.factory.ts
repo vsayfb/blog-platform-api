@@ -12,6 +12,7 @@ import { Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -22,7 +23,13 @@ export enum Action {
 }
 
 export type Subjects =
-  | InferSubjects<typeof Post | typeof Tag | typeof Comment | typeof Bookmark>
+  | InferSubjects<
+      | typeof Post
+      | typeof Tag
+      | typeof Comment
+      | typeof Bookmark
+      | typeof Notification
+    >
   | 'all';
 
 export type AppAbility = Ability<[Action, Subjects]>;
@@ -42,16 +49,22 @@ export class CaslAbilityFactory {
       can(Action.Manage, Comment);
     } //
     else {
-      //@ts-ignore
-      can(Action.Manage, Post, { 'author.id': user.sub });
-      //@ts-ignore
-      can(Action.Manage, Comment, { 'author.id': user.sub });
+      can(Action.Manage, Post, { 'author.id': user.sub } as unknown as Post);
 
-      //@ts-ignore
-      can(Action.Manage, Bookmark, { 'account.id': user.sub });
+      can(Action.Manage, Comment, {
+        'author.id': user.sub,
+      } as unknown as Comment);
 
-      /* since casl cannot match nested objects, dot notation must be used. so ts-ignore
-      can(Action.Update, Post, { author:{ id: user.sub} }) */
+      can(Action.Manage, Bookmark, {
+        'account.id': user.sub,
+      } as unknown as Bookmark);
+
+      can(Action.Manage, Notification, {
+        'notifable.id': user.sub,
+      } as unknown as Notification);
+
+      /* since casl cannot match nested objects, dot notation must be used. so as unknown as Type
+      can(Action.Update, Post, { author:{ id: user.sub} }) */ // that doesn't work 
     }
 
     return build({
