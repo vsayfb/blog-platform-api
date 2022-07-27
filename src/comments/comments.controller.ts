@@ -16,7 +16,6 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
-import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { PostCommentsDto } from './dto/post-comments.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';

@@ -4,8 +4,6 @@ import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { ConfigService } from '@nestjs/config';
 import { codeStub } from 'src/codes/stub/code.stub';
 
-
-
 describe('MailgunService', () => {
   let mailgunService: MailgunService;
   const configService = { get: jest.fn().mockReturnValue('mailgun_username') };

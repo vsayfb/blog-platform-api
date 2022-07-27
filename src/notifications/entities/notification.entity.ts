@@ -13,13 +13,13 @@ export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, { eager: true })
+  @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
   sender: Account;
 
-  @ManyToOne(() => Account, { eager: true })
+  @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
   notifable: Account;
 
-  @Column({ enum: NotificationActions })
+  @Column({ type: 'enum', enum: NotificationActions })
   action: NotificationActions;
 
   @Column()

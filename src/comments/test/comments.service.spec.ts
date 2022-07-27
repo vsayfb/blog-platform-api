@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { postStub } from 'src/posts/stub/post-stub';
-import { mockRepository } from '../../../test/helpers/mockRepository';
+import { mockRepository } from '../../../test/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { CommentsService } from '../comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
@@ -11,8 +11,6 @@ import { commentStub } from '../stub/comment.stub';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { PostCommentsDto } from '../dto/post-comments.dto';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
-
-
 
 describe('CommentsService', () => {
   let commentsService: CommentsService;

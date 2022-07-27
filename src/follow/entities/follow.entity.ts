@@ -11,10 +11,10 @@ export class Follow {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, { cascade: true })
+  @ManyToOne(() => Account, { cascade: true, onDelete: 'CASCADE' })
   follower: Account;
 
-  @ManyToOne(() => Account, { cascade: true })
+  @ManyToOne(() => Account, { cascade: true, onDelete: 'CASCADE' })
   followed: Account;
 
   @CreateDateColumn()

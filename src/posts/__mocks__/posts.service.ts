@@ -27,5 +27,7 @@ export const PostsService = jest.fn().mockReturnValue({
     }),
   ),
 
-  saveTitleImage: jest.fn().mockResolvedValue(uploadProfileResultStub().newImage),
+  saveTitleImage: jest
+    .fn()
+    .mockResolvedValue(uploadProfileResultStub().newImage),
 });

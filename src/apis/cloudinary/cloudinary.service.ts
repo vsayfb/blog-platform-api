@@ -46,7 +46,10 @@ export class CloudinaryService {
     return parser;
   }
 
-  private async upload(file: Express.Multer.File, transformation: Object = {}) {
+  private async upload(
+    file: Express.Multer.File,
+    transformation?: Record<string, unknown>,
+  ) {
     const { secure_url } = await cloudinaryV2.uploader.upload(
       await this.convertBase64(file),
       transformation,

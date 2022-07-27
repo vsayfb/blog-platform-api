@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import { RegisterType } from '../entities/account.entity';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,7 +9,7 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { Repository } from 'typeorm';
-import { mockRepository } from '../../../test/helpers/mockRepository';
+import { mockRepository } from '../../../test/utils/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';

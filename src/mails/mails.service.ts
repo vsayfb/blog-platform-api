@@ -16,7 +16,9 @@ export class MailsService {
     private readonly jobsService: JobsService,
     private readonly configService: ConfigService,
   ) {
-    this.sender = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_MAIL);
+    this.sender = this.configService.get<string>(
+      ProcessEnv.MAILGUN_SENDER_MAIL,
+    );
   }
 
   async sendVerificationCode(to: {

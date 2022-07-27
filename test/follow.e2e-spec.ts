@@ -1,59 +1,41 @@
-import { INestApplication, NotFoundException } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { Account, Role } from 'src/accounts/entities/account.entity';
+jest.setTimeout(30000);
+import { INestApplication } from '@nestjs/common';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
-import { AppModule } from 'src/app.module';
-import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
-import { UpdateCommentDto } from 'src/comments/dto/update-comment.dto';
-import { Comment } from 'src/comments/entities/comment.entity';
-import { CommentMessages } from 'src/comments/enums/comment-messages';
-import { CommentRoutes } from 'src/comments/enums/comment-routes';
-import { DatabaseService } from 'src/database/database.service';
 import { UserFollowed } from 'src/follow/dto/user-followed.dto';
 import { UserFollowers } from 'src/follow/dto/user-followers.dto';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
 import { FollowRoutes } from 'src/follow/enums/follow-routes';
-import { Post } from 'src/posts/entities/post.entity';
 import * as request from 'supertest';
-import { generateFakeComment } from './helpers/faker/generateFakeComment';
-import { generateFakePost } from './helpers/faker/generateFakePost';
-import { generateFakeUser } from './helpers/faker/generateFakeUser';
-import { loginAccount } from './helpers/loginAccount';
+import { TestDatabaseService } from './database/database.service';
+import { HelpersService } from './helpers/helpers.service';
+import { generateFakeUser } from './utils/generateFakeUser';
+import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 
 const PREFIX = '/follow';
 
 describe('Follow (e2e)', () => {
   let app: INestApplication;
-  let databaseService: DatabaseService;
+  let databaseService: TestDatabaseService;
+  let helpersService: HelpersService;
   let server: any;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const { nestApp, database, helpers } = await initializeEndToEndTestModule();
 
-    app = moduleRef.createNestApplication();
-
-    await app.init();
-
+    app = nestApp;
+    helpersService = helpers;
+    databaseService = database;
     server = app.getHttpServer();
-    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('follow');
-    await databaseService.closeDatabase();
+    // await databaseService.clearTableRows('follow');
+    await databaseService.clearAllTables();
+
+    await databaseService.disconnectDatabase();
     await app.close();
   });
-
-  async function takeToken(role?: Role) {
-    const user = await databaseService.createRandomTestUser(role);
-
-    const result = await loginAccount(app, user.username, user.password);
-
-    return { token: 'Bearer ' + result.access_token, user };
-  }
 
   async function followAccount(
     followerToken: string,
@@ -87,7 +69,7 @@ describe('Follow (e2e)', () => {
     describe('when follow is called', () => {
       describe('scenario : user follows an account that does not exist', () => {
         test('should return Account Not Found', async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
           const result = await followAccount(
             user.token,
@@ -100,9 +82,9 @@ describe('Follow (e2e)', () => {
 
       describe('scenario : user re-follows the user', () => {
         test('should return Already followed message', async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const follewedUser = await takeToken();
+          const follewedUser = await helpersService.loginRandomAccount(app);
 
           await followAccount(user.token, follewedUser.user.username);
 
@@ -117,7 +99,7 @@ describe('Follow (e2e)', () => {
 
       describe('scenario : user follows ownself', () => {
         test('should return You cannot follow yourself.', async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
           const result = await followAccount(user.token, user.user.username);
 
@@ -129,9 +111,9 @@ describe('Follow (e2e)', () => {
 
       describe('scenario : user meets all conditions', () => {
         test("should return the followed account's username.", async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const followedUser = await takeToken();
+          const followedUser = await helpersService.loginRandomAccount(app);
 
           const result = await followAccount(
             user.token,
@@ -148,7 +130,7 @@ describe('Follow (e2e)', () => {
     describe('when unfollow is called', () => {
       describe('scenario : user unfollow an account it does not follow', () => {
         test('should return Account Not Found', async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
           const result = await unfollowAccount(
             user.token,
@@ -161,9 +143,9 @@ describe('Follow (e2e)', () => {
 
       describe('scenario : user unfollow an account', () => {
         test("should return the unfollowed account's username", async () => {
-          const user = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const followedUser = await takeToken();
+          const followedUser = await helpersService.loginRandomAccount(app);
 
           await followAccount(user.token, followedUser.user.username);
 
@@ -182,13 +164,13 @@ describe('Follow (e2e)', () => {
   describe('findUserFollowers', () => {
     describe('when findUserFollowers is called', () => {
       test("should return an array of user's followers", async () => {
-        const user_1 = await takeToken();
+        const user_1 = await helpersService.loginRandomAccount(app);
 
         const user1_username = user_1.user.username;
 
-        const user_2 = await takeToken();
+        const user_2 = await helpersService.loginRandomAccount(app);
 
-        const user_3 = await takeToken();
+        const user_3 = await helpersService.loginRandomAccount(app);
 
         await followAccount(user_2.token, user1_username);
         await followAccount(user_3.token, user1_username);
@@ -220,13 +202,13 @@ describe('Follow (e2e)', () => {
   describe('findUserFollowed', () => {
     describe('when findUserFollowed is called', () => {
       test("should return an array of user's followed", async () => {
-        const user_1 = await takeToken();
+        const user_1 = await helpersService.loginRandomAccount(app);
 
         const user1_username = user_1.user.username;
 
-        const user_2 = await takeToken();
+        const user_2 = await helpersService.loginRandomAccount(app);
 
-        const user_3 = await takeToken();
+        const user_3 = await helpersService.loginRandomAccount(app);
 
         await followAccount(user_1.token, user_2.user.username);
         await followAccount(user_1.token, user_3.user.username);

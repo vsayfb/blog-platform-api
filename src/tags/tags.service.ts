@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsDto } from './dto/tags.dto';
 import { Tag } from './entities/tag.entity';
-import { TagMessages } from './enums/tag-messages';
 import { SelectedTagFields } from './types/selected-tag-fields';
 
 @Injectable()

@@ -50,7 +50,7 @@ describe('AuthController', () => {
         username: accountStub().username,
         email: 'foo@gmail.com',
         display_name: accountStub().display_name,
-        password: 'foo_password'
+        password: 'foo_password',
       };
 
       beforeEach(async () => {

@@ -2,7 +2,7 @@ import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
 import { CreatePostDto } from 'src/posts/dto/create-post.dto';
 
 export class TagNamePipe implements PipeTransform {
-  transform(dto: CreatePostDto, metadata: ArgumentMetadata) {
+  transform(dto: CreatePostDto, _metadata: ArgumentMetadata) {
     const transformedTags: string[] = [];
 
     if (!dto.tags || !dto.tags.length) return dto;

@@ -1,68 +1,42 @@
+jest.setTimeout(30000);
+
 import { UpdateTagDto } from './../src/tags/dto/update-tag.dto';
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
-import { AppModule } from 'src/app.module';
-import { DatabaseService } from 'src/database/database.service';
-import { Tag } from 'src/tags/entities/tag.entity';
 import * as request from 'supertest';
-import { generateFakeTag } from './helpers/faker/generateFakeTag';
-import { loginAccount } from './helpers/loginAccount';
 import { TagRoutes } from 'src/tags/enums/tag-routes';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { TagMessages } from 'src/tags/enums/tag-messages';
+import { TestDatabaseService } from './database/database.service';
+import { HelpersService } from './helpers/helpers.service';
+import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
+import { generateFakeTag } from './utils/generateFakeTag';
 
 const PREFIX = '/tags';
 
 describe('Tags Module (e2e)', () => {
   let app: INestApplication;
-  let databaseService: DatabaseService;
+  let databaseService: TestDatabaseService;
+  let helpersService: HelpersService;
+  let server: any;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const { nestApp, database, helpers } = await initializeEndToEndTestModule();
 
-    app = moduleRef.createNestApplication();
+    app = nestApp;
+    helpersService = helpers;
+    databaseService = database;
+    server = app.getHttpServer();
+  });
 
-    app.useGlobalPipes(new ValidationPipe());
-
-    await app.init();
-
-    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
+  afterEach(async () => {
+    await databaseService.clearAllTables();
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('tag');
-    await databaseService.clearTableRows('post');
-    await databaseService.closeDatabase();
+    await databaseService.disconnectDatabase();
     await app.close();
   });
-
-  async function takeToken(role: Role = Role.USER): Promise<string> {
-    const { username, password } = await databaseService.createRandomTestUser(
-      role,
-    );
-
-    const { access_token } = await loginAccount(app, username, password);
-
-    return access_token;
-  }
-
-  async function createTag(token: string): Promise<{
-    body: { data: SelectedTagFields; message: TagMessages };
-    statusCode: number;
-  }> {
-    const result: {
-      body: { data: SelectedTagFields; message: TagMessages };
-      statusCode: number;
-    } = await request(app.getHttpServer())
-      .post(PREFIX + TagRoutes.CREATE)
-      .set('Authorization', `Bearer ${token}`)
-      .send(generateFakeTag());
-
-    return result;
-  }
 
   async function updateTag(
     token: string,
@@ -75,9 +49,9 @@ describe('Tags Module (e2e)', () => {
     const result: {
       body: { data: SelectedTagFields; message: TagMessages };
       statusCode: number;
-    } = await request(app.getHttpServer())
+    } = await request(server)
       .patch(PREFIX + TagRoutes.UPDATE + id)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', token)
       .send(dto);
 
     return result;
@@ -93,9 +67,9 @@ describe('Tags Module (e2e)', () => {
     const result: {
       body: { id: string; message: TagMessages };
       statusCode: number;
-    } = await request(app.getHttpServer())
+    } = await request(server)
       .delete(PREFIX + TagRoutes.DELETE + id)
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', token);
 
     return result;
   }
@@ -104,7 +78,7 @@ describe('Tags Module (e2e)', () => {
     test('should return an array of tags', async () => {
       const tags: {
         body: { data: SelectedTagFields[]; message: TagMessages };
-      } = await request(app.getHttpServer()).get(PREFIX);
+      } = await request(server).get(PREFIX);
 
       expect(tags.body.message).toBe(TagMessages.ALL_FOUND);
     });
@@ -113,7 +87,12 @@ describe('Tags Module (e2e)', () => {
   describe('create', () => {
     describe('scenario : if user is just a user', () => {
       it('should can not create a tag', async () => {
-        const result = await createTag(await takeToken());
+        const account = await helpersService.loginRandomAccount(app);
+
+        const result = await helpersService.createRandomTag(
+          app,
+          account.user.role,
+        );
 
         expect(result.statusCode).toBe(403);
       });
@@ -121,7 +100,7 @@ describe('Tags Module (e2e)', () => {
 
     describe('scenario : if user is a moderator', () => {
       it('should can create a tag', async () => {
-        const result = await createTag(await takeToken(Role.MODERATOR));
+        const result = await helpersService.createRandomTag(app);
 
         expect(result.body.message).toBe(TagMessages.CREATED);
       });
@@ -129,17 +108,14 @@ describe('Tags Module (e2e)', () => {
   });
 
   describe('update', () => {
-    let createdTag: { body: { data: SelectedTagFields; message: string } };
-
-    beforeEach(async () => {
-      createdTag =
-        createdTag || (await createTag(await takeToken(Role.MODERATOR)));
-    });
-
     describe('scenario : if user is just a user', () => {
       it('should can not update the tag', async () => {
+        const account = await helpersService.loginRandomAccount(app);
+
+        const createdTag = await helpersService.createRandomTag(app);
+
         const result = await updateTag(
-          await takeToken(),
+          account.token,
           createdTag.body.data.id,
           generateFakeTag(),
         );
@@ -150,8 +126,15 @@ describe('Tags Module (e2e)', () => {
 
     describe('scenario : if user is a moderator', () => {
       it('should can update the tag', async () => {
+        const createdTag = await helpersService.createRandomTag(app);
+
+        const moderator = await helpersService.loginRandomAccount(
+          app,
+          Role.MODERATOR,
+        );
+
         const result = await updateTag(
-          await takeToken(Role.MODERATOR),
+          moderator.token,
           createdTag.body.data.id,
           generateFakeTag(),
         );
@@ -162,19 +145,13 @@ describe('Tags Module (e2e)', () => {
   });
 
   describe('delete', () => {
-    let createdTag: { body: { data: SelectedTagFields; message: string } };
-
-    beforeEach(async () => {
-      createdTag =
-        createdTag || (await createTag(await takeToken(Role.MODERATOR)));
-    });
-
     describe('scenario : if user is just a user', () => {
       it('should can not delete the tag', async () => {
-        const result = await deleteTag(
-          await takeToken(),
-          createdTag.body.data.id,
-        );
+        const createdTag = await helpersService.createRandomTag(app);
+
+        const account = await helpersService.loginRandomAccount(app);
+
+        const result = await deleteTag(account.token, createdTag.body.data.id);
 
         expect(result.statusCode).toBe(403);
       });
@@ -182,8 +159,15 @@ describe('Tags Module (e2e)', () => {
 
     describe('scenario : if user is a moderator', () => {
       it('should can delete the tag', async () => {
+        const createdTag = await helpersService.createRandomTag(app);
+
+        const moderator = await helpersService.loginRandomAccount(
+          app,
+          Role.MODERATOR,
+        );
+
         const result = await deleteTag(
-          await takeToken(Role.MODERATOR),
+          moderator.token,
           createdTag.body.data.id,
         );
 

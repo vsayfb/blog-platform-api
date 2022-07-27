@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
@@ -7,7 +7,6 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { PostCommentsDto } from './dto/post-comments.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
-import { CommentMessages } from './enums/comment-messages';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Injectable()

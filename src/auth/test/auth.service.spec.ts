@@ -165,7 +165,6 @@ describe('AuthService', () => {
   describe('validateAccount', () => {
     const { username } = accountStub();
     const accountPassword = 'foo_password';
-    let result: SelectedAccountFields;
 
     describe('when validateAccount is called', () => {
       describe('if : an account was found and passwords matched', () => {

@@ -4,7 +4,7 @@ import { Tag } from '../entities/tag.entity';
 import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
 import { Repository } from 'typeorm';
-import { mockRepository } from '../../../test/helpers/mockRepository';
+import { mockRepository } from '../../../test/utils/mockRepository';
 import { SelectedTagFields } from '../types/selected-tag-fields';
 import { TagsDto } from '../dto/tags.dto';
 

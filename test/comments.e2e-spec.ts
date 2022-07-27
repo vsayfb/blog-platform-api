@@ -1,7 +1,7 @@
+jest.setTimeout(30000);
+
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import { Role } from 'src/accounts/entities/account.entity';
-import { AppModule } from 'src/app.module';
 import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
 import { PostCommentsDto } from 'src/comments/dto/post-comments.dto';
 import { UpdateCommentDto } from 'src/comments/dto/update-comment.dto';
@@ -9,70 +9,46 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { CommentMessages } from 'src/comments/enums/comment-messages';
 import { CommentRoutes } from 'src/comments/enums/comment-routes';
 import { SelectedCommentFields } from 'src/comments/types/selected-comment-fields';
-import { DatabaseService } from 'src/database/database.service';
-import { Post } from 'src/posts/entities/post.entity';
-import { PostMessages } from 'src/posts/enums/post-messages';
-import { SelectedPostFields } from 'src/posts/types/selected-post-fields';
 import * as request from 'supertest';
-import { generateFakeComment } from './helpers/faker/generateFakeComment';
-import { generateFakePost } from './helpers/faker/generateFakePost';
-import { loginAccount } from './helpers/loginAccount';
+import { TestDatabaseService } from './database/database.service';
+import { generateFakeComment } from './utils/generateFakeComment';
+import { HelpersService } from './helpers/helpers.service';
+import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 
 const PREFIX = '/comments';
 
 describe('Comments (e2e)', () => {
   let app: INestApplication;
-  let databaseService: DatabaseService;
+  let databaseService: TestDatabaseService;
+  let helpersService: HelpersService;
   let server: any;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const { nestApp, database, helpers } = await initializeEndToEndTestModule();
 
-    app = moduleRef.createNestApplication();
-
-    await app.init();
-
+    app = nestApp;
+    helpersService = helpers;
+    databaseService = database;
     server = app.getHttpServer();
-    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('comment');
-    await databaseService.closeDatabase();
+    await databaseService.clearAllTables();
+    await databaseService.disconnectDatabase();
     await app.close();
   });
-
-  async function takeToken(role?: Role) {
-    const user = await databaseService.createRandomTestUser(role);
-
-    const result = await loginAccount(app, user.username, user.password);
-
-    return 'Bearer ' + result.access_token;
-  }
-
-  async function createPostRequest() {
-    // create a post for new comment
-    const post: { body: { data: SelectedPostFields } } = await request(server)
-      .post('/posts/')
-      .set('Authorization', await takeToken())
-      .send(generateFakePost());
-
-    return post.body.data.id;
-  }
 
   async function createCommentRequest(
     createCommentDto: CreateCommentDto,
     postID: string,
-    access_token?: string,
+    access_token: string,
   ): Promise<{
     body: { data: SelectedCommentFields; message: string };
     statusCode: number;
   }> {
     const { body, statusCode } = await request(server)
       .post(PREFIX + CommentRoutes.CREATE + postID)
-      .set('Authorization', access_token || (await takeToken()))
+      .set('Authorization', access_token)
       .send(createCommentDto);
 
     return { body, statusCode };
@@ -81,17 +57,11 @@ describe('Comments (e2e)', () => {
   async function updateCommentRequest(
     commentID: string,
     updateCommentDto: UpdateCommentDto,
-    access_token?: string,
+    access_token: string,
   ): Promise<{ body: { data: Comment; message: string }; statusCode: number }> {
-    // create a post for new comment
-    const post: { body: { data: Post } } = await request(server)
-      .post('/posts/')
-      .set('Authorization', await takeToken())
-      .send(generateFakePost());
-
     const { body, statusCode } = await request(server)
       .patch(PREFIX + CommentRoutes.PATCH + commentID)
-      .set('Authorization', access_token || (await takeToken()))
+      .set('Authorization', access_token || access_token)
       .send(updateCommentDto);
 
     return { body, statusCode };
@@ -112,15 +82,16 @@ describe('Comments (e2e)', () => {
   describe('findPostComments', () => {
     describe('when findPostComments is called', () => {
       it('should return an array of comments of the found post', async () => {
-        const postID = await createPostRequest();
+        const post = await helpersService.createRandomPost(app);
 
-        await createCommentRequest(generateFakeComment(), postID);
+        await helpersService.createRandomComment(app, post.body.data.id);
+        await helpersService.createRandomComment(app, post.body.data.id);
 
         const {
           body,
         }: { body: { data: PostCommentsDto; message: CommentMessages } } =
           await request(server).get(
-            PREFIX + CommentRoutes.POST_COMMENTS + postID,
+            PREFIX + CommentRoutes.POST_COMMENTS + post.body.data.id,
           );
 
         expect(body.message).toBe(CommentMessages.ALL_FOUND);
@@ -131,15 +102,14 @@ describe('Comments (e2e)', () => {
   describe('create', () => {
     describe('when create is called', () => {
       it('should create a comment and return that', async () => {
-        const postID = await createPostRequest();
+        const post = await helpersService.createRandomPost(app);
 
-        const result = await createCommentRequest(
-          generateFakeComment(),
-          postID,
-          await takeToken(),
+        const createdComment = await helpersService.createRandomComment(
+          app,
+          post.body.data.id,
         );
 
-        expect(result.body.message).toBe(CommentMessages.CREATED);
+        expect(createdComment.body.message).toBe(CommentMessages.CREATED);
       });
     });
   });
@@ -149,62 +119,66 @@ describe('Comments (e2e)', () => {
       let postID: string;
 
       beforeEach(async () => {
-        postID = await createPostRequest();
+        const post = await helpersService.createRandomPost(app);
+
+        postID = post.body.data.id;
       });
 
       describe('scenario : user delete own comment', () => {
         it('should return deleted comment id', async () => {
-          const token = await takeToken();
+          const account = await helpersService.loginRandomAccount(app);
 
           const comment = await createCommentRequest(
             generateFakeComment(),
             postID,
-            token,
+            account.token,
           );
 
-          const removed = await deleteCommentRequest(
+          const removedComment = await deleteCommentRequest(
             comment.body.data.id,
-            token,
+            account.token,
           );
 
-          expect(removed.body.message).toBe(CommentMessages.DELETED);
-          expect(removed.body.id).toBe(comment.body.data.id);
+          expect(removedComment.body.message).toBe(CommentMessages.DELETED);
         });
       });
 
       describe("scenario : user delete other user's comment", () => {
         it('should return 403 status code', async () => {
-          const token = await takeToken();
+          const account = await helpersService.loginRandomAccount(app);
 
           const comment = await createCommentRequest(
             generateFakeComment(),
             postID,
-            await takeToken(),
+            account.token,
           );
 
-          const removed = await deleteCommentRequest(
+          const forbiddenAccount = await helpersService.loginRandomAccount(app);
+
+          const removedComment = await deleteCommentRequest(
             comment.body.data.id,
-            token,
+            forbiddenAccount.token,
           );
 
-          expect(removed.statusCode).toBe(403);
+          expect(removedComment.statusCode).toBe(403);
         });
       });
 
       describe('scenario : a moderator delete comment', () => {
         it("should return the deleted comment's id", async () => {
-          const comment = await createCommentRequest(
-            generateFakeComment(),
-            postID,
+          const moderator = await helpersService.loginRandomAccount(
+            app,
+            Role.MODERATOR,
           );
 
+          const createdComment = await helpersService.createRandomComment(app);
+
           const removed = await deleteCommentRequest(
-            comment.body.data.id,
-            await takeToken(Role.MODERATOR),
+            createdComment.body.data.id,
+            moderator.token,
           );
 
           expect(removed.body.message).toBe(CommentMessages.DELETED);
-          expect(removed.body.id).toBe(comment.body.data.id);
         });
       });
     });
@@ -216,40 +190,42 @@ describe('Comments (e2e)', () => {
       const updateCommentDto: UpdateCommentDto = generateFakeComment();
 
       beforeEach(async () => {
-        postID = await createPostRequest();
+        const post = await helpersService.createRandomPost(app);
+
+        postID = post.body.data.id;
       });
 
       describe('scenario : user update own comment', () => {
         it('should return the updated comment', async () => {
-          const token = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const comment = await createCommentRequest(
-            generateFakeComment(),
+          const comment = await helpersService.createRandomComment(
+            app,
             postID,
-            token,
+            Role.USER,
+            user.token,
           );
 
           const updated = await updateCommentRequest(
             comment.body.data.id,
             updateCommentDto,
-            token,
+            user.token,
           );
 
           expect(updated.body.message).toBe(CommentMessages.UPDATED);
-          expect(updated.body.data.content).toBe(updateCommentDto.content);
         });
       });
 
       describe("scenario : user update other user's comment", () => {
         it('should return 403 status code', async () => {
-          const comment = await createCommentRequest(
-            generateFakeComment(),
-            postID,
-          );
+          const comment = await helpersService.createRandomComment(app);
+
+          const forbiddenUser = await helpersService.loginRandomAccount(app);
 
           const updated = await updateCommentRequest(
             comment.body.data.id,
             updateCommentDto,
+            forbiddenUser.token,
           );
 
           expect(updated.statusCode).toBe(403);
@@ -258,19 +234,20 @@ describe('Comments (e2e)', () => {
 
       describe('scenario : a moderator update comment', () => {
         it('should return the updated comment', async () => {
-          const comment = await createCommentRequest(
-            generateFakeComment(),
-            postID,
+          const comment = await helpersService.createRandomComment(app);
+
+          const moderator = await helpersService.loginRandomAccount(
+            app,
+            Role.MODERATOR,
           );
 
           const updated = await updateCommentRequest(
             comment.body.data.id,
             updateCommentDto,
-            await takeToken(Role.MODERATOR),
+            moderator.token,
           );
 
           expect(updated.body.message).toBe(CommentMessages.UPDATED);
-          expect(updated.body.data.content).toBe(updateCommentDto.content);
         });
       });
     });

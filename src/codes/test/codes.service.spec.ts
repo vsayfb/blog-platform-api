@@ -5,7 +5,7 @@ import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { CodesService } from 'src/codes/codes.service';
 import { Code } from '../entities/code.entity';
 import { Repository } from 'typeorm';
-import { mockRepository } from '../../../test/helpers/mockRepository';
+import { mockRepository } from '../../../test/utils/mockRepository';
 
 describe('CodeService', () => {
   let codesService: CodesService;
@@ -27,7 +27,7 @@ describe('CodeService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { code: string; receiver: string };
+      let result: { code: string; codeID: string };
       const receiver = accountStub().username;
 
       const code = codeStub().code;
@@ -41,7 +41,7 @@ describe('CodeService', () => {
       });
 
       test('calls codesService.generateCode method', () => {
-        //@ts-ignore
+        //@ts-ignore private method
         expect(codesService.generateCode).toHaveBeenCalled();
       });
 

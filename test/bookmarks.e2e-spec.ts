@@ -1,62 +1,41 @@
+jest.setTimeout(30000);
 import { INestApplication } from '@nestjs/common';
-import { NestApplication } from '@nestjs/core';
-import { Test } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
 import { AccountBookmarks } from 'src/bookmarks/dto/account-bookmarks.dto';
 import { PostBookmarks } from 'src/bookmarks/dto/post-bookmarks.dto';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { BookmarkMessages } from 'src/bookmarks/enums/bookmark-messages';
 import { BookmarkRoutes } from 'src/bookmarks/enums/bookmark-routes';
 import { SelectedBookmarkFields } from 'src/bookmarks/types/selected-bookmark-fields';
-import { DatabaseService } from 'src/database/database.service';
-import { Post } from 'src/posts/entities/post.entity';
-import { PostRoutes } from 'src/posts/enums/post-routes';
 import * as request from 'supertest';
-import { generateFakePost } from './helpers/faker/generateFakePost';
-import { loginAccount } from './helpers/loginAccount';
+import { TestDatabaseService } from './database/database.service';
+import { HelpersService } from './helpers/helpers.service';
+import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 
 const PREFIX = '/bookmarks';
 
 describe('Bookmark (e2e)', () => {
   let app: INestApplication;
-  let databaseService: DatabaseService;
+  let databaseService: TestDatabaseService;
+  let helpersService: HelpersService;
   let server: any;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const { nestApp, database, helpers } = await initializeEndToEndTestModule();
 
-    app = moduleRef.createNestApplication();
-
-    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
-
+    app = nestApp;
+    helpersService = helpers;
+    databaseService = database;
     server = app.getHttpServer();
+  });
 
-    await app.init();
+  afterEach(async () => {
+    await databaseService.clearAllTables();
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('bookmark');
-    await databaseService.closeDatabase();
+    await databaseService.disconnectDatabase();
+    await app.close();
   });
-
-  async function takeToken() {
-    const user = await databaseService.createRandomTestUser();
-
-    const result = await loginAccount(app, user.username, user.password);
-
-    return 'Bearer ' + result.access_token;
-  }
-
-  async function createPost(): Promise<{ data: Post }> {
-    const post: { body: { data: Post } } = await request(server)
-      .post('/posts' + PostRoutes.CREATE)
-      .set('Authorization', await takeToken())
-      .send(generateFakePost());
-
-    return post.body;
-  }
 
   async function readBookmarkRequest(
     bookmarkID: string,
@@ -77,21 +56,22 @@ describe('Bookmark (e2e)', () => {
 
   async function createBookmarkRequest(
     access_token: string,
+    postID?: string,
   ): Promise<{ data: SelectedBookmarkFields; message: BookmarkMessages }> {
-    const post = await createPost();
+    const post = await helpersService.createRandomPost(app);
 
     const bookmark: {
       body: { data: SelectedBookmarkFields; message: BookmarkMessages };
     } = await request(server)
-      .post(PREFIX + BookmarkRoutes.CREATE + post.data.id)
+      .post(PREFIX + BookmarkRoutes.CREATE + `${postID || post.body.data.id}`)
       .set('Authorization', access_token);
 
     return bookmark.body;
   }
 
   async function deleteBookmarkRequest(
-    bookmarkID: String,
-    access_token: string,
+    bookmarkID: string,
+    token: string,
   ): Promise<{
     body: {
       id: string;
@@ -99,8 +79,6 @@ describe('Bookmark (e2e)', () => {
     };
     statusCode: number;
   }> {
-    const token = access_token || (await takeToken());
-
     const deleted: {
       body: { id: string; message: string };
       statusCode: number;
@@ -114,7 +92,9 @@ describe('Bookmark (e2e)', () => {
   describe('create', () => {
     describe('when create is called', () => {
       test('should return the created bookmark', async () => {
-        const bookmark = await createBookmarkRequest(await takeToken());
+        const user = await helpersService.loginRandomAccount(app);
+
+        const bookmark = await createBookmarkRequest(user.token);
 
         expect(bookmark.message).toBe(BookmarkMessages.CREATED);
       });
@@ -125,11 +105,14 @@ describe('Bookmark (e2e)', () => {
     describe('when findOne is called', () => {
       describe('scenario : user read own bookmark', () => {
         test('should return a bookmark', async () => {
-          const token = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const bookmark = await createBookmarkRequest(token);
+          const bookmark = await createBookmarkRequest(user.token);
 
-          const result = await readBookmarkRequest(bookmark.data.id, token);
+          const result = await readBookmarkRequest(
+            bookmark.data.id,
+            user.token,
+          );
 
           expect(result.body.message).toBe(BookmarkMessages.FOUND);
         });
@@ -137,15 +120,15 @@ describe('Bookmark (e2e)', () => {
 
       describe("scenario : user read other user's  bookmark", () => {
         test('should return 403 status code', async () => {
-          const token = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const bookmark = await createBookmarkRequest(token);
+          const bookmark = await createBookmarkRequest(user.token);
 
-          const otherUserToken = await takeToken();
+          const forbbiddenUser = await helpersService.loginRandomAccount(app);
 
           const result = await readBookmarkRequest(
             bookmark.data.id,
-            otherUserToken,
+            forbbiddenUser.token,
           );
 
           expect(result.statusCode).toBe(403);
@@ -157,21 +140,16 @@ describe('Bookmark (e2e)', () => {
   describe('findPostBookmarks', () => {
     describe('when findPostBookmarks is called', () => {
       test("should return an array of post's bookmarks", async () => {
-        const token = await takeToken();
+        const user = await helpersService.loginRandomAccount(app);
 
-        const createdBookmark = await createBookmarkRequest(token);
+        const post = await helpersService.createRandomPost(app);
 
-        const bookmark = await readBookmarkRequest(
-          createdBookmark.data.id,
-          token,
-        );
+        await createBookmarkRequest(user.token, post.body.data.id);
 
         const result: {
           body: { data: PostBookmarks; message: BookmarkMessages };
         } = await request(server).get(
-          PREFIX +
-            BookmarkRoutes.FIND_POST_BOOKMARKS +
-            bookmark.body.data.post.id,
+          PREFIX + BookmarkRoutes.FIND_POST_BOOKMARKS + post.body.data.id,
         );
 
         expect(result.body.message).toBe(BookmarkMessages.POST_BOOKMARKS_FOUND);
@@ -182,15 +160,15 @@ describe('Bookmark (e2e)', () => {
   describe('findMyBookmarks', () => {
     describe('when findMyBookmarks is called', () => {
       test("should return an array of user's bookmarks", async () => {
-        const me = await takeToken();
+        const me = await helpersService.loginRandomAccount(app);
 
-        await createBookmarkRequest(me);
+        await createBookmarkRequest(me.token);
 
         const result: {
           body: { data: AccountBookmarks; message: BookmarkMessages };
         } = await request(server)
           .get(PREFIX + BookmarkRoutes.FIND_MY_BOOKMARKS)
-          .set('Authorization', me);
+          .set('Authorization', me.token);
 
         expect(result.body.message).toBe(BookmarkMessages.ALL_FOUND);
       });
@@ -201,27 +179,30 @@ describe('Bookmark (e2e)', () => {
     describe('when delete is called', () => {
       describe('scenario : user delete own bookmark', () => {
         test("should return deleted bookmark's id", async () => {
-          const token = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const bookmark = await createBookmarkRequest(token);
+          const bookmark = await createBookmarkRequest(user.token);
 
-          const deleted = await deleteBookmarkRequest(bookmark.data.id, token);
+          const deletedBookmark = await deleteBookmarkRequest(
+            bookmark.data.id,
+            user.token,
+          );
 
-          expect(deleted.body.message).toBe(BookmarkMessages.DELETED);
+          expect(deletedBookmark.body.message).toBe(BookmarkMessages.DELETED);
         });
       });
 
       describe("scenario : user delete other user's bookmark", () => {
         test('should return 403 status code', async () => {
-          const token = await takeToken();
+          const user = await helpersService.loginRandomAccount(app);
 
-          const otherUserToken = await takeToken();
+          const forbiddenUser = await helpersService.loginRandomAccount(app);
 
-          const bookmark = await createBookmarkRequest(token);
+          const bookmark = await createBookmarkRequest(user.token);
 
           const deleted = await deleteBookmarkRequest(
             bookmark.data.id,
-            otherUserToken,
+            forbiddenUser.token,
           );
 
           expect(deleted.statusCode).toBe(403);

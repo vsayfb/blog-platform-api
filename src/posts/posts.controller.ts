@@ -34,6 +34,7 @@ import { PublicPostDto } from './dto/public-post.dto';
 import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
+import { CreatedPostDto } from './dto/created-post.dto';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -47,8 +48,8 @@ export class PostsController implements ICrudController<PostEntity> {
     @Body(TagNamePipe) createPostDto: CreatePostDto,
     @Account() account: JwtPayload,
     @Query('published') published?: boolean,
-  ): Promise<{ data: SelectedPostFields; message: PostMessages }> {
-    let data: SelectedPostFields;
+  ): Promise<{ data: CreatedPostDto; message: PostMessages }> {
+    let data: CreatedPostDto;
 
     const saveData = { authorID: account.sub, dto: createPostDto };
 

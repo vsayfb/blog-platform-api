@@ -47,6 +47,7 @@ export class CaslAbilityFactory {
     else if (user.role === Role.MODERATOR) {
       can(Action.Manage, Tag);
       can(Action.Manage, Comment);
+      can(Action.Manage, Post);
     } //
     else {
       can(Action.Manage, Post, { 'author.id': user.sub } as unknown as Post);
@@ -64,7 +65,7 @@ export class CaslAbilityFactory {
       } as unknown as Notification);
 
       /* since casl cannot match nested objects, dot notation must be used. so as unknown as Type
-      can(Action.Update, Post, { author:{ id: user.sub} }) */ // that doesn't work 
+      can(Action.Update, Post, { author:{ id: user.sub} }) */ // that doesn't work
     }
 
     return build({

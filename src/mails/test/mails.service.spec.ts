@@ -42,7 +42,7 @@ describe('MailsService', () => {
   describe('sendVerificationCode', () => {
     describe('when sendVerificationCode is called', () => {
       const to = {
-        email: "foo@gmail.com",
+        email: 'foo@gmail.com',
         username: accountStub().username,
       };
       let result: { message: string };

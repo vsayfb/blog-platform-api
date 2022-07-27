@@ -25,15 +25,15 @@ export class Post {
   @Column({ default: null })
   title_image: string | null;
 
-  @ManyToOne((_type) => Account, (account) => account.posts, {
+  @ManyToOne(() => Account, (account) => account.posts, {
     onDelete: 'CASCADE',
   })
   author: Account;
 
-  @OneToMany((_type) => Comment, (comment) => comment.post)
+  @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment;
 
-  @OneToMany((_type) => Bookmark, (bookmark) => bookmark.post)
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.post)
   bookmarks: Bookmark;
 
   @ManyToMany(() => Tag, (tag) => tag.posts)

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountsService } from 'src/accounts/accounts.service';
-import { Account } from 'src/accounts/entities/account.entity';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { Repository } from 'typeorm';
 import { UserFollowed } from './dto/user-followed.dto';

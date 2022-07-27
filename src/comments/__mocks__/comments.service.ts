@@ -1,7 +1,5 @@
-import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
-import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
 
 export const CommentsService = jest.fn().mockReturnValue({

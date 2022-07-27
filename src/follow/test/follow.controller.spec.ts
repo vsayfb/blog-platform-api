@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { UserFollowed } from '../dto/user-followed.dto';

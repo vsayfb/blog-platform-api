@@ -1,14 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { mockRepository } from '../../../test/helpers/mockRepository';
+import { mockRepository } from '../../../test/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { NotificationsService } from '../notifications.service';
 import { notificationStub } from '../stub/notification-stub';
 import { CreateNotificationDto } from '../dto/create-notification-dto';
-import { randomUUID } from 'crypto';
-import { NotificationActions } from '../enums/notification-actions';
 
 describe('NotificationsService', () => {
   let notificationsService: NotificationsService;
@@ -165,7 +163,7 @@ describe('NotificationsService', () => {
 
       test('calls notificationsRepository.findOne', () => {
         expect(notificationsRepository.findOne).toHaveBeenCalledWith({
-          where: { notifable: {username} },
+          where: { notifable: { username } },
         });
       });
 

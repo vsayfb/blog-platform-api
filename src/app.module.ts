@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
-import { DatabaseModule } from './database/database.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { MailsModule } from './mails/mails.module';
 import { MailgunModule } from './apis/mailgun/mailgun.module';
@@ -15,11 +14,13 @@ import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dataSource } from 'ormconfig';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
+    TypeOrmModule.forRoot(dataSource.options),
     AccountsModule,
     AuthModule,
     UploadsModule,

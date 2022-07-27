@@ -1,7 +1,3 @@
-import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { Post } from 'src/posts/entities/post.entity';
-import { postStub } from 'src/posts/stub/post-stub';
-import { Bookmark } from '../entities/bookmark.entity';
 import { SelectedBookmarkFields } from '../types/selected-bookmark-fields';
 
 export const bookmarkStub = (): SelectedBookmarkFields => ({

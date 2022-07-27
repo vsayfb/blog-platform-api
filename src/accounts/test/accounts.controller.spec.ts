@@ -12,9 +12,6 @@ import { AccountProfileDto } from '../dto/account-profile.dto';
 
 jest.mock('../accounts.service');
 
-
-
-
 describe('AccountsController', () => {
   let accountsController: AccountsController;
   let accountsService: AccountsService;

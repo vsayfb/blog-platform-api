@@ -14,9 +14,9 @@ export const dataSource: DataSource = new DataSource({
     ? env[ProcessEnv.PROD_DATABASE]
     : env[ProcessEnv.DEV_DATABASE],
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-  migrations: [join(__dirname + '/src/database/migrations/*.{ts,js}')],
+  migrations: [join(__dirname + '/src/migrations/*.{ts,js}')],
   migrationsRun: productionEnviroment,
-  synchronize: !productionEnviroment,
+  synchronize: false,
   ssl: {
     rejectUnauthorized: false,
   },

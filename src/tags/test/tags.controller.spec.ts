@@ -31,7 +31,7 @@ describe('TagsController', () => {
 
   describe('findOne', () => {
     describe('when findOne is called', () => {
-      let result: { data: SelectedTagFields; message: string; };
+      let result: { data: SelectedTagFields; message: string };
       const dto = tagStub();
 
       beforeEach(async () => {
@@ -87,7 +87,7 @@ describe('TagsController', () => {
 
   describe('update', () => {
     describe('when update is called', () => {
-      let result: { data: SelectedTagFields; message?: string; };
+      let result: { data: SelectedTagFields; message?: string };
       const tag = tagStub() as unknown as Tag;
       const updateDto: UpdateTagDto = { name: 'new_tag' };
 

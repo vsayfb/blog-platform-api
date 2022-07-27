@@ -1,6 +1,4 @@
-import { UpdateTagDto } from '../dto/update-tag.dto';
 import { Tag } from '../entities/tag.entity';
-import { TagMessages } from '../enums/tag-messages';
 import { tagStub } from '../stub/tag.stub';
 
 export const TagsService = jest.fn().mockReturnValue({
@@ -10,7 +8,7 @@ export const TagsService = jest.fn().mockReturnValue({
 
   create: jest.fn().mockResolvedValue(tagStub()),
 
-  delete: jest.fn((tag: Tag) => Promise.resolve(tagStub().id)),
+  delete: jest.fn().mockResolvedValue(tagStub().id),
 
   update: jest.fn((tag: Tag, newName: string) =>
     Promise.resolve({
@@ -18,6 +16,6 @@ export const TagsService = jest.fn().mockReturnValue({
       name: newName,
     }),
   ),
-  
+
   getAll: jest.fn().mockResolvedValue([tagStub()]),
 });

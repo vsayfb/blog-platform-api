@@ -12,7 +12,6 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { FollowService } from './follow.service';
 import { FollowMessages } from './enums/follow-messages';
 import { FollowRoutes } from './enums/follow-routes';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { Follow } from './entities/follow.entity';
 import { UserFollowers } from './dto/user-followers.dto';
 import { UserFollowed } from './dto/user-followed.dto';

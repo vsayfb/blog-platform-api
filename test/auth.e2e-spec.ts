@@ -1,70 +1,52 @@
+jest.setTimeout(30000);
+
 import { CreateAccountDto } from './../src/accounts/dto/create-account.dto';
-import { FakeUser } from './helpers/faker/generateFakeUser';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from 'src/app.module';
-import { DatabaseService } from 'src/database/database.service';
 import { CodesService } from 'src/codes/codes.service';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { faker } from '@faker-js/faker';
-import { generateFakeUser } from 'test/helpers/faker/generateFakeUser';
-import { AuthMessages } from 'src/auth/enums/auth-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AuthRoutes } from 'src/auth/enums/auth-routes';
 import { AccountRoutes } from 'src/accounts/enums/account-routes';
+import { TestDatabaseService } from './database/database.service';
+import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
+import { FakeUser, generateFakeUser } from './utils/generateFakeUser';
 
 const PREFIX = '/auth';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
-  let databaseService: DatabaseService;
+  let databaseService: TestDatabaseService;
   let mailgunService: MailgunService;
+  let server: any;
 
   beforeAll(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    const { nestApp, database, moduleRef } =
+      await initializeEndToEndTestModule();
 
-    app = moduleRef.createNestApplication();
-
-    app.useGlobalPipes(new ValidationPipe());
-
-    await app.init();
-
-    databaseService = moduleRef.get<DatabaseService>(DatabaseService);
+    app = nestApp;
+    databaseService = database;
+    server = app.getHttpServer();
     mailgunService = moduleRef.get<MailgunService>(MailgunService);
   });
 
   afterAll(async () => {
-    await databaseService.clearTableRows('account');
-    await databaseService.clearTableRows('code');
-    await databaseService.closeDatabase();
+    await databaseService.clearAllTables();
+    await databaseService.disconnectDatabase();
     await app.close();
   });
 
   describe('/ (POST) login', () => {
-    describe('the given dto includes wrong values', () => {
-      it('should return Invalid Credentials error', async () => {
-        const result = await request(app.getHttpServer())
-          .post(PREFIX + AuthRoutes.LOGIN)
-          .send({ ...generateFakeUser() });
+    test('should return an access_token', async () => {
+      const user = await databaseService.createRandomTestUser();
 
-        expect(result.body.message).toBe(AuthMessages.INVALID_CREDENTIALS);
-      });
-    });
+      const result = await request(server)
+        .post(PREFIX + AuthRoutes.LOGIN)
+        .send(user);
 
-    describe('the given dto includes correct values', () => {
-      it('should return an access_token', async () => {
-        const user = await databaseService.createRandomTestUser();
-
-        const result = await request(app.getHttpServer())
-          .post(PREFIX + AuthRoutes.LOGIN)
-          .send(user);
-
-        expect(result.body.access_token).toEqual(expect.any(String));
-      });
+      expect(result.body.access_token).toEqual(expect.any(String));
     });
   });
 
@@ -99,7 +81,7 @@ describe('AuthController (e2e)', () => {
 
       // just send once otherwise throws an error email or username already registered
       if (!codeSentForRegister) {
-        const { body } = await request(app.getHttpServer())
+        const { body } = await request(server)
           .post('/accounts' + AccountRoutes.BEGIN_REGISTER_VERIFICATION)
           .send(user);
 
@@ -110,7 +92,7 @@ describe('AuthController (e2e)', () => {
     }
 
     async function sendRegisterRequest(createAccountDto: CreateAccountDto) {
-      const result = await request(app.getHttpServer())
+      const result = await request(server)
         .post(PREFIX + AuthRoutes.REGISTER)
         .send(createAccountDto);
 
@@ -153,16 +135,7 @@ describe('AuthController (e2e)', () => {
           verification_code,
         });
 
-        expect(result.body).toEqual({
-          data: {
-            id: expect.any(String),
-            image: null,
-            display_name: expect.any(String),
-            username: expect.any(String),
-            role: expect.any(String),
-          },
-          access_token: expect.any(String),
-        });
+        expect(result.body.access_token).toEqual(expect.any(String));
       });
     });
   });

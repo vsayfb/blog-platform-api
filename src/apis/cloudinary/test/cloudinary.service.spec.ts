@@ -22,9 +22,7 @@ describe('CloudinaryService', () => {
     // spyOn private method
     jest
       .spyOn(CloudinaryService.prototype, 'upload' as any)
-      .mockImplementation((_file: Express.Multer.File, _transformation: any) =>
-        Promise.resolve(uploadProfileResultStub().newImage),
-      );
+      .mockResolvedValue(uploadProfileResultStub().newImage);
   });
 
   describe('uploadImage', () => {

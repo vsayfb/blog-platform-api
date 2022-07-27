@@ -1,4 +1,4 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';

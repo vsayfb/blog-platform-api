@@ -1,14 +1,11 @@
 import { tagStub } from 'src/tags/stub/tag.stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
-import { postStub } from 'src/posts/stub/post-stub';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory, Action } from 'src/casl/casl-ability.factory';
 import { Post } from 'src/posts/entities/post.entity';
 import { Account, Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
-
-
 
 describe('CaslAbilityFactory', () => {
   const caslAbilityFactory = new CaslAbilityFactory();
@@ -45,9 +42,9 @@ describe('CaslAbilityFactory', () => {
         expect(ability.can(Action.Manage, tag)).toBe(true);
       });
 
-      test('a moderator can not manage posts', () => {
-        expect(ability.can(Action.Manage, jessePost)).toBe(false);
-        expect(ability.can(Action.Manage, walterPost)).toBe(false);
+      test('a moderator can posts', () => {
+        expect(ability.can(Action.Manage, jessePost)).toBe(true);
+        expect(ability.can(Action.Manage, walterPost)).toBe(true);
       });
     });
 
