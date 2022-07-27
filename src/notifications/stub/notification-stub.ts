@@ -6,7 +6,6 @@ import { NotificationActions } from '../enums/notification-actions';
 export const notificationStub = (): Notification => ({
   id: '7b1deb4d-3b6d-4bad-9ccd-2b0d7b3dcb5d',
   action: NotificationActions.Followed,
-  link: '/random_link',
   seen: false,
   notifable: accountStub() as Account,
   sender: accountStub() as Account,

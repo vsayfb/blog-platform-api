@@ -1,4 +1,4 @@
-import { notificationStub } from '../stub/notification-stub';
+import { notificationStub } from '../../stub/notification-stub';
 
 export const NotificationsService = jest.fn().mockReturnValue({
   create: jest.fn().mockResolvedValue(notificationStub()),

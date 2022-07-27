@@ -1,4 +1,6 @@
 import { Account } from 'src/accounts/entities/account.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Post } from 'src/posts/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
@@ -19,11 +21,14 @@ export class Notification {
   @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
   notifable: Account;
 
+  @ManyToOne(() => Post, { nullable: true })
+  post?: Post;
+
+  @ManyToOne(() => Comment, { nullable: true })
+  comment?: Comment;
+
   @Column({ type: 'enum', enum: NotificationActions })
   action: NotificationActions;
-
-  @Column()
-  link: string;
 
   @Column({ default: false })
   seen: boolean;

@@ -8,7 +8,7 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { Notification } from './entities/notification.entity';
 import { NotificationMessages } from './enums/notification-messages';
 import { NotificationRoutes } from './enums/notification-routes';
-import { NotificationsService } from './notifications.service';
+import { NotificationsService } from './services/notifications.service';
 
 @ApiTags('notifications')
 @Controller('notifications')

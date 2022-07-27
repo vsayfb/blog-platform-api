@@ -4,10 +4,11 @@ import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Notification } from '../entities/notification.entity';
 import { NotificationMessages } from '../enums/notification-messages';
 import { NotificationsController } from '../notifications.controller';
-import { NotificationsService } from '../notifications.service';
+import { FollowNotificationsService } from '../services/follow-notifications.service';
+import { NotificationsService } from '../services/notifications.service';
 import { notificationStub } from '../stub/notification-stub';
 
-jest.mock('src/notifications/notifications.service');
+jest.mock('src/notifications/services/notifications.service');
 
 describe('NotificationsController', () => {
   let notificationsController: NotificationsController;

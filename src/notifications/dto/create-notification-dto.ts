@@ -4,5 +4,4 @@ export type CreateNotificationDto = {
   senderID: string;
   notifableID: string;
   action: NotificationActions;
-  link: string;
 };
