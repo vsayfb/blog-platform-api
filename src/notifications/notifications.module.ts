@@ -14,5 +14,6 @@ import { FollowNotificationsService } from './services/follow-notifications.serv
     FollowNotificationsService,
     { provide: 'SERVICE', useClass: NotificationsService },
   ],
+  exports: [NotificationsService, FollowNotificationsService],
 })
 export class NotificationsModule {}

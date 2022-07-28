@@ -7,6 +7,7 @@ import { Follow } from '../entities/follow.entity';
 import { FollowMessages } from '../enums/follow-messages';
 import { FollowController } from '../follow.controller';
 import { FollowService } from '../follow.service';
+import { FollowedNotificationInterceptor } from '../interceptors/followed-notification.interceptor';
 
 jest.mock('src/follow/follow.service');
 
@@ -18,7 +19,10 @@ describe('FollowController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FollowController],
       providers: [FollowService],
-    }).compile();
+    })
+      .overrideInterceptor(FollowedNotificationInterceptor)
+      .useValue({})
+      .compile();
 
     followController = module.get<FollowController>(FollowController);
     followService = module.get<FollowService>(FollowService);

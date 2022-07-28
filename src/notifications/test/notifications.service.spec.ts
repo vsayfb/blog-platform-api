@@ -39,7 +39,6 @@ describe('NotificationsService', () => {
         senderID: notificationStub().sender.id,
         notifableID: notificationStub().notifable.id,
         action: notificationStub().action,
-        link: notificationStub().link,
       };
       let result: Notification;
 
@@ -54,7 +53,6 @@ describe('NotificationsService', () => {
           sender: { id: dto.senderID },
           notifable: { id: dto.notifableID },
           action: dto.action,
-          link: dto.link,
         });
       });
 
@@ -82,6 +80,8 @@ describe('NotificationsService', () => {
       test('calls notificationsRepository.save', () => {
         expect(notificationsRepository.find).toBeCalledWith({
           where: { notifable: { id: account.sub } },
+          relations: { sender: true },
+          loadEagerRelations: false,
         });
       });
 

@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -15,12 +16,14 @@ import { FollowRoutes } from './enums/follow-routes';
 import { Follow } from './entities/follow.entity';
 import { UserFollowers } from './dto/user-followers.dto';
 import { UserFollowed } from './dto/user-followed.dto';
+import { FollowedNotificationInterceptor } from './interceptors/followed-notification.interceptor';
 
 @Controller('follow')
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FollowedNotificationInterceptor)
   @Post(FollowRoutes.FOLLOW + ':username')
   async follow(
     @Account() account: JwtPayload,

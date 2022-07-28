@@ -1,7 +1,10 @@
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
 import { AccessToken } from 'src/auth/dto/access-token.dto';
-import { TestDatabaseService } from '../database/database.service';
+import {
+  DatabaseUser,
+  TestDatabaseService,
+} from '../database/database.service';
 import * as request from 'supertest';
 import { PostRoutes } from 'src/posts/enums/post-routes';
 import { CreatedPostDto } from 'src/posts/dto/created-post.dto';
@@ -17,7 +20,13 @@ import { generateFakeTag } from 'test/utils/generateFakeTag';
 export class HelpersService {
   constructor(private readonly testDatabaseService: TestDatabaseService) {}
 
-  async loginRandomAccount(app: INestApplication, role?: Role) {
+  async loginRandomAccount(
+    app: INestApplication,
+    role?: Role,
+  ): Promise<{
+    token: string;
+    user: DatabaseUser;
+  }> {
     const user = await this.testDatabaseService.createRandomTestUser(role);
 
     const token = await this.takeToken(app, user.username, user.password);

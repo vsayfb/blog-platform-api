@@ -5,6 +5,17 @@ import { RegisterType, Role } from 'src/accounts/entities/account.entity';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { generateFakeUser } from 'test/utils/generateFakeUser';
 
+export type DatabaseUser = {
+  id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  password: string;
+  image: null | string;
+  via: RegisterType;
+  role: Role;
+};
+
 @Injectable()
 export class TestDatabaseService {
   private db: Client;
@@ -39,16 +50,7 @@ export class TestDatabaseService {
     return await this.db.end();
   }
 
-  async createRandomTestUser(role?: Role): Promise<{
-    id: string;
-    username: string;
-    display_name: string;
-    email: string;
-    password: string;
-    image: null | string;
-    via: RegisterType;
-    role: Role;
-  }> {
+  async createRandomTestUser(role?: Role): Promise<DatabaseUser> {
     const { username, email, password, display_name } = generateFakeUser();
 
     const query = `INSERT INTO 
