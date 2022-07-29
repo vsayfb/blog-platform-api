@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
+import { PostDto } from 'src/posts/dto/post.dto';
+import { PostMessages } from 'src/posts/enums/post-messages';
+import { PostsService } from 'src/posts/posts.service';
 import { Repository } from 'typeorm';
 import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreatedCommentDto } from './dto/created-comment.dto';
 import { PostCommentsDto } from './dto/post-comments.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
@@ -14,20 +18,23 @@ export class CommentsService implements ICrudService<Comment> {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    private readonly postsService: PostsService,
   ) {}
 
   async create(dto: {
     authorID: string;
     postID: string;
     createCommentDto: CreateCommentDto;
-  }): Promise<SelectedCommentFields> {
-    const created = await this.commentRepository.save({
+  }): Promise<CreatedCommentDto> {
+    const post = await this.postsService.getOneByID(dto.postID);
+
+    if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
+
+    return await this.commentRepository.save({
       ...dto.createCommentDto,
       author: { id: dto.authorID },
-      post: { id: dto.postID },
+      post,
     });
-
-    return await this.commentRepository.findOne({ where: { id: created.id } });
   }
 
   async getAll(): Promise<Comment[]> {

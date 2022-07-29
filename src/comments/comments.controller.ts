@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -22,6 +23,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
+import { CommentsNotificationInterceptor } from './interceptors/comments-notification.interceptor';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Controller('comments')
@@ -40,10 +42,11 @@ export class CommentsController implements ICrudController<Comment> {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(CommentRoutes.CREATE + ':id')
+  @UseInterceptors(CommentsNotificationInterceptor)
+  @Post(CommentRoutes.CREATE + ':postID')
   async create(
     @Account() account: JwtPayload,
-    @Param('id') postID: string,
+    @Param('postID') postID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {

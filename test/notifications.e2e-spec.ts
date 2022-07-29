@@ -11,6 +11,7 @@ import { Notification } from 'src/notifications/entities/notification.entity';
 import { NotificationMessages } from 'src/notifications/enums/notification-messages';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
+import { CommentRoutes } from 'src/comments/enums/comment-routes';
 
 const PREFIX = '/notifications';
 
