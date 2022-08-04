@@ -16,6 +16,7 @@ import { FollowModule } from './follow/follow.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from 'ormconfig';
+import { GatewaysModule } from './gateways/gateways.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { dataSource } from 'ormconfig';
     BookmarksModule,
     FollowModule,
     NotificationsModule,
+    GatewaysModule,
   ],
 })
 export class AppModule {}
