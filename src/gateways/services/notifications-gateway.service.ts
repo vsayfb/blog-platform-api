@@ -6,7 +6,7 @@ import { NotificationsGateway } from '../notifications.gateway';
 export class NotificationsGatewayService {
   constructor(
     private readonly notificationsGateway: NotificationsGateway,
-    private notificationsService: NotificationsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async sendNotification(notificationID: string) {

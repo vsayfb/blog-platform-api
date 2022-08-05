@@ -35,12 +35,6 @@ export class NotificationsGateway
 
   constructor(private readonly jwtService: JwtService) {}
 
-  private verifySocket(token: string) {
-    return this.jwtService.verify(token, {
-      secret: process.env[ProcessEnv.JWT_SECRET],
-    });
-  }
-
   //  A guard is not usable to prevent unauthorized users from establishing a connection.
   //  https://github.com/nestjs/nest/issues/882
   handleConnection(client: Socket, ...args: any[]) {
@@ -55,31 +49,37 @@ export class NotificationsGateway
     }
   }
 
+  handleDisconnect(client: Socket) {
+    this.sockets = this.sockets.filter((s) => s.socketID !== client.id);
+  }
+
+  private verifySocket(token: string) {
+    return this.jwtService.verify(token, {
+      secret: process.env[ProcessEnv.JWT_SECRET],
+    });
+  }
+
   private async getSenderSocket(senderID: string): Promise<Socket> {
     const sockets = await this.server.fetchSockets();
 
     return sockets.find((s) => s.id === senderID) as unknown as Socket;
   }
 
-  private getNotifableSocketId(userID: string): string {
+  private getNotifableSocketID(userID: string): string {
     const socket = this.sockets.find((s) => s.userID === userID);
 
     return socket.socketID;
   }
 
-  handleDisconnect(client: Socket) {
-    this.sockets = this.sockets.filter((s) => s.socketID !== client.id);
-  }
-
   async pushNotification(notification: Notification) {
     const senderSocket = await this.getSenderSocket(notification.sender.id);
 
-    const notifableSocket = this.getNotifableSocketId(
+    const notifableSocketID = this.getNotifableSocketID(
       notification.notifable.id,
     );
 
     const { sender, notifable, ...dto } = notification;
 
-    senderSocket.to(notifableSocket).emit('notification', dto);
+    senderSocket.to(notifableSocketID).emit('notification', dto);
   }
 }
