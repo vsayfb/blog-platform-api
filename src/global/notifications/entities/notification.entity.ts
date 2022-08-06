@@ -21,10 +21,14 @@ export class Notification {
   @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
   notifable: Account;
 
-  @ManyToOne(() => Post, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Post, { eager: true, nullable: true, onDelete: 'CASCADE' })
   post?: Post;
 
-  @ManyToOne(() => Comment, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Comment, {
+    eager: true,
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   comment?: Comment;
 
   @Column({ type: 'enum', enum: NotificationActions })

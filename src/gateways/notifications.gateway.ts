@@ -1,21 +1,17 @@
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import {
-  ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { SocketAuthGuard } from './guards/socket-auth.guard';
-import { NotificationsGatewayService } from './services/notifications-gateway.service';
 import * as dotenv from 'dotenv';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { Notification } from 'src/notifications/entities/notification.entity';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { JwtPayload } from 'src/lib/jwt.payload';
 
 dotenv.config();
 
@@ -37,26 +33,26 @@ export class NotificationsGateway
 
   //  A guard is not usable to prevent unauthorized users from establishing a connection.
   //  https://github.com/nestjs/nest/issues/882
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     const token = client.handshake.auth.token?.split(' ')[1];
 
-    try {
-      const user = this.verifySocket(token);
+    const user = this.verifySocket(token);
 
-      this.sockets.push({ socketID: client.id, userID: user.sub });
-    } catch (error) {
-      return false;
-    }
+    if (user) this.sockets.push({ socketID: client.id, userID: user.sub });
   }
 
   handleDisconnect(client: Socket) {
     this.sockets = this.sockets.filter((s) => s.socketID !== client.id);
   }
 
-  private verifySocket(token: string) {
-    return this.jwtService.verify(token, {
-      secret: process.env[ProcessEnv.JWT_SECRET],
-    });
+  private verifySocket(token: string): JwtPayload | false {
+    try {
+      this.jwtService.verify(token, {
+        secret: process.env[ProcessEnv.JWT_SECRET],
+      });
+    } catch (error) {
+      return false;
+    }
   }
 
   private async getSenderSocket(senderID: string): Promise<Socket> {

@@ -1,5 +1,5 @@
-import { Subjects } from './../../casl/casl-ability.factory';
-import { Action, CaslAbilityFactory } from '../../casl/casl-ability.factory';
+import { Subjects } from '../../global/casl/casl-ability.factory';
+import { Action, CaslAbilityFactory } from '../../global/casl/casl-ability.factory';
 import {
   CanActivate,
   ExecutionContext,

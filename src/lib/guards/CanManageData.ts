@@ -7,7 +7,7 @@ import {
   Injectable,
   MethodNotAllowedException,
 } from '@nestjs/common';
-import { Action, CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { Action, CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { Request } from 'express';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../../test/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { NotificationsService } from '../services/notifications.service';
@@ -80,8 +80,7 @@ describe('NotificationsService', () => {
       test('calls notificationsRepository.save', () => {
         expect(notificationsRepository.find).toBeCalledWith({
           where: { notifable: { id: account.sub } },
-          relations: { sender: true },
-          loadEagerRelations: false,
+          relations: { notifable: false },
         });
       });
 
@@ -143,12 +142,6 @@ describe('NotificationsService', () => {
       test('calls notificationsRepository.findOne', () => {
         expect(notificationsRepository.findOne).toHaveBeenCalledWith({
           where: { id: notificationID },
-          relations: {
-            comment: true,
-            post: true,
-            notifable: true,
-            sender: true,
-          },
         });
       });
 

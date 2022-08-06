@@ -5,17 +5,17 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { NotificationsGatewayService } from 'src/gateways/services/notifications-gateway.service';
-import { CommentsNotificationService } from 'src/notifications/services/comments-notification.service';
+import { GatewayEventsService } from 'src/global/events/gateway-events.service';
+import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
 import { CreatedCommentDto } from '../dto/created-comment.dto';
 import { CommentMessages } from '../enums/comment-messages';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
 
 @Injectable()
-export class CommentsNotificationInterceptor implements NestInterceptor {
+export class CommentedNotificationInterceptor implements NestInterceptor {
   constructor(
     private readonly commentsNotificationService: CommentsNotificationService,
-    private readonly notificationsGatewayService: NotificationsGatewayService,
+    private readonly gatewayEventsService: GatewayEventsService,
   ) {}
 
   intercept(
@@ -37,9 +37,7 @@ export class CommentsNotificationInterceptor implements NestInterceptor {
             postID: post.id,
           });
 
-        await this.notificationsGatewayService.sendNotification(
-          notification.id,
-        );
+        await this.gatewayEventsService.newNotification(notification.id);
 
         return {
           data: { id, content, created_at, updated_at },

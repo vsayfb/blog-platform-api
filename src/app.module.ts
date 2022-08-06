@@ -6,17 +6,18 @@ import { UploadsModule } from './uploads/uploads.module';
 import { MailsModule } from './mails/mails.module';
 import { MailgunModule } from './apis/mailgun/mailgun.module';
 import { CodesModule } from './codes/codes.module';
-import { JobsModule } from './jobs/jobs.module';
+import { JobsModule } from './global/jobs/jobs.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
-import { CaslModule } from './casl/casl.module';
+import { CaslModule } from './global/casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
-import { NotificationsModule } from './notifications/notifications.module';
+import { NotificationsModule } from './global/notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from 'ormconfig';
 import { GatewaysModule } from './gateways/gateways.module';
+import { EventsModule } from './global/events/events.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { GatewaysModule } from './gateways/gateways.module';
     BookmarksModule,
     FollowModule,
     NotificationsModule,
+    EventsModule,
     GatewaysModule,
   ],
 })

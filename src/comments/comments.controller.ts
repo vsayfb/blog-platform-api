@@ -23,7 +23,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
-import { CommentsNotificationInterceptor } from './interceptors/comments-notification.interceptor';
+import { CommentedNotificationInterceptor } from './interceptors/commented-notification.interceptor';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Controller('comments')
@@ -42,7 +42,7 @@ export class CommentsController implements ICrudController<Comment> {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(CommentsNotificationInterceptor)
+  @UseInterceptors(CommentedNotificationInterceptor)
   @Post(CommentRoutes.CREATE + ':postID')
   async create(
     @Account() account: JwtPayload,

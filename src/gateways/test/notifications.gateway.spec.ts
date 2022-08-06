@@ -1,23 +1,21 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationsService } from 'src/notifications/services/notifications.service';
-import { notificationStub } from 'src/notifications/stub/notification-stub';
+import { GatewayEventsService } from 'src/global/events/__mocks__/gateway-events.service';
+import { NotificationsService } from 'src/global/notifications/services/notifications.service';
+import { notificationStub } from 'src/global/notifications/stub/notification-stub';
 import { NotificationsGateway } from '../notifications.gateway';
-import { NotificationsGatewayService } from '../services/notifications-gateway.service';
 
-jest.mock('src/notifications/services/notifications.service');
+jest.mock('src/global/notifications/services/notifications.service');
 
 describe('NotificationsGateway', () => {
   let notificationsGateway: NotificationsGateway;
-  let notificationsService: NotificationsService;
-  let notificationsGatewayService: NotificationsGatewayService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationsGateway,
-        NotificationsGatewayService,
+        GatewayEventsService,
         NotificationsService,
         { provide: JwtService, useValue: {} },
         { provide: ConfigService, useValue: {} },
@@ -26,13 +24,6 @@ describe('NotificationsGateway', () => {
 
     notificationsGateway =
       module.get<NotificationsGateway>(NotificationsGateway);
-
-    notificationsGatewayService = module.get<NotificationsGatewayService>(
-      NotificationsGatewayService,
-    );
-
-    notificationsService =
-      module.get<NotificationsService>(NotificationsService);
   });
 
   describe('pushNotification', () => {

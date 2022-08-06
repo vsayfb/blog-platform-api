@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { postStub } from 'src/posts/stub/post-stub';
 import { BookmarksController } from '../bookmarks.controller';
 import { BookmarksService } from '../bookmarks.service';

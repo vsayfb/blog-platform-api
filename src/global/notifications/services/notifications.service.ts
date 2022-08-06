@@ -23,8 +23,7 @@ export class NotificationsService implements ICrudService<Notification> {
   async getAccountNotifications(accountID: string): Promise<Notification[]> {
     return this.notificationsRepository.find({
       where: { notifable: { id: accountID } },
-      relations: { sender: true },
-      loadEagerRelations: false,
+      relations: { notifable: false },
     });
   }
 
@@ -47,7 +46,6 @@ export class NotificationsService implements ICrudService<Notification> {
   async getOneByID(id: string): Promise<Notification> {
     return await this.notificationsRepository.findOne({
       where: { id },
-      relations: { comment: true, post: true, notifable: true, sender: true },
     });
   }
 

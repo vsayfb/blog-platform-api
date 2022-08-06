@@ -14,8 +14,8 @@ import { bookmarkStub } from 'src/bookmarks/stub/bookmark-stub';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { followStub } from 'src/follow/stub/follow-stub';
-import { Notification } from 'src/notifications/entities/notification.entity';
-import { notificationStub } from 'src/notifications/stub/notification-stub';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { notificationStub } from 'src/global/notifications/stub/notification-stub';
 
 type Entities =
   | typeof Account

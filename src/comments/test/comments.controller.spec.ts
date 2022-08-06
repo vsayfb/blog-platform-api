@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
-import { NotificationsGatewayService } from 'src/gateways/services/notifications-gateway.service';
+import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { CommentsNotificationService } from 'src/notifications/services/comments-notification.service';
+import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
 import { CommentsService } from '../comments.service';
@@ -14,9 +13,10 @@ import { Comment } from '../entities/comment.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
+import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 
 jest.mock('src/comments/comments.service');
-jest.mock('src/gateways/services/notifications-gateway.service');
+jest.mock('src/global/events/gateway-events.service');
 
 describe('CommentsController', () => {
   let commentsController: CommentsController;
@@ -27,7 +27,7 @@ describe('CommentsController', () => {
       controllers: [CommentsController],
       providers: [
         CommentsService,
-        NotificationsGatewayService,
+        GatewayEventsService,
         { provide: CommentsNotificationService, useValue: {} },
         { provide: 'SERVICE', useClass: CommentsService },
         CaslAbilityFactory,

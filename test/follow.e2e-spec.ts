@@ -12,6 +12,8 @@ import { HelpersService } from './helpers/helpers.service';
 import { generateFakeUser } from './utils/generateFakeUser';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 
+jest.mock('src/gateways/notifications.gateway');
+
 const PREFIX = '/follow';
 
 describe('Follow (e2e)', () => {

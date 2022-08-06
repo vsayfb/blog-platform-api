@@ -1,5 +1,5 @@
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { Post } from './../posts/entities/post.entity';
+import { Post } from '../../posts/entities/post.entity';
 import {
   Ability,
   AbilityBuilder,
@@ -12,7 +12,7 @@ import { Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
-import { Notification } from 'src/notifications/entities/notification.entity';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
 
 export enum Action {
   Manage = 'manage',

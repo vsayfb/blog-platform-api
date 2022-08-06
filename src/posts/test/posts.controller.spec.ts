@@ -1,4 +1,4 @@
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { Post } from 'src/posts/entities/post.entity';

@@ -1,31 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationsService } from 'src/notifications/services/notifications.service';
-import { notificationStub } from 'src/notifications/stub/notification-stub';
-import { SocketAuthGuard } from '../guards/socket-auth.guard';
-import { NotificationsGateway } from '../notifications.gateway';
-import { NotificationsGatewayService } from '../services/notifications-gateway.service';
+import { NotificationsService } from 'src/global/notifications/services/notifications.service';
+import { notificationStub } from 'src/global/notifications/stub/notification-stub';
+import { SocketAuthGuard } from '../../../gateways/guards/socket-auth.guard';
+import { NotificationsGateway } from '../../../gateways/notifications.gateway';
+import { GatewayEventsService } from '../gateway-events.service';
 
-jest.mock('src/notifications/services/notifications.service');
+jest.mock('src/global/notifications/services/notifications.service');
 jest.mock('src/gateways/notifications.gateway');
 
-describe('NotificationsGatewayService', () => {
-  let notificationsGatewayService: NotificationsGatewayService;
+describe('GatewayEventsService', () => {
+  let gatewayEventsService: GatewayEventsService;
   let notificationsGateway: NotificationsGateway;
   let notificationsService: NotificationsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        NotificationsGatewayService,
+        GatewayEventsService,
         NotificationsService,
         NotificationsGateway,
         { provide: SocketAuthGuard, useValue: {} },
       ],
     }).compile();
 
-    notificationsGatewayService = module.get<NotificationsGatewayService>(
-      NotificationsGatewayService,
-    );
+    gatewayEventsService =
+      module.get<GatewayEventsService>(GatewayEventsService);
 
     notificationsService =
       module.get<NotificationsService>(NotificationsService);
@@ -41,9 +40,7 @@ describe('NotificationsGatewayService', () => {
       const notification = notificationStub();
 
       beforeEach(async () => {
-        result = await notificationsGatewayService.sendNotification(
-          notification.id,
-        );
+        result = await gatewayEventsService.newNotification(notification.id);
       });
 
       test('calls notificationsService.getOneByID', () => {

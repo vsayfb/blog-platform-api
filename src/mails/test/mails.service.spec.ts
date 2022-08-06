@@ -5,12 +5,12 @@ import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { codeStub } from 'src/codes/stub/code.stub';
-import { JobsService } from 'src/jobs/jobs.service';
+import { JobsService } from 'src/global/jobs/jobs.service';
 import { MailsService } from '../mails.service';
 
 jest.mock('src/codes/codes.service');
 jest.mock('src/apis/mailgun/mailgun.service');
-jest.mock('src/jobs/jobs.service');
+jest.mock('src/global/jobs/jobs.service');
 
 describe('MailsService', () => {
   let service: MailsService;

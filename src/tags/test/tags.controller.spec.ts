@@ -1,5 +1,5 @@
 import { Tag } from './../entities/tag.entity';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';

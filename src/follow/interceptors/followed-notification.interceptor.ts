@@ -5,8 +5,8 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { NotificationsGatewayService } from 'src/gateways/services/notifications-gateway.service';
-import { FollowNotificationsService } from 'src/notifications/services/follow-notifications.service';
+import { GatewayEventsService } from 'src/global/events/gateway-events.service';
+import { FollowNotificationsService } from 'src/global/notifications/services/follow-notifications.service';
 import { Follow } from '../entities/follow.entity';
 import { FollowMessages } from '../enums/follow-messages';
 
@@ -14,7 +14,7 @@ import { FollowMessages } from '../enums/follow-messages';
 export class FollowedNotificationInterceptor implements NestInterceptor {
   constructor(
     private readonly followNotificationsService: FollowNotificationsService,
-    private readonly notificationsGatewayService: NotificationsGatewayService,
+    private readonly gatewayEventsService: GatewayEventsService,
   ) {}
 
   intercept(
@@ -29,7 +29,7 @@ export class FollowedNotificationInterceptor implements NestInterceptor {
             senderID: follow.data.follower.id,
           });
 
-        await this.notificationsGatewayService.sendNotification(
+        await this.gatewayEventsService.newNotification(
           notification.id,
         );
 

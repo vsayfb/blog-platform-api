@@ -1,29 +1,27 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../../test/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
+import { FollowNotificationsService } from '../services/follow-notifications.service';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
 import { NotificationActions } from '../enums/notification-actions';
-import { postStub } from 'src/posts/stub/post-stub';
-import { commentStub } from 'src/comments/stub/comment.stub';
-import { CommentsNotificationService } from '../services/comments-notification.service';
 
 describe('FollowNotificationsService', () => {
-  let commentNotificationsService: CommentsNotificationService;
+  let followNotificationsService: FollowNotificationsService;
   let notificationsRepository: Repository<Notification>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        CommentsNotificationService,
+        FollowNotificationsService,
         { provide: getRepositoryToken(Notification), useClass: Repository },
       ],
     }).compile();
 
-    commentNotificationsService = moduleRef.get<CommentsNotificationService>(
-      CommentsNotificationService,
+    followNotificationsService = moduleRef.get<FollowNotificationsService>(
+      FollowNotificationsService,
     );
     notificationsRepository = moduleRef.get<Repository<Notification>>(
       getRepositoryToken(Notification),
@@ -32,18 +30,16 @@ describe('FollowNotificationsService', () => {
     mockRepository(notificationsRepository, Notification);
   });
 
-  describe('createCommentNotification', () => {
-    describe('when createCommentNotification is called ', () => {
+  describe('createFollowedNotification', () => {
+    describe('when createFollowedNotification is called ', () => {
       let result: { id: string };
       const dto = {
         senderID: accountStub().id,
         notifableID: randomUUID(),
-        postID: postStub().id,
-        commentID: commentStub().id,
       };
 
       beforeEach(async () => {
-        result = await commentNotificationsService.createCommentNotification(
+        result = await followNotificationsService.createFollowedNotification(
           dto,
         );
       });
@@ -52,13 +48,11 @@ describe('FollowNotificationsService', () => {
         expect(notificationsRepository.save).toHaveBeenCalledWith({
           sender: { id: dto.senderID },
           notifable: { id: dto.notifableID },
-          comment: { id: dto.commentID },
-          post: { id: dto.postID },
-          action: NotificationActions.Commented,
+          action: NotificationActions.Followed,
         });
       });
 
-      it("should return notificatio's id", () => {
+      it("should return notification's id", () => {
         expect(result).toEqual({ id: expect.any(String) });
       });
     });

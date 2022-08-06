@@ -6,12 +6,13 @@ import { HelpersService } from './helpers/helpers.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import * as request from 'supertest';
 import { FollowRoutes } from 'src/follow/enums/follow-routes';
-import { NotificationRoutes } from 'src/notifications/enums/notification-routes';
-import { Notification } from 'src/notifications/entities/notification.entity';
-import { NotificationMessages } from 'src/notifications/enums/notification-messages';
+import { NotificationRoutes } from 'src/global/notifications/enums/notification-routes';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { NotificationMessages } from 'src/global/notifications/enums/notification-messages';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
-import { CommentRoutes } from 'src/comments/enums/comment-routes';
+
+jest.mock('src/gateways/notifications.gateway');
 
 const PREFIX = '/notifications';
 
