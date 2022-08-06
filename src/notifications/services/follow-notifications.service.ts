@@ -8,11 +8,13 @@ export class FollowNotificationsService extends NotificationsService {
   async createFollowedNotification({
     senderID,
     notifableID,
-  }: CreateFollowedNotificationDto): Promise<void> {
-    await this.notificationsRepository.save({
+  }: CreateFollowedNotificationDto): Promise<{ id: string }> {
+    const { id } = await this.notificationsRepository.save({
       sender: { id: senderID },
       notifable: { id: notifableID },
       action: NotificationActions.Followed,
     });
+
+    return { id };
   }
 }

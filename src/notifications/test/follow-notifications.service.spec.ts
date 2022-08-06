@@ -32,7 +32,7 @@ describe('FollowNotificationsService', () => {
 
   describe('createFollowedNotification', () => {
     describe('when createFollowedNotification is called ', () => {
-      let result: void;
+      let result: { id: string };
       const dto = {
         senderID: accountStub().id,
         notifableID: randomUUID(),
@@ -52,8 +52,8 @@ describe('FollowNotificationsService', () => {
         });
       });
 
-      it('should return undefined so (void)', () => {
-        expect(result).toBeUndefined();
+      it("should return notification's id", () => {
+        expect(result).toEqual({ id: expect.any(String) });
       });
     });
   });

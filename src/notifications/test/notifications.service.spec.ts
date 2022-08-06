@@ -143,6 +143,12 @@ describe('NotificationsService', () => {
       test('calls notificationsRepository.findOne', () => {
         expect(notificationsRepository.findOne).toHaveBeenCalledWith({
           where: { id: notificationID },
+          relations: {
+            comment: true,
+            post: true,
+            notifable: true,
+            sender: true,
+          },
         });
       });
 

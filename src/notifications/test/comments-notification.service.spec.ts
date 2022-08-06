@@ -6,24 +6,24 @@ import { Notification } from '../entities/notification.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
 import { NotificationActions } from '../enums/notification-actions';
-import { CommentNotificationsService } from '../services/comments-notification.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { commentStub } from 'src/comments/stub/comment.stub';
+import { CommentsNotificationService } from '../services/comments-notification.service';
 
 describe('FollowNotificationsService', () => {
-  let commentNotificationsService: CommentNotificationsService;
+  let commentNotificationsService: CommentsNotificationService;
   let notificationsRepository: Repository<Notification>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        CommentNotificationsService,
+        CommentsNotificationService,
         { provide: getRepositoryToken(Notification), useClass: Repository },
       ],
     }).compile();
 
-    commentNotificationsService = moduleRef.get<CommentNotificationsService>(
-      CommentNotificationsService,
+    commentNotificationsService = moduleRef.get<CommentsNotificationService>(
+      CommentsNotificationService,
     );
     notificationsRepository = moduleRef.get<Repository<Notification>>(
       getRepositoryToken(Notification),
@@ -34,7 +34,7 @@ describe('FollowNotificationsService', () => {
 
   describe('createCommentNotification', () => {
     describe('when createCommentNotification is called ', () => {
-      let result: void;
+      let result: { id: string };
       const dto = {
         senderID: accountStub().id,
         notifableID: randomUUID(),
@@ -58,8 +58,8 @@ describe('FollowNotificationsService', () => {
         });
       });
 
-      it('should return undefined so (void)', () => {
-        expect(result).toBeUndefined();
+      it("should return notificatio's id", () => {
+        expect(result).toEqual({ id: expect.any(String) });
       });
     });
   });

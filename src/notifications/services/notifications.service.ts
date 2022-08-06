@@ -45,7 +45,10 @@ export class NotificationsService implements ICrudService<Notification> {
   }
 
   async getOneByID(id: string): Promise<Notification> {
-    return await this.notificationsRepository.findOne({ where: { id } });
+    return await this.notificationsRepository.findOne({
+      where: { id },
+      relations: { comment: true, post: true, notifable: true, sender: true },
+    });
   }
 
   getOne(username: string): Promise<Notification> {

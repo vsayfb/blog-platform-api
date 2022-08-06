@@ -11,6 +11,9 @@ import { commentStub } from '../stub/comment.stub';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { PostCommentsDto } from '../dto/post-comments.dto';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
+import { PostsService } from 'src/posts/posts.service';
+
+jest.mock('src/posts/posts.service');
 
 describe('CommentsService', () => {
   let commentsService: CommentsService;
@@ -20,6 +23,7 @@ describe('CommentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CommentsService,
+        PostsService,
         {
           provide: getRepositoryToken(Comment),
           useClass: Repository,
@@ -61,7 +65,7 @@ describe('CommentsService', () => {
     describe('when create is called', () => {
       let result: SelectedCommentFields;
       const account = jwtPayloadStub();
-      const postID = postStub().id;
+      const post = postStub();
       const createCommentDto: CreateCommentDto = {
         content: commentStub().content,
       };
@@ -69,7 +73,7 @@ describe('CommentsService', () => {
       beforeEach(async () => {
         result = await commentsService.create({
           authorID: account.sub,
-          postID,
+          postID: post.id,
           createCommentDto,
         });
       });
@@ -78,7 +82,7 @@ describe('CommentsService', () => {
         expect(commentsRepository.save).toHaveBeenCalledWith({
           ...createCommentDto,
           author: { id: account.sub },
-          post: { id: postID },
+          post,
         });
       });
 

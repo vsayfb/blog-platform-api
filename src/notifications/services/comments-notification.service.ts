@@ -14,13 +14,15 @@ export class CommentsNotificationService extends NotificationsService {
     notifableID: string;
     commentID: string;
     postID: string;
-  }) {
-    await this.notificationsRepository.save({
+  }): Promise<{ id: string }> {
+    const { id } = await this.notificationsRepository.save({
       sender: { id: senderID },
       notifable: { id: notifableID },
       comment: { id: commentID },
       post: { id: postID },
       action: NotificationActions.Commented,
     });
+
+    return { id };
   }
 }
