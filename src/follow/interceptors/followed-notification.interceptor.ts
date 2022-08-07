@@ -29,9 +29,7 @@ export class FollowedNotificationInterceptor implements NestInterceptor {
             senderID: follow.data.follower.id,
           });
 
-        await this.gatewayEventsService.newNotification(
-          notification.id,
-        );
+        await this.gatewayEventsService.newNotification(notification.id);
 
         return { data: follow.data, message: FollowMessages.FOLLOWED };
       }),

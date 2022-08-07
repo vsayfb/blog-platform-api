@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client } from 'pg';
-import { RegisterType, Role } from 'src/accounts/entities/account.entity';
+import { Client, QueryResult } from 'pg';
+import {
+  Account,
+  RegisterType,
+  Role,
+} from 'src/accounts/entities/account.entity';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { generateFakeUser } from 'test/utils/generateFakeUser';
 
@@ -48,6 +52,10 @@ export class TestDatabaseService {
 
   async disconnectDatabase() {
     return await this.db.end();
+  }
+
+  async getAccountByID(id: string): Promise<QueryResult<Account>> {
+    return await this.db.query(`SELECT * FROM account WHERE id='${id}'`);
   }
 
   async createRandomTestUser(role?: Role): Promise<DatabaseUser> {

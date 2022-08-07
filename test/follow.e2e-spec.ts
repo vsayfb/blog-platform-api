@@ -6,6 +6,7 @@ import { UserFollowers } from 'src/follow/dto/user-followers.dto';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
 import { FollowRoutes } from 'src/follow/enums/follow-routes';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
 import * as request from 'supertest';
 import { TestDatabaseService } from './database/database.service';
 import { HelpersService } from './helpers/helpers.service';
@@ -111,11 +112,15 @@ describe('Follow (e2e)', () => {
         });
       });
 
-      describe('scenario : user meets all conditions', () => {
+      describe.only('scenario : user meets all conditions', () => {
+        let followedUserToken: string;
+
         test("should return the followed account's username.", async () => {
           const user = await helpersService.loginRandomAccount(app);
 
           const followedUser = await helpersService.loginRandomAccount(app);
+
+          followedUserToken = followedUser.token;
 
           const result = await followAccount(
             user.token,
@@ -123,6 +128,15 @@ describe('Follow (e2e)', () => {
           );
 
           expect(result.body.message).toBe(FollowMessages.FOLLOWED);
+        });
+
+        test('should be saved a natification about follower user', async () => {
+          const notification: { body: { data: Notification[] } } =
+            await request(server)
+              .get('/notifications/me')
+              .set('Authorization', followedUserToken);
+
+          expect(notification.body.data.length).toBe(1);
         });
       });
     });

@@ -46,6 +46,16 @@ export class HelpersService {
     return 'Bearer ' + result.body.access_token;
   }
 
+  async takeTokenByID(app: INestApplication, accountID: string) {
+    const account = await this.testDatabaseService.getAccountByID(accountID);
+
+    return await this.takeToken(
+      app,
+      account.rows[0].username,
+      account.rows[0].password,
+    );
+  }
+
   async createRandomPost(
     app: INestApplication,
     role?: Role,

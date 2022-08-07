@@ -14,6 +14,7 @@ import { TestDatabaseService } from './database/database.service';
 import { generateFakeComment } from './utils/generateFakeComment';
 import { HelpersService } from './helpers/helpers.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
+import { Notification } from 'src/global/notifications/entities/notification.entity';
 
 jest.mock('src/gateways/notifications.gateway');
 
@@ -102,9 +103,16 @@ describe('Comments (e2e)', () => {
   });
 
   describe('create', () => {
-    describe('when create is called', () => {
-      it('should create a comment and return that', async () => {
+    describe.only('when create is called', () => {
+      let postAuthorToken: string;
+
+      test('should create a comment and return that', async () => {
         const post = await helpersService.createRandomPost(app);
+
+        postAuthorToken = await helpersService.takeTokenByID(
+          app,
+          post.body.data.author.id,
+        );
 
         const createdComment = await helpersService.createRandomComment(
           app,
@@ -112,6 +120,16 @@ describe('Comments (e2e)', () => {
         );
 
         expect(createdComment.body.message).toBe(CommentMessages.CREATED);
+      });
+
+      test('should be saved a notification about commented on your post', async () => {
+        const notifications: { body: { data: Notification[] } } = await request(
+          server,
+        )
+          .get('/notifications/me')
+          .set('Authorization', postAuthorToken);
+
+        expect(notifications.body.data.length).toBe(1);
       });
     });
   });

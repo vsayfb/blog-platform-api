@@ -1,4 +1,4 @@
 export enum NotificationActions {
-  Followed = 'followed',
+  Followed = 'followed you',
   Commented = 'commented on your post',
 }
