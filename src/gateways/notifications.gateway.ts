@@ -33,23 +33,27 @@ export class NotificationsGateway
 
   //  A guard is not usable to prevent unauthorized users from establishing a connection.
   //  https://github.com/nestjs/nest/issues/882
-  handleConnection(client: Socket) {
-    const token = client.handshake.auth.token?.split(' ')[1];
+  handleConnection(socket: Socket) {
+    const token = socket.handshake.auth.token?.split(' ')[1];
 
     const user = this.verifySocket(token);
 
-    if (user) this.sockets.push({ socketID: client.id, userID: user.sub });
+    if (user) this.sockets.push({ socketID: socket.id, userID: user.sub });
   }
 
-  handleDisconnect(client: Socket) {
-    this.sockets = this.sockets.filter((s) => s.socketID !== client.id);
+  handleDisconnect(socket: Socket) {
+    this.sockets = this.sockets.filter((s) => s.socketID !== socket.id);
+
+    socket.disconnect();
   }
 
   private verifySocket(token: string): JwtPayload | false {
     try {
-      this.jwtService.verify(token, {
+      const payload: JwtPayload = this.jwtService.verify(token, {
         secret: process.env[ProcessEnv.JWT_SECRET],
       });
+
+      return payload;
     } catch (error) {
       return false;
     }
@@ -58,7 +62,9 @@ export class NotificationsGateway
   private async getSenderSocket(senderID: string): Promise<Socket> {
     const sockets = await this.server.fetchSockets();
 
-    return sockets.find((s) => s.id === senderID) as unknown as Socket;
+    const { socketID } = this.sockets.find((s) => s.userID === senderID);
+
+    return sockets.find((s) => s.id === socketID) as unknown as Socket;
   }
 
   private getNotifableSocketID(userID: string): string {
@@ -74,8 +80,12 @@ export class NotificationsGateway
       notification.notifable.id,
     );
 
-    const { sender, notifable, ...dto } = notification;
+    const { notifable, ...dto } = notification;
 
     senderSocket.to(notifableSocketID).emit('notification', dto);
+  }
+
+  get socketCount() {
+    return this.sockets.length;
   }
 }

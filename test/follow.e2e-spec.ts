@@ -112,7 +112,7 @@ describe('Follow (e2e)', () => {
         });
       });
 
-      describe.only('scenario : user meets all conditions', () => {
+      describe('scenario : user meets all conditions', () => {
         let followedUserToken: string;
 
         test("should return the followed account's username.", async () => {

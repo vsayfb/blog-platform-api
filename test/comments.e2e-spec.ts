@@ -103,7 +103,7 @@ describe('Comments (e2e)', () => {
   });
 
   describe('create', () => {
-    describe.only('when create is called', () => {
+    describe('when create is called', () => {
       let postAuthorToken: string;
 
       test('should create a comment and return that', async () => {
