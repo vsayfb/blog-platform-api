@@ -44,7 +44,7 @@ describe('NotificationsGateway', () => {
     await testDatabaseService.disconnectDatabase();
   });
 
-  function initiliazeClientSocket(token?: string): Promise<Socket> {
+  function initializeClientSocket(token?: string): Promise<Socket> {
     return new Promise((resolve, reject) => {
       const socket = io(`${appUrl}/notifications`, {
         auth: { token },
@@ -73,7 +73,7 @@ describe('NotificationsGateway', () => {
     describe('when handleConnection is called', () => {
       describe('scenario : if user has not a token', () => {
         test('notifications socket count should be 0', async () => {
-          const socket = await initiliazeClientSocket();
+          const socket = await initializeClientSocket();
 
           expect(notificationsGateway.socketCount).toBe(0);
 
@@ -86,7 +86,7 @@ describe('NotificationsGateway', () => {
         beforeEach(async () => {
           const user = await helpersService.loginRandomAccount(app);
 
-          socket = await initiliazeClientSocket(user.token);
+          socket = await initializeClientSocket(user.token);
         });
 
         afterEach(async () => {
@@ -107,7 +107,7 @@ describe('NotificationsGateway', () => {
       beforeEach(async () => {
         const user = await helpersService.loginRandomAccount(app);
 
-        socket = await initiliazeClientSocket(user.token);
+        socket = await initializeClientSocket(user.token);
       });
 
       afterEach(async () => {
@@ -139,9 +139,9 @@ describe('NotificationsGateway', () => {
 
         senderUser = await helpersService.loginRandomAccount(app);
 
-        notifableSocket = await initiliazeClientSocket(notifableUser.token);
+        notifableSocket = await initializeClientSocket(notifableUser.token);
 
-        senderSocket = await initiliazeClientSocket(senderUser.token);
+        senderSocket = await initializeClientSocket(senderUser.token);
 
         notification = await notificationsService.create({
           action: NotificationActions.Followed,

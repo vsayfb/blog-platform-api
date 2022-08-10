@@ -18,6 +18,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from 'ormconfig';
 import { GatewaysModule } from './gateways/gateways.module';
 import { EventsModule } from './global/events/events.module';
+import { ChatsModule } from './chats/chats.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { EventsModule } from './global/events/events.module';
     NotificationsModule,
     EventsModule,
     GatewaysModule,
+    ChatsModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}
