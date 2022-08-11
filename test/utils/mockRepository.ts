@@ -16,6 +16,10 @@ import { Follow } from 'src/follow/entities/follow.entity';
 import { followStub } from 'src/follow/stub/follow-stub';
 import { Notification } from 'src/global/notifications/entities/notification.entity';
 import { notificationStub } from 'src/global/notifications/stub/notification-stub';
+import { Message } from '../../src/messages/entities/message.entity';
+import { Chat } from '../../src/chats/entities/chat.entity';
+import { messageStub } from '../../src/messages/stub/message-stub';
+import { chatStub } from '../../src/chats/stub/chat-stub';
 
 type Entities =
   | typeof Account
@@ -25,7 +29,9 @@ type Entities =
   | typeof Comment
   | typeof Bookmark
   | typeof Follow
-  | typeof Notification;
+  | typeof Notification
+  | typeof Message
+  | typeof Chat;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -39,6 +45,8 @@ const stubs = (entity: Entities, id?: string) => {
     Bookmark: { id: entityID, ...bookmarkStub() },
     Follow: { id: entityID, ...followStub() },
     Notification: { id: entityID, ...notificationStub() },
+    Message: { id: entityID, ...messageStub() },
+    Chat: { id: entityID, ...chatStub() },
   };
 
   return entities[entity.name];

@@ -1,8 +1,9 @@
 import { chatStub } from '../stub/chat-stub';
 
-export const ChatsService = jest.fn().mockReturnValueOnce({
+export const ChatsService = jest.fn().mockReturnValue({
   create: jest.fn().mockResolvedValue(chatStub()),
-  findAll: jest.fn().mockResolvedValue([chatStub()]),
+  getAccountChats: jest.fn().mockResolvedValue([chatStub()]),
   findOne: jest.fn().mockResolvedValue(chatStub()),
-  delete: jest.fn().mockResolvedValue(chatStub().id),
+  getOneByID: jest.fn().mockResolvedValue(chatStub()),
+  addMessageToChat: jest.fn().mockResolvedValue(undefined),
 });

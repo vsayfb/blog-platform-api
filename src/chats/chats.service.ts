@@ -1,28 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
-import { ArrayContains, In, Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountMessages } from '../accounts/enums/account-messages';
-import { ICrudService } from '../lib/interfaces/ICrudService';
 import { Message } from '../messages/entities/message.entity';
 
 @Injectable()
-export class ChatsService implements ICrudService<Chat> {
+export class ChatsService {
   constructor(
     @InjectRepository(Chat) private readonly chatsRepository: Repository<Chat>,
     private readonly accountsService: AccountsService,
   ) {}
 
-  async create(dto: { initiatorID: string; withAccountID: string }) {
+  async create(dto: { initiatorID: string; toID: string }) {
     const initiatorAccount = await this.accountsService.getOne(dto.initiatorID);
 
-    const withAccount = await this.accountsService.getOne(dto.withAccountID);
+    const to = await this.accountsService.getOne(dto.toID);
 
-    if (!withAccount) throw new NotFoundException(AccountMessages.NOT_FOUND);
+    if (!to) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
     const { id } = await this.chatsRepository.save({
-      members: [initiatorAccount, withAccount],
+      members: [initiatorAccount, to],
     });
 
     return this.chatsRepository.findOne({
@@ -30,8 +29,8 @@ export class ChatsService implements ICrudService<Chat> {
     });
   }
 
-  findAll(memberID: string) {
-    return this.chatsRepository.findOne({
+  getAccountChats(memberID: string) {
+    return this.chatsRepository.find({
       where: { members: ArrayContains([memberID]) },
     });
   }
@@ -43,34 +42,10 @@ export class ChatsService implements ICrudService<Chat> {
     });
   }
 
-  async delete(subject: Chat): Promise<string> {
-    const chatID = subject.id;
-
-    await this.chatsRepository.remove(subject);
-
-    return chatID;
-  }
-
-  async deleteChatMember(chat: Chat, memberID: string): Promise<string> {
-    chat.members = chat.members.filter((m) => m.id !== memberID);
-
-    await this.chatsRepository.save(chat);
-
-    return chat.id;
-  }
-
-  addMessageToChat(chat: Chat, message: Message) {
+  async addMessageToChat(chat: Chat, message: Message): Promise<void> {
     chat.messages.push(message);
 
-    return this.chatsRepository.save(chat);
-  }
-
-  getAll(): Promise<Chat[]> {
-    return this.chatsRepository.find();
-  }
-
-  getOne(where: string): Promise<any> {
-    return Promise.resolve(undefined);
+    await this.chatsRepository.save(chat);
   }
 
   getOneByID(id: string): Promise<Chat> {
@@ -78,9 +53,5 @@ export class ChatsService implements ICrudService<Chat> {
       where: { id },
       relations: { members: true },
     });
-  }
-
-  update(subject: Chat, updateDto?: any): Promise<any> {
-    return Promise.resolve(undefined);
   }
 }

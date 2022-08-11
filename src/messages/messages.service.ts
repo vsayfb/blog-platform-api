@@ -24,7 +24,7 @@ export class MessagesService {
     if (!chat) {
       chat = await this.chatsService.create({
         initiatorID,
-        withAccountID: toID,
+        toID,
       });
     }
 

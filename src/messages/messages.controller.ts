@@ -26,8 +26,8 @@ export class MessagesController {
   async create(
     @Account() sender: JwtPayload,
     @Param('id') toID: string,
-    @Query('chatID', ParseUUIDPipe) chatID: string,
     @Body() createMessageDto: CreateMessageDto,
+    @Query('chatID', ParseUUIDPipe) chatID?: string,
   ): Promise<{
     data: { chatID: string; content: string };
     message: MessageMessages;

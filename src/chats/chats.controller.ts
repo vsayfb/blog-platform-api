@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Patch, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Patch,
+  Query,
+  Param,
+  NotFoundException,
+} from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Account } from '../accounts/decorator/account.decorator';
@@ -17,25 +25,22 @@ export class ChatsController {
   @Get(ChatRoutes.FIND_MY_CHATS)
   async findMyChats(
     @Account() me: JwtPayload,
-  ): Promise<{ data: Chat; message: string }> {
+  ): Promise<{ data: Chat[]; message: ChatMessages.ALL_FOUND }> {
     return {
-      data: await this.chatsService.findAll(me.sub),
+      data: await this.chatsService.getAccountChats(me.sub),
       message: ChatMessages.ALL_FOUND,
     };
   }
 
-  @UseGuards(CanManageData)
   @Get(ChatRoutes.FIND_ONE + ':id')
-  findOne(@Data() chat: Chat): Promise<{ data: Chat; message: string }> {
-    return Promise.resolve({ data: chat, message: ChatMessages.FOUND });
-  }
+  async findOne(
+    @Param('id') chatID: string,
+    @Account() me: JwtPayload,
+  ): Promise<{ data: Chat; message: string }> {
+    const chat = await this.chatsService.findOne(me.sub, chatID);
 
-  @UseGuards(CanManageData)
-  @Patch(ChatRoutes.LEAVE + ':id')
-  async removeChatMember(@Data() chat: Chat, @Account() member: JwtPayload) {
-    return {
-      data: await this.chatsService.deleteChatMember(chat, member.sub),
-      message: ChatMessages.UPDATE,
-    };
+    if (!chat) throw new NotFoundException();
+
+    return { data: chat, message: ChatMessages.FOUND };
   }
 }
