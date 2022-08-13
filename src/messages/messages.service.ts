@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from './entities/message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from '../chats/chats.service';
+import { ChatMessages } from '../chats/enums/chat-messages';
+import { MessageViewDto } from './dto/message-view.dto';
 
 @Injectable()
 export class MessagesService {
@@ -14,34 +16,32 @@ export class MessagesService {
   ) {}
 
   async create(
-    createMessageDto: CreateMessageDto,
+    content: string,
     initiatorID: string,
-    toID: string,
-    chatID?: string,
-  ) {
-    let chat = await this.chatsService.getOneByID(chatID);
+    chatID: string,
+  ): Promise<MessageViewDto> {
+    const chat = await this.chatsService.getOneByID(chatID);
 
-    if (!chat) {
-      chat = await this.chatsService.create({
-        initiatorID,
-        toID,
-      });
-    }
+    if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
 
     const message = await this.messagesRepository.save({
       chat,
       sender: { id: initiatorID },
-      content: createMessageDto.content,
+      content,
     });
-
-    await this.chatsService.addMessageToChat(chat, message);
 
     const result = await this.messagesRepository.findOne({
       where: { id: message.id },
       relations: { sender: true },
     });
 
-    return { chatID: chat.id, content: message.content, sender: result.sender };
+    return {
+      chatID: chat.id,
+      content: message.content,
+      sender: result.sender,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+    };
   }
 
   getAccountMessages(senderID: string) {

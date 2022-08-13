@@ -11,6 +11,8 @@ import { accountStub } from '../../accounts/test/stub/account.stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { chatStub } from '../../chats/stub/chat-stub';
 import { Account } from 'src/accounts/entities/account.entity';
+import { ChatMessages } from '../../chats/enums/chat-messages';
+import { MessageViewDto } from '../dto/message-view.dto';
 
 jest.mock('src/chats/chats.service');
 
@@ -41,102 +43,69 @@ describe('MessagesService', () => {
 
   describe('create', () => {
     describe('when create is called', () => {
-      let result: { chatID: string; content: string; sender: Account };
-
       const createMessageDto: CreateMessageDto = {
         content: messageStub().content,
       };
       const initiatorID = jwtPayloadStub().sub;
-      const toID = accountStub().id;
+      const chatID = chatStub().id;
 
-      describe('scenario : if chat id did not receive', () => {
-        beforeEach(async () => {
-          jest.spyOn(chatsService, 'getOneByID').mockResolvedValueOnce(null);
-
-          result = await messagesService.create(
-            createMessageDto,
-            initiatorID,
-            toID,
-          );
-        });
-
-        test('calls chatsService.getOneByID method with undefined', () => {
-          expect(chatsService.getOneByID).toHaveBeenCalledWith(undefined);
-        });
-
-        test('calls chatsService.create method', () => {
-          expect(chatsService.create).toHaveBeenCalledWith({
-            initiatorID,
-            toID,
-          });
-        });
-
-        test('calls chatsService.addMessageToChat', () => {
-          expect(chatsService.addMessageToChat).toHaveBeenCalledWith(
-            chatStub(),
-            { ...messageStub(), sender: { id: expect.any(String) } },
-          );
-        });
-
-        test('calls messagesRepository.findOne', () => {
-          expect(messagesRepository.findOne).toHaveBeenCalledWith({
-            where: { id: messageStub().id },
-            relations: { sender: true },
-          });
-        });
-
-        it('should return the created message', () => {
-          expect(result).toEqual({
-            chatID: chatStub().id,
-            content: createMessageDto.content,
-            sender: accountStub(),
-          });
-        });
+      beforeEach(() => {
+        messagesService.create(createMessageDto.content, initiatorID, chatID);
       });
 
-      describe('scenario : if chat id received', () => {
-        const chatID = chatStub().id;
+      test('calls chatsService.getOneByID', () => {
+        expect(chatsService.getOneByID).toHaveBeenCalledWith(chatID);
+      });
 
-        beforeEach(async () => {
-          result = await messagesService.create(
-            createMessageDto,
-            initiatorID,
-            toID,
-            chatID,
-          );
-        });
+      describe('when chatsService.getOneByID is called', () => {
+        describe('scenario : if chat is not found', () => {
+          test('should throw Chat Not Found', async () => {
+            jest.spyOn(chatsService, 'getOneByID').mockResolvedValueOnce(null);
 
-        test('calls chatsService.getOneByID method with chatID', () => {
-          expect(chatsService.getOneByID).toHaveBeenCalledWith(chatID);
-        });
-
-        test('calls messagesRepository.save method', () => {
-          expect(messagesRepository.save).toHaveBeenCalledWith({
-            chat: chatStub(),
-            sender: { id: initiatorID },
-            content: createMessageDto.content,
+            await expect(
+              messagesService.create(
+                createMessageDto.content,
+                initiatorID,
+                chatID,
+              ),
+            ).rejects.toThrow(ChatMessages.NOT_FOUND);
           });
         });
 
-        test('calls chatsService.addMessageToChat', () => {
-          expect(chatsService.addMessageToChat).toHaveBeenCalledWith(
-            chatStub(),
-            { ...messageStub(), sender: { id: expect.any(String) } },
-          );
-        });
+        describe('scenario : if chat is found', () => {
+          let result: MessageViewDto;
 
-        test('calls messagesRepository.findOne', () => {
-          expect(messagesRepository.findOne).toHaveBeenCalledWith({
-            where: { id: messageStub().id },
-            relations: { sender: true },
+          beforeEach(async () => {
+            result = await messagesService.create(
+              createMessageDto.content,
+              initiatorID,
+              chatID,
+            );
           });
-        });
 
-        it('should return the created message', () => {
-          expect(result).toEqual({
-            chatID: chatStub().id,
-            content: createMessageDto.content,
-            sender: accountStub(),
+          test('calls messagesRepository.save', async () => {
+            expect(messagesRepository.save).toHaveBeenCalledWith({
+              chat: chatStub(),
+              sender: { id: initiatorID },
+              content: createMessageDto.content,
+            });
+          });
+
+          test('calls messagesRepository.findOne', async () => {
+            expect(messagesRepository.findOne).toHaveBeenCalledWith({
+              where: { id: messageStub().id },
+              relations: { sender: true },
+            });
+          });
+
+          it('should return the message', () => {
+            expect(result).toEqual({
+              chatID: chatStub().id,
+              content: messageStub().content,
+              sender: accountStub(),
+              createdAt: messageStub().createdAt,
+              updatedAt: messageStub().updatedAt,
+            });
           });
         });
       });

@@ -14,7 +14,7 @@ export class Message {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Chat)
+  @ManyToOne(() => Chat, { onDelete: 'CASCADE' })
   chat: Chat;
 
   @ManyToOne(() => Account)

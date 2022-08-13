@@ -15,6 +15,8 @@ import { TagRoutes } from 'src/tags/enums/tag-routes';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { generateFakePost } from 'test/utils/generateFakePost';
 import { generateFakeTag } from 'test/utils/generateFakeTag';
+import { SelectedAccountFields } from '../../src/accounts/types/selected-account-fields';
+import { ChatMessages } from '../../src/chats/enums/chat-messages';
 
 @Injectable()
 export class HelpersService {
@@ -121,5 +123,26 @@ export class HelpersService {
       .send(generateFakeTag());
 
     return { body: result.body, statusCode: result.statusCode };
+  }
+
+  async createRandomChat(app: INestApplication, toID?: string) {
+    const chatInitiator = await this.loginRandomAccount(app);
+
+    const to = await this.loginRandomAccount(app);
+
+    const chat: {
+      body: {
+        data: {
+          id: string;
+          content: string;
+        };
+        message: ChatMessages;
+      };
+    } = await request(app.getHttpServer())
+      .post('/chats')
+      .set('Authorization', chatInitiator.token)
+      .send({ firstMessage: 'random-comment', toID: toID || to.user.id });
+
+    return { ...chat.body, initiator: chatInitiator };
   }
 }

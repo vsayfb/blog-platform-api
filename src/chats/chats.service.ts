@@ -1,24 +1,43 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { ArrayContains, Repository } from 'typeorm';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountMessages } from '../accounts/enums/account-messages';
+import { ChatViewDto } from './dto/chat-view.dto';
 import { Message } from '../messages/entities/message.entity';
+import { ChatMessages } from './enums/chat-messages';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectRepository(Chat) private readonly chatsRepository: Repository<Chat>,
+    @InjectRepository(Message)
+    private readonly messagesRepository: Repository<Message>,
     private readonly accountsService: AccountsService,
   ) {}
 
-  async create(dto: { initiatorID: string; toID: string }) {
+  async create(dto: {
+    initiatorID: string;
+    toID: string;
+    firstMessage: string;
+  }) {
     const initiatorAccount = await this.accountsService.getOne(dto.initiatorID);
 
     const to = await this.accountsService.getOne(dto.toID);
 
     if (!to) throw new NotFoundException(AccountMessages.NOT_FOUND);
+
+    await this.checkChatExists([dto.initiatorID, dto.toID]);
+
+    await this.messagesRepository.save({
+      sender: initiatorAccount,
+      content: dto.firstMessage,
+    });
 
     const { id } = await this.chatsRepository.save({
       members: [initiatorAccount, to],
@@ -29,23 +48,31 @@ export class ChatsService {
     });
   }
 
-  getAccountChats(memberID: string) {
-    return this.chatsRepository.find({
-      where: { members: ArrayContains([memberID]) },
-    });
-  }
-
-  findOne(memberID: string, id: string) {
-    return this.chatsRepository.findOne({
-      where: { id, members: ArrayContains([memberID]) },
+  private async checkChatExists(membersIds: string[]) {
+    const chat = await this.chatsRepository.findOne({
+      where: { members: [{ id: membersIds[0] }, { id: membersIds[1] }] },
       relations: { members: true },
     });
+
+    // if a chat is found with memberIds, they already have a chat, so there is no need for a new chat
+    if (chat?.members?.length <= 2)
+      throw new ForbiddenException(ChatMessages.ALREADY_CREATED);
+
+    return false;
   }
 
-  async addMessageToChat(chat: Chat, message: Message): Promise<void> {
-    chat.messages.push(message);
+  async getAccountChats(memberID: string): Promise<ChatViewDto[]> {
+    return (await this.chatsRepository.find({
+      where: { members: ArrayContains([memberID]) },
+      relations: { members: true },
+    })) as unknown as ChatViewDto[];
+  }
 
-    await this.chatsRepository.save(chat);
+  async findOne(memberID: string, id: string): Promise<ChatViewDto> {
+    return (await this.chatsRepository.findOne({
+      where: { id, members: ArrayContains([memberID]) },
+      relations: { members: true },
+    })) as unknown as ChatViewDto;
   }
 
   getOneByID(id: string): Promise<Chat> {

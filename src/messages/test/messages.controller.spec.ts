@@ -42,7 +42,6 @@ describe('MessagesController', () => {
       beforeEach(async () => {
         result = await messagesController.create(
           sender,
-          toID,
           createMessageDto,
           chatID,
         );
@@ -50,9 +49,8 @@ describe('MessagesController', () => {
 
       test('calls messagesService.create', () => {
         expect(messagesService.create).toHaveBeenCalledWith(
-          createMessageDto,
+          createMessageDto.content,
           sender.sub,
-          toID,
           chatID,
         );
       });
@@ -61,32 +59,12 @@ describe('MessagesController', () => {
         expect(result).toEqual({
           data: {
             chatID: chatStub().id,
-            content: createMessageDto.content,
+            content: messageStub().content,
             sender: accountStub(),
+            createdAt: messageStub().createdAt,
+            updatedAt: messageStub().updatedAt,
           },
           message: MessageMessages.SENT,
-        });
-      });
-    });
-  });
-
-  describe('findMyMessages', () => {
-    describe('when findMyMessages is called', () => {
-      let result;
-      const me = jwtPayloadStub();
-
-      beforeEach(async () => {
-        result = await messagesController.findMyMessages(me);
-      });
-
-      test('calls messagesService.getAccountMessages', () => {
-        expect(messagesService.getAccountMessages).toHaveBeenCalledWith(me.sub);
-      });
-
-      it('should return an array of messages', () => {
-        expect(result).toEqual({
-          data: [messageStub()],
-          message: MessageMessages.ALL_FOUND,
         });
       });
     });

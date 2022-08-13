@@ -7,6 +7,8 @@ export const MessagesService = jest.fn().mockReturnValue({
     chatID: chatStub().id,
     content: messageStub().content,
     sender: accountStub(),
+    createdAt: messageStub().createdAt,
+    updatedAt: messageStub().updatedAt,
   }),
   getAccountMessages: jest.fn().mockReturnValue([messageStub()]),
 });

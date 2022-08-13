@@ -5,5 +5,4 @@ export const ChatsService = jest.fn().mockReturnValue({
   getAccountChats: jest.fn().mockResolvedValue([chatStub()]),
   findOne: jest.fn().mockResolvedValue(chatStub()),
   getOneByID: jest.fn().mockResolvedValue(chatStub()),
-  addMessageToChat: jest.fn().mockResolvedValue(undefined),
 });

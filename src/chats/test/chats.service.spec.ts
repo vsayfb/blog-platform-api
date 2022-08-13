@@ -11,12 +11,14 @@ import { AccountMessages } from '../../accounts/enums/account-messages';
 import { chatStub } from '../stub/chat-stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { messageStub } from '../../messages/stub/message-stub';
+import { Message } from '../../messages/entities/message.entity';
 
 jest.mock('src/accounts/accounts.service');
 
 describe('ChatsService', () => {
   let chatsService: ChatsService;
   let chatsRepository: Repository<Chat>;
+  let messagesRepository: Repository<Message>;
   let accountsService: AccountsService;
 
   beforeEach(async () => {
@@ -25,26 +27,39 @@ describe('ChatsService', () => {
         ChatsService,
         AccountsService,
         { provide: getRepositoryToken(Chat), useClass: Repository<Chat> },
+        { provide: getRepositoryToken(Message), useClass: Repository<Message> },
       ],
     }).compile();
 
     chatsService = moduleRef.get<ChatsService>(ChatsService);
     chatsRepository = moduleRef.get<Repository<Chat>>(getRepositoryToken(Chat));
+    messagesRepository = moduleRef.get<Repository<Message>>(
+      getRepositoryToken(Message),
+    );
+
     accountsService = moduleRef.get<AccountsService>(AccountsService);
 
     mockRepository(chatsRepository, Chat);
+    mockRepository(messagesRepository, Message);
   });
 
   afterEach(() => jest.clearAllMocks());
 
   describe('create', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(chatsService, 'checkChatExists' as any)
+        .mockResolvedValue(false);
+    });
+
     describe('when create is called', () => {
       let result;
       const initiatorID = accountStub().id;
       const toID = randomUUID();
+      const firstMessage = 'random-message';
 
       beforeEach(async () => {
-        result = await chatsService.create({ initiatorID, toID });
+        result = await chatsService.create({ initiatorID, toID, firstMessage });
       });
 
       test('calls accountService.getOne with initiatorID', () => {
@@ -52,10 +67,18 @@ describe('ChatsService', () => {
       });
 
       test('calls accountService.getOne with toID', () => {
-        expect(accountsService.getOne).toHaveBeenCalledWith(initiatorID);
+        expect(accountsService.getOne).toHaveBeenCalledWith(toID);
       });
 
-      describe('scenario : if an account found with toID', () => {
+      describe('scenario : if an account is found with toID', () => {
+        test('calls this.checkChatExists', () => {
+          //@ts-ignore ->  private method
+          expect(chatsService.checkChatExists).toHaveBeenCalledWith([
+            initiatorID,
+            toID,
+          ]);
+        });
+
         test('calls chatsRepository.save', () => {
           expect(chatsRepository.save).toHaveBeenCalledWith({
             members: [accountStub(), accountStub()],
@@ -73,14 +96,14 @@ describe('ChatsService', () => {
         });
       });
 
-      describe('scenario : if an account not found with toID', () => {
+      describe('scenario : if an account is not found with toID', () => {
         beforeEach(() =>
           jest.spyOn(accountsService, 'getOne').mockResolvedValue(null),
         );
 
         test('throws Account Not Found error', async () => {
           await expect(
-            chatsService.create({ initiatorID, toID }),
+            chatsService.create({ initiatorID, toID, firstMessage }),
           ).rejects.toThrow(AccountMessages.NOT_FOUND);
         });
       });
@@ -99,6 +122,7 @@ describe('ChatsService', () => {
       test('calls chatsRepository.find', () => {
         expect(chatsRepository.find).toHaveBeenCalledWith({
           where: { members: ArrayContains([memberID]) },
+          relations: { members: true },
         });
       });
 
@@ -127,26 +151,6 @@ describe('ChatsService', () => {
 
       it('should return a chat', () => {
         expect(result).toEqual(chatStub());
-      });
-    });
-  });
-
-  describe('addMessageToChat', () => {
-    describe('when addMessageToChat is called', () => {
-      let result: void;
-      const chat = chatStub();
-      const message = messageStub();
-
-      beforeEach(async () => {
-        result = await chatsService.addMessageToChat(chat, message);
-      });
-
-      test('calls chatsRepository.save', () => {
-        expect(chatsRepository.save).toHaveBeenCalledWith(chat);
-      });
-
-      it('should return undefined (void)', () => {
-        expect(result).toBeUndefined();
       });
     });
   });

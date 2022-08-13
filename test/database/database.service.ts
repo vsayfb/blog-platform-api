@@ -43,6 +43,8 @@ export class TestDatabaseService {
     await this.db.query(`DELETE FROM bookmark`);
     await this.db.query(`DELETE FROM post`);
     await this.db.query(`DELETE FROM comment`);
+    await this.db.query(`DELETE FROM chat`);
+    await this.db.query(`DELETE FROM message`);
     await this.db.query(`DELETE FROM account`);
   }
 

@@ -1,10 +1,8 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   Param,
-  Query,
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
@@ -15,41 +13,29 @@ import { Account } from '../accounts/decorator/account.decorator';
 import { JwtPayload } from '../lib/jwt.payload';
 import { MessageMessages } from './enums/message-messages';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Message } from './entities/message.entity';
+import { MessageViewDto } from './dto/message-view.dto';
 
 @Controller('messages')
 @UseGuards(JwtAuthGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  @Post(MessageRoutes.CREATE + ':id')
+  @Post(MessageRoutes.CREATE + ':chatID')
   async create(
     @Account() sender: JwtPayload,
-    @Param('id') toID: string,
     @Body() createMessageDto: CreateMessageDto,
-    @Query('chatID', ParseUUIDPipe) chatID?: string,
+    @Param('chatID', ParseUUIDPipe) chatID: string,
   ): Promise<{
-    data: { chatID: string; content: string };
+    data: MessageViewDto;
     message: MessageMessages;
   }> {
     return {
       data: await this.messagesService.create(
-        createMessageDto,
+        createMessageDto.content,
         sender.sub,
-        toID,
         chatID,
       ),
       message: MessageMessages.SENT,
-    };
-  }
-
-  @Get(MessageRoutes.ME)
-  async findMyMessages(
-    @Account() me: JwtPayload,
-  ): Promise<{ data: Promise<Message[]>; message: MessageMessages }> {
-    return {
-      data: this.messagesService.getAccountMessages(me.sub),
-      message: MessageMessages.ALL_FOUND,
     };
   }
 }
