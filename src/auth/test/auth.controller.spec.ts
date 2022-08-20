@@ -6,6 +6,7 @@ import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AccessToken } from '../dto/access-token.dto';
 import { RegisterViewDto } from '../dto/register-view.dto';
+import { AuthMessages } from '../enums/auth-messages';
 
 jest.mock('../auth.service');
 
@@ -26,25 +27,30 @@ describe('AuthController', () => {
   describe('login', () => {
     describe('when login method is called', () => {
       const dto = accountStub() as Account;
-      let result: { access_token: string };
+      let result: { data: { access_token: string }; message: AuthMessages };
 
-      beforeEach(async () => {
-        result = await authController.login(dto);
+      beforeEach(() => {
+        result = authController.login(dto);
       });
 
       test('calls authService.login method', () => {
-        expect(authService.login(dto));
+        expect(authService.login).toHaveBeenCalledWith(dto);
       });
 
-      it('should return an account', () => {
-        expect(result).toEqual({ access_token: expect.any(String) });
+      it('should return a token', () => {
+        expect(result).toEqual({
+          data: {
+            access_token: expect.any(String),
+          },
+          message: AuthMessages.SUCCESSFUL_LOGIN,
+        });
       });
     });
   });
 
   describe('register', () => {
     describe('when register is called', () => {
-      let result: RegisterViewDto;
+      let result: { data: RegisterViewDto; message: AuthMessages };
       const dto: CreateAccountDto = {
         verification_code: '123456',
         username: accountStub().username,
@@ -63,8 +69,8 @@ describe('AuthController', () => {
 
       it('should return an account', () => {
         expect(result).toEqual({
-          data: expect.anything(),
-          access_token: expect.any(String),
+          data: { data: expect.anything(), access_token: expect.any(String) },
+          message: AuthMessages.SUCCESSFUL_REGISTRATION,
         });
       });
     });
@@ -75,7 +81,7 @@ describe('AuthController', () => {
       const dto: AccessToken = {
         access_token: '',
       };
-      let result: RegisterViewDto;
+      let result: { data: RegisterViewDto; message: AuthMessages };
 
       beforeEach(async () => {
         result = await authController.authGoogle(dto);
@@ -87,8 +93,11 @@ describe('AuthController', () => {
 
       it('should return the account', async () => {
         expect(result).toEqual({
-          data: expect.anything(),
-          access_token: expect.any(String),
+          data: {
+            data: expect.anything(),
+            access_token: expect.any(String),
+          },
+          message: AuthMessages.SUCCESSFUL_REGISTRATION,
         });
       });
     });

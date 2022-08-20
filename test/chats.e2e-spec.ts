@@ -40,7 +40,7 @@ describe('Chats (e2e)', () => {
       });
 
       describe('scenario : if an account found with toID', () => {
-        test('should return created message', async () => {
+        test('should return created chat', async () => {
           const chat = await helpersService.createRandomChat(app);
 
           expect(chat.message).toBe(ChatMessages.CREATED);

@@ -50,7 +50,7 @@ describe('Messages (e2e)', () => {
     let result;
 
     describe('when create is called', () => {
-      describe("scenario : if user is not chat's initiator", () => {
+      describe('scenario : if chat is not found', () => {
         test('should throw Chat Not Found', async () => {
           const user = await helpersService.loginRandomAccount(app);
 

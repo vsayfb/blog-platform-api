@@ -25,7 +25,7 @@ export class ChatsService {
     initiatorID: string;
     toID: string;
     firstMessage: string;
-  }) {
+  }): Promise<Chat> {
     const initiatorAccount = await this.accountsService.getOne(dto.initiatorID);
 
     const to = await this.accountsService.getOne(dto.toID);
@@ -34,17 +34,19 @@ export class ChatsService {
 
     await this.checkChatExists([dto.initiatorID, dto.toID]);
 
+    const chat = await this.chatsRepository.save({
+      members: [initiatorAccount, to],
+    });
+
     await this.messagesRepository.save({
+      chat,
       sender: initiatorAccount,
       content: dto.firstMessage,
     });
 
-    const { id } = await this.chatsRepository.save({
-      members: [initiatorAccount, to],
-    });
-
-    return this.chatsRepository.findOne({
-      where: { id },
+    return await this.chatsRepository.findOne({
+      where: { id: chat.id },
+      relations: { messages: true, members: true },
     });
   }
 
@@ -68,11 +70,11 @@ export class ChatsService {
     })) as unknown as ChatViewDto[];
   }
 
-  async findOne(memberID: string, id: string): Promise<ChatViewDto> {
-    return (await this.chatsRepository.findOne({
+  async findOne(memberID: string, id: string): Promise<Chat> {
+    return await this.chatsRepository.findOne({
       where: { id, members: ArrayContains([memberID]) },
-      relations: { members: true },
-    })) as unknown as ChatViewDto;
+      relations: { members: true, messages: true },
+    });
   }
 
   getOneByID(id: string): Promise<Chat> {

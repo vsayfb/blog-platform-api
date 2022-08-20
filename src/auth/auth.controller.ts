@@ -19,9 +19,10 @@ export class AuthController {
   @ApiOkResponse({ type: AccessToken })
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)
-  async login(
-    @Account() account: AccountEntity,
-  ): Promise<{ data: { access_token: string }; message: AuthMessages }> {
+  login(@Account() account: AccountEntity): {
+    data: { access_token: string };
+    message: AuthMessages;
+  } {
     return {
       data: this.authService.login(account),
       message: AuthMessages.SUCCESSFUL_LOGIN,

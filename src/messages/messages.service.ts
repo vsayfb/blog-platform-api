@@ -39,8 +39,8 @@ export class MessagesService {
       chatID: chat.id,
       content: message.content,
       sender: result.sender,
-      createdAt: message.createdAt,
-      updatedAt: message.updatedAt,
+      created_at: message.created_at,
+      updated_at: message.updated_at,
     };
   }
 

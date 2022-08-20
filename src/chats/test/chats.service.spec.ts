@@ -54,16 +54,20 @@ describe('ChatsService', () => {
 
     describe('when create is called', () => {
       let result;
-      const initiatorID = accountStub().id;
+      const initiator = accountStub();
       const toID = randomUUID();
       const firstMessage = 'random-message';
 
       beforeEach(async () => {
-        result = await chatsService.create({ initiatorID, toID, firstMessage });
+        result = await chatsService.create({
+          initiatorID: initiator.id,
+          toID,
+          firstMessage,
+        });
       });
 
       test('calls accountService.getOne with initiatorID', () => {
-        expect(accountsService.getOne).toHaveBeenCalledWith(initiatorID);
+        expect(accountsService.getOne).toHaveBeenCalledWith(initiator.id);
       });
 
       test('calls accountService.getOne with toID', () => {
@@ -74,7 +78,7 @@ describe('ChatsService', () => {
         test('calls this.checkChatExists', () => {
           //@ts-ignore ->  private method
           expect(chatsService.checkChatExists).toHaveBeenCalledWith([
-            initiatorID,
+            initiator.id,
             toID,
           ]);
         });
@@ -85,9 +89,14 @@ describe('ChatsService', () => {
           });
         });
 
+        test('calls messagesRepository.save', () => {
+          expect(messagesRepository.save).toHaveBeenCalled();
+        });
+
         test('calls chatsRepository.findOne', () => {
           expect(chatsRepository.findOne).toHaveBeenCalledWith({
             where: { id: chatStub().id },
+            relations: { messages: true, members: true },
           });
         });
 
@@ -103,7 +112,11 @@ describe('ChatsService', () => {
 
         test('throws Account Not Found error', async () => {
           await expect(
-            chatsService.create({ initiatorID, toID, firstMessage }),
+            chatsService.create({
+              initiatorID: initiator.id,
+              toID,
+              firstMessage,
+            }),
           ).rejects.toThrow(AccountMessages.NOT_FOUND);
         });
       });
@@ -145,7 +158,7 @@ describe('ChatsService', () => {
       test('calls chatsRepository.findOne', () => {
         expect(chatsRepository.findOne).toHaveBeenCalledWith({
           where: { id: chatID, members: ArrayContains([memberID]) },
-          relations: { members: true },
+          relations: { members: true, messages: true },
         });
       });
 

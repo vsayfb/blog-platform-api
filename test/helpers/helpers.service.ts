@@ -41,11 +41,12 @@ export class HelpersService {
     usernameOrEmail: string,
     password: string,
   ) {
-    const result: { body: AccessToken } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ username: usernameOrEmail, password });
+    const result: { body: { data: AccessToken; message: string } } =
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: usernameOrEmail, password });
 
-    return 'Bearer ' + result.body.access_token;
+    return 'Bearer ' + result.body.data.access_token;
   }
 
   async takeTokenByID(app: INestApplication, accountID: string) {

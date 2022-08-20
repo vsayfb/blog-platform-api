@@ -16,6 +16,7 @@ import { ChatRoutes } from './enums/chat-routes';
 import { ChatMessages } from './enums/chat-messages';
 import { ChatViewDto } from './dto/chat-view.dto';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { Chat } from './entities/chat.entity';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
@@ -26,7 +27,7 @@ export class ChatsController {
   async create(
     @Account() initiator: JwtPayload,
     @Body() createChatDto: CreateChatDto,
-  ) {
+  ): Promise<{ data: Chat; message: ChatMessages }> {
     return {
       data: await this.chatsService.create({
         ...createChatDto,
@@ -39,7 +40,7 @@ export class ChatsController {
   @Get(ChatRoutes.FIND_MY_CHATS)
   async findMyChats(
     @Account() me: JwtPayload,
-  ): Promise<{ data: ChatViewDto[]; message: ChatMessages.ALL_FOUND }> {
+  ): Promise<{ data: ChatViewDto[]; message: ChatMessages }> {
     return {
       data: await this.chatsService.getAccountChats(me.sub),
       message: ChatMessages.ALL_FOUND,
@@ -50,7 +51,7 @@ export class ChatsController {
   async findOne(
     @Param('id', ParseUUIDPipe) chatID: string,
     @Account() me: JwtPayload,
-  ): Promise<{ data: ChatViewDto; message: string }> {
+  ): Promise<{ data: Chat; message: ChatMessages }> {
     const chat = await this.chatsService.findOne(me.sub, chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
