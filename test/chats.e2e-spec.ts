@@ -33,7 +33,11 @@ describe('Chats (e2e)', () => {
     describe('when create is called', () => {
       describe('scenario : an account not found with toID', () => {
         test('should throw Account Not Found error', async () => {
-          const chat = await helpersService.createRandomChat(app, randomUUID());
+          const chat = await helpersService.createRandomChat(
+            app,
+            '',
+            randomUUID(),
+          );
 
           expect(chat.message).toBe(AccountMessages.NOT_FOUND);
         });
@@ -49,11 +53,21 @@ describe('Chats (e2e)', () => {
 
       describe('scenario : if user re-create chat with same toID', () => {
         test('should throw error', async () => {
+          const initiator = await helpersService.loginRandomAccount(app);
+
           const to = await helpersService.loginRandomAccount(app);
 
-          await helpersService.createRandomChat(app, to.user.id);
+          await helpersService.createRandomChat(
+            app,
+            initiator.token,
+            to.user.id,
+          );
 
-          const result = await helpersService.createRandomChat(app, to.user.id);
+          const result = await helpersService.createRandomChat(
+            app,
+            initiator.token,
+            to.user.id,
+          );
 
           expect(result.message).toBe(ChatMessages.ALREADY_CREATED);
         });
@@ -87,7 +101,7 @@ describe('Chats (e2e)', () => {
         test('should return a chat', async () => {
           const chat = await helpersService.createRandomChat(app);
 
-          const result: { body: { data: ChatViewDto; message: ChatMessages } } =
+          const result: { body: { data: Chat; message: ChatMessages } } =
             await request(server)
               .get(PREFIX + ChatRoutes.FIND_ONE + chat.data.id)
               .set('Authorization', chat.initiator.token);
@@ -100,7 +114,7 @@ describe('Chats (e2e)', () => {
         test('should throw Chat Not Found', async () => {
           const chat = await helpersService.createRandomChat(app);
 
-          const result: { body: { data: ChatViewDto; message: ChatMessages } } =
+          const result: { body: { data: Chat; message: ChatMessages } } =
             await request(server)
               .get(PREFIX + ChatRoutes.FIND_ONE + randomUUID())
               .set('Authorization', chat.initiator.token);

@@ -6,4 +6,6 @@ export enum AccountMessages {
   INVALID_EMAIL = 'Invalid email address.',
   NOT_FOUND = 'Account not found.',
   FOUND = 'An account found.',
+  FOUND_BY_USERNAME = 'Accounts have been found according to the query string.',
+  PP_CHANGED = 'User profile picture has been changed.',
 }

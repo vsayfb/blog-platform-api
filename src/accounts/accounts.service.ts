@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { AccountProfileDto } from './dto/account-profile.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { Account, RegisterType } from './entities/account.entity';
@@ -111,16 +111,16 @@ export class AccountsService {
   async changeProfileImage(
     req_account: JwtPayload,
     file: Express.Multer.File,
-  ): Promise<{ newImage: string }> {
+  ): Promise<string> {
     const account = await this.getAccount(req_account.username);
 
-    const newFileName = await this.uploadsService.uploadProfileImage(file);
+    const newImageUrl = await this.uploadsService.uploadProfileImage(file);
 
-    account.image = newFileName;
+    account.image = newImageUrl;
 
     await this.accountsRepository.save(account);
 
-    return { newImage: newFileName };
+    return newImageUrl;
   }
 
   async beginRegisterVerification(
@@ -150,5 +150,12 @@ export class AccountsService {
 
   async getOneByUsername(username: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { username } });
+  }
+
+  async searchByUsername(username: string): Promise<SelectedAccountFields[]> {
+    return this.accountsRepository.find({
+      where: { username: Like(`%${username}%`) },
+      take: 10,
+    });
   }
 }

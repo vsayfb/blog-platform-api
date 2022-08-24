@@ -1,3 +1,5 @@
+import { SelectedAccountFields } from '../src/accounts/types/selected-account-fields';
+
 jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
@@ -6,7 +8,7 @@ import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AccountRoutes } from 'src/accounts/enums/account-routes';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountProfileDto } from 'src/accounts/dto/account-profile.dto';
-import { TestDatabaseService } from './database/database.service';
+import { DatabaseUser, TestDatabaseService } from './database/database.service';
 import { HelpersService } from './helpers/helpers.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import { generateFakeUser } from './utils/generateFakeUser';
@@ -78,6 +80,39 @@ describe('AccountController (e2e)', () => {
         );
 
         expect(result.body.message).toBe(AccountMessages.NOT_FOUND);
+      });
+    });
+  });
+
+  describe('GET search_by_username', () => {
+    let user: { token: string; user: DatabaseUser };
+
+    beforeEach(async () => {
+      user = await helpersService.loginRandomAccount(app);
+    });
+
+    async function sendSearchByUsernameRequest(username: string) {
+      const result: {
+        body: { data: SelectedAccountFields[]; message: AccountMessages };
+      } = await request(server)
+        .get(
+          PREFIX + AccountRoutes.SEARCH_BY_USERNAME + `?username=${username}`,
+        )
+        .set('Authorization', user.token);
+
+      return result;
+    }
+
+    describe('when username sent', () => {
+      it('should return an array of accounts', async () => {
+        const { user } = await helpersService.loginRandomAccount(app);
+
+        const result = await sendSearchByUsernameRequest(user.username);
+
+        expect(result.body).toEqual({
+          data: expect.any(Array),
+          message: AccountMessages.FOUND_BY_USERNAME,
+        });
       });
     });
   });

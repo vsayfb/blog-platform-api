@@ -212,7 +212,7 @@ describe('AccountsService', () => {
 
   describe('changeProfileImage', () => {
     describe('when changeProfileImage is called', () => {
-      let result: { newImage: string };
+      let result: string;
       const account = jwtPayloadStub();
       let file: Express.Multer.File;
 
@@ -232,7 +232,7 @@ describe('AccountsService', () => {
       });
 
       it('should return a new image url which file was uploaded', () => {
-        expect(result).toEqual({ newImage: expect.any(String) });
+        expect(result).toEqual(expect.any(String));
       });
     });
   });

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -12,15 +11,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBody,
-  ApiConsumes,
-  ApiForbiddenResponse,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
@@ -31,6 +23,7 @@ import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 import { AccountMessages } from './enums/account-messages';
 import { AccountRoutes } from './enums/account-routes';
+import { SelectedAccountFields } from './types/selected-account-fields';
 
 @Controller('accounts')
 @ApiTags('accounts')
@@ -38,17 +31,6 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({
-    schema: {
-      example: {
-        username: 'string',
-        image: 'string',
-        id: 'string',
-        iat: 'number',
-        exp: 'number',
-      },
-    },
-  })
   @Get(AccountRoutes.FIND_ME)
   findMe(@Account() account: JwtPayload): JwtPayload {
     return account;
@@ -65,32 +47,40 @@ export class AccountsController {
     };
   }
 
+  @Get(AccountRoutes.SEARCH_BY_USERNAME)
+  @UseGuards(JwtAuthGuard)
+  async searchByUsername(
+    @Query() { username }: UsernameQuery,
+  ): Promise<{ data: SelectedAccountFields[]; message: AccountMessages }> {
+    return {
+      data: await this.accountsService.searchByUsername(username),
+      message: AccountMessages.FOUND_BY_USERNAME,
+    };
+  }
+
   @Get(AccountRoutes.IS_AVAILABLE_USERNAME)
   async isAvailableUsername(
     @Query() { username }: UsernameQuery,
-  ): Promise<{ message: string }> {
-    const result = await this.accountsService.getOneByUsername(username);
+  ): Promise<{ data: boolean; message: string }> {
+    const account = await this.accountsService.getOneByUsername(username);
 
-    if (result) throw new BadRequestException(AccountMessages.USERNAME_TAKEN);
+    if (account)
+      return { data: false, message: AccountMessages.USERNAME_TAKEN };
 
-    return { message: AccountMessages.USERNAME_AVAILABLE };
+    return { data: true, message: AccountMessages.USERNAME_AVAILABLE };
   }
 
-  @Get(AccountRoutes.IS_AVAILABLE_USERNAME)
+  @Get(AccountRoutes.IS_AVAILABLE_EMAIL)
   async isAvailableEmail(
     @Query() { email }: EmailQueryDto,
-  ): Promise<{ message: string }> {
-    const result = await this.accountsService.getOneByUsername(email);
+  ): Promise<{ data: boolean; message: string }> {
+    const account = await this.accountsService.getOneByUsername(email);
 
-    if (result) throw new BadRequestException(AccountMessages.EMAIL_TAKEN);
+    if (account) return { data: false, message: AccountMessages.EMAIL_TAKEN };
 
-    return { message: AccountMessages.EMAIL_AVAILABLE };
+    return { data: true, message: AccountMessages.EMAIL_AVAILABLE };
   }
 
-  @ApiOkResponse({ schema: { example: { message: CodeMessages.CODE_SENT } } })
-  @ApiForbiddenResponse({
-    schema: { example: { error: AccountMessages.EMAIL_TAKEN } },
-  })
   @Post(AccountRoutes.BEGIN_REGISTER_VERIFICATION)
   @HttpCode(200)
   async beginVerification(
@@ -102,17 +92,16 @@ export class AccountsController {
     );
   }
 
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'A profile image',
-  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   @Post(AccountRoutes.UPLOAD_PROFILE_PHOTO)
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
     @UploadedFile(IsImageFilePipe) image: Express.Multer.File,
-  ): Promise<{ newImage: string }> {
-    return await this.accountsService.changeProfileImage(account, image);
+  ): Promise<{ data: string; message: AccountMessages }> {
+    return {
+      data: await this.accountsService.changeProfileImage(account, image),
+      message: AccountMessages.PP_CHANGED,
+    };
   }
 }

@@ -134,7 +134,6 @@ describe('ChatsService', () => {
 
       test('calls chatsRepository.find', () => {
         expect(chatsRepository.find).toHaveBeenCalledWith({
-          where: { members: ArrayContains([memberID]) },
           relations: { members: true },
         });
       });

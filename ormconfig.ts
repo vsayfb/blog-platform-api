@@ -6,17 +6,17 @@ import { ProcessEnv } from 'src/lib/enums/env';
 
 dotenv.config();
 
-const productionEnviroment = env[ProcessEnv.NODE_ENV] === 'production';
+const productionEnvironment = env[ProcessEnv.NODE_ENV] === 'production';
 
 export const dataSource: DataSource = new DataSource({
   type: 'postgres',
-  url: productionEnviroment
+  url: productionEnvironment
     ? env[ProcessEnv.PROD_DATABASE]
     : env[ProcessEnv.DEV_DATABASE],
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname + '/src/migrations/*.{ts,js}')],
-  migrationsRun: productionEnviroment,
-  synchronize: !productionEnviroment,
+  migrationsRun: productionEnvironment,
+  synchronize: !productionEnvironment,
   ssl: {
     rejectUnauthorized: false,
   },

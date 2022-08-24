@@ -126,7 +126,11 @@ export class HelpersService {
     return { body: result.body, statusCode: result.statusCode };
   }
 
-  async createRandomChat(app: INestApplication, toID?: string) {
+  async createRandomChat(
+    app: INestApplication,
+    initiatorToken?: string,
+    toID?: string,
+  ) {
     const chatInitiator = await this.loginRandomAccount(app);
 
     const to = await this.loginRandomAccount(app);
@@ -141,7 +145,7 @@ export class HelpersService {
       };
     } = await request(app.getHttpServer())
       .post('/chats')
-      .set('Authorization', chatInitiator.token)
+      .set('Authorization', initiatorToken || chatInitiator.token)
       .send({ firstMessage: 'random-comment', toID: toID || to.user.id });
 
     return { ...chat.body, initiator: chatInitiator };

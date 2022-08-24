@@ -8,9 +8,9 @@ import { Chat } from './entities/chat.entity';
 import { ArrayContains, Repository } from 'typeorm';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountMessages } from '../accounts/enums/account-messages';
-import { ChatViewDto } from './dto/chat-view.dto';
 import { Message } from '../messages/entities/message.entity';
 import { ChatMessages } from './enums/chat-messages';
+import { ChatViewDto } from './dto/chat-view.dto';
 
 @Injectable()
 export class ChatsService {
@@ -51,23 +51,37 @@ export class ChatsService {
   }
 
   private async checkChatExists(membersIds: string[]) {
-    const chat = await this.chatsRepository.findOne({
-      where: { members: [{ id: membersIds[0] }, { id: membersIds[1] }] },
+    // in future user's may have a chat group
+    // therefore do not allow the creation bi-directional chat only again
+    if (membersIds.length !== 2) return false;
+
+    const chats = await this.chatsRepository.find({
       relations: { members: true },
     });
 
-    // if a chat is found with memberIds, they already have a chat, so there is no need for a new chat
-    if (chat?.members?.length <= 2)
-      throw new ForbiddenException(ChatMessages.ALREADY_CREATED);
+    // convert that to sql query
+    chats.map((c) => {
+      if (c.members.length === 2) {
+        const exists = membersIds.filter((id) =>
+          c.members.some((m) => m.id == id),
+        );
+
+        if (exists.length == 2)
+          throw new ForbiddenException(ChatMessages.ALREADY_CREATED);
+      }
+    });
 
     return false;
   }
 
   async getAccountChats(memberID: string): Promise<ChatViewDto[]> {
-    return (await this.chatsRepository.find({
-      where: { members: ArrayContains([memberID]) },
+    const chats = await this.chatsRepository.find({
       relations: { members: true },
-    })) as unknown as ChatViewDto[];
+    });
+
+    return chats.filter((c) =>
+      c.members.some((c) => c.id === memberID),
+    ) as unknown as ChatViewDto[];
   }
 
   async findOne(memberID: string, id: string): Promise<Chat> {

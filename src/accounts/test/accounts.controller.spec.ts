@@ -62,30 +62,26 @@ describe('AccountsController', () => {
     };
 
     describe('scenario : username exists in db', () => {
-      it('should throw BadRequestException', async () => {
-        await expect(
-          accountsController.isAvailableUsername(usernameQuery),
-        ).rejects.toThrow(BadRequestException);
-
-        expect(accountsService.getOneByUsername).toHaveBeenCalledWith(
-          usernameQuery.username,
+      it('should return false', async () => {
+        const result = await accountsController.isAvailableUsername(
+          usernameQuery,
         );
+
+        expect(result.data).toBe(false);
       });
     });
 
     describe('scenario : username not exists in db', () => {
-      it('should return the message', async () => {
+      it('should return true', async () => {
         jest
           .spyOn(accountsService, 'getOneByUsername')
           .mockResolvedValueOnce(null);
 
-        expect(
-          await accountsController.isAvailableUsername(usernameQuery),
-        ).toEqual({ message: AccountMessages.USERNAME_AVAILABLE });
-
-        expect(accountsService.getOneByUsername).toHaveBeenCalledWith(
-          usernameQuery.username,
+        const result = await accountsController.isAvailableUsername(
+          usernameQuery,
         );
+
+        expect(result.data).toBe(true);
       });
     });
   });
@@ -119,7 +115,7 @@ describe('AccountsController', () => {
 
   describe('uploadProfilePhoto', () => {
     let photo: Express.Multer.File;
-    let result;
+    let result: { data: string; message: AccountMessages };
     describe('when uploadProfilePhoto is called', () => {
       beforeEach(async () => {
         result = await accountsController.uploadProfilePhoto(
@@ -136,7 +132,10 @@ describe('AccountsController', () => {
       });
 
       it('should return a image url which file is uploaded', () => {
-        expect(result).toEqual({ newImage: expect.any(String) });
+        expect(result).toEqual({
+          data: expect.any(String),
+          message: AccountMessages.PP_CHANGED,
+        });
       });
     });
   });

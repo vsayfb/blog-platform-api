@@ -1,4 +1,5 @@
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { Chat } from 'src/chats/entities/chat.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { Post } from 'src/posts/entities/post.entity';
@@ -9,6 +10,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
 } from 'typeorm';
 
 export enum RegisterType {
@@ -61,6 +63,9 @@ export class Account {
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })
   role: Role;
+
+  @ManyToMany(() => Chat, (chat) => chat.members)
+  chats: Chat[];
 
   @OneToMany(() => Follow, (follow) => follow.follower)
   followed: Follow;

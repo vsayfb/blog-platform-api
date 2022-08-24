@@ -17,7 +17,7 @@ export class Message {
   @ManyToOne(() => Chat, { onDelete: 'CASCADE' })
   chat: Chat;
 
-  @ManyToOne(() => Account)
+  @ManyToOne(() => Account, { eager: true })
   sender: Account;
 
   @Column()

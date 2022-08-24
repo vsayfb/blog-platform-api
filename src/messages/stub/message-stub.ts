@@ -10,6 +10,6 @@ export const messageStub = (): Message => ({
   content: 'foo-message-content',
   seen: false,
   chat: chatStub() as Chat,
-  createdAt: '2022-08-18T12:55:25.513Z' as unknown as Date,
-  updatedAt: '2022-08-18T12:55:25.513Z' as unknown as Date,
+  created_at: '2022-08-18T12:55:25.513Z' as unknown as Date,
+  updated_at: '2022-08-18T12:55:25.513Z' as unknown as Date,
 });

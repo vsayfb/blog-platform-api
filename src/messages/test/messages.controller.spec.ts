@@ -33,7 +33,6 @@ describe('MessagesController', () => {
         message: MessageMessages;
       };
       const sender = jwtPayloadStub();
-      const toID = accountStub().id;
       const createMessageDto: CreateMessageDto = {
         content: messageStub().content,
       };
@@ -61,8 +60,8 @@ describe('MessagesController', () => {
             chatID: chatStub().id,
             content: messageStub().content,
             sender: accountStub(),
-            createdAt: messageStub().createdAt,
-            updatedAt: messageStub().updatedAt,
+            created_at: messageStub().created_at,
+            updated_at: messageStub().updated_at,
           },
           message: MessageMessages.SENT,
         });

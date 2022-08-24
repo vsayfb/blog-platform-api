@@ -1,3 +1,5 @@
+import { RegisterViewDto } from '../src/auth/dto/register-view.dto';
+
 jest.setTimeout(30000);
 
 import { CreateAccountDto } from './../src/accounts/dto/create-account.dto';
@@ -13,6 +15,7 @@ import { AccountRoutes } from 'src/accounts/enums/account-routes';
 import { TestDatabaseService } from './database/database.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import { FakeUser, generateFakeUser } from './utils/generateFakeUser';
+import { AuthMessages } from '../src/auth/enums/auth-messages';
 
 const PREFIX = '/auth';
 
@@ -42,11 +45,15 @@ describe('AuthController (e2e)', () => {
     test('should return an access_token', async () => {
       const user = await databaseService.createRandomTestUser();
 
-      const result = await request(server)
+      const result: {
+        body: {
+          data: { access_token: string; message: AuthMessages };
+        };
+      } = await request(server)
         .post(PREFIX + AuthRoutes.LOGIN)
         .send(user);
 
-      expect(result.body.access_token).toEqual(expect.any(String));
+      expect(result.body.data.access_token).toEqual(expect.any(String));
     });
   });
 
@@ -92,9 +99,10 @@ describe('AuthController (e2e)', () => {
     }
 
     async function sendRegisterRequest(createAccountDto: CreateAccountDto) {
-      const result = await request(server)
-        .post(PREFIX + AuthRoutes.REGISTER)
-        .send(createAccountDto);
+      const result: { body: { data: RegisterViewDto; message: AuthMessages } } =
+        await request(server)
+          .post(PREFIX + AuthRoutes.REGISTER)
+          .send(createAccountDto);
 
       return result;
     }
@@ -135,7 +143,7 @@ describe('AuthController (e2e)', () => {
           verification_code,
         });
 
-        expect(result.body.access_token).toEqual(expect.any(String));
+        expect(result.body.data.access_token).toEqual(expect.any(String));
       });
     });
   });

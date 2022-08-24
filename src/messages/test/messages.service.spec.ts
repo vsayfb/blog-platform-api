@@ -103,8 +103,8 @@ describe('MessagesService', () => {
               chatID: chatStub().id,
               content: messageStub().content,
               sender: accountStub(),
-              createdAt: messageStub().createdAt,
-              updatedAt: messageStub().updatedAt,
+              created_at: messageStub().created_at,
+              updated_at: messageStub().updated_at,
             });
           });
         });
