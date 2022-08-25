@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -14,12 +15,14 @@ import { JwtPayload } from '../lib/jwt.payload';
 import { MessageMessages } from './enums/message-messages';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MessageViewDto } from './dto/message-view.dto';
+import { NewMessageInterceptor } from './interceptors/new-message.interceptor';
 
 @Controller('messages')
 @UseGuards(JwtAuthGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
+  @UseInterceptors(NewMessageInterceptor)
   @Post(MessageRoutes.CREATE + ':chatID')
   async create(
     @Account() sender: JwtPayload,

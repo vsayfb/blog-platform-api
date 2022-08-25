@@ -17,6 +17,8 @@ import { generateFakePost } from 'test/utils/generateFakePost';
 import { generateFakeTag } from 'test/utils/generateFakeTag';
 import { SelectedAccountFields } from '../../src/accounts/types/selected-account-fields';
 import { ChatMessages } from '../../src/chats/enums/chat-messages';
+import { MessageViewDto } from '../../src/messages/dto/message-view.dto';
+import { MessageMessages } from '../../src/messages/enums/message-messages';
 
 @Injectable()
 export class HelpersService {
@@ -149,5 +151,23 @@ export class HelpersService {
       .send({ firstMessage: 'random-comment', toID: toID || to.user.id });
 
     return { ...chat.body, initiator: chatInitiator };
+  }
+
+  async createMessage(
+    app: INestApplication,
+    chatID: string,
+    senderToken: string,
+    message?: string,
+  ): Promise<{
+    data: MessageViewDto;
+    message: MessageMessages;
+  }> {
+    const result: { body: { data: MessageViewDto; message: MessageMessages } } =
+      await request(app.getHttpServer())
+        .post(`/messages/to/${chatID}`)
+        .set('Authorization', senderToken)
+        .send({ content: message || 'random-message' });
+
+    return result.body;
   }
 }
