@@ -7,13 +7,14 @@ import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
 import { CommentsService } from '../comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
-import { PostCommentsDto } from '../dto/post-comments.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { commentStub } from '../stub/comment.stub';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
+import { CommentViewDto } from '../dto/comment-view.dto';
+import { RepliesViewDto } from '../dto/replies-view.dto';
 
 jest.mock('src/comments/comments.service');
 jest.mock('src/global/events/gateway-events.service');
@@ -40,7 +41,7 @@ describe('CommentsController', () => {
 
   describe('findPostComments', () => {
     describe('when findPostComments is called', () => {
-      let result: { data: PostCommentsDto; message?: CommentMessages };
+      let result: { data: CommentViewDto[]; message?: CommentMessages };
       const postID = postStub().id;
 
       beforeEach(async () => {
@@ -53,6 +54,58 @@ describe('CommentsController', () => {
 
       it('should return an array of comments of the found post', () => {
         expect(result.data).toEqual([commentStub()]);
+      });
+    });
+  });
+
+  describe('findCommentReplies', () => {
+    describe('when findCommentReplies is called', () => {
+      let result: { data: RepliesViewDto; message?: CommentMessages };
+      const commentID = commentStub().id;
+
+      beforeEach(async () => {
+        result = await commentsController.findCommentReplies(commentID);
+      });
+
+      test('calls commentsService.getCommentReplies', () => {
+        expect(commentsService.getCommentReplies).toHaveBeenCalledWith(
+          commentID,
+        );
+      });
+
+      it('should return an array of replies of the found comment', () => {
+        expect(result.data).toEqual([commentStub()]);
+      });
+    });
+  });
+
+  describe('replyToReply', () => {
+    describe('when replyToComment is called', () => {
+      let result: { data: SelectedCommentFields; message: string };
+      const account: JwtPayload = jwtPayloadStub();
+      const commentID = commentStub().id;
+      const dto: CreateCommentDto = {
+        content: commentStub().content,
+      };
+
+      beforeEach(async () => {
+        result = await commentsController.replyToComment(
+          account,
+          commentID,
+          dto,
+        );
+      });
+
+      test('calls commentsService.replyToComment', () => {
+        expect(commentsService.replyToComment).toHaveBeenCalledWith({
+          authorID: account.sub,
+          toID: commentID,
+          dto,
+        });
+      });
+
+      it('should return the created reply', () => {
+        expect(result.data).toEqual(commentStub());
       });
     });
   });

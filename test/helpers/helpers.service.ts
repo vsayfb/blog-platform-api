@@ -19,6 +19,7 @@ import { SelectedAccountFields } from '../../src/accounts/types/selected-account
 import { ChatMessages } from '../../src/chats/enums/chat-messages';
 import { MessageViewDto } from '../../src/messages/dto/message-view.dto';
 import { MessageMessages } from '../../src/messages/enums/message-messages';
+import { RepliesRoutes } from 'src/replies/enums/replies-routes';
 
 @Injectable()
 export class HelpersService {

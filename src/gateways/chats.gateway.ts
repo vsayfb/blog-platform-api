@@ -27,12 +27,6 @@ export class ChatsGateway {
   }
 
   sendMessageToChat(chatID: string, message: MessageViewDto) {
-    // console.log(this.server.of('/chats').adapter.rooms);
-
-    console.log(chatID);
-
-    console.log(message);
-
     this.server.to(chatID).emit('message', message);
   }
 }

@@ -2,19 +2,20 @@ jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
-import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
-import { PostCommentsDto } from 'src/comments/dto/post-comments.dto';
 import { UpdateCommentDto } from 'src/comments/dto/update-comment.dto';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { CommentMessages } from 'src/comments/enums/comment-messages';
 import { CommentRoutes } from 'src/comments/enums/comment-routes';
-import { SelectedCommentFields } from 'src/comments/types/selected-comment-fields';
 import * as request from 'supertest';
 import { TestDatabaseService } from './database/database.service';
 import { generateFakeComment } from './utils/generateFakeComment';
 import { HelpersService } from './helpers/helpers.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { CreatedCommentDto } from 'src/comments/dto/created-comment.dto';
+import { ReplyViewDto } from 'src/comments/dto/reply-view.dto';
+import { RepliesViewDto } from 'src/comments/dto/replies-view.dto';
+import { CommentViewDto } from 'src/comments/dto/comment-view.dto';
 
 jest.mock('src/gateways/notifications.gateway');
 
@@ -42,19 +43,31 @@ describe('Comments (e2e)', () => {
   });
 
   async function createCommentRequest(
-    createCommentDto: CreateCommentDto,
     postID: string,
     access_token: string,
   ): Promise<{
-    body: { data: SelectedCommentFields; message: string };
+    body: { data: CreatedCommentDto; message: CommentMessages };
     statusCode: number;
   }> {
     const { body, statusCode } = await request(server)
       .post(PREFIX + CommentRoutes.CREATE + postID)
       .set('Authorization', access_token)
-      .send(createCommentDto);
+      .send(generateFakeComment());
 
     return { body, statusCode };
+  }
+
+  async function createReplyComment(
+    commentID: string,
+  ): Promise<{ data: ReplyViewDto; message: CommentMessages }> {
+    const user = await helpersService.loginRandomAccount(app);
+
+    const result = await request(server)
+      .post(PREFIX + CommentRoutes.REPLY_TO_COMMENT + commentID)
+      .set('Authorization', user.token)
+      .send(generateFakeComment());
+
+    return result.body;
   }
 
   async function updateCommentRequest(
@@ -88,16 +101,41 @@ describe('Comments (e2e)', () => {
         const post = await helpersService.createRandomPost(app);
 
         await helpersService.createRandomComment(app, post.body.data.id);
-        await helpersService.createRandomComment(app, post.body.data.id);
 
         const {
           body,
-        }: { body: { data: PostCommentsDto; message: CommentMessages } } =
+        }: { body: { data: CommentViewDto[]; message: CommentMessages } } =
           await request(server).get(
             PREFIX + CommentRoutes.POST_COMMENTS + post.body.data.id,
           );
 
         expect(body.message).toBe(CommentMessages.ALL_FOUND);
+      });
+    });
+  });
+
+  describe('findCommentReplies', () => {
+    describe('when findCommentReplies is called', () => {
+      it('should return an array of replies of the found comment', async () => {
+        const post = await helpersService.createRandomPost(app);
+
+        const createdComment = await helpersService.createRandomComment(
+          app,
+          post.body.data.id,
+        );
+
+        await createReplyComment(createdComment.body.data.id);
+
+        const {
+          body,
+        }: { body: { data: RepliesViewDto; message: CommentMessages } } =
+          await request(server).get(
+            PREFIX +
+              CommentRoutes.COMMENT_REPLIES +
+              createdComment.body.data.id,
+          );
+
+        expect(body.message).toBe(CommentMessages.REPLIES_FOUND);
       });
     });
   });
@@ -114,12 +152,14 @@ describe('Comments (e2e)', () => {
           post.body.data.author.id,
         );
 
-        const createdComment = await helpersService.createRandomComment(
-          app,
+        const user = await helpersService.loginRandomAccount(app);
+
+        const result = await createCommentRequest(
           post.body.data.id,
+          user.token,
         );
 
-        expect(createdComment.body.message).toBe(CommentMessages.CREATED);
+        expect(result.body.message).toBe(CommentMessages.CREATED);
       });
 
       test('should be saved a notification about commented on your post', async () => {
@@ -130,6 +170,23 @@ describe('Comments (e2e)', () => {
           .set('Authorization', postAuthorToken);
 
         expect(notifications.body.data.length).toBe(1);
+      });
+    });
+  });
+
+  describe('replyToComment', () => {
+    describe('when replyToComment is called', () => {
+      test('should create a comment and return that', async () => {
+        const post = await helpersService.createRandomPost(app);
+
+        const createdComment = await helpersService.createRandomComment(
+          app,
+          post.body.data.id,
+        );
+
+        const result = await createReplyComment(createdComment.body.data.id);
+
+        expect(result.message).toBe(CommentMessages.CREATED);
       });
     });
   });
@@ -148,11 +205,7 @@ describe('Comments (e2e)', () => {
         it('should return deleted comment id', async () => {
           const account = await helpersService.loginRandomAccount(app);
 
-          const comment = await createCommentRequest(
-            generateFakeComment(),
-            postID,
-            account.token,
-          );
+          const comment = await createCommentRequest(postID, account.token);
 
           const removedComment = await deleteCommentRequest(
             comment.body.data.id,
@@ -167,11 +220,7 @@ describe('Comments (e2e)', () => {
         it('should return 403 status code', async () => {
           const account = await helpersService.loginRandomAccount(app);
 
-          const comment = await createCommentRequest(
-            generateFakeComment(),
-            postID,
-            account.token,
-          );
+          const comment = await createCommentRequest(postID, account.token);
 
           const forbiddenAccount = await helpersService.loginRandomAccount(app);
 

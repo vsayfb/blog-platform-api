@@ -62,6 +62,10 @@ export function mockRepository<T>(
 
   jest.spyOn(repository, 'findOne').mockResolvedValue(stubs(entity));
 
+  jest.spyOn(repository, 'findOneBy').mockResolvedValue(stubs(entity));
+
+  jest.spyOn(repository, 'findBy').mockResolvedValue([stubs(entity)]);
+
   jest.spyOn(repository, 'find').mockResolvedValue([stubs(entity)]);
 
   jest
@@ -70,6 +74,7 @@ export function mockRepository<T>(
 
   const createQueryBuilder = {
     where: () => createQueryBuilder,
+    andWhere: () => createQueryBuilder,
     leftJoinAndSelect: () => createQueryBuilder,
     leftJoin: () => createQueryBuilder,
     loadRelationCountAndMap: () => createQueryBuilder,

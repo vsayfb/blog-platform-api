@@ -12,5 +12,6 @@ import { PostsModule } from 'src/posts/posts.module';
     CommentsService,
     { provide: 'SERVICE', useClass: CommentsService },
   ],
+  exports: [CommentsService],
 })
 export class CommentsModule {}

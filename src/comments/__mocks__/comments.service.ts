@@ -5,7 +5,11 @@ import { commentStub } from '../stub/comment.stub';
 export const CommentsService = jest.fn().mockReturnValue({
   getPostComments: jest.fn().mockResolvedValue([commentStub()]),
 
+  getCommentReplies: jest.fn().mockResolvedValue([commentStub()]),
+
   create: jest.fn().mockResolvedValue(commentStub()),
+
+  replyToComment: jest.fn().mockResolvedValue(commentStub()),
 
   delete: jest.fn().mockResolvedValue(commentStub().id),
 

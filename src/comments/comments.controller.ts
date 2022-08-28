@@ -17,8 +17,9 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
+import { CommentViewDto } from './dto/comment-view.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { PostCommentsDto } from './dto/post-comments.dto';
+import { RepliesViewDto } from './dto/replies-view.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
@@ -34,10 +35,20 @@ export class CommentsController implements ICrudController<Comment> {
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(
     @Param('id') id: string,
-  ): Promise<{ data: PostCommentsDto; message: CommentMessages }> {
+  ): Promise<{ data: CommentViewDto[]; message: CommentMessages }> {
     return {
       data: await this.commentsService.getPostComments(id),
       message: CommentMessages.ALL_FOUND,
+    };
+  }
+
+  @Get(CommentRoutes.COMMENT_REPLIES + ':id')
+  async findCommentReplies(
+    @Param('id') id: string,
+  ): Promise<{ data: RepliesViewDto; message: CommentMessages }> {
+    return {
+      data: await this.commentsService.getCommentReplies(id),
+      message: CommentMessages.REPLIES_FOUND,
     };
   }
 
@@ -54,6 +65,23 @@ export class CommentsController implements ICrudController<Comment> {
         authorID: account.sub,
         postID,
         createCommentDto,
+      }),
+      message: CommentMessages.CREATED,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(CommentRoutes.REPLY_TO_COMMENT + ':commentID')
+  async replyToComment(
+    @Account() account: JwtPayload,
+    @Param('commentID') toID: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<{ data: SelectedCommentFields; message: string }> {
+    return {
+      data: await this.commentsService.replyToComment({
+        authorID: account.sub,
+        toID,
+        dto: createCommentDto,
       }),
       message: CommentMessages.CREATED,
     };

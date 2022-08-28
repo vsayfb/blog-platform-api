@@ -1,16 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICrudService } from 'src/lib/interfaces/ICrudService';
-import { PostDto } from 'src/posts/dto/post.dto';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { PostsService } from 'src/posts/posts.service';
 import { Repository } from 'typeorm';
 import { AccountCommentsDto } from './dto/account-comments.dto';
+import { CommentViewDto } from './dto/comment-view.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatedCommentDto } from './dto/created-comment.dto';
-import { PostCommentsDto } from './dto/post-comments.dto';
+import { RepliesViewDto } from './dto/replies-view.dto';
+import { ReplyViewDto } from './dto/reply-view.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
+import { CommentMessages } from './enums/comment-messages';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Injectable()
@@ -30,24 +32,59 @@ export class CommentsService implements ICrudService<Comment> {
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
 
-    return await this.commentRepository.save({
+    const created = await this.commentRepository.save({
       ...dto.createCommentDto,
       author: { id: dto.authorID },
       post,
     });
+
+    const result = await this.getOneByID(created.id);
+
+    return { ...result, post };
   }
 
-  async getAll(): Promise<Comment[]> {
-    return await this.commentRepository.find({
-      relations: { author: true, post: true },
+  async replyToComment(data: {
+    toID: string;
+    authorID: string;
+    dto: CreateCommentDto;
+  }): Promise<ReplyViewDto> {
+    const to = await this.getOneByID(data.toID);
+
+    if (!to) throw new NotFoundException(CommentMessages.NOT_FOUND);
+
+    const created = await this.commentRepository.save({
+      parent: to,
+      post: to.post,
+      author: { id: data.authorID },
+      content: data.dto.content,
+    });
+
+    return this.commentRepository.findOne({
+      where: { id: created.id },
+      relations: { parent: true, author: true },
     });
   }
 
-  async getPostComments(postID: string): Promise<PostCommentsDto> {
-    return (await this.commentRepository.find({
-      where: { post: { id: postID } },
-      relations: { author: true },
-    })) as any;
+  async getPostComments(postID: string): Promise<CommentViewDto[]> {
+    const result = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoin('comment.post', 'post')
+      .leftJoin('comment.parent', 'parent')
+      .leftJoinAndSelect('comment.author', 'author')
+      .where('post.id=:postID', { postID })
+      .andWhere('parent IS NULL')
+      .getMany();
+
+    return result;
+  }
+
+  async getCommentReplies(commentID: string): Promise<RepliesViewDto> {
+    const result = await this.commentRepository.findOne({
+      where: { id: commentID },
+      relations: { replies: { author: true } },
+    });
+
+    return result.replies as any;
   }
 
   async getAccountComments(accountID: string): Promise<AccountCommentsDto> {
@@ -79,6 +116,12 @@ export class CommentsService implements ICrudService<Comment> {
     comment.content = dto.content;
 
     return await this.commentRepository.save(comment);
+  }
+
+  async getAll(): Promise<Comment[]> {
+    return await this.commentRepository.find({
+      relations: { author: true, post: true },
+    });
   }
 
   getOne(where: string): Promise<Comment> {

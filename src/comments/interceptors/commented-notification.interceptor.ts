@@ -7,9 +7,9 @@ import {
 import { map, Observable } from 'rxjs';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
+import { CommentViewDto } from '../dto/comment-view.dto';
 import { CreatedCommentDto } from '../dto/created-comment.dto';
 import { CommentMessages } from '../enums/comment-messages';
-import { SelectedCommentFields } from '../types/selected-comment-fields';
 
 @Injectable()
 export class CommentedNotificationInterceptor implements NestInterceptor {
@@ -21,9 +21,7 @@ export class CommentedNotificationInterceptor implements NestInterceptor {
   intercept(
     _context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<
-    Promise<{ data: SelectedCommentFields; message: CommentMessages }>
-  > {
+  ): Observable<Promise<{ data: CommentViewDto; message: CommentMessages }>> {
     return next.handle().pipe(
       map(async (comment: { data: CreatedCommentDto }) => {
         const { id, content, created_at, updated_at, author, post } =
@@ -40,7 +38,7 @@ export class CommentedNotificationInterceptor implements NestInterceptor {
         await this.gatewayEventsService.newNotification(notification.id);
 
         return {
-          data: { id, content, created_at, updated_at },
+          data: { id, content, created_at, updated_at, author },
           message: CommentMessages.CREATED,
         };
       }),
