@@ -21,7 +21,7 @@ export class ExpressionsService {
   ): Promise<AccountExpressionsDto[]> {
     return (await this.expressionsRepository.find({
       where: { left: { id: accountID } },
-      relations: { left: false },
+      relations: { left: false, post: true },
     })) as any;
   }
 

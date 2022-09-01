@@ -24,7 +24,7 @@ export class Expression {
   @JoinColumn()
   left: Account;
 
-  @ManyToOne(() => Post, (post) => post.expressions)
+  @ManyToOne(() => Post, (post) => post.expressions, { onDelete: 'CASCADE' })
   post?: Post;
 
   @Column({ type: 'enum', enum: ExpressionType })
