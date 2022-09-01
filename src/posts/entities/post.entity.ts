@@ -38,6 +38,9 @@ export class Post {
   @OneToMany(() => Bookmark, (bookmark) => bookmark.post)
   bookmarks: Bookmark;
 
+  @OneToMany(() => Expression, (expression) => expression.post)
+  expressions: Expression[];
+
   @ManyToMany(() => Tag, (tag) => tag.posts)
   @JoinTable()
   tags: Tag[];

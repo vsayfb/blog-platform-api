@@ -3,7 +3,7 @@ import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { AccountExpressionsDto } from '../dto/account-expressions.dto';
 import { ExpressionMessages } from '../enums/expressions-messages';
-import { ExpressionsController } from '../expressions.controller';
+import { ExpressionsController } from '../controllers/expressions.controller';
 import { ExpressionsService } from '../services/expressions.service';
 import { expressionStub } from '../stub/expression-stub';
 

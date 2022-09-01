@@ -24,6 +24,9 @@ export class Expression {
   @JoinColumn()
   left: Account;
 
+  @ManyToOne(() => Post, (post) => post.expressions)
+  post?: Post;
+
   @Column({ type: 'enum', enum: ExpressionType })
   type: ExpressionType;
 
