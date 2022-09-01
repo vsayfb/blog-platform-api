@@ -1,10 +1,12 @@
 import { Account } from 'src/accounts/entities/account.entity';
+import { Expression } from 'src/expressions/entities/expression.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Tree,
   TreeChildren,
@@ -35,6 +37,9 @@ export class Comment {
     nullable: false,
   })
   post: Post;
+
+  @OneToMany(() => Expression, (expression) => expression.comment)
+  expressions: Expression[];
 
   @Column()
   content: string;

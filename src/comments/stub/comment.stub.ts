@@ -10,6 +10,7 @@ export const commentStub = (): Comment => ({
   post: postStub() as unknown as Post,
   created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
   updated_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
+  expressions: [],
   author: accountStub() as Account,
   parent: null,
   replies: [],

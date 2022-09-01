@@ -1,23 +1,23 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
+import { CreatedCommentExpressionDto } from '../dto/created-comment-expression.dto';
 import { ExpressionType } from '../entities/expression.entity';
 import { ExpressionMessages } from '../enums/expressions-messages';
 import { SelectedExpressionFields } from '../types/selected-expression-fields';
 import { ExpressionsService } from './expressions.service';
 
 @Injectable()
-export class PostExpressionsService extends ExpressionsService {
-  async createPostExpression(data: {
-    postID: string;
+export class CommentExpressionsService extends ExpressionsService {
+  async createCommentExpression(data: {
+    commentID: string;
     accountID: string;
     type: ExpressionType;
-  }): Promise<CreatedPostExpressionDto> {
-    const { postID, accountID, type } = data;
+  }): Promise<CreatedCommentExpressionDto> {
+    const { commentID, accountID, type } = data;
 
-    await this.checkAlreadyLeft(postID, accountID);
+    await this.checkAlreadyLeft(commentID, accountID);
 
     const saved = await this.expressionsRepository.save({
-      post: { id: postID },
+      comment: { id: commentID },
       left: { id: accountID },
       type,
     });
@@ -29,29 +29,33 @@ export class PostExpressionsService extends ExpressionsService {
   }
 
   private async checkAlreadyLeft(
-    postID: string,
+    commentID: string,
     accountID: string,
   ): Promise<void> {
     const exp = await this.expressionsRepository.findOneBy({
-      post: { id: postID },
+      comment: { id: commentID },
       left: { id: accountID },
     });
 
     if (exp)
-      throw new ForbiddenException(ExpressionMessages.ALREADY_LEFT_TO_POST);
+      throw new ForbiddenException(ExpressionMessages.ALREADY_LEFT_TO_COMMENT);
 
     return;
   }
 
-  async getPostLikes(postID: string): Promise<SelectedExpressionFields[]> {
+  async getCommentLikes(
+    commentID: string,
+  ): Promise<SelectedExpressionFields[]> {
     return this.expressionsRepository.find({
-      where: { post: { id: postID }, type: ExpressionType.LIKE },
+      where: { comment: { id: commentID }, type: ExpressionType.LIKE },
     }) as any;
   }
 
-  async getPostDislikes(postID: string): Promise<SelectedExpressionFields[]> {
+  async getCommentDislikes(
+    commentID: string,
+  ): Promise<SelectedExpressionFields[]> {
     return this.expressionsRepository.find({
-      where: { post: { id: postID }, type: ExpressionType.DISLIKE },
+      where: { comment: { id: commentID }, type: ExpressionType.DISLIKE },
     }) as any;
   }
 }

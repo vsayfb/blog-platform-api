@@ -2,56 +2,56 @@ import { Get, Injectable, Param, Post, UseGuards } from '@nestjs/common';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
+import { CreatedCommentExpressionDto } from '../dto/created-comment-expression.dto';
 import { ExpressionType } from '../entities/expression.entity';
 import { ExpressionRoutes } from '../enums/expression-routes';
 import { ExpressionMessages } from '../enums/expressions-messages';
-import { PostExpressionsService } from '../services/post-expressions.service';
+import { CommentExpressionsService } from '../services/comment-expressions.service';
 import { SelectedExpressionFields } from '../types/selected-expression-fields';
 import { ExpressionsController } from './expressions.controller';
 
 @Injectable()
-export class PostExpressionsController extends ExpressionsController {
-  constructor(private readonly postExpressionsService: PostExpressionsService) {
+export class CommentExpressionsController extends ExpressionsController {
+  constructor(
+    private readonly commentExpressionsService: CommentExpressionsService,
+  ) {
     super();
   }
 
-  @Get(ExpressionRoutes.POST_LIKES + ':id')
-  async getPostLikes(@Param('id') postID: string): Promise<{
+  @Get(ExpressionRoutes.COMMENT_LIKES + ':id')
+  async getPostLikes(@Param('id') commentID: string): Promise<{
     data: SelectedExpressionFields[];
     message: ExpressionMessages;
   }> {
     return {
-      data: await this.postExpressionsService.getPostLikes(postID),
+      data: await this.commentExpressionsService.getCommentLikes(commentID),
       message: ExpressionMessages.ALL_FOUND,
     };
   }
 
-  @Get(ExpressionRoutes.POST_DISLIKES + ':id')
-  async getPostDislikes(
-    @Param('id') postID: string,
-  ): Promise<{
+  @Get(ExpressionRoutes.COMMENT_DISLIKES + ':id')
+  async getPostDislikes(@Param('id') commentID: string): Promise<{
     data: SelectedExpressionFields[];
     message: ExpressionMessages;
   }> {
     return {
-      data: await this.postExpressionsService.getPostDislikes(postID),
+      data: await this.commentExpressionsService.getCommentDislikes(commentID),
       message: ExpressionMessages.ALL_FOUND,
     };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(ExpressionRoutes.LIKE_TO_POST + ':id')
-  async likePost(
+  @Post(ExpressionRoutes.LIKE_TO_COMMENT + ':id')
+  async likeComment(
     @Account() account: JwtPayload,
-    @Param('id') postID: string,
+    @Param('id') commentID: string,
   ): Promise<{
-    data: CreatedPostExpressionDto;
+    data: CreatedCommentExpressionDto;
     message: ExpressionMessages;
   }> {
     return {
-      data: await this.postExpressionsService.createPostExpression({
-        postID,
+      data: await this.commentExpressionsService.createCommentExpression({
+        commentID,
         type: ExpressionType.LIKE,
         accountID: account.sub,
       }),
@@ -60,14 +60,17 @@ export class PostExpressionsController extends ExpressionsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(ExpressionRoutes.DISLIKE_TO_POST + ':id')
-  async dislikePost(
+  @Post(ExpressionRoutes.DISLIKE_TO_COMMENT + ':id')
+  async dislikeComment(
     @Account() account: JwtPayload,
-    @Param('id') postID: string,
-  ): Promise<{ data: CreatedPostExpressionDto; message: ExpressionMessages }> {
+    @Param('id') commentID: string,
+  ): Promise<{
+    data: CreatedCommentExpressionDto;
+    message: ExpressionMessages;
+  }> {
     return {
-      data: await this.postExpressionsService.createPostExpression({
-        postID,
+      data: await this.commentExpressionsService.createCommentExpression({
+        commentID,
         type: ExpressionType.DISLIKE,
         accountID: account.sub,
       }),

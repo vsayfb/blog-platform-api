@@ -1,3 +1,5 @@
+jest.setTimeout(30000);
+
 import { INestApplication } from '@nestjs/common';
 import { TestDatabaseService } from './database/database.service';
 import { HelpersService } from './helpers/helpers.service';
@@ -7,8 +9,12 @@ import { ExpressionRoutes } from 'src/expressions/enums/expression-routes';
 import { ExpressionMessages } from 'src/expressions/enums/expressions-messages';
 import { AccountExpressionsDto } from 'src/expressions/dto/account-expressions.dto';
 import { CreatedPostExpressionDto } from 'src/expressions/dto/created-post-expression.dto';
+import { CreatedCommentExpressionDto } from 'src/expressions/dto/created-comment-expression.dto';
+import { SelectedExpressionFields } from 'src/expressions/types/selected-expression-fields';
 
 const PREFIX = '/expressions';
+
+jest.mock('src/gateways/notifications.gateway');
 
 describe('Expressions (e2e)', () => {
   let app: INestApplication;
@@ -40,6 +46,21 @@ describe('Expressions (e2e)', () => {
       };
     } = await request(server)
       .post(PREFIX + ExpressionRoutes.LIKE_TO_POST + post.body.data.id)
+      .set('Authorization', token);
+
+    return result.body;
+  }
+
+  async function dislikeComment(token: string) {
+    const comment = await helpersService.createRandomComment(app);
+
+    const result: {
+      body: {
+        data: CreatedCommentExpressionDto;
+        message: ExpressionMessages;
+      };
+    } = await request(server)
+      .post(PREFIX + ExpressionRoutes.DISLIKE_TO_COMMENT + comment.body.data.id)
       .set('Authorization', token);
 
     return result.body;
@@ -82,6 +103,37 @@ describe('Expressions (e2e)', () => {
         const me = await helpersService.loginRandomAccount(app);
 
         const result = await likePost(me.token);
+
+        expect(result.message).toBe(ExpressionMessages.CREATED);
+      });
+    });
+  });
+
+  describe('findCommentLikes', () => {
+    describe('when findCommentLikes is called', () => {
+      test('should return an array of expressions', async () => {
+        const comment = await helpersService.createRandomComment(app);
+
+        const result: {
+          body: {
+            data: SelectedExpressionFields[];
+            message: ExpressionMessages;
+          };
+        } = await request(server).get(
+          PREFIX + ExpressionRoutes.COMMENT_LIKES + comment.body.data.id,
+        );
+
+        expect(result.body.message).toBe(ExpressionMessages.ALL_FOUND);
+      });
+    });
+  });
+
+  describe('dislikeComment', () => {
+    describe('when dislikeComment is called', () => {
+      test('should return the created expression', async () => {
+        const me = await helpersService.loginRandomAccount(app);
+
+        const result = await dislikeComment(me.token);
 
         expect(result.message).toBe(ExpressionMessages.CREATED);
       });
