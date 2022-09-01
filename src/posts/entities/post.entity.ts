@@ -6,6 +6,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,6 +14,7 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { Expression } from 'src/expressions/entities/expression.entity';
 
 @Entity()
 export class Post {

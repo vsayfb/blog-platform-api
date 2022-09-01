@@ -20,6 +20,8 @@ import { Message } from '../../src/messages/entities/message.entity';
 import { Chat } from '../../src/chats/entities/chat.entity';
 import { messageStub } from '../../src/messages/stub/message-stub';
 import { chatStub } from '../../src/chats/stub/chat-stub';
+import { Expression } from 'src/expressions/entities/expression.entity';
+import { expressionStub } from 'src/expressions/stub/expression-stub';
 
 type Entities =
   | typeof Account
@@ -31,7 +33,8 @@ type Entities =
   | typeof Follow
   | typeof Notification
   | typeof Message
-  | typeof Chat;
+  | typeof Chat
+  | typeof Expression;
 
 const stubs = (entity: Entities, id?: string) => {
   const entityID = id || randomUUID();
@@ -45,8 +48,9 @@ const stubs = (entity: Entities, id?: string) => {
     Bookmark: { id: entityID, ...bookmarkStub() },
     Follow: { id: entityID, ...followStub() },
     Notification: { id: entityID, ...notificationStub() },
-    Message: { id: entityID, ...messageStub() },
     Chat: { id: entityID, ...chatStub() },
+    Message: { id: entityID, ...messageStub() },
+    Expression: { id: entityID, ...expressionStub() },
   };
 
   return entities[entity.name];

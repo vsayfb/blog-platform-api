@@ -20,6 +20,7 @@ import { GatewaysModule } from './gateways/gateways.module';
 import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './messages/messages.module';
+import { ExpressionsModule } from './expressions/expressions.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MessagesModule } from './messages/messages.module';
     GatewaysModule,
     ChatsModule,
     MessagesModule,
+    ExpressionsModule,
   ],
 })
 export class AppModule {}
