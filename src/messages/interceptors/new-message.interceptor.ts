@@ -16,9 +16,9 @@ export class NewMessageInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<Promise<{ data: MessageViewDto; message: MessageMessages }>> {
+  ): Observable<{ data: MessageViewDto; message: MessageMessages }> {
     return next.handle().pipe(
-      map(async (message: { data: MessageViewDto }) => {
+      map((message: { data: MessageViewDto }) => {
         this.gatewayEventsService.newMessage(message.data);
 
         return { data: message.data, message: MessageMessages.SENT };

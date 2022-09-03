@@ -1,11 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GatewayEventsService } from '../../global/events/gateway-events.service';
 import { ChatsGateway } from '../chats.gateway';
 import { Socket } from 'socket.io';
 import { randomUUID } from 'crypto';
-import { NotificationsGateway } from '../notifications.gateway';
 import { JwtService } from '@nestjs/jwt';
-import { NotificationsService } from '../../global/notifications/services/notifications.service';
 import { ConfigService } from '@nestjs/config';
 
 jest.mock('src/global/notifications/services/notifications.service');
@@ -27,9 +24,10 @@ describe('ChatsGateway', () => {
 
   describe('handleChat', () => {
     describe('when handleChat is called', () => {
-      let result;
+      let result: void;
+
       const chatID = randomUUID();
-      const socket = { join: (roomId: string) => 0 };
+      const socket = { join: (roomId: string) => 0, emit: () => 'joined' };
 
       beforeEach(() => {
         jest.spyOn(socket, 'join');

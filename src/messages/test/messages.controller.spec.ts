@@ -8,9 +8,11 @@ import { accountStub } from '../../accounts/test/stub/account.stub';
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { messageStub } from '../stub/message-stub';
 import { MessageMessages } from '../enums/message-messages';
+import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 
 jest.mock('src/chats/chats.service');
 jest.mock('src/messages/messages.service');
+jest.mock('src/global/events/gateway-events.service');
 
 describe('MessagesController', () => {
   let messagesController: MessagesController;
@@ -19,7 +21,7 @@ describe('MessagesController', () => {
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [MessagesController],
-      providers: [MessagesService, ChatsService],
+      providers: [MessagesService, ChatsService, GatewayEventsService],
     }).compile();
 
     messagesController = moduleRef.get<MessagesController>(MessagesController);

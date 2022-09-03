@@ -65,7 +65,7 @@ describe('ExpressionsService', () => {
       test('calls expressionsRepository.find', () => {
         expect(expressionsRepository.find).toHaveBeenCalledWith({
           where: { left: { id: account.id } },
-          relations: { left: false },
+          relations: { left: false, post: true },
         });
       });
 
