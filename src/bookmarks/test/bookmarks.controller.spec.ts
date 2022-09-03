@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { postStub } from 'src/posts/stub/post-stub';
 import { BookmarksController } from '../bookmarks.controller';
 import { BookmarksService } from '../bookmarks.service';
@@ -21,7 +22,7 @@ describe('BookmarksController', () => {
       controllers: [BookmarksController],
       providers: [
         BookmarksService,
-        { provide: 'SERVICE', useClass: BookmarksService },
+        { provide: MANAGE_DATA_SERVICE, useClass: BookmarksService },
         CaslAbilityFactory,
       ],
     }).compile();

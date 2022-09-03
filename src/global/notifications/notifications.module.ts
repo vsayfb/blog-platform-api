@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { FollowNotificationsService } from './services/follow-notifications.service';
 import { CommentsNotificationService } from './services/comments-notification.service';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 @Global()
 @Module({
@@ -14,7 +15,7 @@ import { CommentsNotificationService } from './services/comments-notification.se
     NotificationsService,
     FollowNotificationsService,
     CommentsNotificationService,
-    { provide: 'SERVICE', useClass: NotificationsService },
+    { provide: MANAGE_DATA_SERVICE, useClass: NotificationsService },
   ],
   exports: [
     NotificationsService,

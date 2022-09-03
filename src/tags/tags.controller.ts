@@ -11,7 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsService } from './tags.service';
-import { NotAllowUserCreate } from 'src/lib/guards/NotAllowUserCreate';
+import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { Tag } from './entities/tag.entity';
@@ -48,7 +48,7 @@ export class TagsController implements ICrudController<Tag> {
   }
 
   @Post(TagRoutes.CREATE)
-  @UseGuards(JwtAuthGuard, NotAllowUserCreate)
+  @UseGuards(JwtAuthGuard, DontAllowUserCreate)
   async create(
     @Body() { name }: CreateTagDto,
   ): Promise<{ data: SelectedTagFields; message: string }> {

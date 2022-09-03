@@ -1,0 +1,2 @@
+export const MANAGE_DATA_SERVICE = 'MANAGE_DATA_SERVICE';
+export const CASL_SUBJECT = 'CASL_SUBJECT';

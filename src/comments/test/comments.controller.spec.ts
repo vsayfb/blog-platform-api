@@ -15,6 +15,7 @@ import { SelectedCommentFields } from '../types/selected-comment-fields';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 import { CommentViewDto } from '../dto/comment-view.dto';
 import { RepliesViewDto } from '../dto/replies-view.dto';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/comments/comments.service');
 jest.mock('src/global/events/gateway-events.service');
@@ -30,7 +31,7 @@ describe('CommentsController', () => {
         CommentsService,
         GatewayEventsService,
         { provide: CommentsNotificationService, useValue: {} },
-        { provide: 'SERVICE', useClass: CommentsService },
+        { provide: MANAGE_DATA_SERVICE, useClass: CommentsService },
         CaslAbilityFactory,
       ],
     }).compile();

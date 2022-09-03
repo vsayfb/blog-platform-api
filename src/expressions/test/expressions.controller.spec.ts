@@ -6,6 +6,7 @@ import { ExpressionMessages } from '../enums/expressions-messages';
 import { ExpressionsController } from '../controllers/expressions.controller';
 import { ExpressionsService } from '../services/expressions.service';
 import { expressionStub } from '../stub/expression-stub';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/expressions/services/expressions.service');
 
@@ -18,7 +19,7 @@ describe('ExpressionsController', () => {
       controllers: [ExpressionsController],
       providers: [
         ExpressionsService,
-        { provide: 'SERVICE', useClass: ExpressionsService },
+        { provide: MANAGE_DATA_SERVICE, useClass: ExpressionsService },
         CaslAbilityFactory,
       ],
     }).compile();

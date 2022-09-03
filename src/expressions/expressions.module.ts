@@ -7,6 +7,7 @@ import { PostExpressionsController } from './controllers/post-expressions.contro
 import { PostExpressionsService } from './services/post-expressions.service';
 import { CommentExpressionsService } from './services/comment-expressions.service';
 import { CommentExpressionsController } from './controllers/comment-epxressions.controller';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Expression])],
@@ -19,7 +20,7 @@ import { CommentExpressionsController } from './controllers/comment-epxressions.
     ExpressionsService,
     PostExpressionsService,
     CommentExpressionsService,
-    { provide: 'SERVICE', useClass: ExpressionsService },
+    { provide: MANAGE_DATA_SERVICE, useClass: ExpressionsService },
   ],
 })
 export class ExpressionsModule {}

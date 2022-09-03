@@ -12,6 +12,7 @@ import { PostsDto } from '../dto/posts.dto';
 import { PublicPostDto } from '../dto/public-post.dto';
 import { PostDto } from '../dto/post.dto';
 import { UpdatedPostDto } from '../dto/updated-post.dto';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/posts/posts.service');
 
@@ -24,7 +25,7 @@ describe('PostsController', () => {
       controllers: [PostsController],
       providers: [
         PostsService,
-        { provide: 'SERVICE', useClass: PostsService },
+        { provide: MANAGE_DATA_SERVICE, useClass: PostsService },
         CaslAbilityFactory,
       ],
     }).compile();

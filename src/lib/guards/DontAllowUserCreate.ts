@@ -1,5 +1,8 @@
 import { Subjects } from '../../global/casl/casl-ability.factory';
-import { Action, CaslAbilityFactory } from '../../global/casl/casl-ability.factory';
+import {
+  Action,
+  CaslAbilityFactory,
+} from '../../global/casl/casl-ability.factory';
 import {
   CanActivate,
   ExecutionContext,
@@ -7,11 +10,12 @@ import {
   Injectable,
   MethodNotAllowedException,
 } from '@nestjs/common';
+import { CASL_SUBJECT } from '../constants';
 
 @Injectable()
-export class NotAllowUserCreate implements CanActivate {
+export class DontAllowUserCreate implements CanActivate {
   constructor(
-    @Inject('SUBJECT') private readonly subject: Subjects,
+    @Inject(CASL_SUBJECT) private readonly subject: Subjects,
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 

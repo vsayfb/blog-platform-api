@@ -7,6 +7,7 @@ import { tagStub } from '../stub/tag.stub';
 import { UpdateTagDto } from '../dto/update-tag.dto';
 import { SelectedTagFields } from '../types/selected-tag-fields';
 import { TagsDto } from '../dto/tags.dto';
+import { CASL_SUBJECT, MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/tags/tags.service.ts');
 
@@ -19,8 +20,8 @@ describe('TagsController', () => {
       controllers: [TagsController],
       providers: [
         TagsService,
-        { provide: 'SUBJECT', useClass: Tag },
-        { provide: 'SERVICE', useClass: TagsService },
+        { provide: CASL_SUBJECT, useClass: Tag },
+        { provide: MANAGE_DATA_SERVICE, useClass: TagsService },
         CaslAbilityFactory,
       ],
     }).compile();

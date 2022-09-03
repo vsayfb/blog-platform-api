@@ -9,6 +9,7 @@ import { PostExpressionsService } from '../services/post-expressions.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { ExpressionType } from '../entities/expression.entity';
 import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/expressions/services/expressions.service');
 jest.mock('src/expressions/services/post-expressions.service');
@@ -23,7 +24,7 @@ describe('PostExpressionsController', () => {
       providers: [
         PostExpressionsService,
         ExpressionsService,
-        { provide: 'SERVICE', useClass: ExpressionsService },
+        { provide: MANAGE_DATA_SERVICE, useClass: ExpressionsService },
         CaslAbilityFactory,
       ],
     }).compile();

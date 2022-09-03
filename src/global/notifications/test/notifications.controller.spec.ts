@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
+import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { Notification } from '../entities/notification.entity';
 import { NotificationMessages } from '../enums/notification-messages';
 import { NotificationsController } from '../notifications.controller';
@@ -19,7 +20,7 @@ describe('NotificationsController', () => {
       controllers: [NotificationsController],
       providers: [
         NotificationsService,
-        { provide: 'SERVICE', useClass: NotificationsService },
+        { provide: MANAGE_DATA_SERVICE, useClass: NotificationsService },
         CaslAbilityFactory,
       ],
     }).compile();
