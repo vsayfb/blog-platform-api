@@ -1,19 +1,16 @@
 import { INestApplication } from '@nestjs/common';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import { HelpersService } from './helpers/helpers.service';
-import { DatabaseUser, TestDatabaseService } from './database/database.service';
+import { DatabaseUser,  } from './database/database.service';
 import { ChatsGateway } from '../src/gateways/chats.gateway';
 import { io, Socket } from 'socket.io-client';
-import { randomUUID } from 'crypto';
 import { ChatMessages } from '../src/chats/enums/chat-messages';
 import { MessageViewDto } from '../src/messages/dto/message-view.dto';
-import { MessageMessages } from 'src/messages/enums/message-messages';
 
 jest.setTimeout(30000);
 
 describe('ChatsGateway', () => {
   let app: INestApplication;
-  let chatsGateway: ChatsGateway;
   let helpersService: HelpersService;
   let appUrl: string;
 
@@ -26,7 +23,6 @@ describe('ChatsGateway', () => {
 
     appUrl = `http://[${address}]:${port}`;
 
-    chatsGateway = moduleRef.get<ChatsGateway>(ChatsGateway);
     helpersService = moduleRef.get<HelpersService>(HelpersService);
   });
 

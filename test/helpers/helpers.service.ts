@@ -15,11 +15,9 @@ import { TagRoutes } from 'src/tags/enums/tag-routes';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { generateFakePost } from 'test/utils/generateFakePost';
 import { generateFakeTag } from 'test/utils/generateFakeTag';
-import { SelectedAccountFields } from '../../src/accounts/types/selected-account-fields';
 import { ChatMessages } from '../../src/chats/enums/chat-messages';
 import { MessageViewDto } from '../../src/messages/dto/message-view.dto';
 import { MessageMessages } from '../../src/messages/enums/message-messages';
-import { RepliesRoutes } from 'src/replies/enums/replies-routes';
 
 @Injectable()
 export class HelpersService {

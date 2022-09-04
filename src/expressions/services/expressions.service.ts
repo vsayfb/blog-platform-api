@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AccountExpressionsDto } from '../dto/account-expressions.dto';
-import { Expression, ExpressionSubject } from '../entities/expression.entity';
+import { Expression } from '../entities/expression.entity';
 
 @Injectable()
 export class ExpressionsService {

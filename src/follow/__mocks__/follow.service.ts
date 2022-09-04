@@ -1,5 +1,4 @@
 import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { FollowMessages } from '../enums/follow-messages';
 import { followStub } from '../stub/follow-stub';
 
 export const FollowService = jest.fn().mockReturnValue({

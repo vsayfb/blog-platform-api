@@ -1,4 +1,11 @@
-import { Get, Injectable, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Get,
+  Injectable,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -17,7 +24,7 @@ export class PostExpressionsController extends ExpressionsController {
   }
 
   @Get(ExpressionRoutes.POST_LIKES + ':id')
-  async getPostLikes(@Param('id') postID: string): Promise<{
+  async getPostLikes(@Param('id', ParseUUIDPipe) postID: string): Promise<{
     data: SelectedExpressionFields[];
     message: ExpressionMessages;
   }> {
@@ -28,9 +35,7 @@ export class PostExpressionsController extends ExpressionsController {
   }
 
   @Get(ExpressionRoutes.POST_DISLIKES + ':id')
-  async getPostDislikes(
-    @Param('id') postID: string,
-  ): Promise<{
+  async getPostDislikes(@Param('id', ParseUUIDPipe) postID: string): Promise<{
     data: SelectedExpressionFields[];
     message: ExpressionMessages;
   }> {
@@ -44,7 +49,7 @@ export class PostExpressionsController extends ExpressionsController {
   @Post(ExpressionRoutes.LIKE_TO_POST + ':id')
   async likePost(
     @Account() account: JwtPayload,
-    @Param('id') postID: string,
+    @Param('id', ParseUUIDPipe) postID: string,
   ): Promise<{
     data: CreatedPostExpressionDto;
     message: ExpressionMessages;
@@ -63,7 +68,7 @@ export class PostExpressionsController extends ExpressionsController {
   @Post(ExpressionRoutes.DISLIKE_TO_POST + ':id')
   async dislikePost(
     @Account() account: JwtPayload,
-    @Param('id') postID: string,
+    @Param('id', ParseUUIDPipe) postID: string,
   ): Promise<{ data: CreatedPostExpressionDto; message: ExpressionMessages }> {
     return {
       data: await this.postExpressionsService.createPostExpression({

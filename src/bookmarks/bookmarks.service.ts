@@ -63,11 +63,11 @@ export class BookmarksService implements ICrudService<Bookmark> {
     });
   }
 
-  update(subject: Bookmark, updateDto: any): Promise<Bookmark> {
+  update(_subject: Bookmark, _updateDto: any): Promise<Bookmark> {
     throw new Error('Method not implemented.');
   }
 
-  getOne(where: string): Promise<Bookmark> {
+  getOne(_where: string): Promise<Bookmark> {
     throw new Error('Method not implemented.');
   }
 }

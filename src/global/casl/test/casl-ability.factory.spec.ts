@@ -2,7 +2,10 @@ import { tagStub } from 'src/tags/stub/tag.stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { CaslAbilityFactory, Action } from 'src/global/casl/casl-ability.factory';
+import {
+  CaslAbilityFactory,
+  Action,
+} from 'src/global/casl/casl-ability.factory';
 import { Post } from 'src/posts/entities/post.entity';
 import { Account, Role } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';

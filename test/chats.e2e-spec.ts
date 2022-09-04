@@ -8,8 +8,6 @@ import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModu
 import { HelpersService } from './helpers/helpers.service';
 import { Chat } from '../src/chats/entities/chat.entity';
 import { ChatMessages } from '../src/chats/enums/chat-messages';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { ChatViewDto } from '../src/chats/dto/chat-view.dto';
 import { AccountMessages } from '../src/accounts/enums/account-messages';
 import { randomUUID } from 'crypto';
 

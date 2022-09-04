@@ -10,7 +10,7 @@ import {
   Injectable,
   MethodNotAllowedException,
 } from '@nestjs/common';
-import { CASL_SUBJECT } from '../constants';
+import { CASL_SUBJECT } from 'src/lib/constants';
 
 @Injectable()
 export class DontAllowUserCreate implements CanActivate {

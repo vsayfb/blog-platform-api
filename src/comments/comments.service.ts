@@ -124,7 +124,7 @@ export class CommentsService implements ICrudService<Comment> {
     });
   }
 
-  getOne(where: string): Promise<Comment> {
+  getOne(_where: string): Promise<Comment> {
     throw new Error('Method not implemented.');
   }
 }

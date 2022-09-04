@@ -5,7 +5,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Account } from '../../accounts/entities/account.entity';

@@ -27,7 +27,7 @@ describe('ChatsGateway', () => {
       let result: void;
 
       const chatID = randomUUID();
-      const socket = { join: (roomId: string) => 0, emit: () => 'joined' };
+      const socket = { join: () => 0, emit: () => 'joined' };
 
       beforeEach(() => {
         jest.spyOn(socket, 'join');

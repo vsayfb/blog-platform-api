@@ -10,7 +10,6 @@ import { randomUUID } from 'crypto';
 import { AccountMessages } from '../../accounts/enums/account-messages';
 import { chatStub } from '../stub/chat-stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
-import { messageStub } from '../../messages/stub/message-stub';
 import { Message } from '../../messages/entities/message.entity';
 
 jest.mock('src/accounts/accounts.service');

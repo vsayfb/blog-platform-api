@@ -11,7 +11,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsService } from './tags.service';
-import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { Tag } from './entities/tag.entity';
@@ -22,6 +21,7 @@ import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { TagMessages } from './enums/tag-messages';
 import { TagsDto } from './dto/tags.dto';
 import { SelectedTagFields } from './types/selected-tag-fields';
+import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 
 @Controller('tags')
 @ApiTags('tags')

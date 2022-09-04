@@ -96,9 +96,10 @@ export class AuthService {
     const account = await this.accountsService.getAccount(username);
 
     if (account && account.password === pass) {
-      const { password, email, ...result } = account;
+      delete account.password;
+      delete account.email;
 
-      return result;
+      return account;
     }
 
     return null;

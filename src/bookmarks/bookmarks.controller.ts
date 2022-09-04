@@ -5,6 +5,7 @@ import {
   Delete,
   UseGuards,
   Post,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -29,7 +30,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
   @UseGuards(JwtAuthGuard)
   @Post(BookmarkRoutes.CREATE + ':postId')
   async create(
-    @Param('postId') postID: string,
+    @Param('postId', ParseUUIDPipe) postID: string,
     @Account() account: JwtPayload,
   ): Promise<{ data: SelectedBookmarkFields; message: string }> {
     return {
@@ -65,7 +66,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
 
   @Get(BookmarkRoutes.FIND_POST_BOOKMARKS + ':postId')
   async findPostBookmarks(
-    @Param('postId') postId: string,
+    @Param('postId', ParseUUIDPipe) postId: string,
   ): Promise<{ data: PostBookmarks; message: string }> {
     return {
       data: await this.bookmarksService.getPostBookmarks(postId),
@@ -84,7 +85,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
     };
   }
 
-  findOne(id: string): Promise<{ data: any; message: string }> {
+  findOne(_id: string): Promise<{ data: any; message: string }> {
     throw new Error('Method not implemented.');
   }
 
@@ -92,7 +93,7 @@ export class BookmarksController implements ICrudController<Bookmark> {
     throw new Error('Method not implemented.');
   }
 
-  update(dto: any, subject: Bookmark): Promise<{ data: any; message: string }> {
+  update(_dto: any, _subject: Bookmark): Promise<{ data: any; message: string }> {
     throw new Error('Method not implemented.');
   }
 }

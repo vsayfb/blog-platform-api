@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -34,7 +35,7 @@ export class CommentsController implements ICrudController<Comment> {
 
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ data: CommentViewDto[]; message: CommentMessages }> {
     return {
       data: await this.commentsService.getPostComments(id),
@@ -44,7 +45,7 @@ export class CommentsController implements ICrudController<Comment> {
 
   @Get(CommentRoutes.COMMENT_REPLIES + ':id')
   async findCommentReplies(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ data: RepliesViewDto; message: CommentMessages }> {
     return {
       data: await this.commentsService.getCommentReplies(id),
@@ -57,7 +58,7 @@ export class CommentsController implements ICrudController<Comment> {
   @Post(CommentRoutes.CREATE + ':postID')
   async create(
     @Account() account: JwtPayload,
-    @Param('postID') postID: string,
+    @Param('postID', ParseUUIDPipe) postID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {
@@ -74,7 +75,7 @@ export class CommentsController implements ICrudController<Comment> {
   @Post(CommentRoutes.REPLY_TO_COMMENT + ':commentID')
   async replyToComment(
     @Account() account: JwtPayload,
-    @Param('commentID') toID: string,
+    @Param('commentID', ParseUUIDPipe) toID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {
@@ -113,7 +114,7 @@ export class CommentsController implements ICrudController<Comment> {
   findAll(): Promise<{ data: any[]; message: string }> {
     throw new Error('Method not implemented.');
   }
-  findOne(id: string): Promise<{ data: any; message: string }> {
+  findOne(_id: string): Promise<{ data: any; message: string }> {
     throw new Error('Method not implemented.');
   }
 }

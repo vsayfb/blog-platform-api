@@ -10,7 +10,6 @@ import { messageStub } from '../stub/message-stub';
 import { accountStub } from '../../accounts/test/stub/account.stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { chatStub } from '../../chats/stub/chat-stub';
-import { Account } from 'src/accounts/entities/account.entity';
 import { ChatMessages } from '../../chats/enums/chat-messages';
 import { MessageViewDto } from '../dto/message-view.dto';
 

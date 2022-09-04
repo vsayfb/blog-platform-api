@@ -11,6 +11,7 @@ import {
   UploadedFile,
   Query,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
@@ -29,7 +30,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PostMessages } from './enums/post-messages';
 import { UploadMessages } from 'src/uploads/enums/upload-messages';
 import { ICrudController } from 'src/lib/interfaces/ICrudController';
-import { SelectedPostFields } from './types/selected-post-fields';
 import { PublicPostDto } from './dto/public-post.dto';
 import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
@@ -86,7 +86,7 @@ export class PostsController implements ICrudController<PostEntity> {
   @UseGuards(JwtAuthGuard, CanManageData)
   @Get(PostRoutes.FIND_BY_ID)
   async findByID(
-    @Query('id') id: string,
+    @Query('id', ParseUUIDPipe) id: string,
   ): Promise<{ data: PostDto; message: PostMessages }> {
     return {
       data: await this.postsService.getOneByID(id),
