@@ -17,6 +17,7 @@ import { Follow } from './entities/follow.entity';
 import { UserFollowers } from './dto/user-followers.dto';
 import { UserFollowed } from './dto/user-followed.dto';
 import { FollowedNotificationInterceptor } from './interceptors/followed-notification.interceptor';
+import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
 
 @Controller('follow')
 export class FollowController {
@@ -27,13 +28,10 @@ export class FollowController {
   @Post(FollowRoutes.FOLLOW + ':username')
   async follow(
     @Account() account: JwtPayload,
-    @Param('username') followedUsername: string,
+    @Param() { username }: UsernameQuery,
   ): Promise<{ data: Follow; message: FollowMessages }> {
     return {
-      data: await this.followService.followAccount(
-        account.sub,
-        followedUsername,
-      ),
+      data: await this.followService.followAccount(account.sub, username),
       message: FollowMessages.FOLLOWED,
     };
   }
@@ -42,19 +40,19 @@ export class FollowController {
   @Delete(FollowRoutes.UNFOLLOW + ':username')
   async unfollow(
     @Account() account: JwtPayload,
-    @Param('username') unfollowedUsername: string,
+    @Param() { username }: UsernameQuery,
   ): Promise<{ data: string; message: FollowMessages }> {
     return {
       data: await this.followService.unfollowAccount(
         account.username,
-        unfollowedUsername,
+        username,
       ),
       message: FollowMessages.UNFOLLOWED,
     };
   }
 
   @Get(FollowRoutes.USER_FOLLOWERS + ':username')
-  async findUserFollowers(@Param('username') username: string): Promise<{
+  async findUserFollowers(@Param() { username }: UsernameQuery): Promise<{
     data: UserFollowers;
     message: FollowMessages;
   }> {
@@ -65,7 +63,7 @@ export class FollowController {
   }
 
   @Get(FollowRoutes.USER_FOLLOWED + ':username')
-  async findUserFollowed(@Param('username') username: string): Promise<{
+  async findUserFollowed(@Param() { username }: UsernameQuery): Promise<{
     data: UserFollowed;
     message: FollowMessages;
   }> {

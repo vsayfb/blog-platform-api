@@ -37,7 +37,7 @@ export class AccountsController {
   }
 
   @Get(AccountRoutes.PROFILE + ':username')
-  async findProfile(@Param('username') username: string): Promise<{
+  async findProfile(@Param() { username }: UsernameQuery): Promise<{
     data: AccountProfileDto;
     message: AccountMessages;
   }> {
