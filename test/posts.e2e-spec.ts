@@ -90,7 +90,7 @@ describe('PostsController (e2e)', () => {
 
         const result: { body: { data: PostDto; message: string } } =
           await request(server)
-            .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${post.body.data.id}`)
+            .get(PREFIX + PostRoutes.FIND_BY_ID + `${post.body.data.id}`)
             .set('Authorization', author.token);
 
         expect(result.body.message).toBe(PostMessages.FOUND);
@@ -104,7 +104,7 @@ describe('PostsController (e2e)', () => {
         const post = await helpersService.createRandomPost(app);
 
         const result = await request(server)
-          .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${post.body.data.id}`)
+          .get(PREFIX + PostRoutes.FIND_BY_ID + `${post.body.data.id}`)
           .set('Authorization', forbiddenUser.token);
 
         expect(result.statusCode).toBe(403);
@@ -122,7 +122,7 @@ describe('PostsController (e2e)', () => {
 
         const result: { body: { data: PostDto; message: string } } =
           await request(server)
-            .get(PREFIX + PostRoutes.FIND_BY_ID + `?id=${post.body.data.id}`)
+            .get(PREFIX + PostRoutes.FIND_BY_ID + `${post.body.data.id}`)
             .set('Authorization', moderator.token);
 
         expect(result.body.message).toBe(PostMessages.FOUND);

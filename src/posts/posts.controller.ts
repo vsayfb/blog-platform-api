@@ -35,6 +35,7 @@ import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
+import {} from 'src/global/middlewares/is-post-found';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -84,12 +85,12 @@ export class PostsController implements ICrudController<PostEntity> {
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @Get(PostRoutes.FIND_BY_ID)
+  @Get(PostRoutes.FIND_BY_ID + ':id')
   async findByID(
-    @Query('id', ParseUUIDPipe) id: string,
+    @Data() data: PostDto,
   ): Promise<{ data: PostDto; message: PostMessages }> {
     return {
-      data: await this.postsService.getOneByID(id),
+      data,
       message: PostMessages.FOUND,
     };
   }

@@ -21,6 +21,7 @@ import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './messages/messages.module';
 import { ExpressionsModule } from './expressions/expressions.module';
+import { GuardsModule } from './global/middlewares/middlewares.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ExpressionsModule } from './expressions/expressions.module';
     ChatsModule,
     MessagesModule,
     ExpressionsModule,
+    GuardsModule,
   ],
 })
 export class AppModule {}

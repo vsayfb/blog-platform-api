@@ -142,15 +142,11 @@ describe('PostsController', () => {
 
   describe('findByID', () => {
     let result: { data: PostDto; message: PostMessages };
-    const id = randomUUID();
+    const foundPost = postStub();
 
     describe('when findByID is called', () => {
       beforeEach(async () => {
-        result = await controller.findByID(id);
-      });
-
-      test('calls postsService.getOne method', () => {
-        expect(postsService.getOneByID).toHaveBeenCalledWith(id);
+        result = await controller.findByID(foundPost as PostDto);
       });
 
       it('should return a post', () => {
