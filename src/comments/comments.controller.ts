@@ -35,7 +35,7 @@ export class CommentsController implements ICrudController<Comment> {
 
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
   ): Promise<{ data: CommentViewDto[]; message: CommentMessages }> {
     return {
       data: await this.commentsService.getPostComments(id),
@@ -45,7 +45,7 @@ export class CommentsController implements ICrudController<Comment> {
 
   @Get(CommentRoutes.COMMENT_REPLIES + ':id')
   async findCommentReplies(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
   ): Promise<{ data: RepliesViewDto; message: CommentMessages }> {
     return {
       data: await this.commentsService.getCommentReplies(id),
@@ -100,7 +100,7 @@ export class CommentsController implements ICrudController<Comment> {
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @Patch(CommentRoutes.PATCH + ':id')
+  @Patch(CommentRoutes.UPDATE + ':id')
   async update(
     @Data() comment: Comment,
     @Body() updateCommentDto: UpdateCommentDto,

@@ -12,5 +12,6 @@ import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
     BookmarksService,
     { provide: MANAGE_DATA_SERVICE, useClass: BookmarksService },
   ],
+  exports: [BookmarksService],
 })
 export class BookmarksModule {}

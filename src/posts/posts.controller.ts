@@ -35,7 +35,6 @@ import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
-import {} from 'src/global/middlewares/is-post-found';
 
 @Controller('posts')
 @ApiTags('posts')

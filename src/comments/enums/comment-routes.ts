@@ -1,7 +1,7 @@
 export enum CommentRoutes {
   CREATE = '/post/',
   DELETE = '/',
-  PATCH = '/',
+  UPDATE = '/',
   POST_COMMENTS = '/post/',
   COMMENT_REPLIES = '/reply/',
   REPLY_TO_COMMENT = '/reply/',
