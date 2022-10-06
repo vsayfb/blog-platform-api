@@ -39,14 +39,14 @@ describe('AccountsController', () => {
         data: AccountProfileDto;
         message: AccountMessages;
       };
-      const USERNAME = accountStub().username;
+      const user: UsernameQuery = { username: accountStub().username };
 
       beforeEach(async () => {
-        result = await accountsController.findProfile(USERNAME);
+        result = await accountsController.findProfile(user);
       });
 
       test('calls accountsService.getProfile', () => {
-        expect(accountsService.getProfile).toHaveBeenCalledWith(USERNAME);
+        expect(accountsService.getProfile).toHaveBeenCalledWith(user.username);
       });
 
       it('should return the account', () => {
