@@ -21,11 +21,15 @@ import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './messages/messages.module';
 import { ExpressionsModule } from './expressions/expressions.module';
+import { CacheModule } from './cache/cache.module';
+import { RedisModule } from './global/redis/redis.module';
+import { ProcessEnv } from './lib/enums/env';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(dataSource.options),
+    RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
     AccountsModule,
     AuthModule,
     UploadsModule,
@@ -45,6 +49,8 @@ import { ExpressionsModule } from './expressions/expressions.module';
     ChatsModule,
     MessagesModule,
     ExpressionsModule,
+    CacheModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

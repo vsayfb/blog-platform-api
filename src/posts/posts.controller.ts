@@ -12,6 +12,7 @@ import {
   Query,
   Put,
   ParseUUIDPipe,
+  CacheInterceptor,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
