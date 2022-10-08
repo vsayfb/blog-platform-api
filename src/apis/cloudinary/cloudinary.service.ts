@@ -3,9 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinaryV2 } from 'cloudinary';
 import * as path from 'path';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { IUploadImageService } from 'src/uploads/interfaces/upload-image-service.interface';
 
 @Injectable()
-export class CloudinaryService {
+export class CloudinaryService implements IUploadImageService {
   constructor(configService: ConfigService) {
     cloudinaryV2.config({
       cloud_name: configService.get<string>(ProcessEnv.CLOUDINARY_CLOUD_NAME),

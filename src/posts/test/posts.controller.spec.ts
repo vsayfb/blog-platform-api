@@ -13,6 +13,7 @@ import { PublicPostDto } from '../dto/public-post.dto';
 import { PostDto } from '../dto/post.dto';
 import { UpdatedPostDto } from '../dto/updated-post.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
+import { CACHE_MANAGER } from '@nestjs/common';
 
 jest.mock('src/posts/posts.service');
 
@@ -26,6 +27,8 @@ describe('PostsController', () => {
       providers: [
         PostsService,
         { provide: MANAGE_DATA_SERVICE, useClass: PostsService },
+        { provide: CACHE_MANAGER, useValue: {} },
+
         CaslAbilityFactory,
       ],
     }).compile();

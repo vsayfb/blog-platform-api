@@ -1,20 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CloudinaryService } from 'src/apis/cloudinary/cloudinary.service';
+import { IUploadImageService } from '../interfaces/upload-image-service.interface';
 import { UploadsService } from '../uploads.service';
 
 jest.mock('src/apis/cloudinary/cloudinary.service');
 
 describe('UploadsService', () => {
   let uploadsService: UploadsService;
-  let cloudinaryService: CloudinaryService;
+  let uploadImageService: IUploadImageService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UploadsService, CloudinaryService],
+      providers: [
+        UploadsService,
+        { provide: IUploadImageService, useClass: CloudinaryService },
+      ],
     }).compile();
 
     uploadsService = module.get<UploadsService>(UploadsService);
-    cloudinaryService = module.get<CloudinaryService>(CloudinaryService);
+    uploadImageService = module.get<IUploadImageService>(IUploadImageService);
   });
 
   describe('uploadProfileImage', () => {
@@ -27,7 +31,9 @@ describe('UploadsService', () => {
       });
 
       test('calls cloudinaryService.uploadProfileImage with given file', () => {
-        expect(cloudinaryService.uploadProfileImage).toHaveBeenCalledWith(file);
+        expect(uploadImageService.uploadProfileImage).toHaveBeenCalledWith(
+          file,
+        );
       });
 
       it('should return the uploaded image url', () => {
@@ -44,7 +50,7 @@ describe('UploadsService', () => {
         result = await uploadsService.uploadImage(file);
       });
       test('calls cloudinaryService.uploadImage with given file', () => {
-        expect(cloudinaryService.uploadImage).toHaveBeenCalledWith(file);
+        expect(uploadImageService.uploadImage).toHaveBeenCalledWith(file);
       });
 
       it('should return the uploaded image url', () => {
