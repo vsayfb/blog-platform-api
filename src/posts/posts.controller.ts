@@ -36,6 +36,7 @@ import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
+import { CacheJsonInterceptor } from 'src/cache/cache-json.interceptor';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -96,6 +97,7 @@ export class PostsController implements ICrudController<PostEntity> {
   }
 
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
+  @UseInterceptors(CacheJsonInterceptor)
   async findOne(
     @Param('url') url: string,
   ): Promise<{ data: PublicPostDto; message: PostMessages }> {

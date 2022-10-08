@@ -21,9 +21,9 @@ import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './messages/messages.module';
 import { ExpressionsModule } from './expressions/expressions.module';
-import { CacheModule } from './cache/cache.module';
 import { RedisModule } from './global/redis/redis.module';
 import { ProcessEnv } from './lib/enums/env';
+import { CacheManagerModule } from './cache/cache-manager.module';
 
 @Module({
   imports: [
@@ -49,8 +49,7 @@ import { ProcessEnv } from './lib/enums/env';
     ChatsModule,
     MessagesModule,
     ExpressionsModule,
-    CacheModule,
-    RedisModule,
+    CacheManagerModule,
   ],
 })
 export class AppModule {}
