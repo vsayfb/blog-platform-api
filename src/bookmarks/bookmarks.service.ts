@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { PostBookmarks } from './dto/post-bookmarks.dto';
@@ -8,7 +7,9 @@ import { Bookmark } from './entities/bookmark.entity';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 
 @Injectable()
-export class BookmarksService implements ICrudService<Bookmark> {
+export class BookmarksService
+  implements ICreateService, IFindService, IDeleteService
+{
   constructor(
     @InjectRepository(Bookmark)
     private readonly bookmarksRepository: Repository<Bookmark>,
@@ -61,13 +62,5 @@ export class BookmarksService implements ICrudService<Bookmark> {
     return this.bookmarksRepository.find({
       relations: { account: true, post: true },
     });
-  }
-
-  update(_subject: Bookmark, _updateDto: any): Promise<Bookmark> {
-    throw new Error('Method not implemented.');
-  }
-
-  getOne(_where: string): Promise<Bookmark> {
-    throw new Error('Method not implemented.');
   }
 }

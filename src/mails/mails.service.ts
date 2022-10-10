@@ -20,13 +20,11 @@ export class MailsService {
     email: string;
     username: string;
   }): Promise<{ message: string }> {
-    const { code, codeID } = await this.codeService.createCode(to.email);
+    const { code, codeID } = await this.codeService.create(to.email);
 
     await this.mailSenderService.sendVerificationMail(to, code);
 
-    this.jobsService.execAfterTwoMinutes(() =>
-      this.codeService.removeCode(codeID),
-    );
+    this.jobsService.execAfterTwoMinutes(() => this.codeService.delete(codeID));
 
     return { message: CodeMessages.CODE_SENT };
   }

@@ -109,13 +109,13 @@ describe('BookmarksController', () => {
     });
   });
 
-  describe('remove', () => {
-    describe('when remove is called', () => {
+  describe('delete', () => {
+    describe('when delete is called', () => {
       let result: { id: string; message: string };
       const bookmark = bookmarkStub() as Bookmark;
 
       beforeEach(async () => {
-        result = await bookmarksController.remove(bookmark);
+        result = await bookmarksController.delete(bookmark);
       });
 
       test('calls bookmarksService.delete', () => {

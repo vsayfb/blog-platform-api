@@ -65,12 +65,12 @@ describe('ChatsService', () => {
         });
       });
 
-      test('calls accountService.getOne with initiatorID', () => {
-        expect(accountsService.getOne).toHaveBeenCalledWith(initiator.id);
+      test('calls accountService.getOneByID with initiatorID', () => {
+        expect(accountsService.getOneByID).toHaveBeenCalledWith(initiator.id);
       });
 
-      test('calls accountService.getOne with toID', () => {
-        expect(accountsService.getOne).toHaveBeenCalledWith(toID);
+      test('calls accountService.getOneByID with toID', () => {
+        expect(accountsService.getOneByID).toHaveBeenCalledWith(toID);
       });
 
       describe('scenario : if an account is found with toID', () => {
@@ -106,7 +106,7 @@ describe('ChatsService', () => {
 
       describe('scenario : if an account is not found with toID', () => {
         beforeEach(() =>
-          jest.spyOn(accountsService, 'getOne').mockResolvedValue(null),
+          jest.spyOn(accountsService, 'getOneByID').mockResolvedValue(null),
         );
 
         test('throws Account Not Found error', async () => {
@@ -143,14 +143,14 @@ describe('ChatsService', () => {
     });
   });
 
-  describe('findOne', () => {
-    let result;
+  describe('getOne', () => {
+    let result: Chat;
     const memberID = jwtPayloadStub().sub;
     const chatID = chatStub().id;
 
-    describe('when findOne is called', () => {
+    describe('when getOne is called', () => {
       beforeEach(async () => {
-        result = await chatsService.findOne(memberID, chatID);
+        result = await chatsService.getOne(memberID, chatID);
       });
 
       test('calls chatsRepository.findOne', () => {

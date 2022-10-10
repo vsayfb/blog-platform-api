@@ -1,7 +1,7 @@
 jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
-import { TestDatabaseService } from './database/database.service';
+import { DatabaseUser, TestDatabaseService } from './database/database.service';
 import { HelpersService } from './helpers/helpers.service';
 import { initializeEndToEndTestModule } from './utils/initializeEndToEndTestModule';
 import * as request from 'supertest';
@@ -11,6 +11,7 @@ import { AccountExpressionsDto } from 'src/expressions/dto/account-expressions.d
 import { CreatedPostExpressionDto } from 'src/expressions/dto/created-post-expression.dto';
 import { CreatedCommentExpressionDto } from 'src/expressions/dto/created-comment-expression.dto';
 import { SelectedExpressionFields } from 'src/expressions/types/selected-expression-fields';
+import { CreatedPostDto } from 'src/posts/dto/created-post.dto';
 
 const PREFIX = '/expressions';
 
@@ -36,8 +37,10 @@ describe('Expressions (e2e)', () => {
     await databaseService.disconnectDatabase();
   });
 
-  async function likePost(token: string) {
-    const post = await helpersService.createRandomPost(app);
+  async function likePost(token: string, postID?: string) {
+    let post: { body: { data: CreatedPostDto; message: string } };
+
+    if (!postID) post = await helpersService.createRandomPost(app);
 
     const result: {
       body: {
@@ -45,7 +48,9 @@ describe('Expressions (e2e)', () => {
         message: ExpressionMessages;
       };
     } = await request(server)
-      .post(PREFIX + ExpressionRoutes.LIKE_TO_POST + post.body.data.id)
+      .post(
+        PREFIX + ExpressionRoutes.LIKE_TO_POST + (postID || post.body.data.id),
+      )
       .set('Authorization', token);
 
     return result.body;
@@ -99,12 +104,29 @@ describe('Expressions (e2e)', () => {
 
   describe('likePost', () => {
     describe('when likePost is called', () => {
-      test('should return the created expression', async () => {
-        const me = await helpersService.loginRandomAccount(app);
+      let user: { token: string; user: DatabaseUser };
+      let postID: string;
 
-        const result = await likePost(me.token);
+      beforeAll(async () => {
+        user = await helpersService.loginRandomAccount(app);
+      });
 
-        expect(result.message).toBe(ExpressionMessages.CREATED);
+      describe('scenario : user leaves an expression on post', () => {
+        test('should return the created expression', async () => {
+          const result = await likePost(user.token);
+
+          postID = result.data.post.id;
+
+          expect(result.message).toBe(ExpressionMessages.CREATED);
+        });
+      });
+
+      describe('scenario : user leaves again an expression on post', () => {
+        test('should return the created expression', async () => {
+          const result = await likePost(user.token, postID);
+
+          expect(result.message).toBe(ExpressionMessages.ALREADY_LEFT);
+        });
       });
     });
   });

@@ -17,7 +17,6 @@ import { Tag } from './entities/tag.entity';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { TagRoutes } from './enums/tag-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { TagMessages } from './enums/tag-messages';
 import { TagsDto } from './dto/tags.dto';
 import { SelectedTagFields } from './types/selected-tag-fields';
@@ -25,7 +24,13 @@ import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 
 @Controller('tags')
 @ApiTags('tags')
-export class TagsController implements ICrudController<Tag> {
+export class TagsController
+  implements
+    ICreateController,
+    IFindController,
+    IUpdateController,
+    IDeleteController
+{
   constructor(private readonly tagsService: TagsService) {}
 
   @Get()
@@ -72,7 +77,7 @@ export class TagsController implements ICrudController<Tag> {
 
   @Delete(TagRoutes.DELETE + ':id')
   @UseGuards(JwtAuthGuard, CanManageData)
-  async remove(@Data() tag: Tag): Promise<{ id: string; message: string }> {
+  async delete(@Data() tag: Tag): Promise<{ id: string; message: string }> {
     return {
       id: await this.tagsService.delete(tag),
       message: TagMessages.DELETED,

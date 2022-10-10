@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { PostsService } from 'src/posts/posts.service';
 import { Repository } from 'typeorm';
@@ -16,7 +15,9 @@ import { CommentMessages } from './enums/comment-messages';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Injectable()
-export class CommentsService implements ICrudService<Comment> {
+export class CommentsService
+  implements ICreateService, IFindService, IDeleteService, IUpdateService
+{
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
@@ -72,7 +73,7 @@ export class CommentsService implements ICrudService<Comment> {
       .leftJoin('comment.parent', 'parent')
       .leftJoinAndSelect('comment.author', 'author')
       .where('post.id=:postID', { postID })
-      .andWhere('parent IS NULL')
+      .andWhere('parent IS NULL') // only replies have parent comment
       .getMany();
 
     return result;
@@ -120,11 +121,7 @@ export class CommentsService implements ICrudService<Comment> {
 
   async getAll(): Promise<Comment[]> {
     return await this.commentRepository.find({
-      relations: { author: true, post: true },
+      relations: { author: true },
     });
-  }
-
-  getOne(_where: string): Promise<Comment> {
-    throw new Error('Method not implemented.');
   }
 }

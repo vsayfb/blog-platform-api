@@ -83,7 +83,7 @@ describe('Bookmark (e2e)', () => {
       body: { id: string; message: string };
       statusCode: number;
     } = await request(server)
-      .delete(PREFIX + BookmarkRoutes.REMOVE + bookmarkID)
+      .delete(PREFIX + BookmarkRoutes.DELETE + bookmarkID)
       .set('Authorization', token);
 
     return deleted;

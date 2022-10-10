@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { CreateNotificationDto } from '../dto/create-notification-dto';
 import { Notification } from '../entities/notification.entity';
 
 @Injectable()
-export class NotificationsService implements ICrudService<Notification> {
+export class NotificationsService
+  implements ICreateService, IFindService, IDeleteService, IUpdateService
+{
   @InjectRepository(Notification)
   protected readonly notificationsRepository: Repository<Notification>;
 
@@ -49,13 +50,7 @@ export class NotificationsService implements ICrudService<Notification> {
     });
   }
 
-  getOne(username: string): Promise<Notification> {
-    return this.notificationsRepository.findOne({
-      where: { notifable: { username } },
-    });
-  }
-
-  getAll(): Promise<Notification[]> {
+  async getAll(): Promise<Notification[]> {
     return this.notificationsRepository.find();
   }
 }

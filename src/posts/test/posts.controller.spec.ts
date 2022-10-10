@@ -178,13 +178,13 @@ describe('PostsController', () => {
     });
   });
 
-  describe('remove', () => {
+  describe('delete', () => {
     let result: { id: string; message: string };
     const post = postStub() as unknown as Post;
 
-    describe('when remove is called', () => {
+    describe('when delete is called', () => {
       beforeEach(async () => {
-        result = await controller.remove(post);
+        result = await controller.delete(post);
       });
 
       test('calls postsService.delete method', () => {

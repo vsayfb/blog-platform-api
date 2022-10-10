@@ -26,7 +26,7 @@ export class Expression {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Account, { onDelete: 'CASCADE', eager: true })
+  @ManyToOne(() => Account, { onDelete: 'CASCADE', eager: true })
   @JoinColumn()
   left: Account;
 

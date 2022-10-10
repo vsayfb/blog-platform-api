@@ -1,7 +1,6 @@
 export enum ExpressionMessages {
-  ALREADY_LEFT_TO_POST = 'You have already left an expression this post.',
-  ALREADY_LEFT_TO_COMMENT = 'You have already left an expression this comment.',
+  ALREADY_LEFT = 'You have already left an expression.',
   CREATED = 'An expression has been created.',
   ALL_FOUND = 'All expressions have been found.',
-  DELETED = 'The expression have been removed.',
+  DELETED = 'The expression have been deleted.',
 }

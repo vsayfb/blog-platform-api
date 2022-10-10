@@ -1,4 +1,3 @@
-import { ICrudService } from './../lib/interfaces/ICrudService';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,7 +19,9 @@ import { PostsDto } from './dto/posts.dto';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 
 @Injectable()
-export class PostsService implements ICrudService<Post> {
+export class PostsService
+  implements ICreateService, IFindService, IUpdateService, IDeleteService
+{
   constructor(
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     private readonly uploadService: UploadsService,

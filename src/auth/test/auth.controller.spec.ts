@@ -48,8 +48,8 @@ describe('AuthController', () => {
     });
   });
 
-  describe('register', () => {
-    describe('when register is called', () => {
+  describe('create', () => {
+    describe('when create is called', () => {
       let result: { data: RegisterViewDto; message: AuthMessages };
       const dto: CreateAccountDto = {
         verification_code: '123456',
@@ -60,7 +60,7 @@ describe('AuthController', () => {
       };
 
       beforeEach(async () => {
-        result = await authController.register(dto);
+        result = await authController.create(dto);
       });
 
       test('calls authService.register with dto', () => {

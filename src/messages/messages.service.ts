@@ -7,26 +7,26 @@ import { ChatMessages } from '../chats/enums/chat-messages';
 import { MessageViewDto } from './dto/message-view.dto';
 
 @Injectable()
-export class MessagesService {
+export class MessagesService implements ICreateService, IFindService {
   constructor(
     @InjectRepository(Message)
     private readonly messagesRepository: Repository<Message>,
     private readonly chatsService: ChatsService,
   ) {}
 
-  async create(
-    content: string,
-    initiatorID: string,
-    chatID: string,
-  ): Promise<MessageViewDto> {
-    const chat = await this.chatsService.getOneByID(chatID);
+  async create(dto: {
+    content: string;
+    initiatorID: string;
+    chatID: string;
+  }): Promise<MessageViewDto> {
+    const chat = await this.chatsService.getOneByID(dto.chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
 
     const message = await this.messagesRepository.save({
       chat,
-      sender: { id: initiatorID },
-      content,
+      sender: { id: dto.initiatorID },
+      content: dto.content,
     });
 
     const result = await this.messagesRepository.findOne({
@@ -43,9 +43,17 @@ export class MessagesService {
     };
   }
 
-  getAccountMessages(senderID: string) {
-    return this.messagesRepository.find({
+  async getAccountMessages(senderID: string) {
+    return await this.messagesRepository.find({
       where: { sender: { id: senderID } },
     });
+  }
+
+  async getOneByID(id: string): Promise<any> {
+    return await this.messagesRepository.findOne({ where: { id } });
+  }
+
+  async getAll(): Promise<any[]> {
+    return await this.messagesRepository.find({});
   }
 }

@@ -143,14 +143,16 @@ describe('FollowService', () => {
         let result: string;
 
         beforeEach(async () => {
+          jest.spyOn(followService, 'delete');
+
           result = await followService.unfollowAccount(
             followerUsername,
             unfollowedUsername,
           );
         });
 
-        test('calls followRepository.remove', () => {
-          expect(followRepository.remove).toHaveBeenCalledWith(followStub());
+        test('calls followService.delete', () => {
+          expect(followService.delete).toHaveBeenCalledWith(followStub());
         });
 
         it('should return unfollowedUsername', () => {

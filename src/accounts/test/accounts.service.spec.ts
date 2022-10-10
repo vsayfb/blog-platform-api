@@ -8,7 +8,7 @@ import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { mockRepository } from '../../../test/utils/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
@@ -45,13 +45,13 @@ describe('AccountsService', () => {
     mockRepository(accountsRepository, Account);
   });
 
-  describe('getOne', () => {
-    describe('when getOne is called', () => {
+  describe('getOneByID', () => {
+    describe('when getOneByID is called', () => {
       let result: SelectedAccountFields;
       const id = randomUUID();
 
       beforeEach(async () => {
-        result = await accounstService.getOne(id);
+        result = await accounstService.getOneByID(id);
       });
 
       test('calls accountsRepository.findOne method', () => {
@@ -237,15 +237,15 @@ describe('AccountsService', () => {
     });
   });
 
-  describe('beginRegisterVerification', () => {
-    describe('when beginRegisterVerification is called', () => {
+  describe('beginLocalRegisterVerification', () => {
+    describe('when beginLocalRegisterVerification is called', () => {
       const account = accountStub();
       const accountEmail = 'foo@gmail.com';
 
       describe('scenario : if email registered', () => {
         test('should throw email taken error', async () => {
           await expect(
-            accounstService.beginRegisterVerification(
+            accounstService.beginLocalRegisterVerification(
               account.username,
               accountEmail,
             ),
@@ -258,7 +258,7 @@ describe('AccountsService', () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce(null);
 
           await expect(
-            accounstService.beginRegisterVerification(
+            accounstService.beginLocalRegisterVerification(
               account.username,
               accountEmail,
             ),
@@ -271,12 +271,34 @@ describe('AccountsService', () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValue(null);
 
           expect(
-            await accounstService.beginRegisterVerification(
+            await accounstService.beginLocalRegisterVerification(
               account.username,
               accountEmail,
             ),
           ).toEqual({ message: CodeMessages.CODE_SENT });
         });
+      });
+    });
+  });
+
+  describe('searchByUsername', () => {
+    describe('when searchByUsername is called', () => {
+      let result: SelectedAccountFields[];
+      const username = accountStub().username;
+
+      beforeEach(async () => {
+        result = await accounstService.searchByUsername(username);
+      });
+
+      test('calls accountsRepository.findOne method', () => {
+        expect(accountsRepository.find).toHaveBeenCalledWith({
+          where: { username: Like(`%${username}%`) },
+          take: 10,
+        });
+      });
+
+      it('should return an array af accounts', () => {
+        expect(result).toEqual([accountStub()]);
       });
     });
   });

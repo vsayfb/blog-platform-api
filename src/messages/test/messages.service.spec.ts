@@ -49,7 +49,11 @@ describe('MessagesService', () => {
       const chatID = chatStub().id;
 
       beforeEach(() => {
-        messagesService.create(createMessageDto.content, initiatorID, chatID);
+        messagesService.create({
+          chatID,
+          content: createMessageDto.content,
+          initiatorID,
+        });
       });
 
       test('calls chatsService.getOneByID', () => {
@@ -62,11 +66,11 @@ describe('MessagesService', () => {
             jest.spyOn(chatsService, 'getOneByID').mockResolvedValueOnce(null);
 
             await expect(
-              messagesService.create(
-                createMessageDto.content,
-                initiatorID,
+              messagesService.create({
                 chatID,
-              ),
+                content: createMessageDto.content,
+                initiatorID,
+              }),
             ).rejects.toThrow(ChatMessages.NOT_FOUND);
           });
         });
@@ -75,11 +79,11 @@ describe('MessagesService', () => {
           let result: MessageViewDto;
 
           beforeEach(async () => {
-            result = await messagesService.create(
-              createMessageDto.content,
-              initiatorID,
+            result = await messagesService.create({
               chatID,
-            );
+              content: createMessageDto.content,
+              initiatorID,
+            });
           });
 
           test('calls messagesRepository.save', async () => {

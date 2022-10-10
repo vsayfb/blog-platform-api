@@ -5,6 +5,7 @@ import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { Chat } from '../entities/chat.entity';
 import { chatStub } from '../stub/chat-stub';
 import { ChatMessages } from '../enums/chat-messages';
+import { ChatViewDto } from '../dto/chat-view.dto';
 
 jest.mock('src/chats/chats.service');
 
@@ -24,7 +25,7 @@ describe('ChatsController', () => {
 
   describe('findMyChats', () => {
     describe('when findMyChats is called', () => {
-      let result: { data: Chat[]; message: string };
+      let result: { data: ChatViewDto[]; message: ChatMessages };
       const me = jwtPayloadStub();
 
       beforeEach(async () => {
@@ -54,8 +55,8 @@ describe('ChatsController', () => {
         result = await chatsController.findOne(chatID, me);
       });
 
-      test('calls chatsService.getAccountChats', () => {
-        expect(chatsService.findOne).toHaveBeenCalledWith(me.sub, chatID);
+      test('calls chatsService.getOne', () => {
+        expect(chatsService.getOne).toHaveBeenCalledWith(me.sub, chatID);
       });
 
       it('should return a chat', () => {

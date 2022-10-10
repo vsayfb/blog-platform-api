@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Code } from './entities/code.entity';
 
 @Injectable()
-export class CodesService {
+export class CodesService implements ICreateService, IDeleteService {
   constructor(
     @InjectRepository(Code) private codesRepository: Repository<Code>,
   ) {}
@@ -13,9 +13,7 @@ export class CodesService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async createCode(
-    receiver: string,
-  ): Promise<{ code: string; codeID: string }> {
+  async create(receiver: string): Promise<{ code: string; codeID: string }> {
     const code = this.generateCode();
 
     const { id } = await this.codesRepository.save({ code, receiver });
@@ -27,9 +25,11 @@ export class CodesService {
     return this.codesRepository.findOne({ where: { code } });
   }
 
-  async removeCode(codeID: string): Promise<void> {
+  async delete(codeID: string): Promise<string> {
     const code = await this.codesRepository.findOne({ where: { id: codeID } });
 
     await this.codesRepository.remove(code);
+
+    return code.id;
   }
 }

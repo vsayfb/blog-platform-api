@@ -13,12 +13,11 @@ import { ChatMessages } from './enums/chat-messages';
 import { ChatViewDto } from './dto/chat-view.dto';
 
 @Injectable()
-export class ChatsService {
+export class ChatsService implements ICreateService, IFindService {
   constructor(
-    @InjectRepository(Chat) private readonly chatsRepository: Repository<Chat>,
-    @InjectRepository(Message)
-    private readonly messagesRepository: Repository<Message>,
-    private readonly accountsService: AccountsService,
+    @InjectRepository(Chat) private chatsRepository: Repository<Chat>,
+    @InjectRepository(Message) private messagesRepository: Repository<Message>,
+    private accountsService: AccountsService,
   ) {}
 
   async create(dto: {
@@ -26,9 +25,11 @@ export class ChatsService {
     toID: string;
     firstMessage: string;
   }): Promise<Chat> {
-    const initiatorAccount = await this.accountsService.getOne(dto.initiatorID);
+    const initiatorAccount = await this.accountsService.getOneByID(
+      dto.initiatorID,
+    );
 
-    const to = await this.accountsService.getOne(dto.toID);
+    const to = await this.accountsService.getOneByID(dto.toID);
 
     if (!to) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
@@ -55,9 +56,7 @@ export class ChatsService {
     // therefore do not allow the creation bi-directional chat only again
     if (membersIds.length !== 2) return false;
 
-    const chats = await this.chatsRepository.find({
-      relations: { members: true },
-    });
+    const chats = await this.getAll();
 
     // convert that to sql query
     chats.map((c) => {
@@ -84,17 +83,21 @@ export class ChatsService {
     ) as unknown as ChatViewDto[];
   }
 
-  async findOne(memberID: string, id: string): Promise<Chat> {
+  async getOne(memberID: string, id: string): Promise<Chat> {
     return await this.chatsRepository.findOne({
       where: { id, members: ArrayContains([memberID]) },
       relations: { members: true, messages: true },
     });
   }
 
-  getOneByID(id: string): Promise<Chat> {
-    return this.chatsRepository.findOne({
+  async getOneByID(id: string): Promise<Chat> {
+    return await this.chatsRepository.findOne({
       where: { id },
       relations: { members: true },
     });
+  }
+
+  async getAll(): Promise<Chat[]> {
+    return await this.chatsRepository.find({ relations: { members: true } });
   }
 }

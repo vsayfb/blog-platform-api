@@ -19,7 +19,7 @@ import { NewMessageInterceptor } from './interceptors/new-message.interceptor';
 
 @Controller('messages')
 @UseGuards(JwtAuthGuard)
-export class MessagesController {
+export class MessagesController implements ICreateController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @UseInterceptors(NewMessageInterceptor)
@@ -33,11 +33,11 @@ export class MessagesController {
     message: MessageMessages;
   }> {
     return {
-      data: await this.messagesService.create(
-        createMessageDto.content,
-        sender.sub,
-        chatID,
-      ),
+      data: await this.messagesService.create({
+        initiatorID: sender.sub,
+        chatID: chatID,
+        content: createMessageDto.content,
+      }),
       message: MessageMessages.SENT,
     };
   }

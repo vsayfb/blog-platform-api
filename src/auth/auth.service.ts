@@ -31,7 +31,7 @@ export class AuthService {
       throw new ForbiddenException(AccountMessages.INVALID_EMAIL);
     }
 
-    this.codesService.removeCode(code.id);
+    this.codesService.delete(code.id);
 
     const account = await this.accountsService.createLocalAccount(data);
 

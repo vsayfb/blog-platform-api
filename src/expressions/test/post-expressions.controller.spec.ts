@@ -5,24 +5,21 @@ import { ExpressionMessages } from '../enums/expressions-messages';
 import { ExpressionsService } from '../services/expressions.service';
 import { expressionStub } from '../stub/expression-stub';
 import { PostExpressionsController } from '../controllers/post-expressions.controller';
-import { PostExpressionsService } from '../services/post-expressions.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { ExpressionType } from '../entities/expression.entity';
 import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/expressions/services/expressions.service');
-jest.mock('src/expressions/services/post-expressions.service');
 
 describe('PostExpressionsController', () => {
   let postExpressionsController: PostExpressionsController;
-  let postExpressionsService: PostExpressionsService;
+  let expressionsService: ExpressionsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PostExpressionsController],
       providers: [
-        PostExpressionsService,
         ExpressionsService,
         { provide: MANAGE_DATA_SERVICE, useClass: ExpressionsService },
         CaslAbilityFactory,
@@ -32,13 +29,10 @@ describe('PostExpressionsController', () => {
     postExpressionsController = module.get<PostExpressionsController>(
       PostExpressionsController,
     );
-    postExpressionsService = module.get<PostExpressionsService>(
-      PostExpressionsService,
-    );
   });
 
-  describe('likePost', () => {
-    describe('when likePost is called', () => {
+  describe('like', () => {
+    describe('when like is called', () => {
       let result: {
         data: CreatedPostExpressionDto;
         message: ExpressionMessages;
@@ -47,13 +41,11 @@ describe('PostExpressionsController', () => {
       const postID = postStub().id;
 
       beforeEach(async () => {
-        result = await postExpressionsController.likePost(account, postID);
+        result = await postExpressionsController.like(account, postID);
       });
 
       test('calls postExpressionsService.createPostExpression', () => {
-        expect(
-          postExpressionsService.createPostExpression,
-        ).toHaveBeenCalledWith({
+        expect(expressionsService.create).toHaveBeenCalledWith({
           postID,
           type: ExpressionType.LIKE,
           accountID: account.sub,
@@ -66,8 +58,8 @@ describe('PostExpressionsController', () => {
     });
   });
 
-  describe('dislikePost', () => {
-    describe('when dislikePost is called', () => {
+  describe('dislike', () => {
+    describe('when dislike is called', () => {
       let result: {
         data: CreatedPostExpressionDto;
         message: ExpressionMessages;
@@ -76,13 +68,11 @@ describe('PostExpressionsController', () => {
       const postID = postStub().id;
 
       beforeEach(async () => {
-        result = await postExpressionsController.dislikePost(account, postID);
+        result = await postExpressionsController.dislike(account, postID);
       });
 
       test('calls postExpressionsService.createPostExpression', () => {
-        expect(
-          postExpressionsService.createPostExpression,
-        ).toHaveBeenCalledWith({
+        expect(expressionsService.create).toHaveBeenCalledWith({
           postID,
           type: ExpressionType.DISLIKE,
           accountID: account.sub,

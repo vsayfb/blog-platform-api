@@ -29,16 +29,16 @@ describe('FollowController', () => {
     followService = module.get<FollowService>(FollowService);
   });
 
-  describe('follow', () => {
-    describe('when follow is called', () => {
-      let result: { data: Follow; message?: FollowMessages };
+  describe('create', () => {
+    describe('when create is called', () => {
+      let result: { data: Follow; message: FollowMessages };
       const account = jwtPayloadStub();
       const followedUser: UsernameQuery = {
         username: accountStub().username,
       };
 
       beforeEach(async () => {
-        result = await followController.follow(account, followedUser);
+        result = await followController.create(account, followedUser);
       });
 
       test('calls followService.followAccount', () => {

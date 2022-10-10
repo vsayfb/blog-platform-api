@@ -30,7 +30,6 @@ import { PostRoutes } from './enums/post-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PostMessages } from './enums/post-messages';
 import { UploadMessages } from 'src/uploads/enums/upload-messages';
-import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { PublicPostDto } from './dto/public-post.dto';
 import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
@@ -40,7 +39,13 @@ import { CacheJsonInterceptor } from 'src/cache/cache-json.interceptor';
 
 @Controller('posts')
 @ApiTags('posts')
-export class PostsController implements ICrudController<PostEntity> {
+export class PostsController
+  implements
+    ICreateController,
+    IFindController,
+    IUpdateController,
+    IDeleteController
+{
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
@@ -121,7 +126,7 @@ export class PostsController implements ICrudController<PostEntity> {
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(PostRoutes.REMOVE + ':id')
-  async remove(
+  async delete(
     @Data() post: PostEntity,
   ): Promise<{ id: string; message: PostMessages }> {
     return {

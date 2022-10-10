@@ -13,7 +13,7 @@ import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
 
 @Injectable()
-export class FollowService {
+export class FollowService implements IDeleteService {
   constructor(
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
@@ -66,7 +66,7 @@ export class FollowService {
 
     if (!follow) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
-    await this.followRepository.remove(follow);
+    await this.delete(follow);
 
     return unfollowedUsername;
   }
@@ -87,5 +87,13 @@ export class FollowService {
       },
       relations: { followed: true },
     })) as any;
+  }
+
+  async delete(subject: Follow): Promise<string> {
+    const ID = subject.id;
+
+    await this.followRepository.remove(subject);
+
+    return ID;
   }
 }

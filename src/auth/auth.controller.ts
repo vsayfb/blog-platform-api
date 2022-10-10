@@ -12,7 +12,7 @@ import { AuthMessages } from './enums/auth-messages';
 
 @Controller('auth')
 @ApiTags('auth')
-export class AuthController {
+export class AuthController implements ICreateController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
@@ -30,7 +30,7 @@ export class AuthController {
   }
 
   @Post(AuthRoutes.REGISTER)
-  async register(
+  async create(
     @Body() createAccountDto: CreateAccountDto,
   ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
     return {

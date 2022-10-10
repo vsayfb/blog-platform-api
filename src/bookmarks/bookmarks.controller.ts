@@ -12,7 +12,6 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
-import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { BookmarksService } from './bookmarks.service';
 import { PostBookmarks } from './dto/post-bookmarks.dto';
@@ -24,7 +23,9 @@ import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 
 @Controller('bookmarks')
 @ApiTags('bookmarks')
-export class BookmarksController implements ICrudController<Bookmark> {
+export class BookmarksController
+  implements ICreateController, IDeleteController
+{
   constructor(private readonly bookmarksService: BookmarksService) {}
 
   @UseGuards(JwtAuthGuard)
@@ -74,26 +75,14 @@ export class BookmarksController implements ICrudController<Bookmark> {
     };
   }
 
-  @Delete(BookmarkRoutes.REMOVE + ':id')
+  @Delete(BookmarkRoutes.DELETE + ':id')
   @UseGuards(JwtAuthGuard, CanManageData)
-  async remove(
+  async delete(
     @Data() subject: Bookmark,
   ): Promise<{ id: string; message: string }> {
     return {
       id: await this.bookmarksService.delete(subject),
       message: BookmarkMessages.DELETED,
     };
-  }
-
-  findOne(_id: string): Promise<{ data: any; message: string }> {
-    throw new Error('Method not implemented.');
-  }
-
-  findAll(): Promise<{ data: any[]; message: string }> {
-    throw new Error('Method not implemented.');
-  }
-
-  update(_dto: any, _subject: Bookmark): Promise<{ data: any; message: string }> {
-    throw new Error('Method not implemented.');
   }
 }

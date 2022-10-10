@@ -27,7 +27,7 @@ import { SelectedAccountFields } from './types/selected-account-fields';
 
 @Controller('accounts')
 @ApiTags('accounts')
-export class AccountsController {
+export class AccountsController implements IFindController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @UseGuards(JwtAuthGuard)
@@ -37,7 +37,7 @@ export class AccountsController {
   }
 
   @Get(AccountRoutes.PROFILE + ':username')
-  async findProfile(@Param() { username }: UsernameQuery): Promise<{
+  async findOne(@Param() { username }: UsernameQuery): Promise<{
     data: AccountProfileDto;
     message: AccountMessages;
   }> {
@@ -86,7 +86,7 @@ export class AccountsController {
   async beginVerification(
     @Body() data: BeginVerificationDto,
   ): Promise<{ message: string }> {
-    return await this.accountsService.beginRegisterVerification(
+    return await this.accountsService.beginLocalRegisterVerification(
       data.username,
       data.email,
     );

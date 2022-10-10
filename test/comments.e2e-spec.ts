@@ -76,7 +76,7 @@ describe('Comments (e2e)', () => {
     access_token: string,
   ): Promise<{ body: { data: Comment; message: string }; statusCode: number }> {
     const { body, statusCode } = await request(server)
-      .patch(PREFIX + CommentRoutes.PATCH + commentID)
+      .patch(PREFIX + CommentRoutes.UPDATE + commentID)
       .set('Authorization', access_token || access_token)
       .send(updateCommentDto);
 

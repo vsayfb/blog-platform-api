@@ -33,8 +33,8 @@ describe('AccountsController', () => {
     });
   });
 
-  describe('findAccount', () => {
-    describe('when findAccount is called', () => {
+  describe('findOne', () => {
+    describe('when findOne is called', () => {
       let result: {
         data: AccountProfileDto;
         message: AccountMessages;
@@ -42,7 +42,7 @@ describe('AccountsController', () => {
       const user: UsernameQuery = { username: accountStub().username };
 
       beforeEach(async () => {
-        result = await accountsController.findProfile(user);
+        result = await accountsController.findOne(user);
       });
 
       test('calls accountsService.getProfile', () => {
@@ -100,7 +100,7 @@ describe('AccountsController', () => {
       });
 
       test('calls the accountsService.beginRegisterVerification', () => {
-        expect(accountsService.beginRegisterVerification).toHaveBeenCalledWith(
+        expect(accountsService.beginLocalRegisterVerification).toHaveBeenCalledWith(
           beginVerificationDto.username,
           beginVerificationDto.email,
         );

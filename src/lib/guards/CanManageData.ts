@@ -1,5 +1,4 @@
 import { JwtPayload } from '../jwt.payload';
-import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import {
   CanActivate,
   ExecutionContext,
@@ -17,7 +16,7 @@ import { MANAGE_DATA_SERVICE } from '../constants';
 @Injectable()
 export class CanManageData implements CanActivate {
   constructor(
-    @Inject(MANAGE_DATA_SERVICE) private readonly service: ICrudService<any>,
+    @Inject(MANAGE_DATA_SERVICE) private readonly service: IFindService,
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 

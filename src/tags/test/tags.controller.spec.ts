@@ -112,7 +112,7 @@ describe('TagsController', () => {
       const tag = tagStub() as unknown as Tag;
 
       beforeEach(async () => {
-        result = await tagsController.remove(tag);
+        result = await tagsController.delete(tag);
       });
 
       test('calls tagsService.delete method', () => {

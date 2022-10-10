@@ -1,11 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenError } from '@casl/ability';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { AccountExpressionsDto } from '../dto/account-expressions.dto';
-import { Expression } from '../entities/expression.entity';
+import {
+  Expression,
+  ExpressionSubject,
+  ExpressionType,
+} from '../entities/expression.entity';
+import { ExpressionMessages } from '../enums/expressions-messages';
 
 @Injectable()
-export class ExpressionsService {
+export class ExpressionsService
+  implements IFindService, ICreateService, IDeleteService
+{
   @InjectRepository(Expression)
   protected readonly expressionsRepository: Repository<Expression>;
 
@@ -14,6 +22,10 @@ export class ExpressionsService {
       where: { id },
       relations: { left: true },
     });
+  }
+
+  getAll(): Promise<Expression[]> {
+    return this.expressionsRepository.find();
   }
 
   async getAccountExpressions(
@@ -25,11 +37,67 @@ export class ExpressionsService {
     })) as any;
   }
 
+  async create({
+    subject,
+    data,
+  }: {
+    subject: ExpressionSubject;
+    data: {
+      subjectID: string;
+      accountID: string;
+      type: ExpressionType;
+    };
+  }): Promise<any> {
+    const { subjectID, accountID, type } = data;
+
+    await this.checkAlreadyLeft({
+      [subject]: { id: subjectID },
+      left: { id: accountID },
+    });
+
+    const expression = await this.expressionsRepository.save({
+      [subject]: { id: subjectID },
+      left: { id: accountID },
+      type,
+    });
+
+    return this.expressionsRepository.findOne({
+      where: { id: expression.id },
+      relations: { left: true, [subject]: true },
+    }) as any;
+  }
+
+  async getSubjectLikes(subject: { type: ExpressionSubject; id: string }) {
+    return await this.expressionsRepository.find({
+      where: { [subject.type]: { id: subject.id }, type: ExpressionType.LIKE },
+      relations: { left: true },
+    });
+  }
+
+  async getSubjectDislikes(subject: { type: ExpressionSubject; id: string }) {
+    return await this.expressionsRepository.find({
+      where: {
+        [subject.type]: { id: subject.id },
+        type: ExpressionType.DISLIKE,
+      },
+      relations: { left: true },
+    });
+  }
+
   async delete(exp: Expression): Promise<string> {
     const ID = exp.id;
 
     await this.expressionsRepository.remove(exp);
 
     return ID;
+  }
+
+  protected async checkAlreadyLeft(where: FindOptionsWhere<Expression>) {
+    const left = await this.expressionsRepository.findOne({
+      where,
+      relations: { left: true, post: true },
+    });
+
+    if (left) throw new ForbiddenException(ExpressionMessages.ALREADY_LEFT);
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICrudService } from 'src/lib/interfaces/ICrudService';
 import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsDto } from './dto/tags.dto';
@@ -8,7 +7,9 @@ import { Tag } from './entities/tag.entity';
 import { SelectedTagFields } from './types/selected-tag-fields';
 
 @Injectable()
-export class TagsService implements ICrudService<Tag> {
+export class TagsService
+  implements ICreateService, IFindService, IDeleteService, IUpdateService
+{
   constructor(
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
   ) {}

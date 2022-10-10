@@ -37,7 +37,7 @@ describe('CodeService', () => {
           .spyOn(CodesService.prototype, 'generateCode' as any)
           .mockReturnValue(code);
 
-        result = await codesService.createCode(receiver);
+        result = await codesService.create(receiver);
       });
 
       test('calls codesService.generateCode method', () => {
@@ -76,12 +76,13 @@ describe('CodeService', () => {
     });
   });
 
-  describe('removeCode', () => {
-    describe('when removeCode is called', () => {
-      let result: void;
+  describe('delete', () => {
+    describe('when delete is called', () => {
+      let result: string;
+      const codeID = codeStub().id;
 
       beforeEach(async () => {
-        result = await codesService.removeCode(codeStub().id);
+        result = await codesService.delete(codeStub().id);
       });
 
       test('calls repository.findOne method ', () => {
@@ -94,8 +95,8 @@ describe('CodeService', () => {
         expect(codesRepository.remove).toHaveBeenCalledWith(codeStub());
       });
 
-      it('should return removed code', () => {
-        expect(result).toEqual(undefined);
+      it('should return removed code id ', () => {
+        expect(result).toBe(codeID);
       });
     });
   });

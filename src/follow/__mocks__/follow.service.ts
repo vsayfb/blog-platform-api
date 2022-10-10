@@ -18,4 +18,5 @@ export const FollowService = jest.fn().mockReturnValue({
     .mockResolvedValue([
       { followed: accountStub(), createdAt: new Date(), id: followStub().id },
     ]),
+  delete: jest.fn().mockResolvedValue(followStub().id),
 });

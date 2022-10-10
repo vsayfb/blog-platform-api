@@ -15,7 +15,6 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
-import { ICrudController } from 'src/lib/interfaces/ICrudController';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
 import { CommentViewDto } from './dto/comment-view.dto';
@@ -30,7 +29,9 @@ import { SelectedCommentFields } from './types/selected-comment-fields';
 
 @Controller('comments')
 @ApiTags('comments')
-export class CommentsController implements ICrudController<Comment> {
+export class CommentsController
+  implements ICreateController, IUpdateController, IDeleteController
+{
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get(CommentRoutes.POST_COMMENTS + ':id')
@@ -90,7 +91,7 @@ export class CommentsController implements ICrudController<Comment> {
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(CommentRoutes.DELETE + ':id')
-  async remove(
+  async delete(
     @Data() comment: Comment,
   ): Promise<{ id: string; message: string }> {
     return {
@@ -109,12 +110,5 @@ export class CommentsController implements ICrudController<Comment> {
       data: await this.commentsService.update(comment, updateCommentDto),
       message: CommentMessages.UPDATED,
     };
-  }
-
-  findAll(): Promise<{ data: any[]; message: string }> {
-    throw new Error('Method not implemented.');
-  }
-  findOne(_id: string): Promise<{ data: any; message: string }> {
-    throw new Error('Method not implemented.');
   }
 }

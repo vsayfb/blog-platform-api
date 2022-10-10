@@ -54,13 +54,13 @@ describe('ExpressionsController', () => {
     });
   });
 
-  describe('remove', () => {
-    describe('when remove is called', () => {
+  describe('delete', () => {
+    describe('when delete is called', () => {
       let result: { id: string; message: ExpressionMessages };
       const expression = expressionStub();
 
       beforeEach(async () => {
-        result = await expressionsController.remove(expression);
+        result = await expressionsController.delete(expression);
       });
 
       test('calls expressionsService.delete', () => {

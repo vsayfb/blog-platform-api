@@ -49,11 +49,11 @@ describe('MessagesController', () => {
       });
 
       test('calls messagesService.create', () => {
-        expect(messagesService.create).toHaveBeenCalledWith(
-          createMessageDto.content,
-          sender.sub,
-          chatID,
-        );
+        expect(messagesService.create).toHaveBeenCalledWith({
+          initiatorID: sender.sub,
+          chatID: chatID,
+          content: createMessageDto.content,
+        });
       });
 
       it('should return created message', () => {

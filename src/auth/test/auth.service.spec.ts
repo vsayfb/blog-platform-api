@@ -88,8 +88,8 @@ describe('AuthService', () => {
           result = await authService.register(dto);
         });
 
-        test('calls codesService.removeCode', () => {
-          expect(codesService.removeCode).toHaveBeenCalledWith(codeStub().id);
+        test('calls codesService.delete', () => {
+          expect(codesService.delete).toHaveBeenCalledWith(codeStub().id);
         });
 
         test('shold return account and access token', () => {

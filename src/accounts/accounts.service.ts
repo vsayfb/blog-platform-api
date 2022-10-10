@@ -15,7 +15,7 @@ import { AccountMessages } from './enums/account-messages';
 import { SelectedAccountFields } from './types/selected-account-fields';
 
 @Injectable()
-export class AccountsService {
+export class AccountsService implements IFindService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
@@ -23,7 +23,7 @@ export class AccountsService {
     private readonly uploadsService: UploadsService,
   ) {}
 
-  async getOne(id: string): Promise<SelectedAccountFields> {
+  async getOneByID(id: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { id } });
   }
 
@@ -123,7 +123,7 @@ export class AccountsService {
     return newImageUrl;
   }
 
-  async beginRegisterVerification(
+  async beginLocalRegisterVerification(
     username: string,
     email: string,
   ): Promise<{ message: string }> {
@@ -157,5 +157,9 @@ export class AccountsService {
       where: { username: Like(`%${username}%`) },
       take: 10,
     });
+  }
+
+  async getAll(): Promise<Account[]> {
+    return await this.accountsRepository.find({});
   }
 }

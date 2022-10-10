@@ -20,13 +20,13 @@ import { FollowedNotificationInterceptor } from './interceptors/followed-notific
 import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
 
 @Controller('follow')
-export class FollowController {
+export class FollowController implements ICreateController {
   constructor(private readonly followService: FollowService) {}
 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FollowedNotificationInterceptor)
   @Post(FollowRoutes.FOLLOW + ':username')
-  async follow(
+  async create(
     @Account() account: JwtPayload,
     @Param() { username }: UsernameQuery,
   ): Promise<{ data: Follow; message: FollowMessages }> {

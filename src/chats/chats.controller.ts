@@ -20,7 +20,7 @@ import { Chat } from './entities/chat.entity';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
-export class ChatsController {
+export class ChatsController implements ICreateController, IFindController {
   constructor(private readonly chatsService: ChatsService) {}
 
   @Post(ChatRoutes.CREATE)
@@ -52,7 +52,7 @@ export class ChatsController {
     @Param('id', ParseUUIDPipe) chatID: string,
     @Account() me: JwtPayload,
   ): Promise<{ data: Chat; message: ChatMessages }> {
-    const chat = await this.chatsService.findOne(me.sub, chatID);
+    const chat = await this.chatsService.getOne(me.sub, chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
 

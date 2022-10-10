@@ -56,8 +56,8 @@ describe('MailsService', () => {
           })),
       );
 
-      test('calls codeService.createCode', () => {
-        expect(codesService.createCode).toHaveBeenCalledWith(to.email);
+      test('calls codeService.create', () => {
+        expect(codesService.create).toHaveBeenCalledWith(to.email);
       });
 
       test('calls mailSenderService.sendVerificationMail', () => {

@@ -151,27 +151,6 @@ describe('NotificationsService', () => {
     });
   });
 
-  describe('getOne', () => {
-    describe('when getOne is called', () => {
-      let result: Notification;
-      const username = notificationStub().notifable.username;
-
-      beforeEach(async () => {
-        result = await notificationsService.getOne(username);
-      });
-
-      test('calls notificationsRepository.findOne', () => {
-        expect(notificationsRepository.findOne).toHaveBeenCalledWith({
-          where: { notifable: { username } },
-        });
-      });
-
-      it('should return the notification', () => {
-        expect(result).toEqual(notificationStub());
-      });
-    });
-  });
-
   describe('getAll', () => {
     describe('when getAll is called', () => {
       let result: Notification[];

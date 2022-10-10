@@ -33,7 +33,6 @@ describe('Follow (e2e)', () => {
   });
 
   afterAll(async () => {
-    // await databaseService.clearTableRows('follow');
     await databaseService.clearAllTables();
 
     await databaseService.disconnectDatabase();
@@ -130,7 +129,7 @@ describe('Follow (e2e)', () => {
           expect(result.body.message).toBe(FollowMessages.FOLLOWED);
         });
 
-        test('should be saved a natification about follower user', async () => {
+        test('should be saved a notification about follower user', async () => {
           const notification: { body: { data: Notification[] } } =
             await request(server)
               .get('/notifications/me')
