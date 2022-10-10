@@ -20,7 +20,7 @@ describe('MailgunService', () => {
   });
 
   describe('sendVerificationMail', () => {
-    let result: boolean;
+    let result: void;
 
     const code = codeStub().code;
 
@@ -60,8 +60,8 @@ describe('MailgunService', () => {
         );
       });
 
-      it('should return true', () => {
-        expect(result).toBe(true);
+      it('should return undefined (void)', () => {
+        expect(result).toBe(undefined);
       });
     });
   });

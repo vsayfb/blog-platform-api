@@ -4,9 +4,10 @@ import * as formData from 'form-data';
 import { ConfigService } from '@nestjs/config';
 import Client from 'mailgun.js/client';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { IMailSenderService } from 'src/mails/interfaces/mail-sender-service.interface';
 
 @Injectable()
-export class MailgunService {
+export class MailgunService implements IMailSenderService {
   private mailgun = new Mailgun(formData);
   private client: Client;
 
@@ -55,7 +56,5 @@ export class MailgunService {
         username: to.username,
       }),
     });
-
-    return true;
   }
 }

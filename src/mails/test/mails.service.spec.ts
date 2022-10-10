@@ -6,6 +6,7 @@ import { CodesService } from 'src/codes/codes.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { codeStub } from 'src/codes/stub/code.stub';
 import { JobsService } from 'src/global/jobs/jobs.service';
+import { IMailSenderService } from '../interfaces/mail-sender-service.interface';
 import { MailsService } from '../mails.service';
 
 jest.mock('src/codes/codes.service');
@@ -15,15 +16,15 @@ jest.mock('src/global/jobs/jobs.service');
 describe('MailsService', () => {
   let service: MailsService;
   let codesService: CodesService;
-  let mailgunService: MailgunService;
   let jobsService: JobsService;
+  let mailSenderService: IMailSenderService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MailsService,
         CodesService,
-        MailgunService,
+        { provide: IMailSenderService, useClass: MailgunService },
         JobsService,
         { provide: ConfigService, useValue: { get: jest.fn(() => '') } },
       ],
@@ -31,7 +32,7 @@ describe('MailsService', () => {
 
     service = module.get<MailsService>(MailsService);
     codesService = module.get<CodesService>(CodesService);
-    mailgunService = module.get<MailgunService>(MailgunService);
+    mailSenderService = module.get<IMailSenderService>(IMailSenderService);
     jobsService = module.get<JobsService>(JobsService);
   });
 
@@ -59,8 +60,8 @@ describe('MailsService', () => {
         expect(codesService.createCode).toHaveBeenCalledWith(to.email);
       });
 
-      test('calls mailgunService.sendVerificationMail', () => {
-        expect(mailgunService.sendVerificationMail).toHaveBeenCalledWith(
+      test('calls mailSenderService.sendVerificationMail', () => {
+        expect(mailSenderService.sendVerificationMail).toHaveBeenCalledWith(
           to,
           codeStub().code,
         );
