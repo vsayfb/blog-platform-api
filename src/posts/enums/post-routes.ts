@@ -5,7 +5,7 @@ export enum PostRoutes {
   FIND_BY_ID = '/id/',
   FIND_ONE_BY_URL = '/',
   UPDATE = '/',
-  REMOVE = '/',
+  DELETE = '/',
   CHANGE_POST_STATUS = '/change_post_status/',
   UPLOAD_TITLE_IMAGE = '/upload_title_image',
 }

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Expression } from '../entities/expression.entity';
 import { ExpressionsService } from '../services/expressions.service';

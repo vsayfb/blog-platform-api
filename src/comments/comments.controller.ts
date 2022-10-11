@@ -94,7 +94,7 @@ export class CommentsController
   @Delete(CommentRoutes.DELETE + ':id')
   async delete(
     @Data() comment: Comment,
-  ): Promise<{ id: string; message: string }> {
+  ): Promise<{ id: string; message: CommentMessages }> {
     return {
       id: await this.commentsService.delete(comment),
       message: CommentMessages.DELETED,

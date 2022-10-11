@@ -6,7 +6,10 @@ import { ExpressionsService } from '../services/expressions.service';
 import { expressionStub } from '../stub/expression-stub';
 import { PostExpressionsController } from '../controllers/post-expressions.controller';
 import { postStub } from 'src/posts/stub/post-stub';
-import { ExpressionType } from '../entities/expression.entity';
+import {
+  ExpressionSubject,
+  ExpressionType,
+} from '../entities/expression.entity';
 import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
@@ -44,14 +47,6 @@ describe('PostExpressionsController', () => {
         result = await postExpressionsController.like(account, postID);
       });
 
-      test('calls postExpressionsService.createPostExpression', () => {
-        expect(expressionsService.create).toHaveBeenCalledWith({
-          postID,
-          type: ExpressionType.LIKE,
-          accountID: account.sub,
-        });
-      });
-
       it('should return the created expression', () => {
         expect(result.data).toEqual(expressionStub());
       });
@@ -69,14 +64,6 @@ describe('PostExpressionsController', () => {
 
       beforeEach(async () => {
         result = await postExpressionsController.dislike(account, postID);
-      });
-
-      test('calls postExpressionsService.createPostExpression', () => {
-        expect(expressionsService.create).toHaveBeenCalledWith({
-          postID,
-          type: ExpressionType.DISLIKE,
-          accountID: account.sub,
-        });
       });
 
       it('should return the created expression', () => {

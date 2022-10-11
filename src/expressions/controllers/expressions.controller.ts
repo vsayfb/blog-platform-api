@@ -25,13 +25,13 @@ export class ExpressionsController
   protected readonly expressionsService: ExpressionsService;
 
   @UseGuards(JwtAuthGuard)
-  @Get(ExpressionRoutes.ME)
-  async findMyExpressions(@Account() me: JwtPayload): Promise<{
+  @Get(ExpressionRoutes.CLIENT)
+  async findMyExpressions(@Account() client: JwtPayload): Promise<{
     data: AccountExpressionsDto[];
     message: ExpressionMessages.ALL_FOUND;
   }> {
     return {
-      data: await this.expressionsService.getAccountExpressions(me.sub),
+      data: await this.expressionsService.getAccountExpressions(client.sub),
       message: ExpressionMessages.ALL_FOUND,
     };
   }

@@ -40,8 +40,8 @@ export class ChatsController implements ICreateController, IFindController {
     };
   }
 
-  @Get(ChatRoutes.FIND_MY_CHATS)
-  async findMyChats(
+  @Get(ChatRoutes.FIND_CLIENT_CHATS)
+  async findClientChats(
     @Account() me: JwtPayload,
   ): Promise<{ data: ChatViewDto[]; message: ChatMessages }> {
     return {

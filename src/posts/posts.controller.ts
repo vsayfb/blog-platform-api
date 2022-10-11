@@ -125,7 +125,7 @@ export class PostsController
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @Delete(PostRoutes.REMOVE + ':id')
+  @Delete(PostRoutes.DELETE + ':id')
   async delete(
     @Data() post: PostEntity,
   ): Promise<{ id: string; message: PostMessages }> {

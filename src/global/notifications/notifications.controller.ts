@@ -2,6 +2,7 @@ import { Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { NOTIFICATIONS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -10,14 +11,14 @@ import { NotificationMessages } from './enums/notification-messages';
 import { NotificationRoutes } from './enums/notification-routes';
 import { NotificationsService } from './services/notifications.service';
 
-@ApiTags('notifications')
-@Controller('notifications')
+@ApiTags(NOTIFICATIONS_ROUTE)
+@Controller(NOTIFICATIONS_ROUTE)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get(NotificationRoutes.ME)
-  async findMyNotifications(@Account() account: JwtPayload): Promise<{
+  @Get(NotificationRoutes.CLIENT)
+  async findClientNotifications(@Account() account: JwtPayload): Promise<{
     data: Notification[];
     message: NotificationMessages;
   }> {
@@ -31,7 +32,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(NotificationRoutes.SEEN + ':id')
-  async changeNotificationStatus(@Data() notification: Notification) {
+  async makeVisibilitySeen(@Data() notification: Notification) {
     return {
       id: await this.notificationsService.update(notification),
       message: NotificationMessages.HIDDEN,

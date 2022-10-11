@@ -9,7 +9,7 @@ import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
 import { Like, Repository } from 'typeorm';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';

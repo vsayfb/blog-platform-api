@@ -88,13 +88,13 @@ describe('BookmarksController', () => {
     });
   });
 
-  describe('findMyBookmarks', () => {
-    describe('when findMyBookmarks is called', () => {
+  describe('findClientBookmarks', () => {
+    describe('when findClientBookmarks is called', () => {
       let result: { data: AccountBookmarks; message: string };
       const me = jwtPayloadStub();
 
       beforeEach(async () => {
-        result = await bookmarksController.findMyBookmarks(me);
+        result = await bookmarksController.findClientBookmarks(me);
       });
 
       test('calls bookmarksService.getAccountBookmarks', () => {

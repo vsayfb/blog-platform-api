@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { mockRepository } from '../../../../test/utils/mockRepository';
+import { mockRepository } from '../../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { NotificationsService } from '../services/notifications.service';

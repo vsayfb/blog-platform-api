@@ -3,7 +3,7 @@ import { MessagesService } from '../messages.service';
 import { Message } from '../entities/message.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { ChatsService } from '../../chats/chats.service';
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { messageStub } from '../stub/message-stub';

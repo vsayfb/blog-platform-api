@@ -45,8 +45,8 @@ export class BookmarksController
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(BookmarkRoutes.FIND_MY_BOOKMARKS)
-  async findMyBookmarks(
+  @Get(BookmarkRoutes.FIND_CLIENT_BOOKMARKS)
+  async findClientBookmarks(
     @Account() me: JwtPayload,
   ): Promise<{ data: AccountBookmarks; message: string }> {
     return {

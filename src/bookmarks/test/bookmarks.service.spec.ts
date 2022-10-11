@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { postStub } from 'src/posts/stub/post-stub';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { BookmarksService } from '../bookmarks.service';
 import { Bookmark } from '../entities/bookmark.entity';

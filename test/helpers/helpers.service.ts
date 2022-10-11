@@ -1,23 +1,27 @@
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
 import { AccessToken } from 'src/auth/dto/access-token.dto';
-import {
-  DatabaseUser,
-  TestDatabaseService,
-} from '../database/database.service';
+import { DatabaseUser, TestDatabaseService } from './database/database.service';
 import * as request from 'supertest';
 import { PostRoutes } from 'src/posts/enums/post-routes';
 import { CreatedPostDto } from 'src/posts/dto/created-post.dto';
 import { CommentRoutes } from 'src/comments/enums/comment-routes';
-import { generateFakeComment } from 'test/utils/generateFakeComment';
+import { generateFakeComment } from 'test/helpers/utils/generateFakeComment';
 import { SelectedCommentFields } from 'src/comments/types/selected-comment-fields';
 import { TagRoutes } from 'src/tags/enums/tag-routes';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
-import { generateFakePost } from 'test/utils/generateFakePost';
-import { generateFakeTag } from 'test/utils/generateFakeTag';
+import { generateFakePost } from 'test/helpers/utils/generateFakePost';
+import { generateFakeTag } from 'test/helpers/utils/generateFakeTag';
 import { ChatMessages } from '../../src/chats/enums/chat-messages';
 import { MessageViewDto } from '../../src/messages/dto/message-view.dto';
 import { MessageMessages } from '../../src/messages/enums/message-messages';
+import { SelectedBookmarkFields } from 'src/bookmarks/types/selected-bookmark-fields';
+import { BookmarkMessages } from 'src/bookmarks/enums/bookmark-messages';
+import { BOOKMARKS_ROUTE, EXPRESSIONS_ROUTE } from 'src/lib/constants';
+import { BookmarkRoutes } from 'src/bookmarks/enums/bookmark-routes';
+import { CreatedPostExpressionDto } from 'src/expressions/dto/created-post-expression.dto';
+import { ExpressionMessages } from 'src/expressions/enums/expressions-messages';
+import { ExpressionRoutes } from 'src/expressions/enums/expression-routes';
 
 @Injectable()
 export class HelpersService {
@@ -166,6 +170,49 @@ export class HelpersService {
         .post(`/messages/to/${chatID}`)
         .set('Authorization', senderToken)
         .send({ content: message || 'random-message' });
+
+    return result.body;
+  }
+
+  async createRandomBookmark(
+    app: INestApplication,
+    access_token: string,
+    postID?: string,
+  ) {
+    const post = await this.createRandomPost(app);
+
+    const bookmark: {
+      body: { data: SelectedBookmarkFields; message: BookmarkMessages };
+    } = await request(app.getHttpServer())
+      .post(
+        BOOKMARKS_ROUTE +
+          BookmarkRoutes.CREATE +
+          `${postID || post.body.data.id}`,
+      )
+      .set('Authorization', access_token);
+
+    return bookmark.body;
+  }
+
+  async createRandomExpression(
+    app: INestApplication,
+    token: string,
+    postID?: string,
+  ) {
+    const post = await this.createRandomPost(app);
+
+    const result: {
+      body: {
+        data: CreatedPostExpressionDto;
+        message: ExpressionMessages;
+      };
+    } = await request(app.getHttpServer())
+      .post(
+        EXPRESSIONS_ROUTE +
+          ExpressionRoutes.LIKE_TO_POST +
+          (postID || post.body.data.id),
+      )
+      .set('Authorization', token);
 
     return result.body;
   }

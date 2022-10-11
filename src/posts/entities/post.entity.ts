@@ -23,7 +23,7 @@ export class Post {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   title_image: string;
 
   @ManyToOne(() => Account, (account) => account.posts, {

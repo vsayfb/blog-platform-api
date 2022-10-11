@@ -32,7 +32,7 @@ export class AccountsController implements IFindController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get(AccountRoutes.FIND_ME)
+  @Get(AccountRoutes.CLIENT)
   findMe(@Account() account: JwtPayload): JwtPayload {
     return account;
   }

@@ -1,5 +1,5 @@
 export enum AccountRoutes {
-  FIND_ME = '/me/',
+  CLIENT = '/me/',
   IS_AVAILABLE_USERNAME = '/is_available_username/',
   SEARCH_BY_USERNAME = '/search_by_username/',
   IS_AVAILABLE_EMAIL = '/is_available_email/',

@@ -33,13 +33,13 @@ describe('NotificationsController', () => {
       module.get<NotificationsService>(NotificationsService);
   });
 
-  describe('findMyNotifications', () => {
-    describe('when findMyNotifications is called', () => {
+  describe('findClientNotifications', () => {
+    describe('when findClientNotifications is called', () => {
       let result: { data: Notification[]; message: NotificationMessages };
       const ME = jwtPayloadStub();
 
       beforeEach(async () => {
-        result = await notificationsController.findMyNotifications(ME);
+        result = await notificationsController.findClientNotifications(ME);
       });
 
       test('calls notificationsService.getAccountNotifications', () => {
@@ -54,13 +54,13 @@ describe('NotificationsController', () => {
     });
   });
 
-  describe('changeNotificationStatus', () => {
-    describe('when changeNotificationStatus is called', () => {
+  describe('makeVisibilitySeen', () => {
+    describe('when makeVisibilitySeen is called', () => {
       let result: { id: string; message: NotificationMessages };
       const notification = notificationStub();
 
       beforeEach(async () => {
-        result = await notificationsController.changeNotificationStatus(
+        result = await notificationsController.makeVisibilitySeen(
           notification,
         );
       });

@@ -5,7 +5,7 @@ import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { CodesService } from 'src/codes/codes.service';
 import { Code } from '../entities/code.entity';
 import { Repository } from 'typeorm';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 
 describe('CodeService', () => {
   let codesService: CodesService;

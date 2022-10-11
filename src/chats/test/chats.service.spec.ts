@@ -3,7 +3,7 @@ import { ChatsService } from '../chats.service';
 import { ArrayContains, Repository } from 'typeorm';
 import { Chat } from '../entities/chat.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { AccountsService } from '../../accounts/accounts.service';
 import { accountStub } from '../../accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';

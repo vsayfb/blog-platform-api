@@ -1,6 +1,6 @@
 export enum ExpressionRoutes {
   REMOVE = '/',
-  ME = '/me',
+  CLIENT = '/me',
   LIKE_TO_POST = '/like/post/',
   DISLIKE_TO_POST = '/dislike/post/',
   LIKE_TO_COMMENT = '/like/comment/',

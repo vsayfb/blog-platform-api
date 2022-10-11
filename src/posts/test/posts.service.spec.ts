@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { UpdatePostDto } from '../dto/update-post.dto';
-import { mockRepository } from '../../../test/utils/mockRepository';
+import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { CreatedPostDto } from '../dto/created-post.dto';
 import { tagStub } from 'src/tags/stub/tag.stub';
 import { CreatePostDto } from '../dto/create-post.dto';

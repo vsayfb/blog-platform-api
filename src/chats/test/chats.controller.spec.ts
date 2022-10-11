@@ -23,13 +23,13 @@ describe('ChatsController', () => {
     chatsService = moduleRef.get<ChatsService>(ChatsService);
   });
 
-  describe('findMyChats', () => {
-    describe('when findMyChats is called', () => {
+  describe('findClientChats', () => {
+    describe('when findClientChats is called', () => {
       let result: { data: ChatViewDto[]; message: ChatMessages };
       const me = jwtPayloadStub();
 
       beforeEach(async () => {
-        result = await chatsController.findMyChats(me);
+        result = await chatsController.findClientChats(me);
       });
 
       test('calls chatsService.getAccountChats', () => {
