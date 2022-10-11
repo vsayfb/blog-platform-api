@@ -13,6 +13,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { COMMENTS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -27,8 +28,8 @@ import { CommentRoutes } from './enums/comment-routes';
 import { CommentedNotificationInterceptor } from './interceptors/commented-notification.interceptor';
 import { SelectedCommentFields } from './types/selected-comment-fields';
 
-@Controller('comments')
-@ApiTags('comments')
+@Controller(COMMENTS_ROUTE)
+@ApiTags(COMMENTS_ROUTE)
 export class CommentsController
   implements ICreateController, IUpdateController, IDeleteController
 {

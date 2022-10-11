@@ -36,9 +36,10 @@ import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
 import { CacheJsonInterceptor } from 'src/cache/cache-json.interceptor';
+import { POSTS_ROUTE } from 'src/lib/constants';
 
-@Controller('posts')
-@ApiTags('posts')
+@Controller(POSTS_ROUTE)
+@ApiTags(POSTS_ROUTE)
 export class PostsController
   implements
     ICreateController,
@@ -49,7 +50,6 @@ export class PostsController
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('titleImage'))
   @Post(PostRoutes.CREATE)
   async create(
     @Body(TagNamePipe) createPostDto: CreatePostDto,

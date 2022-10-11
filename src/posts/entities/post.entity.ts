@@ -23,8 +23,8 @@ export class Post {
   @Column()
   title: string;
 
-  @Column({ default: null })
-  title_image: string | null;
+  @Column()
+  title_image: string;
 
   @ManyToOne(() => Account, (account) => account.posts, {
     onDelete: 'CASCADE',

@@ -18,6 +18,10 @@ export async function initializeEndToEndTestModule(): Promise<{
 
   const app = moduleRef.createNestApplication();
 
+  app.useGlobalPipes(
+    new ValidationPipe({ forbidUnknownValues: true, whitelist: true }),
+  );
+
   await app.init();
 
   const databaseService =

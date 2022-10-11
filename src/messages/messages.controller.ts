@@ -16,8 +16,11 @@ import { MessageMessages } from './enums/message-messages';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MessageViewDto } from './dto/message-view.dto';
 import { NewMessageInterceptor } from './interceptors/new-message.interceptor';
+import { ApiTags } from '@nestjs/swagger';
+import { MESSAGES_ROUTE } from 'src/lib/constants';
 
-@Controller('messages')
+@Controller(MESSAGES_ROUTE)
+@ApiTags(MESSAGES_ROUTE)
 @UseGuards(JwtAuthGuard)
 export class MessagesController implements ICreateController {
   constructor(private readonly messagesService: MessagesService) {}

@@ -18,8 +18,11 @@ import { UserFollowers } from './dto/user-followers.dto';
 import { UserFollowed } from './dto/user-followed.dto';
 import { FollowedNotificationInterceptor } from './interceptors/followed-notification.interceptor';
 import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { FOLLOW_ROUTE } from 'src/lib/constants';
 
-@Controller('follow')
+@Controller(FOLLOW_ROUTE)
+@ApiTags(FOLLOW_ROUTE)
 export class FollowController implements ICreateController {
   constructor(private readonly followService: FollowService) {}
 

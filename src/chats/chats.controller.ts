@@ -17,8 +17,11 @@ import { ChatMessages } from './enums/chat-messages';
 import { ChatViewDto } from './dto/chat-view.dto';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
+import { CHATS_ROUTE } from 'src/lib/constants';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('chats')
+@Controller(CHATS_ROUTE)
+@ApiTags(CHATS_ROUTE)
 @UseGuards(JwtAuthGuard)
 export class ChatsController implements ICreateController, IFindController {
   constructor(private readonly chatsService: ChatsService) {}

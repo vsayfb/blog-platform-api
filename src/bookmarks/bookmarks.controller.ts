@@ -20,9 +20,10 @@ import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
 import { BookmarkRoutes } from './enums/bookmark-routes';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
+import { BOOKMARKS_ROUTE } from 'src/lib/constants';
 
-@Controller('bookmarks')
-@ApiTags('bookmarks')
+@Controller(BOOKMARKS_ROUTE)
+@ApiTags(BOOKMARKS_ROUTE)
 export class BookmarksController
   implements ICreateController, IDeleteController
 {

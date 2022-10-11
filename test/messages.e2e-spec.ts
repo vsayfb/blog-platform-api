@@ -33,6 +33,7 @@ describe('Messages (e2e)', () => {
 
           const result = await request(server)
             .post(PREFIX + MessageRoutes.CREATE + randomUUID())
+            .send({ content: 'blah' })
             .set('Authorization', user.token);
 
           expect(result.body.message).toBe(ChatMessages.NOT_FOUND);

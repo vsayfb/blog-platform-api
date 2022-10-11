@@ -9,9 +9,10 @@ import { RegisterViewDto } from './dto/register-view.dto';
 import { AuthRoutes } from './enums/auth-routes';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthMessages } from './enums/auth-messages';
+import { AUTH_ROUTE } from 'src/lib/constants';
 
-@Controller('auth')
-@ApiTags('auth')
+@Controller(AUTH_ROUTE)
+@ApiTags(AUTH_ROUTE)
 export class AuthController implements ICreateController {
   constructor(private readonly authService: AuthService) {}
 

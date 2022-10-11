@@ -21,9 +21,10 @@ import { TagMessages } from './enums/tag-messages';
 import { TagsDto } from './dto/tags.dto';
 import { SelectedTagFields } from './types/selected-tag-fields';
 import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
+import { TAGS_ROUTE } from 'src/lib/constants';
 
-@Controller('tags')
-@ApiTags('tags')
+@Controller(TAGS_ROUTE)
+@ApiTags(TAGS_ROUTE)
 export class TagsController
   implements
     ICreateController,

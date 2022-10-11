@@ -13,6 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';
@@ -25,8 +26,8 @@ import { AccountMessages } from './enums/account-messages';
 import { AccountRoutes } from './enums/account-routes';
 import { SelectedAccountFields } from './types/selected-account-fields';
 
-@Controller('accounts')
-@ApiTags('accounts')
+@Controller(ACCOUNTS_ROUTE)
+@ApiTags(ACCOUNTS_ROUTE)
 export class AccountsController implements IFindController {
   constructor(private readonly accountsService: AccountsService) {}
 
