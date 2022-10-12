@@ -1,4 +1,3 @@
-import { ForbiddenError } from '@casl/ability';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -9,6 +8,9 @@ import {
   ExpressionType,
 } from '../entities/expression.entity';
 import { ExpressionMessages } from '../enums/expressions-messages';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 
 @Injectable()
 export class ExpressionsService

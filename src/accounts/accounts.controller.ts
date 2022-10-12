@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNTS_ROUTE } from 'src/lib/constants';
+import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './accounts.service';

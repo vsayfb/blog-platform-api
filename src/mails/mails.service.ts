@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { JobsService } from 'src/global/jobs/jobs.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
-import { ProcessEnv } from 'src/lib/enums/env';
 import { IMailSenderService } from './interfaces/mail-sender-service.interface';
 
 @Injectable()

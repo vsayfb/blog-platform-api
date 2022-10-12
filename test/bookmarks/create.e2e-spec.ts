@@ -10,7 +10,6 @@ describe('(POST) create', () => {
   let app: INestApplication;
   let databaseService: TestDatabaseService;
   let helpersService: HelpersService;
-  let server: any;
 
   beforeAll(async () => {
     const { nestApp, database, helpers } = await initializeEndToEndTestModule();
@@ -18,7 +17,6 @@ describe('(POST) create', () => {
     app = nestApp;
     helpersService = helpers;
     databaseService = database;
-    server = app.getHttpServer();
   });
 
   afterAll(async () => {

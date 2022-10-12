@@ -10,6 +10,7 @@ import { AuthRoutes } from './enums/auth-routes';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthMessages } from './enums/auth-messages';
 import { AUTH_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)

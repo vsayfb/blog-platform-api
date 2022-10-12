@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';

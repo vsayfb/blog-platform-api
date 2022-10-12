@@ -18,6 +18,7 @@ import { MessageViewDto } from './dto/message-view.dto';
 import { NewMessageInterceptor } from './interceptors/new-message.interceptor';
 import { ApiTags } from '@nestjs/swagger';
 import { MESSAGES_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 
 @Controller(MESSAGES_ROUTE)
 @ApiTags(MESSAGES_ROUTE)

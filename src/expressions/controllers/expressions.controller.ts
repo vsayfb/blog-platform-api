@@ -5,6 +5,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { EXPRESSIONS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountExpressionsDto } from '../dto/account-expressions.dto';
 import {

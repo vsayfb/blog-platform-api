@@ -22,6 +22,7 @@ describe('AccountsService', () => {
   let accounstService: AccountsService;
   let accountsRepository: Repository<Account>;
   let uploadsService: UploadsService;
+  let mailService: MailsService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +42,7 @@ describe('AccountsService', () => {
       getRepositoryToken(Account),
     );
     uploadsService = module.get<UploadsService>(UploadsService);
+    mailService = module.get<MailsService>(MailsService);
 
     mockRepository(accountsRepository, Account);
   });
@@ -267,15 +269,26 @@ describe('AccountsService', () => {
       });
 
       describe('if unregistered credentials sent', () => {
-        test('should return the message', async () => {
+        let result: { message: string };
+
+        beforeEach(async () => {
           jest.spyOn(accountsRepository, 'findOne').mockResolvedValue(null);
 
-          expect(
-            await accounstService.beginLocalRegisterVerification(
-              account.username,
-              accountEmail,
-            ),
-          ).toEqual({ message: CodeMessages.CODE_SENT });
+          result = await accounstService.beginLocalRegisterVerification(
+            account.username,
+            accountEmail,
+          );
+        });
+
+        test('calls mailService.sendVerificationCode', () => {
+          expect(mailService.sendVerificationCode).toHaveBeenCalledWith({
+            username: account.username,
+            email: accountEmail,
+          });
+        });
+
+        test('should return the message', async () => {
+          expect(result).toEqual({ message: CodeMessages.CODE_SENT });
         });
       });
     });

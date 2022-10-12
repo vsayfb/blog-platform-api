@@ -6,10 +6,6 @@ import { ExpressionsService } from '../services/expressions.service';
 import { expressionStub } from '../stub/expression-stub';
 import { PostExpressionsController } from '../controllers/post-expressions.controller';
 import { postStub } from 'src/posts/stub/post-stub';
-import {
-  ExpressionSubject,
-  ExpressionType,
-} from '../entities/expression.entity';
 import { CreatedPostExpressionDto } from '../dto/created-post-expression.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
@@ -17,7 +13,6 @@ jest.mock('src/expressions/services/expressions.service');
 
 describe('PostExpressionsController', () => {
   let postExpressionsController: PostExpressionsController;
-  let expressionsService: ExpressionsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

@@ -1,5 +1,4 @@
 import { CACHE_MANAGER, ExecutionContext, Inject } from '@nestjs/common';
-import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { RedisClientType } from 'redis';
 
 export abstract class BaseCacheInterceptor {

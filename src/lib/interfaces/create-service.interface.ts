@@ -1,3 +1,3 @@
-interface ICreateService {
+export interface ICreateService {
   create(data: any): Promise<any>;
 }

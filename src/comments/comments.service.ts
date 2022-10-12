@@ -13,6 +13,10 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { SelectedCommentFields } from './types/selected-comment-fields';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 
 @Injectable()
 export class CommentsService

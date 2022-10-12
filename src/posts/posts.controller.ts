@@ -11,8 +11,6 @@ import {
   UploadedFile,
   Query,
   Put,
-  ParseUUIDPipe,
-  CacheInterceptor,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
@@ -37,6 +35,10 @@ import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
 import { CacheJsonInterceptor } from 'src/cache/cache-json.interceptor';
 import { POSTS_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { IFindController } from 'src/lib/interfaces/find-controller.interface';
+import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
+import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)

@@ -19,14 +19,17 @@ import { UpdatedPostDto } from '../dto/updated-post.dto';
 import { PublicPostsDto } from '../dto/public-posts.dto';
 import { PostDto } from '../dto/post.dto';
 import { PostsDto } from '../dto/posts.dto';
+import { UrlManagementService } from 'src/global/url-management/services/url-management.service';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
+jest.mock('src/global/url-management/services/url-management.service');
 
 describe('PostsService', () => {
   let postsService: PostsService;
   let postsRepository: Repository<Post>;
   let uploadsService: UploadsService;
+  let urlManagementService: UrlManagementService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +37,7 @@ describe('PostsService', () => {
         PostsService,
         UploadsService,
         TagsService,
+        UrlManagementService,
         { provide: getRepositoryToken(Post), useClass: Repository },
       ],
     }).compile();
@@ -41,6 +45,8 @@ describe('PostsService', () => {
     postsService = module.get<PostsService>(PostsService);
     postsRepository = module.get<Repository<Post>>(getRepositoryToken(Post));
     uploadsService = module.get<UploadsService>(UploadsService);
+    urlManagementService =
+      module.get<UrlManagementService>(UrlManagementService);
 
     mockRepository(postsRepository, Post);
   });
@@ -58,9 +64,6 @@ describe('PostsService', () => {
 
       beforeEach(async () => {
         // spyOn private methods
-        jest
-          .spyOn(PostsService.prototype, 'convertUrl' as any)
-          .mockReturnValue('url');
         jest.spyOn(PostsService.prototype, 'setPostTags' as any);
 
         result = await postsService.create({
@@ -69,9 +72,10 @@ describe('PostsService', () => {
         });
       });
 
-      test('calls convertUrl method', () => {
-        //@ts-ignore private method
-        expect(postsService.convertUrl).toHaveBeenCalledWith(dto.title);
+      test('calls urlManagementService.convertToUniqueUrl method', () => {
+        expect(urlManagementService.convertToUniqueUrl).toHaveBeenCalledWith(
+          dto.title,
+        );
       });
 
       test('calls setPostTags method', () => {
@@ -121,6 +125,12 @@ describe('PostsService', () => {
           .mockResolvedValueOnce(tagStub());
 
         result = await postsService.update(post, updatePostDto);
+      });
+
+      test('calls urlManagementService.convertToUniqueUrl method', () => {
+        expect(urlManagementService.convertToUniqueUrl).toHaveBeenCalledWith(
+          updatePostDto.title,
+        );
       });
 
       test('calls postsService.setPostTags', () => {

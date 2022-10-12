@@ -100,7 +100,9 @@ describe('AccountsController', () => {
       });
 
       test('calls the accountsService.beginRegisterVerification', () => {
-        expect(accountsService.beginLocalRegisterVerification).toHaveBeenCalledWith(
+        expect(
+          accountsService.beginLocalRegisterVerification,
+        ).toHaveBeenCalledWith(
           beginVerificationDto.username,
           beginVerificationDto.email,
         );

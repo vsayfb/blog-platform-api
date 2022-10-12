@@ -60,9 +60,7 @@ describe('NotificationsController', () => {
       const notification = notificationStub();
 
       beforeEach(async () => {
-        result = await notificationsController.makeVisibilitySeen(
-          notification,
-        );
+        result = await notificationsController.makeVisibilitySeen(notification);
       });
 
       test('calls notificationsService.update', () => {

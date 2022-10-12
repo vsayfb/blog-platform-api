@@ -32,7 +32,7 @@ describe('(GET) search by username ', () => {
   });
 
   async function sendSearchByUsernameRequest(username: string) {
-    let user = await helpersService.loginRandomAccount(app);
+    const user = await helpersService.loginRandomAccount(app);
 
     const result: {
       body: { data: SelectedAccountFields[]; message: AccountMessages };

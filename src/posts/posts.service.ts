@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
-import ShortUniqueID from 'short-unique-id';
-import slugify from 'slugify';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -17,6 +15,11 @@ import { UpdatedPostDto } from './dto/updated-post.dto';
 import { PostDto } from './dto/post.dto';
 import { PostsDto } from './dto/posts.dto';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
+import { UrlManagementService } from 'src/global/url-management/services/url-management.service';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 
 @Injectable()
 export class PostsService
@@ -26,6 +29,7 @@ export class PostsService
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     private readonly uploadService: UploadsService,
     private readonly tagsService: TagsService,
+    private readonly urlManagementService: UrlManagementService,
   ) {}
 
   async create({
@@ -37,7 +41,7 @@ export class PostsService
     dto: CreatePostDto;
     published?: boolean;
   }): Promise<CreatedPostDto> {
-    const url = this.convertUrl(dto.title);
+    const url = this.urlManagementService.convertToUniqueUrl(dto.title);
 
     const tags = await this.setPostTags(dto.tags);
 
@@ -90,7 +94,7 @@ export class PostsService
     updatePostDto: UpdatePostDto,
   ): Promise<UpdatedPostDto> {
     post.title = updatePostDto.title;
-    post.url = this.convertUrl(post.title);
+    post.url = this.urlManagementService.convertToUniqueUrl(post.title);
     post.content = updatePostDto.content;
 
     if (updatePostDto.published === true) post.published = true;
@@ -117,12 +121,6 @@ export class PostsService
 
   private async setPostTags(tags: string[]): Promise<SelectedTagFields[]> {
     return await this.tagsService.createMultipleTagsIfNotExist(tags);
-  }
-
-  private convertUrl(title: string): string {
-    const uniqueID = new ShortUniqueID();
-
-    return `${slugify(title, { lower: true })}-${uniqueID()}`;
   }
 
   async getOneByID(id: string): Promise<PostDto> {

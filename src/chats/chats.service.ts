@@ -11,6 +11,8 @@ import { AccountMessages } from '../accounts/enums/account-messages';
 import { Message } from '../messages/entities/message.entity';
 import { ChatMessages } from './enums/chat-messages';
 import { ChatViewDto } from './dto/chat-view.dto';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
 
 @Injectable()
 export class ChatsService implements ICreateService, IFindService {

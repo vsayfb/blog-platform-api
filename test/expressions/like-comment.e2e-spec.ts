@@ -11,7 +11,6 @@ import {
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
 import * as request from 'supertest';
-import { CreatedPostExpressionDto } from 'src/expressions/dto/created-post-expression.dto';
 import { CreatedCommentExpressionDto } from 'src/expressions/dto/created-comment-expression.dto';
 
 jest.mock('src/gateways/notifications.gateway');

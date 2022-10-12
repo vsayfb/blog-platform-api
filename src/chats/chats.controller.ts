@@ -19,6 +19,8 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { Chat } from './entities/chat.entity';
 import { CHATS_ROUTE } from 'src/lib/constants';
 import { ApiTags } from '@nestjs/swagger';
+import { IFindController } from 'src/lib/interfaces/find-controller.interface';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 
 @Controller(CHATS_ROUTE)
 @ApiTags(CHATS_ROUTE)

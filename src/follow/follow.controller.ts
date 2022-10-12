@@ -20,6 +20,7 @@ import { FollowedNotificationInterceptor } from './interceptors/followed-notific
 import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FOLLOW_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 
 @Controller(FOLLOW_ROUTE)
 @ApiTags(FOLLOW_ROUTE)

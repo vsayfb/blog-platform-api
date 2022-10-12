@@ -1,3 +1,3 @@
-interface IUpdateService {
+export interface IUpdateService {
   update(subject: any, updateDto: any): Promise<any>;
 }

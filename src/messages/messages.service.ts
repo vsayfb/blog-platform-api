@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { ChatsService } from '../chats/chats.service';
 import { ChatMessages } from '../chats/enums/chat-messages';
 import { MessageViewDto } from './dto/message-view.dto';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
 
 @Injectable()
 export class MessagesService implements ICreateService, IFindService {

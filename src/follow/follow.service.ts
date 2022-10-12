@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';
 import { UserFollowed } from './dto/user-followed.dto';
 import { UserFollowers } from './dto/user-followers.dto';

@@ -5,7 +5,6 @@ import { Post } from 'src/posts/entities/post.entity';
 import { PostsController } from 'src/posts/posts.controller';
 import { PostsService } from 'src/posts/posts.service';
 import { postStub } from 'src/posts/stub/post-stub';
-import { randomUUID } from 'crypto';
 import { SelectedPostFields } from '../types/selected-post-fields';
 import { PostMessages } from '../enums/post-messages';
 import { PostsDto } from '../dto/posts.dto';
