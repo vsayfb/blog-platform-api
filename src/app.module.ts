@@ -25,6 +25,7 @@ import { RedisModule } from './global/redis/redis.module';
 import { ProcessEnv } from './lib/enums/env';
 import { CacheManagerModule } from './cache/cache-manager.module';
 import { UrlManagementModule } from './global/url-management/url-management.module';
+import { HashManagerModule } from './global/hash-manager/hash-manager.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UrlManagementModule } from './global/url-management/url-management.modu
     ExpressionsModule,
     CacheManagerModule,
     UrlManagementModule,
+    HashManagerModule,
   ],
 })
 export class AppModule {}

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';
 import { Code } from './entities/code.entity';
 

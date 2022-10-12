@@ -4,7 +4,7 @@ import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { Follow } from '../entities/follow.entity';
 import { FollowService } from '../follow.service';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsService } from 'src/accounts/services/accounts.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
@@ -15,7 +15,7 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { UserFollowers } from '../dto/user-followers.dto';
 import { UserFollowed } from '../dto/user-followed.dto';
 
-jest.mock('src/accounts/accounts.service');
+jest.mock('src/accounts/services/accounts.service');
 
 describe('FollowService', () => {
   let followService: FollowService;

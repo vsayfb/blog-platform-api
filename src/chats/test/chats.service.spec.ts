@@ -4,7 +4,7 @@ import { ArrayContains, Repository } from 'typeorm';
 import { Chat } from '../entities/chat.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
-import { AccountsService } from '../../accounts/accounts.service';
+import { AccountsService } from '../../accounts/services/accounts.service';
 import { accountStub } from '../../accounts/test/stub/account.stub';
 import { randomUUID } from 'crypto';
 import { AccountMessages } from '../../accounts/enums/account-messages';
@@ -12,7 +12,7 @@ import { chatStub } from '../stub/chat-stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { Message } from '../../messages/entities/message.entity';
 
-jest.mock('src/accounts/accounts.service');
+jest.mock('src/accounts/services/accounts.service');
 
 describe('ChatsService', () => {
   let chatsService: ChatsService;

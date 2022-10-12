@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { AuthService } from '../auth.service';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsService } from 'src/accounts/services/accounts.service';
 import { GoogleService } from 'src/apis/google/google.service';
 import { CodesService } from 'src/codes/codes.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
@@ -14,8 +14,11 @@ import { codeStub } from 'src/codes/stub/code.stub';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { googleUserCredentialsStub } from 'src/apis/google/stub/google-credentials.stub';
 import { Account } from 'src/accounts/entities/account.entity';
+import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 
-jest.mock('src/accounts/accounts.service');
+jest.mock('src/accounts/services/accounts.service');
+jest.mock('src/accounts/services/password-manager.service');
+
 jest.mock('src/codes/codes.service');
 jest.mock('src/apis/google/google.service');
 
@@ -24,6 +27,7 @@ describe('AuthService', () => {
   let accountsService: AccountsService;
   let googleService: GoogleService;
   let codesService: CodesService;
+  let passwordManagerService: PasswordManagerService;
 
   const mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
@@ -37,6 +41,7 @@ describe('AuthService', () => {
         AccountsService,
         GoogleService,
         CodesService,
+        PasswordManagerService,
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -46,6 +51,9 @@ describe('AuthService', () => {
     accountsService = module.get<AccountsService>(AccountsService);
     googleService = module.get<GoogleService>(GoogleService);
     codesService = module.get<CodesService>(CodesService);
+    passwordManagerService = module.get<PasswordManagerService>(
+      PasswordManagerService,
+    );
   });
 
   describe('register', () => {
@@ -167,32 +175,28 @@ describe('AuthService', () => {
     const accountPassword = 'foo_password';
 
     describe('when validateAccount is called', () => {
-      describe('if : an account was found and passwords matched', () => {
+      describe('scenario : an account was not found', () => {
         let result: SelectedAccountFields;
 
         beforeEach(async () => {
-          // return same password
-          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce({
-            ...accountStub(),
-            password: accountPassword,
-          } as Account);
+          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
 
           result = await authService.validateAccount(username, accountPassword);
         });
 
-        test('calls accountsService.getAccount', () => {
-          expect(accountsService.getAccount).toHaveBeenCalledWith(username);
-        });
-
-        it('should return the account', () => {
-          expect(result).toEqual(accountStub());
+        it('should return null', async () => {
+          expect(result).toEqual(null);
         });
       });
 
-      describe('if : an account was not found or passwords do not match', () => {
+      describe('scenario : an account was found and passwords do not match', () => {
         let result: SelectedAccountFields;
 
         beforeEach(async () => {
+          jest
+            .spyOn(passwordManagerService, 'comparePassword')
+            .mockResolvedValueOnce(false);
+
           result = await authService.validateAccount(username, accountPassword);
         });
 
@@ -202,6 +206,22 @@ describe('AuthService', () => {
 
         it('should return null', async () => {
           expect(result).toEqual(null);
+        });
+      });
+
+      describe('scenario : an account was found and passwords match', () => {
+        let result: SelectedAccountFields;
+
+        beforeEach(async () => {
+          result = await authService.validateAccount(username, accountPassword);
+        });
+
+        test('calls accountsService.getAccount', () => {
+          expect(accountsService.getAccount).toHaveBeenCalledWith(username);
+        });
+
+        it('should return the account', () => {
+          expect(result).toEqual(accountStub());
         });
       });
     });

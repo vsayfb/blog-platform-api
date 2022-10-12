@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsService } from 'src/accounts/services/accounts.service';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';

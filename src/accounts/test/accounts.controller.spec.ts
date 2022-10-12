@@ -3,13 +3,13 @@ import { UsernameQuery } from '../dto/username-query.dto';
 import { accountStub } from './stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from '../accounts.controller';
-import { AccountsService } from '../accounts.service';
+import { AccountsService } from '../services/accounts.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { AccountProfileDto } from '../dto/account-profile.dto';
 
-jest.mock('../accounts.service');
+jest.mock('../services/accounts.service');
 
 describe('AccountsController', () => {
   let accountsController: AccountsController;

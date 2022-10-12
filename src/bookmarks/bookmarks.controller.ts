@@ -21,6 +21,8 @@ import { BookmarkMessages } from './enums/bookmark-messages';
 import { BookmarkRoutes } from './enums/bookmark-routes';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 import { BOOKMARKS_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 
 @Controller(BOOKMARKS_ROUTE)
 @ApiTags(BOOKMARKS_ROUTE)

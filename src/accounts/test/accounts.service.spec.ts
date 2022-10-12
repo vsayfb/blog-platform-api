@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { accountStub } from './stub/account.stub';
 import { Account } from '../entities/account.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountsService } from '../accounts.service';
+import { AccountsService } from '../services/accounts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
@@ -14,26 +14,31 @@ import { AccountMessages } from '../enums/account-messages';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 import { CreateAccountDto } from '../dto/create-account.dto';
+import { PasswordManagerService } from '../services/password-manager.service';
+import { hashStub } from 'src/global/hash-manager/test/stub/hash.stub';
 
 jest.mock('src/uploads/uploads.service.ts');
 jest.mock('src/mails/mails.service.ts');
+jest.mock('../services/password-manager.service.ts');
 
 describe('AccountsService', () => {
   let accounstService: AccountsService;
   let accountsRepository: Repository<Account>;
   let uploadsService: UploadsService;
   let mailService: MailsService;
+  let passwordManagerService: PasswordManagerService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountsService,
+        PasswordManagerService,
+        MailsService,
+        UploadsService,
         {
           provide: getRepositoryToken(Account),
           useClass: Repository,
         },
-        MailsService,
-        UploadsService,
       ],
     }).compile();
 
@@ -43,6 +48,9 @@ describe('AccountsService', () => {
     );
     uploadsService = module.get<UploadsService>(UploadsService);
     mailService = module.get<MailsService>(MailsService);
+    passwordManagerService = module.get<PasswordManagerService>(
+      PasswordManagerService,
+    );
 
     mockRepository(accountsRepository, Account);
   });
@@ -188,6 +196,19 @@ describe('AccountsService', () => {
           result = await accounstService.createLocalAccount(dto);
         });
 
+        test('calls passwordManager.hash method', () => {
+          expect(passwordManagerService.hashPassword).toHaveBeenCalledWith(
+            dto.password,
+          );
+        });
+
+        test('calls accountsRepository.save method', () => {
+          expect(accountsRepository.save).toHaveBeenCalledWith({
+            ...dto,
+            password: hashStub().hashedText,
+          });
+        });
+
         it('then should return an account', () => {
           expect(result).toEqual(accountStub());
         });
@@ -197,13 +218,31 @@ describe('AccountsService', () => {
 
   describe('createAccountViaGoogle', () => {
     let result: SelectedAccountFields;
-    const dto = accountStub();
+
+    const dto: CreateAccountDto = {
+      ...accountStub(),
+      email: 'foo@gmail.com',
+      password: 'foo_password',
+    };
 
     beforeEach(async () => {
       result = await accounstService.createAccountViaGoogle({
         ...dto,
         password: 'foo_password',
         email: 'foo@gmail.com',
+      });
+    });
+
+    test('calls passwordManager.hash method', () => {
+      expect(passwordManagerService.hashPassword).toHaveBeenCalledWith(
+        dto.password,
+      );
+    });
+
+    test('calls accountsRepository.save method', () => {
+      expect(accountsRepository.save).toHaveBeenCalledWith({
+        ...dto,
+        password: hashStub().hashedText,
       });
     });
 

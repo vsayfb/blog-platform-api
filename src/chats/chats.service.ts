@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { ArrayContains, Repository } from 'typeorm';
-import { AccountsService } from '../accounts/accounts.service';
+import { AccountsService } from '../accounts/services/accounts.service';
 import { AccountMessages } from '../accounts/enums/account-messages';
 import { Message } from '../messages/entities/message.entity';
 import { ChatMessages } from './enums/chat-messages';

@@ -22,6 +22,10 @@ import { TagsDto } from './dto/tags.dto';
 import { SelectedTagFields } from './types/selected-tag-fields';
 import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 import { TAGS_ROUTE } from 'src/lib/constants';
+import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
+import { IFindController } from 'src/lib/interfaces/find-controller.interface';
+import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)

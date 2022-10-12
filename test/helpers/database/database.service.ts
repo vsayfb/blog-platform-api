@@ -6,6 +6,7 @@ import {
   RegisterType,
   Role,
 } from 'src/accounts/entities/account.entity';
+import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { generateFakeUser } from 'test/helpers/utils/generateFakeUser';
 
@@ -24,7 +25,10 @@ export type DatabaseUser = {
 export class TestDatabaseService {
   private db: Client;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly passwordManagerService: PasswordManagerService,
+  ) {}
 
   async connectDatabase(): Promise<void> {
     this.db = new Client({
@@ -64,9 +68,13 @@ export class TestDatabaseService {
   async createRandomTestUser(role?: Role): Promise<DatabaseUser> {
     const { username, email, password, display_name } = generateFakeUser();
 
+    const hashedPassword = await this.passwordManagerService.hashPassword(
+      password,
+    );
+
     const query = `INSERT INTO 
     account (username,password,email,display_name,role) 
-    VALUES ('${username}','${password}','${email}','${display_name}','${
+    VALUES ('${username}','${hashedPassword}','${email}','${display_name}','${
       role || Role.USER
     }')`;
 
@@ -75,6 +83,8 @@ export class TestDatabaseService {
     const result = await this.db.query(
       `SELECT * FROM account WHERE username='${username}'`,
     );
+
+    result.rows[0].password = password;
 
     const { created_at, updated_at, ...user } = result.rows[0];
 

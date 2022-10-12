@@ -17,7 +17,7 @@ import { ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
-import { AccountsService } from './accounts.service';
+import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
 import { AccountProfileDto } from './dto/account-profile.dto';
 import { BeginVerificationDto } from './dto/begin-verification.dto';

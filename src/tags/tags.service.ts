@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Repository } from 'typeorm';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagsDto } from './dto/tags.dto';

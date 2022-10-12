@@ -9,11 +9,12 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Like, Repository } from 'typeorm';
-import { AccountProfileDto } from './dto/account-profile.dto';
-import { CreateAccountDto } from './dto/create-account.dto';
-import { Account, RegisterType } from './entities/account.entity';
-import { AccountMessages } from './enums/account-messages';
-import { SelectedAccountFields } from './types/selected-account-fields';
+import { AccountProfileDto } from '../dto/account-profile.dto';
+import { CreateAccountDto } from '../dto/create-account.dto';
+import { Account, RegisterType } from '../entities/account.entity';
+import { AccountMessages } from '../enums/account-messages';
+import { PasswordManagerService } from '../services/password-manager.service';
+import { SelectedAccountFields } from '../types/selected-account-fields';
 
 @Injectable()
 export class AccountsService implements IFindService {
@@ -22,6 +23,7 @@ export class AccountsService implements IFindService {
     private readonly accountsRepository: Repository<Account>,
     private readonly mailService: MailsService,
     private readonly uploadsService: UploadsService,
+    private readonly passwordManagerService: PasswordManagerService,
   ) {}
 
   async getOneByID(id: string): Promise<SelectedAccountFields> {
@@ -96,8 +98,16 @@ export class AccountsService implements IFindService {
   }
 
   private async saveAccount(data: CreateAccountDto, via?: RegisterType) {
+    const hashedPassword = await this.passwordManagerService.hashPassword(
+      data.password,
+    );
+
     const { display_name, username, id, image, role, created_at } =
-      await this.accountsRepository.save({ ...data, via });
+      await this.accountsRepository.save({
+        ...data,
+        via,
+        password: hashedPassword,
+      });
 
     return {
       display_name,

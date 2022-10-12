@@ -2,7 +2,7 @@ import { GoogleService } from 'src/apis/google/google.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsService } from 'src/accounts/services/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CodesService } from 'src/codes/codes.service';
@@ -11,6 +11,7 @@ import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { RegisterViewDto } from './dto/register-view.dto';
+import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly codesService: CodesService,
     private readonly jwtService: JwtService,
+    private readonly passwordManagerService: PasswordManagerService,
   ) {}
 
   async register(data: CreateAccountDto): Promise<RegisterViewDto> {
@@ -95,7 +97,14 @@ export class AuthService {
   ): Promise<SelectedAccountFields> | null {
     const account = await this.accountsService.getAccount(username);
 
-    if (account && account.password === pass) {
+    const passwordsMatch = account
+      ? await this.passwordManagerService.comparePassword(
+          pass,
+          account.password,
+        )
+      : false;
+
+    if (passwordsMatch) {
       delete account.password;
       delete account.email;
 

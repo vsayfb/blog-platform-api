@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { Repository } from 'typeorm';
 import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { PostBookmarks } from './dto/post-bookmarks.dto';
