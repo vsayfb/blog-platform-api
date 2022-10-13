@@ -1,4 +1,4 @@
-import { BeginVerificationDto } from '../dto/begin-verification.dto';
+import { BeginVerificationDto } from '../../auth/dto/begin-verification.dto';
 import { UsernameQuery } from '../dto/username-query.dto';
 import { accountStub } from './stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -6,7 +6,7 @@ import { AccountsController } from '../accounts.controller';
 import { AccountsService } from '../services/accounts.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';
-import { CodeMessages } from 'src/codes/enums/code-messages';
+
 import { AccountProfileDto } from '../dto/account-profile.dto';
 
 jest.mock('../services/accounts.service');
@@ -81,35 +81,6 @@ describe('AccountsController', () => {
         );
 
         expect(result.data).toBe(true);
-      });
-    });
-  });
-
-  describe('beginVerification', () => {
-    describe('when beginVerification is called', () => {
-      const beginVerificationDto: BeginVerificationDto = {
-        email: 'foo@gmail.com',
-        username: accountStub().username,
-      };
-      let result: { message: string };
-
-      beforeEach(async () => {
-        result = await accountsController.beginVerification(
-          beginVerificationDto,
-        );
-      });
-
-      test('calls the accountsService.beginRegisterVerification', () => {
-        expect(
-          accountsService.beginLocalRegisterVerification,
-        ).toHaveBeenCalledWith(
-          beginVerificationDto.username,
-          beginVerificationDto.email,
-        );
-      });
-
-      it('should return a message', async () => {
-        expect(result).toEqual({ message: CodeMessages.CODE_SENT });
       });
     });
   });

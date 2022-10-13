@@ -20,7 +20,7 @@ import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
 import { AccountProfileDto } from './dto/account-profile.dto';
-import { BeginVerificationDto } from './dto/begin-verification.dto';
+import { BeginVerificationDto } from '../auth/dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 import { AccountMessages } from './enums/account-messages';
@@ -81,17 +81,6 @@ export class AccountsController implements IFindController {
     if (account) return { data: false, message: AccountMessages.EMAIL_TAKEN };
 
     return { data: true, message: AccountMessages.EMAIL_AVAILABLE };
-  }
-
-  @Post(AccountRoutes.BEGIN_REGISTER_VERIFICATION)
-  @HttpCode(200)
-  async beginVerification(
-    @Body() data: BeginVerificationDto,
-  ): Promise<{ message: string }> {
-    return await this.accountsService.beginLocalRegisterVerification(
-      data.username,
-      data.email,
-    );
   }
 
   @UseGuards(JwtAuthGuard)

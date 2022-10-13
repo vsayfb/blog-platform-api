@@ -81,6 +81,12 @@ describe('AccountsService', () => {
     const account = accountStub();
 
     beforeEach(async () => {
+      jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce({
+        ...accountStub(),
+        email: 'email',
+        password: 'pass',
+      } as any);
+
       result = await accounstService.getAccount(account.username);
     });
 
@@ -102,12 +108,17 @@ describe('AccountsService', () => {
           role: true,
           email: true,
           password: true,
+          created_at: true,
         },
       });
     });
 
     it('should return an account', () => {
-      expect(result).toEqual(accountStub());
+      expect(result).toEqual({
+        ...accountStub(),
+        email: 'email',
+        password: 'pass',
+      });
     });
   });
 
@@ -152,7 +163,7 @@ describe('AccountsService', () => {
     });
   });
 
-  describe('createLocalAccount', () => {
+  describe('create', () => {
     const dto: CreateAccountDto = {
       ...accountStub(),
       verification_code: '123456',
@@ -160,10 +171,10 @@ describe('AccountsService', () => {
       password: 'foo_password',
     };
 
-    describe('when createLocalAccount method is called ', () => {
+    describe('when create method is called ', () => {
       describe('if : username exists in the db', () => {
         test('throws "Username taken." error', async () => {
-          await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
+          await expect(accounstService.create(dto)).rejects.toThrow(
             AccountMessages.USERNAME_TAKEN,
           );
         });
@@ -175,7 +186,7 @@ describe('AccountsService', () => {
             .spyOn(accounstService, 'getOneByUsername')
             .mockResolvedValueOnce(null);
 
-          await expect(accounstService.createLocalAccount(dto)).rejects.toThrow(
+          await expect(accounstService.create(dto)).rejects.toThrow(
             AccountMessages.EMAIL_TAKEN,
           );
         });
@@ -193,7 +204,7 @@ describe('AccountsService', () => {
             .spyOn(accounstService, 'getOneByEmail')
             .mockResolvedValueOnce(null);
 
-          result = await accounstService.createLocalAccount(dto);
+          result = await accounstService.create(dto);
         });
 
         test('calls passwordManager.hash method', () => {
@@ -213,41 +224,6 @@ describe('AccountsService', () => {
           expect(result).toEqual(accountStub());
         });
       });
-    });
-  });
-
-  describe('createAccountViaGoogle', () => {
-    let result: SelectedAccountFields;
-
-    const dto: CreateAccountDto = {
-      ...accountStub(),
-      email: 'foo@gmail.com',
-      password: 'foo_password',
-    };
-
-    beforeEach(async () => {
-      result = await accounstService.createAccountViaGoogle({
-        ...dto,
-        password: 'foo_password',
-        email: 'foo@gmail.com',
-      });
-    });
-
-    test('calls passwordManager.hash method', () => {
-      expect(passwordManagerService.hashPassword).toHaveBeenCalledWith(
-        dto.password,
-      );
-    });
-
-    test('calls accountsRepository.save method', () => {
-      expect(accountsRepository.save).toHaveBeenCalledWith({
-        ...dto,
-        password: hashStub().hashedText,
-      });
-    });
-
-    it('should return an account', async () => {
-      expect(result).toEqual(accountStub());
     });
   });
 
@@ -274,61 +250,6 @@ describe('AccountsService', () => {
 
       it('should return a new image url which file was uploaded', () => {
         expect(result).toEqual(expect.any(String));
-      });
-    });
-  });
-
-  describe('beginLocalRegisterVerification', () => {
-    describe('when beginLocalRegisterVerification is called', () => {
-      const account = accountStub();
-      const accountEmail = 'foo@gmail.com';
-
-      describe('scenario : if email registered', () => {
-        test('should throw email taken error', async () => {
-          await expect(
-            accounstService.beginLocalRegisterVerification(
-              account.username,
-              accountEmail,
-            ),
-          ).rejects.toThrow(AccountMessages.EMAIL_TAKEN);
-        });
-      });
-
-      describe('scenario : if username registered', () => {
-        test('should throw username taken error', async () => {
-          jest.spyOn(accountsRepository, 'findOne').mockResolvedValueOnce(null);
-
-          await expect(
-            accounstService.beginLocalRegisterVerification(
-              account.username,
-              accountEmail,
-            ),
-          ).rejects.toThrow(AccountMessages.USERNAME_TAKEN);
-        });
-      });
-
-      describe('if unregistered credentials sent', () => {
-        let result: { message: string };
-
-        beforeEach(async () => {
-          jest.spyOn(accountsRepository, 'findOne').mockResolvedValue(null);
-
-          result = await accounstService.beginLocalRegisterVerification(
-            account.username,
-            accountEmail,
-          );
-        });
-
-        test('calls mailService.sendVerificationCode', () => {
-          expect(mailService.sendVerificationCode).toHaveBeenCalledWith({
-            username: account.username,
-            email: accountEmail,
-          });
-        });
-
-        test('should return the message', async () => {
-          expect(result).toEqual({ message: CodeMessages.CODE_SENT });
-        });
       });
     });
   });

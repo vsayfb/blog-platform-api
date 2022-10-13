@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { AuthService } from './services/local-auth.service';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -10,12 +9,17 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleModule } from 'src/apis/google/google.module';
 import { CodesModule } from 'src/codes/codes.module';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { LocalAuthController } from './controllers/local-auth.controller';
+import { GoogleAuthController } from './controllers/google-auth.controller';
+import { GoogleAuthService } from './services/google-auth.service';
+import { MailsModule } from 'src/mails/mails.module';
 
 @Module({
   imports: [
     AccountsModule,
     PassportModule,
     CodesModule,
+    MailsModule,
     GoogleModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
@@ -27,7 +31,7 @@ import { ProcessEnv } from 'src/lib/enums/env';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [LocalAuthController, GoogleAuthController],
+  providers: [AuthService, GoogleAuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}

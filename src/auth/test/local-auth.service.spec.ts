@@ -2,9 +2,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { AuthService } from '../auth.service';
+import { LocalAuthService } from '../services/local-auth.service';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { GoogleService } from 'src/apis/google/google.service';
 import { CodesService } from 'src/codes/codes.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { RegisterViewDto } from '../dto/register-view.dto';
@@ -12,22 +11,22 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { codeStub } from 'src/codes/stub/code.stub';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { googleUserCredentialsStub } from 'src/apis/google/stub/google-credentials.stub';
-import { Account } from 'src/accounts/entities/account.entity';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
+import { MailsService } from 'src/mails/mails.service';
+import { registerPayloadStub } from '../stub/register-payload.stub';
 
 jest.mock('src/accounts/services/accounts.service');
 jest.mock('src/accounts/services/password-manager.service');
-
 jest.mock('src/codes/codes.service');
+jest.mock('src/mails/mails.service');
 jest.mock('src/apis/google/google.service');
 
-describe('AuthService', () => {
-  let authService: AuthService;
+describe('LocalAuthService', () => {
+  let localAuthService: LocalAuthService;
   let accountsService: AccountsService;
-  let googleService: GoogleService;
   let codesService: CodesService;
   let passwordManagerService: PasswordManagerService;
+  let mailsService: MailsService;
 
   const mockJwtService = {
     sign: jest.fn().mockImplementation(() => ''),
@@ -37,19 +36,19 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        AuthService,
+        LocalAuthService,
         AccountsService,
-        GoogleService,
         CodesService,
+        MailsService,
         PasswordManagerService,
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
-    authService = module.get<AuthService>(AuthService);
+    localAuthService = module.get<LocalAuthService>(LocalAuthService);
     accountsService = module.get<AccountsService>(AccountsService);
-    googleService = module.get<GoogleService>(GoogleService);
+    mailsService = module.get<MailsService>(MailsService);
     codesService = module.get<CodesService>(CodesService);
     passwordManagerService = module.get<PasswordManagerService>(
       PasswordManagerService,
@@ -70,7 +69,7 @@ describe('AuthService', () => {
         test('register method throws an error', async () => {
           jest.spyOn(codesService, 'getCode').mockResolvedValueOnce(null);
 
-          await expect(authService.register(dto)).rejects.toThrow(
+          await expect(localAuthService.register(dto)).rejects.toThrow(
             CodeMessages.INVALID_CODE,
           );
         });
@@ -78,7 +77,7 @@ describe('AuthService', () => {
 
       describe('scenario : if email is invalid', () => {
         test('register method throws Invalid Email', async () => {
-          await expect(authService.register(dto)).rejects.toThrow(
+          await expect(localAuthService.register(dto)).rejects.toThrow(
             AccountMessages.INVALID_EMAIL,
           );
         });
@@ -93,78 +92,15 @@ describe('AuthService', () => {
             receiver: 'foo@gmail.com',
           });
 
-          result = await authService.register(dto);
+          result = await localAuthService.register(dto);
         });
 
         test('calls codesService.delete', () => {
           expect(codesService.delete).toHaveBeenCalledWith(codeStub().id);
         });
 
-        test('shold return account and access token', () => {
-          expect(result).toEqual({
-            data: accountStub(),
-            access_token: expect.any(String),
-          });
-        });
-      });
-    });
-  });
-
-  describe('googleAuth', () => {
-    describe('when googleAuth is called', () => {
-      const access_token = 'ksadjsjdidwq';
-      let result: RegisterViewDto;
-
-      beforeEach(async () => {
-        result = await authService.googleAuth(access_token);
-      });
-
-      test('calls googleService.getUserCredentials', () => {
-        expect(googleService.getUserCredentials).toHaveBeenCalledWith(
-          access_token,
-        );
-      });
-
-      test('calls accountsService.getAccount', () => {
-        expect(accountsService.getAccount).toHaveBeenCalledWith(
-          googleUserCredentialsStub().email,
-        );
-      });
-
-      describe('if : registered user', () => {
-        it('should return an access token and an account', () => {
-          expect(result).toEqual({
-            data: accountStub(),
-            access_token: expect.any(String),
-          });
-        });
-      });
-
-      describe('if : unregistered user', () => {
-        beforeEach(async () => {
-          jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
-          result = await authService.googleAuth(access_token);
-        });
-
-        test('calls accountsService.createAccountViaGoogle', () => {
-          expect(accountsService.createAccountViaGoogle).toHaveBeenCalledWith({
-            email: googleUserCredentialsStub().email,
-            password: expect.any(String),
-            username:
-              googleUserCredentialsStub().given_name +
-              googleUserCredentialsStub().family_name,
-            display_name:
-              googleUserCredentialsStub().given_name +
-              ' ' +
-              googleUserCredentialsStub().family_name,
-          });
-        });
-
-        it('should return an access token and an account', () => {
-          expect(result).toEqual({
-            data: expect.anything(),
-            access_token: expect.any(String),
-          });
+        test('shold return the credentials', () => {
+          expect(result).toEqual(registerPayloadStub());
         });
       });
     });
@@ -181,7 +117,10 @@ describe('AuthService', () => {
         beforeEach(async () => {
           jest.spyOn(accountsService, 'getAccount').mockResolvedValueOnce(null);
 
-          result = await authService.validateAccount(username, accountPassword);
+          result = await localAuthService.validateAccount(
+            username,
+            accountPassword,
+          );
         });
 
         it('should return null', async () => {
@@ -197,7 +136,10 @@ describe('AuthService', () => {
             .spyOn(passwordManagerService, 'comparePassword')
             .mockResolvedValueOnce(false);
 
-          result = await authService.validateAccount(username, accountPassword);
+          result = await localAuthService.validateAccount(
+            username,
+            accountPassword,
+          );
         });
 
         test('calls accountsService.getAccount', () => {
@@ -213,7 +155,10 @@ describe('AuthService', () => {
         let result: SelectedAccountFields;
 
         beforeEach(async () => {
-          result = await authService.validateAccount(username, accountPassword);
+          result = await localAuthService.validateAccount(
+            username,
+            accountPassword,
+          );
         });
 
         test('calls accountsService.getAccount', () => {
@@ -222,6 +167,67 @@ describe('AuthService', () => {
 
         it('should return the account', () => {
           expect(result).toEqual(accountStub());
+        });
+      });
+    });
+  });
+
+  describe('beginRegisterVerification', () => {
+    describe('when beginRegisterVerification is called', () => {
+      const account = accountStub();
+      const accountEmail = 'foo@gmail.com';
+
+      describe('scenario : if email registered', () => {
+        test('should throw email taken error', async () => {
+          await expect(
+            localAuthService.beginRegisterVerification(
+              account.username,
+              accountEmail,
+            ),
+          ).rejects.toThrow(AccountMessages.EMAIL_TAKEN);
+        });
+      });
+
+      describe('scenario : if username registered', () => {
+        test('should throw username taken error', async () => {
+          jest
+            .spyOn(accountsService, 'getOneByEmail')
+            .mockResolvedValueOnce(null);
+
+          await expect(
+            localAuthService.beginRegisterVerification(
+              account.username,
+              accountEmail,
+            ),
+          ).rejects.toThrow(AccountMessages.USERNAME_TAKEN);
+        });
+      });
+
+      describe('if unregistered credentials sent', () => {
+        let result: { message: string };
+
+        beforeEach(async () => {
+          jest
+            .spyOn(accountsService, 'getOneByUsername')
+            .mockResolvedValue(null);
+
+          jest.spyOn(accountsService, 'getOneByEmail').mockResolvedValue(null);
+
+          result = await localAuthService.beginRegisterVerification(
+            account.username,
+            accountEmail,
+          );
+        });
+
+        test('calls mailService.sendVerificationCode', () => {
+          expect(mailsService.sendVerificationCode).toHaveBeenCalledWith({
+            username: account.username,
+            email: accountEmail,
+          });
+        });
+
+        test('should return the message', async () => {
+          expect(result).toEqual({ message: CodeMessages.CODE_SENT });
         });
       });
     });

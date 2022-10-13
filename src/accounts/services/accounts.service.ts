@@ -4,24 +4,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Like, Repository } from 'typeorm';
 import { AccountProfileDto } from '../dto/account-profile.dto';
 import { CreateAccountDto } from '../dto/create-account.dto';
-import { Account, RegisterType } from '../entities/account.entity';
+import { Account } from '../entities/account.entity';
 import { AccountMessages } from '../enums/account-messages';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 
 @Injectable()
-export class AccountsService implements IFindService {
+export class AccountsService implements IFindService, ICreateService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
-    private readonly mailService: MailsService,
     private readonly uploadsService: UploadsService,
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
@@ -50,6 +49,7 @@ export class AccountsService implements IFindService {
         role: true,
         email: true,
         password: true,
+        created_at: true,
       },
     });
   }
@@ -71,9 +71,7 @@ export class AccountsService implements IFindService {
     return profile as any;
   }
 
-  async createLocalAccount(
-    data: CreateAccountDto,
-  ): Promise<SelectedAccountFields> {
+  async create(data: CreateAccountDto): Promise<SelectedAccountFields> {
     const usernameTaken = await this.getOneByUsername(data.username);
 
     if (usernameTaken)
@@ -85,38 +83,16 @@ export class AccountsService implements IFindService {
 
     delete data.verification_code;
 
-    return await this.saveAccount(data);
-  }
-
-  async createAccountViaGoogle(data: {
-    email: string;
-    username: string;
-    password: string;
-    display_name: string;
-  }): Promise<SelectedAccountFields> {
-    return await this.saveAccount(data, RegisterType.GOOGLE);
-  }
-
-  private async saveAccount(data: CreateAccountDto, via?: RegisterType) {
     const hashedPassword = await this.passwordManagerService.hashPassword(
       data.password,
     );
 
-    const { display_name, username, id, image, role, created_at } =
-      await this.accountsRepository.save({
-        ...data,
-        via,
-        password: hashedPassword,
-      });
+    const created = await this.accountsRepository.save({
+      ...data,
+      password: hashedPassword,
+    });
 
-    return {
-      display_name,
-      username,
-      id,
-      image,
-      role,
-      created_at,
-    };
+    return await this.accountsRepository.findOneBy({ id: created.id });
   }
 
   async changeProfileImage(
@@ -132,27 +108,6 @@ export class AccountsService implements IFindService {
     await this.accountsRepository.save(account);
 
     return newImageUrl;
-  }
-
-  async beginLocalRegisterVerification(
-    username: string,
-    email: string,
-  ): Promise<{ message: string }> {
-    const emailRegistered = await this.accountsRepository.findOne({
-      where: { email },
-    });
-
-    if (emailRegistered)
-      throw new ForbiddenException(AccountMessages.EMAIL_TAKEN);
-
-    const usernameRegistered = await this.accountsRepository.findOne({
-      where: { username },
-    });
-
-    if (usernameRegistered)
-      throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
-
-    return await this.mailService.sendVerificationCode({ username, email });
   }
 
   async getOneByEmail(email: string): Promise<SelectedAccountFields> {
