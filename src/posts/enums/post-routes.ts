@@ -7,5 +7,5 @@ export enum PostRoutes {
   UPDATE = '/',
   DELETE = '/',
   CHANGE_POST_STATUS = '/change_post_status/',
-  UPLOAD_TITLE_IMAGE = '/upload_title_image',
+  UPDATE_TITLE_IMAGE = '/update_title_image/',
 }

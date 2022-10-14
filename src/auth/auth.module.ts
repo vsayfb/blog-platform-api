@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './services/local-auth.service';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -13,6 +12,7 @@ import { LocalAuthController } from './controllers/local-auth.controller';
 import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleAuthService } from './services/google-auth.service';
 import { MailsModule } from 'src/mails/mails.module';
+import { LocalAuthService } from './services/local-auth.service';
 
 @Module({
   imports: [
@@ -32,6 +32,6 @@ import { MailsModule } from 'src/mails/mails.module';
     }),
   ],
   controllers: [LocalAuthController, GoogleAuthController],
-  providers: [AuthService, GoogleAuthService, LocalStrategy, JwtStrategy],
+  providers: [LocalAuthService, GoogleAuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}

@@ -35,8 +35,8 @@ describe('localAuthController', () => {
         message: AuthMessages;
       };
 
-      beforeEach(() => {
-        result = localAuthController.login(dto);
+      beforeEach(async () => {
+        result = await localAuthController.login(dto);
       });
 
       test('calls localAuthService.login method', () => {

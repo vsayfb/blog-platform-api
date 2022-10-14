@@ -1,8 +1,6 @@
-import { uploadProfileResultStub } from '../stub/upload-profile.stub';
+import { uploadImageStub } from '../stub/upload-image.stub';
 
 export const UploadsService = jest.fn().mockReturnValue({
-  uploadImage: jest.fn().mockResolvedValue(uploadProfileResultStub().newImage),
-  uploadProfileImage: jest
-    .fn()
-    .mockResolvedValue(uploadProfileResultStub().newImage),
+  uploadImage: jest.fn().mockResolvedValue(uploadImageStub().newImage),
+  uploadProfileImage: jest.fn().mockResolvedValue(uploadImageStub().newImage),
 });

@@ -20,6 +20,7 @@ import { PublicPostsDto } from '../dto/public-posts.dto';
 import { PostDto } from '../dto/post.dto';
 import { PostsDto } from '../dto/posts.dto';
 import { UrlManagementService } from 'src/global/url-management/services/url-management.service';
+import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
 
 jest.mock('src/uploads/uploads.service');
 jest.mock('src/tags/tags.service');
@@ -69,6 +70,7 @@ describe('PostsService', () => {
         result = await postsService.create({
           authorID,
           dto,
+          titleImage: null,
         });
       });
 
@@ -90,7 +92,7 @@ describe('PostsService', () => {
           url: expect.any(String),
           tags: expect.any(Array),
           author: { id: authorID },
-          title_image: dto.title_image || null,
+          title_image: null,
           published: expect.any(Boolean),
         });
       });
@@ -111,7 +113,7 @@ describe('PostsService', () => {
   describe('update', () => {
     describe('when update is called', () => {
       let result: UpdatedPostDto;
-      const post = postStub() as unknown as Post;
+      const post = postStub() as PostDto;
 
       const updatePostDto: UpdatePostDto = {
         content: 'updated-post-content',
@@ -240,21 +242,46 @@ describe('PostsService', () => {
     });
   });
 
-  describe('saveTitleImage', () => {
-    describe('when saveTitleImage is called', () => {
-      let image: Express.Multer.File;
+  describe('updateTitleImage', () => {
+    describe('when updateTitleImage is called', () => {
+      const post = postStub() as PostDto;
+
       let result: string;
 
-      beforeEach(async () => {
-        result = await postsService.saveTitleImage(image);
+      describe('scenario : image is null', () => {
+        const image = null;
+
+        beforeEach(async () => {
+          result = await postsService.updateTitleImage(post, image);
+        });
+
+        test('calls the postsRepository.save method', () => {
+          expect(postsRepository.save).toHaveBeenCalledWith(post);
+        });
+
+        it('should return null', () => {
+          expect(result).toEqual(null);
+        });
       });
 
-      test('calls the uploadsService.uploadImage method', () => {
-        expect(uploadsService.uploadImage).toHaveBeenCalledWith(image);
-      });
+      describe('scenario : image is not null', () => {
+        const image = {} as Express.Multer.File;
 
-      it('should return the uploaded image url', () => {
-        expect(result).toEqual(expect.any(String));
+        beforeEach(async () => {
+          result = await postsService.updateTitleImage(post, image);
+        });
+
+        test('calls the uploadsService.uploadImage method', () => {
+          expect(uploadsService.uploadImage).toHaveBeenCalledWith(image);
+        });
+
+        test('calls the postsRepository.save method', () => {
+          expect(postsRepository.save).toHaveBeenCalledWith(post);
+        });
+
+        it('should return image url', () => {
+          expect(result).toEqual(uploadImageStub().newImage);
+        });
       });
     });
   });

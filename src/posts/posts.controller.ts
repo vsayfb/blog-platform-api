@@ -13,7 +13,6 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { Post as PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -27,7 +26,6 @@ import { Data } from 'src/lib/decorators/request-data.decorator';
 import { PostRoutes } from './enums/post-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PostMessages } from './enums/post-messages';
-import { UploadMessages } from 'src/uploads/enums/upload-messages';
 import { PublicPostDto } from './dto/public-post.dto';
 import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
@@ -52,15 +50,17 @@ export class PostsController
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('titleImage'))
   @Post(PostRoutes.CREATE)
   async create(
     @Body(TagNamePipe) createPostDto: CreatePostDto,
+    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File | null,
     @Account() account: JwtPayload,
     @Query('published') published?: boolean,
   ): Promise<{ data: CreatedPostDto; message: PostMessages }> {
     let data: CreatedPostDto;
 
-    const saveData = { authorID: account.sub, dto: createPostDto };
+    const saveData = { authorID: account.sub, dto: createPostDto, titleImage };
 
     if (published === undefined) {
       data = await this.postsService.create(saveData);
@@ -117,8 +117,8 @@ export class PostsController
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(PostRoutes.UPDATE + ':id')
   async update(
+    @Data() post: PostDto,
     @Body(TagNamePipe) updatePostDto: UpdatePostDto,
-    @Data() post: PostEntity,
   ) {
     return {
       data: await this.postsService.update(post, updatePostDto),
@@ -129,7 +129,7 @@ export class PostsController
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(PostRoutes.DELETE + ':id')
   async delete(
-    @Data() post: PostEntity,
+    @Data() post: PostDto,
   ): Promise<{ id: string; message: PostMessages }> {
     return {
       id: await this.postsService.delete(post),
@@ -139,22 +139,26 @@ export class PostsController
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Put(PostRoutes.CHANGE_POST_STATUS + ':id')
-  async changePostStatus(@Data() post: PostEntity) {
+  async changePostStatus(@Data() post: PostDto): Promise<{
+    data: { id: string; published: boolean };
+    message: PostMessages;
+  }> {
     return {
-      ...(await this.postsService.changePostStatus(post)),
+      data: await this.postsService.changePostStatus(post),
       message: PostMessages.UPDATED,
     };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CanManageData)
   @UseInterceptors(FileInterceptor('titleImage'))
-  @Post(PostRoutes.UPLOAD_TITLE_IMAGE)
-  async uploadTitleImage(
-    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File,
-  ): Promise<{ data: string; message: UploadMessages }> {
+  @Put(PostRoutes.UPDATE_TITLE_IMAGE + ':id')
+  async updateTitleImage(
+    @Data() post: PostDto,
+    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File | null,
+  ): Promise<{ data: string; message: PostMessages }> {
     return {
-      data: await this.postsService.saveTitleImage(titleImage),
-      message: UploadMessages.IMAGE_UPLOADED,
+      data: await this.postsService.updateTitleImage(post, titleImage),
+      message: PostMessages.TITLE_IMAGE_UPDATED,
     };
   }
 }

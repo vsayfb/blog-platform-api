@@ -7,11 +7,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailsService } from 'src/mails/mails.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
+import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
 import { Like, Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { PasswordManagerService } from '../services/password-manager.service';
@@ -244,7 +243,7 @@ describe('AccountsService', () => {
       test('calls accountsRepository.save with new uploaded image url', () => {
         expect(accountsRepository.save).toHaveBeenCalledWith({
           ...accountStub(),
-          image: uploadProfileResultStub().newImage,
+          image: uploadImageStub().newImage,
         });
       });
 

@@ -27,7 +27,7 @@ export class PostsService
 {
   constructor(
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
-    private readonly uploadService: UploadsService,
+    private readonly uploadsService: UploadsService,
     private readonly tagsService: TagsService,
     private readonly urlManagementService: UrlManagementService,
   ) {}
@@ -35,15 +35,23 @@ export class PostsService
   async create({
     authorID,
     dto,
+    titleImage,
     published = true,
   }: {
     authorID: string;
     dto: CreatePostDto;
+    titleImage: Express.Multer.File;
     published?: boolean;
   }): Promise<CreatedPostDto> {
     const url = this.urlManagementService.convertToUniqueUrl(dto.title);
 
     const tags = await this.setPostTags(dto.tags);
+
+    let title_image: string | null = null;
+
+    if (titleImage) {
+      title_image = await this.uploadsService.uploadImage(titleImage);
+    }
 
     const created = await this.postsRepository.save({
       content: dto.content,
@@ -51,7 +59,7 @@ export class PostsService
       url,
       tags,
       author: { id: authorID },
-      title_image: dto.title_image || null,
+      title_image,
       published,
     });
 
@@ -90,7 +98,7 @@ export class PostsService
   }
 
   async update(
-    post: Post,
+    post: PostDto,
     updatePostDto: UpdatePostDto,
   ): Promise<UpdatedPostDto> {
     post.title = updatePostDto.title;
@@ -103,8 +111,6 @@ export class PostsService
       post.tags = (await this.setPostTags(updatePostDto.tags)) as Tag[];
     }
 
-    if (updatePostDto.title_image) post.title_image = updatePostDto.title_image;
-
     const updated = await this.postsRepository.save(post);
 
     const result = await this.postsRepository.findOne({
@@ -115,8 +121,19 @@ export class PostsService
     return result as any;
   }
 
-  async saveTitleImage(image: Express.Multer.File): Promise<string> {
-    return await this.uploadService.uploadImage(image);
+  async updateTitleImage(
+    post: PostDto,
+    image: Express.Multer.File | null,
+  ): Promise<string> {
+    let title_image: string | null = null;
+
+    if (image) title_image = await this.uploadsService.uploadImage(image);
+
+    post.title_image = title_image;
+
+    await this.postsRepository.save(post);
+
+    return title_image;
   }
 
   private async setPostTags(tags: string[]): Promise<SelectedTagFields[]> {
@@ -131,7 +148,7 @@ export class PostsService
   }
 
   async changePostStatus(
-    post: Post,
+    post: PostDto,
   ): Promise<{ id: string; published: boolean }> {
     post.published = !post.published;
 
@@ -155,10 +172,10 @@ export class PostsService
     return posts as any;
   }
 
-  async delete(post: Post): Promise<string> {
+  async delete(post: PostDto): Promise<string> {
     const id = post.id;
 
-    await this.postsRepository.remove(post);
+    await this.postsRepository.remove(post as Post);
 
     return id;
   }

@@ -1,7 +1,6 @@
 import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
-import { Post } from 'src/posts/entities/post.entity';
 import { PostsController } from 'src/posts/posts.controller';
 import { PostsService } from 'src/posts/posts.service';
 import { postStub } from 'src/posts/stub/post-stub';
@@ -47,12 +46,13 @@ describe('PostsController', () => {
       const published = false;
 
       beforeEach(async () => {
-        result = await controller.create(dto, jwtPayloadStub(), false);
+        result = await controller.create(dto, null, jwtPayloadStub(), false);
       });
 
       test('calls postsService.create with authorID dto and published', () => {
         expect(postsService.create).toHaveBeenCalledWith({
           authorID: jwtPayloadStub().sub,
+          titleImage: null,
           dto,
           published,
         });
@@ -68,12 +68,13 @@ describe('PostsController', () => {
 
     describe("scenario : when published query doesn't received", () => {
       beforeEach(async () => {
-        result = await controller.create(dto, jwtPayloadStub());
+        result = await controller.create(dto, null, jwtPayloadStub());
       });
 
       test('calls postsService.create with authorID and dto', () => {
         expect(postsService.create).toHaveBeenCalledWith({
           authorID: jwtPayloadStub().sub,
+          titleImage: null,
           dto,
         });
       });
@@ -160,11 +161,11 @@ describe('PostsController', () => {
   describe('update', () => {
     let result: { data: UpdatedPostDto; message?: PostMessages };
     const dto = { content: 'updated-content-field' };
-    const post = postStub() as unknown as Post;
+    const post = postStub() as PostDto;
 
     describe('when update is called', () => {
       beforeEach(async () => {
-        result = await controller.update(dto, post);
+        result = await controller.update(post, dto);
       });
 
       test('calls postsService.update method', () => {
@@ -179,7 +180,7 @@ describe('PostsController', () => {
 
   describe('delete', () => {
     let result: { id: string; message: string };
-    const post = postStub() as unknown as Post;
+    const post = postStub() as PostDto;
 
     describe('when delete is called', () => {
       beforeEach(async () => {
@@ -197,8 +198,12 @@ describe('PostsController', () => {
   });
 
   describe('changePostStatus', () => {
-    let result: { id: string; published: boolean; message: string };
-    const post = postStub() as unknown as Post;
+    let result: {
+      data: { id: string; published: boolean };
+      message: PostMessages;
+    };
+
+    const post = postStub() as PostDto;
 
     describe('when changePostStatus is called', () => {
       beforeEach(async () => {
@@ -211,25 +216,32 @@ describe('PostsController', () => {
 
       it('should return the post', () => {
         expect(result).toEqual({
-          id: post.id,
-          published: !post.published,
+          data: {
+            id: post.id,
+            published: !post.published,
+          },
           message: expect.any(String),
         });
       });
     });
   });
 
-  describe('uploadTitleImage', () => {
+  describe('updateTitleImage', () => {
     let result: { data: string; message: string };
-    let titleImage: Express.Multer.File;
 
-    describe('when uploadTitleImage is called', () => {
+    const post = postStub() as PostDto;
+    let titleImage = {} as Express.Multer.File;
+
+    describe('when updateTitleImage is called', () => {
       beforeEach(async () => {
-        result = await controller.uploadTitleImage(titleImage);
+        result = await controller.updateTitleImage(post, titleImage);
       });
 
-      test('calls postsService.saveTitleImage method', () => {
-        expect(postsService.saveTitleImage).toHaveBeenCalledWith(titleImage);
+      test('calls postsService.updateTitleImage method', () => {
+        expect(postsService.updateTitleImage).toHaveBeenCalledWith(
+          post,
+          titleImage,
+        );
       });
 
       it('should return the post', () => {

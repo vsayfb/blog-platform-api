@@ -7,10 +7,6 @@ export class CreatePostDto {
   @MinLength(15)
   content: string;
 
-  @IsString()
-  @IsOptional()
-  title_image?: string;
-
   @IsArray()
   @IsOptional()
   tags?: string[];

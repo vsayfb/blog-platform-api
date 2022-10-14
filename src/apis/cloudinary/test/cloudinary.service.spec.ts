@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
+import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
 import { CloudinaryService } from '../cloudinary.service';
 
 describe('CloudinaryService', () => {
@@ -22,7 +22,7 @@ describe('CloudinaryService', () => {
     // spyOn private method
     jest
       .spyOn(CloudinaryService.prototype, 'upload' as any)
-      .mockResolvedValue(uploadProfileResultStub().newImage);
+      .mockResolvedValue(uploadImageStub().newImage);
   });
 
   describe('uploadImage', () => {

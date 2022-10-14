@@ -5,4 +5,5 @@ export enum PostMessages {
   NOT_FOUND = 'Post not found.',
   UPDATED = 'The post has been updated.',
   DELETED = 'The post has been deleted.',
+  TITLE_IMAGE_UPDATED = "The post title image's has been updated.",
 }

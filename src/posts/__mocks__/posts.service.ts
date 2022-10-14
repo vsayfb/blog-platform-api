@@ -1,4 +1,4 @@
-import { uploadProfileResultStub } from 'src/uploads/stub/upload-profile.stub';
+import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { Post } from '../entities/post.entity';
 import { postStub } from '../stub/post-stub';
@@ -27,7 +27,5 @@ export const PostsService = jest.fn().mockReturnValue({
     }),
   ),
 
-  saveTitleImage: jest
-    .fn()
-    .mockResolvedValue(uploadProfileResultStub().newImage),
+  updateTitleImage: jest.fn().mockResolvedValue(uploadImageStub().newImage),
 });

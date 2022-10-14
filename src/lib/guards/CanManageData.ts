@@ -12,6 +12,7 @@ import {
 } from 'src/global/casl/casl-ability.factory';
 import { Request } from 'express';
 import { MANAGE_DATA_SERVICE } from '../constants';
+import { IFindService } from '../interfaces/find-service.interface';
 
 @Injectable()
 export class CanManageData implements CanActivate {
