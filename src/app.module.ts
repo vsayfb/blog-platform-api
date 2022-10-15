@@ -26,6 +26,8 @@ import { ProcessEnv } from './lib/enums/env';
 import { CacheManagerModule } from './cache/cache-manager.module';
 import { UrlManagementModule } from './global/url-management/url-management.module';
 import { HashManagerModule } from './global/hash-manager/hash-manager.module';
+import { SmsModule } from './sms/sms.module';
+import { TwilioModule } from './apis/twilio/twilio.module';
 
 @Module({
   imports: [
@@ -54,6 +56,8 @@ import { HashManagerModule } from './global/hash-manager/hash-manager.module';
     CacheManagerModule,
     UrlManagementModule,
     HashManagerModule,
+    SmsModule,
+    TwilioModule,
   ],
 })
 export class AppModule {}

@@ -24,8 +24,8 @@ describe('MailsService', () => {
       providers: [
         MailsService,
         CodesService,
-        { provide: IMailSenderService, useClass: MailgunService },
         JobsService,
+        { provide: IMailSenderService, useClass: MailgunService },
         { provide: ConfigService, useValue: { get: jest.fn(() => '') } },
       ],
     }).compile();
