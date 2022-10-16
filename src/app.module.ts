@@ -28,6 +28,9 @@ import { UrlManagementModule } from './global/url-management/url-management.modu
 import { HashManagerModule } from './global/hash-manager/hash-manager.module';
 import { SmsModule } from './sms/sms.module';
 import { TwilioModule } from './apis/twilio/twilio.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './lib/exception-filters/all-exceptions.filter';
+import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed.exception.filter';
 
 @Module({
   imports: [
@@ -58,6 +61,16 @@ import { TwilioModule } from './apis/twilio/twilio.module';
     HashManagerModule,
     SmsModule,
     TwilioModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: QueryFailedExceptionFilter,
+    },
   ],
 })
 export class AppModule {}

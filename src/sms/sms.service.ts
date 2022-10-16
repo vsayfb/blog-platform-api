@@ -14,10 +14,6 @@ export class SmsService {
   ) {}
 
   async sendSms(to: string, data: string): Promise<void> {
-    try {
-      await this.smsSenderService.sendMessage(to, data);
-    } catch (error) {
-      throw new ServiceUnavailableException(SmsMessages.ERROR);
-    }
+    await this.smsSenderService.sendMessage(to, data);
   }
 }

@@ -25,4 +25,8 @@ export class MailsService {
 
     return { message: CodeMessages.CODE_SENT };
   }
+
+  async sendMail(from: string, to: string, subject: string, data: any) {
+    await this.mailSenderService.sendMail(from, to, subject, data);
+  }
 }

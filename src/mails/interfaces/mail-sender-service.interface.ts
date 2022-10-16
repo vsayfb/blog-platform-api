@@ -6,6 +6,13 @@ export interface IMailSenderService {
     },
     code: string,
   ): Promise<void>;
+
+  sendMail(
+    from: string,
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void>;
 }
 
 export const IMailSenderService = Symbol('IMailSenderService');

@@ -15,11 +15,38 @@ export class MailgunService implements IMailSenderService {
     this.client = this.mailgun.client({
       username: configService.get<string>(ProcessEnv.MAILGUN_USERNAME),
       key: configService.get<string>(ProcessEnv.MAILGUN_API_KEY),
-      url: 'https://api.eu.mailgun.net',
+      url: configService.get<string>(ProcessEnv.MAILGUN_API_URL),
     });
   }
 
-  private async sendMail(
+  async sendMail(
+    from: string,
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void> {
+    await this.client.messages.create(
+      this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
+      { from, to, subject, html },
+    );
+  }
+
+  async sendVerificationMail(
+    to: { email: string; username: string },
+    code: string,
+  ) {
+    const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_MAIL);
+
+    await this.sendTemplateMail(from, to.email, 'Verification Code', {
+      template: 'verification_code',
+      'h:X-Mailgun-Variables': JSON.stringify({
+        code,
+        username: to.username,
+      }),
+    });
+  }
+
+  private async sendTemplateMail(
     from: string,
     to: string,
     subject: string,
@@ -41,20 +68,5 @@ export class MailgunService implements IMailSenderService {
       this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
       data as any,
     );
-  }
-
-  async sendVerificationMail(
-    to: { email: string; username: string },
-    code: string,
-  ) {
-    const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_MAIL);
-
-    await this.sendMail(from, to.email, 'Verification Code', {
-      template: 'verification_code',
-      'h:X-Mailgun-Variables': JSON.stringify({
-        code,
-        username: to.username,
-      }),
-    });
   }
 }
