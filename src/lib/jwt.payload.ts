@@ -6,6 +6,6 @@ export type JwtPayload = {
   display_name: string;
   image: string | null;
   role: Role;
-  iat: number;
-  exp: number;
+  iat?: number;
+  exp?: number;
 };

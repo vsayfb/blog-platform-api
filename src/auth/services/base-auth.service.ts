@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { JwtPayload } from 'src/lib/jwt.payload';
 
 export abstract class BaseAuthService {
   @Inject(JwtService)
@@ -16,7 +17,7 @@ export abstract class BaseAuthService {
   protected readonly passwordManagerService: PasswordManagerService;
 
   login(account: SelectedAccountFields) {
-    const payload = {
+    const payload: JwtPayload = {
       sub: account.id,
       username: account.username,
       display_name: account.display_name,

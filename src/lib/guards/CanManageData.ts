@@ -22,7 +22,7 @@ export class CanManageData implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request & { user: JwtPayload; data: any } = context
+    const req: Request & { user: JwtPayload; data: undefined } = context
       .switchToHttp()
       .getRequest();
 
@@ -30,7 +30,9 @@ export class CanManageData implements CanActivate {
 
     const subject = await this.service.getOneByID(req.params.id);
 
-    const ability = this.caslAbilityFactory.createForUser({ user: req.user });
+    const ability: any = this.caslAbilityFactory.createForClient({
+      client: req.user,
+    });
 
     if (ability.can(action, subject)) {
       req.data = subject;

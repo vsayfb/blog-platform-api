@@ -14,15 +14,14 @@ import { AccountProfileDto } from '../dto/account-profile.dto';
 import { AccountMessages } from '../enums/account-messages';
 
 @Injectable()
-export class CheckClientIsFollowing
-  implements NestInterceptor, OnModuleInit
-{
+export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
   private followService: FollowService;
 
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async onModuleInit() {
-    // use global scope because for prevent circulary dependency between follow -> account modules  
+
+    // use global scope because for prevent circulary dependency between follow -> account modules
     this.followService = this.moduleRef.get(FollowService, { strict: false });
   }
 

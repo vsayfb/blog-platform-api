@@ -2,12 +2,13 @@ import {
   PipeTransform,
   Injectable,
   NotAcceptableException,
+  BadRequestException
 } from '@nestjs/common';
 
 @Injectable()
 export class IsImageFilePipe implements PipeTransform {
   transform(image: Express.Multer.File) {
-    if (!image) return null;
+    if (!image) throw new BadRequestException("File not found.");
 
     const acceptMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
 
