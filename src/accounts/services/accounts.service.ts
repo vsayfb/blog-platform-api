@@ -58,12 +58,8 @@ export class AccountsService implements IFindService, ICreateService {
     const profile = await this.accountsRepository
       .createQueryBuilder('account')
       .where('account.username=:username', { username })
-      .leftJoinAndSelect('account.posts', 'posts')
-      .leftJoinAndSelect('account.comments', 'comments')
-      .leftJoin('account.followers', 'followers')
-      .loadRelationCountAndMap('account.followers', 'account.followers')
-      .leftJoin('account.followed', 'followed')
-      .loadRelationCountAndMap('account.followed', 'account.followed')
+      .loadRelationCountAndMap('account.followers_count', 'account.followers')
+      .loadRelationCountAndMap('account.following_count', 'account.followed')
       .getOne();
 
     if (!profile) throw new NotFoundException(AccountMessages.NOT_FOUND);

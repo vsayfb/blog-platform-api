@@ -23,13 +23,17 @@ export class FollowedNotificationInterceptor implements NestInterceptor {
   ): Observable<Promise<{ data: Follow; message: FollowMessages }>> {
     return next.handle().pipe(
       map(async (follow: { data: Follow }) => {
-        const notification =
-          await this.followNotificationsService.createFollowedNotification({
-            notifableID: follow.data.followed.id,
-            senderID: follow.data.follower.id,
-          });
+        const { followed, follower } = follow.data;
 
-        await this.gatewayEventsService.newNotification(notification.id);
+        if (followed.id !== follower.id) {
+          const notification =
+            await this.followNotificationsService.createFollowedNotification({
+              notifableID: follow.data.followed.id,
+              senderID: follow.data.follower.id,
+            });
+
+          this.gatewayEventsService.newNotification(notification.id);
+        }
 
         return { data: follow.data, message: FollowMessages.FOLLOWED };
       }),

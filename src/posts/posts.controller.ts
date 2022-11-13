@@ -82,12 +82,22 @@ export class PostsController
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(PostRoutes.GET_MY_POSTS)
-  async getMyPosts(
+  @Get(PostRoutes.FIND_CLIENT_POSTS)
+  async findClientPosts(
     @Account() account: JwtPayload,
   ): Promise<{ data: PostsDto; message: PostMessages }> {
     return {
-      data: await this.postsService.getMyPosts(account.sub),
+      data: await this.postsService.getAccountPosts(account.sub),
+      message: PostMessages.ALL_FOUND,
+    };
+  }
+
+  @Get(PostRoutes.FIND_ACCOUNT_POSTS + ':id')
+  async findAccountPosts(
+    @Param("id") accountID: string,
+  ): Promise<{ data: PostsDto; message: PostMessages }> {
+    return {
+      data: await this.postsService.getAccountPublicPosts(accountID),
       message: PostMessages.ALL_FOUND,
     };
   }

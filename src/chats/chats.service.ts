@@ -86,10 +86,12 @@ export class ChatsService implements ICreateService, IFindService {
   }
 
   async getOne(memberID: string, id: string): Promise<Chat> {
-    return await this.chatsRepository.findOne({
-      where: { id, members: ArrayContains([memberID]) },
+    const chat = await this.chatsRepository.findOne({
+      where: { id },
       relations: { members: true, messages: true },
     });
+
+    return chat.members.some((m) => m.id === memberID) ? chat : null;
   }
 
   async getOneByID(id: string): Promise<Chat> {

@@ -70,7 +70,7 @@ export class NotificationsGateway
   private getNotifableSocketID(userID: string): string {
     const socket = this.sockets.find((s) => s.userID === userID);
 
-    return socket.socketID;
+    return socket?.socketID;
   }
 
   async pushNotification(notification: Notification) {
@@ -80,9 +80,13 @@ export class NotificationsGateway
       notification.notifable.id,
     );
 
-    const { notifable, ...dto } = notification;
+    // target user is not online do not try to send notification	
+    if(!notifableSocketID) return null;
 
-    senderSocket.to(notifableSocketID).emit('notification', dto);
+    // it is not necessarry because notifable is client. do not put it to notification object
+    delete notification.notifable;	
+
+    senderSocket.to(notifableSocketID).emit('notification', notification);
   }
 
   get socketCount() {

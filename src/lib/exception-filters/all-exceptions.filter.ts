@@ -17,6 +17,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
       const response = http.getResponse<Response>();
 
+      console.log(exception);	
+
       return response.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         error: INTERNAL_SERVER_ERROR,

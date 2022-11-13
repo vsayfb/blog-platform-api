@@ -23,8 +23,14 @@ export class CodesService implements ICreateService, IDeleteService {
     return { code, codeID: id };
   }
 
-  async getCode(code: string): Promise<Code> {
+  async getCode(code: string): Promise<Code | null> {
     return this.codesRepository.findOne({ where: { code } });
+  }
+
+  async getOneByEmail(email:string):Promise<Code | null>{
+
+    return this.codesRepository.findOne({  where: {receiver : email } });
+
   }
 
   async delete(codeID: string): Promise<string> {

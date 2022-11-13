@@ -12,6 +12,7 @@ import { UserFollowed } from './dto/user-followed.dto';
 import { UserFollowers } from './dto/user-followers.dto';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
+import { NotificationsService } from 'src/global/notifications/services/notifications.service';
 
 @Injectable()
 export class FollowService implements IDeleteService {
@@ -19,6 +20,7 @@ export class FollowService implements IDeleteService {
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
     private readonly accountsService: AccountsService,
+    private readonly notificationService: NotificationsService,
   ) {}
 
   private async getFollow(
@@ -29,6 +31,14 @@ export class FollowService implements IDeleteService {
       where: { followed: { id: followedID }, follower: { id: followerID } },
       relations: { followed: true, follower: true },
     });
+  }
+
+  async checkUserByFollowing(username: string, followingBy: string) {
+    const result = await this.followRepository.findOne({
+      where: { followed: { username }, follower: { username: followingBy } },
+    });
+
+    return result ? true : false;
   }
 
   async followAccount(
@@ -63,9 +73,16 @@ export class FollowService implements IDeleteService {
         followed: { username: unfollowedUsername },
         follower: { username: followerUsername },
       },
+      relations: { followed: true, follower: true },
     });
 
     if (!follow) throw new NotFoundException(AccountMessages.NOT_FOUND);
+
+    // cancel notification
+    this.notificationService.deleteNotificationByIds(
+      follow.follower.id,
+      follow.followed.id,
+    );
 
     await this.delete(follow);
 

@@ -6,6 +6,7 @@ import { Account } from './entities/account.entity';
 import { UploadsModule } from 'src/uploads/uploads.module';
 import { PasswordManagerService } from './services/password-manager.service';
 import { GoogleAccountsService } from './services/google-accounts.service';
+import { FollowModule } from 'src/follow/follow.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Account]), UploadsModule],

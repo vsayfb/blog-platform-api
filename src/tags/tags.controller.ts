@@ -5,7 +5,7 @@ import {
   Get,
   Patch,
   Post,
-  Query,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -26,6 +26,8 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
+import {JwtPayload} from 'src/lib/jwt.payload';
+import {Account} from "src/accounts/decorator/account.decorator";
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)
@@ -38,7 +40,7 @@ export class TagsController
 {
   constructor(private readonly tagsService: TagsService) {}
 
-  @Get()
+  @Get(TagRoutes.FIND_ALL)
   async findAll(): Promise<{ data: TagsDto; message: string }> {
     return {
       data: await this.tagsService.getAll(),
@@ -46,10 +48,9 @@ export class TagsController
     };
   }
 
-  @Get(TagRoutes.FIND_ONE)
-  @UseGuards(JwtAuthGuard)
+  @Get(TagRoutes.FIND_ONE + ":name")
   async findOne(
-    @Query('name') tag: string,
+    @Param('name') tag: string,
   ): Promise<{ data: SelectedTagFields; message: string }> {
     return {
       data: await this.tagsService.getOne(tag),
@@ -61,9 +62,10 @@ export class TagsController
   @UseGuards(JwtAuthGuard, DontAllowUserCreate)
   async create(
     @Body() { name }: CreateTagDto,
+    @Account() account:JwtPayload
   ): Promise<{ data: SelectedTagFields; message: string }> {
     return {
-      data: await this.tagsService.create(name),
+      data: await this.tagsService.create({tagName:name,authorID:account.sub}),
       message: TagMessages.CREATED,
     };
   }

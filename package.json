@@ -7,7 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "concurrently \" npm run migration:generate && nest build && npm run migration:run\"",
+    "build":"nest build",
+    "migrate": "concurrently \" npm run migration:generate && npm run migration:run\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

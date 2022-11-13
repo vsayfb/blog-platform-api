@@ -1,25 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Repository } from 'typeorm';
-import { CreateNotificationDto } from '../dto/create-notification-dto';
 import { Notification } from '../entities/notification.entity';
 
 @Injectable()
 export class NotificationsService
-  implements ICreateService, IFindService, IDeleteService, IUpdateService
+  implements IFindService, IDeleteService, IUpdateService
 {
   @InjectRepository(Notification)
   protected readonly notificationsRepository: Repository<Notification>;
-
-  async create(notification: CreateNotificationDto): Promise<Notification> {
-    const created = await this.notificationsRepository.save({
-      sender: { id: notification.senderID },
-      notifable: { id: notification.notifableID },
-      action: notification.action,
-    });
-
-    return this.getOneByID(created.id);
-  }
 
   async getAccountNotifications(accountID: string): Promise<Notification[]> {
     return this.notificationsRepository.find({
@@ -34,6 +26,17 @@ export class NotificationsService
     await this.notificationsRepository.remove(subject);
 
     return ID;
+  }
+
+  async deleteNotificationByIds(
+    senderID: string,
+    notifableID: string,
+  ): Promise<void> {
+    const notification = await this.notificationsRepository.findOne({
+      where: { notifable: { id: notifableID }, sender: { id: senderID } },
+    });
+
+    await this.delete(notification);
   }
 
   async update(subject: Notification): Promise<string> {

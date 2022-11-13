@@ -19,12 +19,15 @@ export class TagsService
   ) {}
 
   async getOne(name: string): Promise<SelectedTagFields> {
-    return await this.tagsRepository.findOne({ where: { name } });
+    return await this.tagsRepository.findOne({
+      where: { name },
+      relations: { posts: { author: true }, author: true },
+    });
   }
 
   async getAll(): Promise<TagsDto> {
     return (await this.tagsRepository.find({
-      relations: { posts: true },
+      relations: { author: true },
     })) as any;
   }
 
@@ -36,10 +39,16 @@ export class TagsService
     return id;
   }
 
-  async create(name: string): Promise<SelectedTagFields> {
-    await this.tagsRepository.save({ name });
+  async create(dto: {
+    tagName: string;
+    authorID: string;
+  }): Promise<SelectedTagFields> {
+    await this.tagsRepository.save({
+      name: dto.tagName,
+      author: { id: dto.authorID },
+    });
 
-    return this.getOne(name);
+    return this.getOne(dto.tagName);
   }
 
   async getOneByID(id: string): Promise<any> {
@@ -54,23 +63,26 @@ export class TagsService
     return this.getOne(newName);
   }
 
-  private async createIfNotExist({
-    name,
-  }: CreateTagDto): Promise<SelectedTagFields> {
+  private async createIfNotExist(
+    name: string,
+    authorID: string,
+  ): Promise<SelectedTagFields> {
     const tag = await this.getOne(name);
 
-    if (!tag) return await this.tagsRepository.save({ name });
+    if (!tag)
+      return await this.tagsRepository.save({ name, author: { id: authorID } });
 
     return tag;
   }
 
   async createMultipleTagsIfNotExist(
     tagNames: string[],
+    authorID: string,
   ): Promise<SelectedTagFields[]> {
     const tags: SelectedTagFields[] = [];
 
     for await (const name of tagNames) {
-      const result = await this.createIfNotExist({ name });
+      const result = await this.createIfNotExist(name, authorID);
 
       tags.push(result);
     }

@@ -54,7 +54,7 @@ export class ChatsController implements ICreateController, IFindController {
 
   @Get(ChatRoutes.FIND_ONE + ':id')
   async findOne(
-    @Param('id', ParseUUIDPipe) chatID: string,
+    @Param('id') chatID: string,
     @Account() me: JwtPayload,
   ): Promise<{ data: Chat; message: ChatMessages }> {
     const chat = await this.chatsService.getOne(me.sub, chatID);

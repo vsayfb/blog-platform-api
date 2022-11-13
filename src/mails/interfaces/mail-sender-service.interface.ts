@@ -5,14 +5,14 @@ export interface IMailSenderService {
       username: string;
     },
     code: string,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   sendMail(
     from: string,
     to: string,
     subject: string,
     html: string,
-  ): Promise<void>;
+  ): Promise<boolean>;
 }
 
 export const IMailSenderService = Symbol('IMailSenderService');

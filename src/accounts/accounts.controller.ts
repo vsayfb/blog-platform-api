@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  forwardRef,
   Get,
   HttpCode,
+  Inject,
   Param,
   Post,
   Query,
@@ -20,12 +22,13 @@ import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
 import { AccountProfileDto } from './dto/account-profile.dto';
-import { BeginVerificationDto } from '../auth/dto/begin-verification.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 import { AccountMessages } from './enums/account-messages';
 import { AccountRoutes } from './enums/account-routes';
 import { SelectedAccountFields } from './types/selected-account-fields';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
+import { CheckClientIsFollowing } from './interceptors/check-client-is-following.interceptor';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)
@@ -38,6 +41,8 @@ export class AccountsController implements IFindController {
     return account;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
+  @UseInterceptors(CheckClientIsFollowing)
   @Get(AccountRoutes.PROFILE + ':username')
   async findOne(@Param() { username }: UsernameQuery): Promise<{
     data: AccountProfileDto;

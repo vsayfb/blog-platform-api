@@ -45,7 +45,7 @@ export class PostsService
   }): Promise<CreatedPostDto> {
     const url = this.urlManagementService.convertToUniqueUrl(dto.title);
 
-    const tags = await this.setPostTags(dto.tags);
+    const tags = await this.setPostTags(dto.tags,authorID);
 
     let title_image: string | null = null;
 
@@ -84,6 +84,7 @@ export class PostsService
     const post = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.url=:url', { url })
+      .andWhere('post.published=:published',{published:true})
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.tags', 'tags')
       .leftJoin('post.comments', 'comments')
@@ -108,7 +109,7 @@ export class PostsService
     if (updatePostDto.published === true) post.published = true;
 
     if (Array.isArray(updatePostDto.tags)) {
-      post.tags = (await this.setPostTags(updatePostDto.tags)) as Tag[];
+      post.tags = (await this.setPostTags(updatePostDto.tags,post.author.id)) as Tag[];
     }
 
     const updated = await this.postsRepository.save(post);
@@ -136,8 +137,8 @@ export class PostsService
     return title_image;
   }
 
-  private async setPostTags(tags: string[]): Promise<SelectedTagFields[]> {
-    return await this.tagsService.createMultipleTagsIfNotExist(tags);
+  private async setPostTags(tags: string[],authorID:string): Promise<SelectedTagFields[]> {
+    return await this.tagsService.createMultipleTagsIfNotExist(tags,authorID);
   }
 
   async getOneByID(id: string): Promise<PostDto> {
@@ -157,10 +158,26 @@ export class PostsService
     return { id, published };
   }
 
-  async getMyPosts(id: string): Promise<PostsDto> {
+  async getAccountPosts(id: string): Promise<PostsDto> {
     const posts = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.author=:id', { id })
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.tags', 'tags')
+      .leftJoin('post.comments', 'comments')
+      .loadRelationCountAndMap('post.comments', 'post.comments')
+      .leftJoin('post.bookmarks', 'bookmarks')
+      .loadRelationCountAndMap('post.bookmarks', 'post.bookmarks')
+      .getMany();
+
+    return posts as any;
+  }
+
+  async getAccountPublicPosts(id: string): Promise<PostsDto> {
+    const posts = await this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.author=:id', { id })
+      .andWhere('post.published=:published', { published: true })
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.tags', 'tags')
       .leftJoin('post.comments', 'comments')

@@ -18,6 +18,8 @@ export class QueryFailedExceptionFilter implements ExceptionFilter {
 
     const response = http.getResponse<Response>();
 
+    console.log(exception);	
+
     return response.status(HttpStatus.BAD_REQUEST).send({
       statusCode: HttpStatus.BAD_REQUEST,
       error: QUERY_FAILED,

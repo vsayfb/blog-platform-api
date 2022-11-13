@@ -21,6 +21,7 @@ import { IDeleteController } from 'src/lib/interfaces/delete-controller.interfac
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './comments.service';
+import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CommentViewDto } from './dto/comment-view.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { RepliesViewDto } from './dto/replies-view.dto';
@@ -37,6 +38,16 @@ export class CommentsController
   implements ICreateController, IUpdateController, IDeleteController
 {
   constructor(private readonly commentsService: CommentsService) {}
+
+  @Get(CommentRoutes.ACCOUNT_COMMENTS + ':id')
+  async findAccountComments(
+    @Param('id') id: string,
+  ): Promise<{ data: AccountCommentsDto; message: CommentMessages }> {
+    return {
+      data: await this.commentsService.getAccountComments(id),
+      message: CommentMessages.ALL_FOUND,
+    };
+  }
 
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(

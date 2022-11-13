@@ -24,21 +24,32 @@ export class CommentedNotificationInterceptor implements NestInterceptor {
   ): Observable<Promise<{ data: CommentViewDto; message: CommentMessages }>> {
     return next.handle().pipe(
       map(async (comment: { data: CreatedCommentDto }) => {
-        const { id, content, created_at, updated_at, author, post } =
-          comment.data;
+        const {
+          id,
+          content,
+          created_at,
+          updated_at,
+          author: commentAuthor,
+          post,
+        } = comment.data;
 
-        const notification =
-          await this.commentsNotificationService.createCommentNotification({
-            commentID: id,
-            senderID: author.id,
-            notifableID: post.author.id,
-            postID: post.id,
-          });
+        const senderID = commentAuthor.id;
+        const notifableID = post.author.id;
 
-        await this.gatewayEventsService.newNotification(notification.id);
+        if (senderID !== notifableID) {
+          const notification =
+            await this.commentsNotificationService.createCommentNotification({
+              commentID: id,
+              senderID,
+              notifableID,
+              postID: post.id,
+            });
+
+          this.gatewayEventsService.newNotification(notification.id);
+        }
 
         return {
-          data: { id, content, created_at, updated_at, author },
+          data: { id, content, created_at, updated_at, author: commentAuthor },
           message: CommentMessages.CREATED,
         };
       }),

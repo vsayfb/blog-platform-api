@@ -1,4 +1,6 @@
 import { Post } from 'src/posts/entities/post.entity';
+import { Account } from 'src/accounts/entities/account.entity';
+
 import {
   Column,
   CreateDateColumn,
@@ -6,6 +8,7 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
@@ -15,6 +18,9 @@ export class Tag {
 
   @Column({ unique: true })
   name: string;
+
+  @ManyToOne(() => Account)
+  author: Account;
 
   @ManyToMany(() => Post, (post) => post.tags, { cascade: true })
   posts: Post[];

@@ -24,26 +24,34 @@ export class MailgunService implements IMailSenderService {
     to: string,
     subject: string,
     html: string,
-  ): Promise<void> {
-    await this.client.messages.create(
-      this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
-      { from, to, subject, html },
-    );
+  ): Promise<boolean> {
+    try {
+      await this.client.messages.create(
+        this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
+        { from, to, subject, html },
+      );
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   async sendVerificationMail(
     to: { email: string; username: string },
     code: string,
-  ) {
+  ): Promise<boolean> {
     const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_MAIL);
 
-    await this.sendTemplateMail(from, to.email, 'Verification Code', {
-      template: 'verification_code',
-      'h:X-Mailgun-Variables': JSON.stringify({
-        code,
-        username: to.username,
-      }),
-    });
+    
+      return await this.sendTemplateMail(from, to.email, 'Verification Code', {
+        template: 'verification_code',
+        'h:X-Mailgun-Variables': JSON.stringify({
+          code,
+          username: to.username,
+        }),
+      });
+    
   }
 
   private async sendTemplateMail(
@@ -64,9 +72,16 @@ export class MailgunService implements IMailSenderService {
       }
     }
 
-    await this.client.messages.create(
-      this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
-      data as any,
-    );
+    try {
+      const r = await this.client.messages.create(
+        this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
+        data as any,
+      );
+
+      return true;
+    } catch (error) {
+      
+      return false;
+    }
   }
 }
