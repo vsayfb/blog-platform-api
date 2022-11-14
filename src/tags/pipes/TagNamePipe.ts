@@ -5,13 +5,23 @@ export class TagNamePipe implements PipeTransform {
   transform(dto: CreatePostDto, _metadata: ArgumentMetadata) {
     const transformedTags: string[] = [];
 
-    if (!dto.tags || !dto.tags.length) {
+    let parsedTags : string[] = [];	
+  
+    try{
+      // maybe tags are sent in a form data
+      parsedTags = JSON.parse(dto.tags as unknown as string);
+    }catch(err){
+      parsedTags = dto.tags; 
+
+    }	
+
+    if (!parsedTags || !parsedTags.length) {
       dto.tags = [];
 
       return dto;
     }
 
-    dto.tags.map((tag) => {
+    parsedTags.map((tag) => {
       if (tag.length >= 2) {
         transformedTags.push(
           tag

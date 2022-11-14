@@ -20,7 +20,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
 import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
 import { AccountProfileDto } from './dto/account-profile.dto';
@@ -38,6 +37,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account as AccountEntity } from './entities/account.entity';
 import { LoginViewDto } from 'src/auth/dto/login-view.dto';
 import { SignNewJwtToken } from './interceptors/sign-new-jwt.interceptor';
+import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)
@@ -118,7 +118,7 @@ export class AccountsController implements IFindController, IUpdateController {
   @Patch(AccountRoutes.UPLOAD_PROFILE_PHOTO)
   async uploadProfilePhoto(
     @Account() account: JwtPayload,
-    @UploadedFile(IsImageFilePipe) image: Express.Multer.File,
+    @UploadedFile(RequiredImageFile) image: Express.Multer.File,
   ): Promise<{ data: string; message: AccountMessages }> {
     return {
       data: await this.accountsService.changeProfileImage(account, image),

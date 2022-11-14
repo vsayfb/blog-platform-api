@@ -7,7 +7,6 @@ export class CreatePostDto {
   @MinLength(15)
   content: string;
 
-  @IsArray()
-  @IsOptional()
-  tags?: string[];
+  // tagnamepipe will transforms tags
+  tags: string[];
 }

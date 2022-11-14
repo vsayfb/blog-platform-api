@@ -18,7 +18,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsImageFilePipe } from 'src/uploads/pipes/IsImageFile';
+import { OptionalImageFile } from 'src/uploads/pipes/optional-image-file';
 import { TagNamePipe } from 'src/tags/pipes/TagNamePipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CanManageData } from 'src/lib/guards/CanManageData';
@@ -37,6 +37,7 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
+import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -54,7 +55,7 @@ export class PostsController
   @Post(PostRoutes.CREATE)
   async create(
     @Body(TagNamePipe) createPostDto: CreatePostDto,
-    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File | null,
+    @UploadedFile(OptionalImageFile) titleImage: Express.Multer.File | null,
     @Account() account: JwtPayload,
     @Query('published') published?: boolean,
   ): Promise<{ data: CreatedPostDto; message: PostMessages }> {
@@ -94,7 +95,7 @@ export class PostsController
 
   @Get(PostRoutes.FIND_ACCOUNT_POSTS + ':id')
   async findAccountPosts(
-    @Param("id") accountID: string,
+    @Param('id') accountID: string,
   ): Promise<{ data: PostsDto; message: PostMessages }> {
     return {
       data: await this.postsService.getAccountPublicPosts(accountID),
@@ -164,7 +165,7 @@ export class PostsController
   @Put(PostRoutes.UPDATE_TITLE_IMAGE + ':id')
   async updateTitleImage(
     @Data() post: PostDto,
-    @UploadedFile(IsImageFilePipe) titleImage: Express.Multer.File | null,
+    @UploadedFile(RequiredImageFile) titleImage: Express.Multer.File,
   ): Promise<{ data: string; message: PostMessages }> {
     return {
       data: await this.postsService.updateTitleImage(post, titleImage),
