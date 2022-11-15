@@ -31,10 +31,12 @@ import { TwilioModule } from './apis/twilio/twilio.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './lib/exception-filters/all-exceptions.filter';
 import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed.exception.filter';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+
+const imports = [
+   ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(dataSource.options),
     RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
     AccountsModule,
@@ -61,7 +63,18 @@ import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed
     HashManagerModule,
     SmsModule,
     TwilioModule,
-  ],
+];
+
+if(process.env.NODE_ENV === "production"){ 
+  ServeStaticModule.forRoot({
+     rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
+     exclude: ['api/*']
+  }
+)}
+
+
+@Module({
+  imports,	
   providers: [
     {
       provide: APP_FILTER,

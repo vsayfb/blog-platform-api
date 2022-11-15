@@ -41,17 +41,15 @@ export class MailgunService implements IMailSenderService {
     to: { email: string; username: string },
     code: string,
   ): Promise<boolean> {
-    const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_MAIL);
+    const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_USER);
 
-    
-      return await this.sendTemplateMail(from, to.email, 'Verification Code', {
-        template: 'verification_code',
-        'h:X-Mailgun-Variables': JSON.stringify({
-          code,
-          username: to.username,
-        }),
-      });
-    
+    return await this.sendTemplateMail(from, to.email, 'Verification Code', {
+      template: 'verification_code',
+      'h:X-Mailgun-Variables': JSON.stringify({
+        code,
+        username: to.username,
+      }),
+    });
   }
 
   private async sendTemplateMail(
@@ -66,6 +64,8 @@ export class MailgunService implements IMailSenderService {
       subject,
     };
 
+    console.log(data);	
+
     if (options) {
       for (const key in options) {
         data[key] = options[key];
@@ -73,14 +73,15 @@ export class MailgunService implements IMailSenderService {
     }
 
     try {
-      const r = await this.client.messages.create(
+      await this.client.messages.create(
         this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
         data as any,
       );
 
       return true;
     } catch (error) {
-      
+
+      console.log(error);		
       return false;
     }
   }

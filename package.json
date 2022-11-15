@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build":"nest build",
+    "build": "nest build",
     "migrate": "concurrently \" npm run migration:generate && npm run migration:run\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -37,6 +37,7 @@
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/platform-socket.io": "^9.0.8",
+    "@nestjs/serve-static": "^3.0.0",
     "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.1.2",
     "@nestjs/websockets": "^9.0.8",

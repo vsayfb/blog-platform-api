@@ -27,30 +27,33 @@ async function bootstrap() {
     origin: process.env[ProcessEnv.CORS_ORIGIN],
   });
 
-  await app.init();
 
-  http.createServer(server).listen(process.env.PORT || 80);
+  if (process.env[ProcessEnv.NODE_ENV] !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Blog Platform API')
+      .setDescription('An API for your frontend blog projects.')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+
+    SwaggerModule.setup('api', app, document);
+  
+    await app.listen(process.env[ProcessEnv.PORT]);
+  }
 
   if (process.env[ProcessEnv.NODE_ENV] === 'production') {
+	
     const options = {
       key: fs.readFileSync(process.env[ProcessEnv.SSL_KEY_PATH], 'utf8'),
       cert: fs.readFileSync(process.env[ProcessEnv.SSL_CERT_PATH], 'utf8'),
       ca: fs.readFileSync(process.env[ProcessEnv.SSL_CA_PATH], 'utf8'),
     };
 
+
+    http.createServer(server).listen(80);
     https.createServer(options, server).listen(443);
   }
-  if (process.env[ProcessEnv.NODE_ENV] !== 'production') {
-    const config = new DocumentBuilder()
-      .setTitle('Blog Platform API')
-      .setDescription('An API for your frontend blog projects.')
-      .setVersion('1.0')
-      .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-
-    SwaggerModule.setup('api', app, document);
-  }
 }
 
 bootstrap();
