@@ -25,22 +25,24 @@ export class MailsService {
 
     if (alreadySent) throw new BadRequestException(CodeMessages.ALREADY_SENT);
 
-    const { code, codeID } = await this.codeService.create(to.email);
+    const generatedCode = await this.codeService.create(to.email);
 
     const mailSent = await this.mailSenderService.sendVerificationMail(
       to,
-      code,
+      generatedCode.code,
     );
 
     if (!mailSent) {
-      await this.codeService.delete(codeID);
+      await this.codeService.delete(generatedCode);
 
       // TODO throw specific error and handle it in an exception filter then sent response
 
       throw new ServiceUnavailableException();
     }
 
-    this.jobsService.execAfterTwoMinutes(() => this.codeService.delete(codeID));
+    this.jobsService.execAfterTwoMinutes(() =>
+      this.codeService.delete(generatedCode),
+    );
 
     return { message: CodeMessages.CODE_SENT };
   }

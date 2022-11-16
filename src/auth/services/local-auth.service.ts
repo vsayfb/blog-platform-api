@@ -25,11 +25,8 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
 
     if (!code) throw new ForbiddenException(CodeMessages.INVALID_CODE);
 
-    if (code.receiver !== data.email) {
+    if (code.receiver !== data.email)
       throw new ForbiddenException(AccountMessages.INVALID_EMAIL);
-    }
-
-    this.codesService.delete(code.id);
 
     const account = await this.accountsService.create(data);
 

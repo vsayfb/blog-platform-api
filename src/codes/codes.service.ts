@@ -15,29 +15,27 @@ export class CodesService implements ICreateService, IDeleteService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async create(receiver: string): Promise<{ code: string; codeID: string }> {
+  async create(receiver: string): Promise<Code> {
     const code = this.generateCode();
 
     const { id } = await this.codesRepository.save({ code, receiver });
 
-    return { code, codeID: id };
+    return this.codesRepository.findOne({ where: { id } });
   }
 
   async getCode(code: string): Promise<Code | null> {
     return this.codesRepository.findOne({ where: { code } });
   }
 
-  async getOneByEmail(email:string):Promise<Code | null>{
-
-    return this.codesRepository.findOne({  where: {receiver : email } });
-
+  async getOneByEmail(email: string): Promise<Code | null> {
+    return this.codesRepository.findOne({ where: { receiver: email } });
   }
 
-  async delete(codeID: string): Promise<string> {
-    const code = await this.codesRepository.findOne({ where: { id: codeID } });
+  async delete(code: Code): Promise<string> {
+    const codeID = code.id;
 
     await this.codesRepository.remove(code);
 
-    return code.id;
+    return codeID;
   }
 }
