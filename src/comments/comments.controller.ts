@@ -74,7 +74,7 @@ export class CommentsController
   @Post(CommentRoutes.CREATE + ':postID')
   async create(
     @Account() account: JwtPayload,
-    @Param('postID', ParseUUIDPipe) postID: string,
+    @Param('postID') postID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: SelectedCommentFields; message: string }> {
     return {

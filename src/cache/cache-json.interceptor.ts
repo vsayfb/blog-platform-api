@@ -4,7 +4,8 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
+import { PublicPostDto } from 'src/posts/dto/public-post.dto';
 import { BaseCacheInterceptor } from './interceptors/base-cache.interceptor';
 
 @Injectable()
@@ -22,16 +23,16 @@ export class CacheJsonInterceptor
 
     const cached = await this.cacheManager.json.get(key);
 
-    if (!cached) {
-      return next.handle().pipe(
-        map(async (value) => {
-          await this.cacheManager.json.set(key, '$', value);
-
-          return value;
-        }),
-      );
+    if (cached) {
+      return of(cached);
     }
 
-    return cached as any;
+    return next.handle().pipe(
+      map((value) => {
+        this.cacheManager.json.set(key, '$', value);
+
+        return value;
+      }),
+    );
   }
 }

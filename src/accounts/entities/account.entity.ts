@@ -38,8 +38,8 @@ export class Account {
   @Column({ unique: true, select: false })
   email: string;
 
-  @Column({ nullable: true, default: null })
-  image: string | null;
+  @Column()
+  image: string;
 
   @Column({ select: false })
   password: string;

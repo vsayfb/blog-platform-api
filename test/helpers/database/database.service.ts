@@ -66,15 +66,16 @@ export class TestDatabaseService {
   }
 
   async createRandomTestUser(role?: Role): Promise<DatabaseUser> {
-    const { username, email, password, display_name } = generateFakeUser();
+    const { username, email, password, display_name, image } =
+      generateFakeUser();
 
     const hashedPassword = await this.passwordManagerService.hashPassword(
       password,
     );
 
     const query = `INSERT INTO 
-    account (username,password,email,display_name,role) 
-    VALUES ('${username}','${hashedPassword}','${email}','${display_name}','${
+    account (username,password,email,display_name,image,role) 
+    VALUES ('${username}','${hashedPassword}','${email}','${display_name}','${image}','${
       role || Role.USER
     }')`;
 

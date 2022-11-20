@@ -26,8 +26,8 @@ export class Tag {
   posts: Post[];
 
   @CreateDateColumn({ select: false })
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn({ select: false })
-  updatedAt: Date;
+  updated_at: Date;
 }

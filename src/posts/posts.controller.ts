@@ -19,7 +19,7 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptionalImageFile } from 'src/uploads/pipes/optional-image-file';
-import { TagNamePipe } from 'src/tags/pipes/TagNamePipe';
+import { TagNamePipe } from 'src/tags/pipes/tag-name.pipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -38,6 +38,8 @@ import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
+import { CheckClientBookmark } from './interceptors/check-client-bookmark';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -65,8 +67,7 @@ export class PostsController
 
     if (published === undefined) {
       data = await this.postsService.create(saveData);
-    }
-    data = await this.postsService.create({ ...saveData, published });
+    } else data = await this.postsService.create({ ...saveData, published });
 
     return { data, message: PostMessages.CREATED };
   }
@@ -114,13 +115,17 @@ export class PostsController
     };
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
+  @UseInterceptors(CheckClientBookmark, CacheJsonInterceptor)
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
-  @UseInterceptors(CacheJsonInterceptor)
-  async findOne(
-    @Param('url') url: string,
-  ): Promise<{ data: PublicPostDto; message: PostMessages }> {
+  async findOne(@Param('url') url: string): Promise<{
+    data: PublicPostDto & { bookmarked_by: boolean };
+    message: PostMessages;
+  }> {
+    const post = await this.postsService.getOne(url);
+
     return {
-      data: await this.postsService.getOne(url),
+      data: post as PublicPostDto & { bookmarked_by: boolean },
       message: PostMessages.FOUND,
     };
   }

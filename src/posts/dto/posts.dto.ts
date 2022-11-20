@@ -6,6 +6,6 @@ export type PostsDto = SelectedPostFields &
   {
     author: SelectedAccountFields;
     tags: Tag[];
-    comments: number;
-    bookmarks: number;
+    comments_count: number;
+    bookmarks_count: number;
   }[];

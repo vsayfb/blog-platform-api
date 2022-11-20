@@ -1,2 +1,2 @@
-export const INVALID_QUERY_SYNTAX = 'Invalid syntax error for type uuid';
-export const QUERY_FAILED = 'Query failed';
+export const INVALID_QUERY_SYNTAX = 'Validation failed (uuid  is expected)';
+export const QUERY_FAILED = 'Validation failed';

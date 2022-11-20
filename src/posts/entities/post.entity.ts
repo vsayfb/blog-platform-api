@@ -51,7 +51,7 @@ export class Post {
   content: string;
 
   @Column({ default: true })
-  published?: boolean | undefined;
+  published: boolean;
 
   @CreateDateColumn()
   created_at: Date;

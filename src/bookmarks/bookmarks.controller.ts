@@ -68,16 +68,6 @@ export class BookmarksController
     };
   }
 
-  @Get(BookmarkRoutes.FIND_POST_BOOKMARKS + ':postId')
-  async findPostBookmarks(
-    @Param('postId', ParseUUIDPipe) postId: string,
-  ): Promise<{ data: PostBookmarks; message: string }> {
-    return {
-      data: await this.bookmarksService.getPostBookmarks(postId),
-      message: BookmarkMessages.POST_BOOKMARKS_FOUND,
-    };
-  }
-
   @Delete(BookmarkRoutes.DELETE + ':id')
   @UseGuards(JwtAuthGuard, CanManageData)
   async delete(

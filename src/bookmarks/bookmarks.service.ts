@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { PostBookmarks } from './dto/post-bookmarks.dto';
 import { Bookmark } from './entities/bookmark.entity';
+import { BookmarkMessages } from './enums/bookmark-messages';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 
 @Injectable()
@@ -22,6 +23,16 @@ export class BookmarksService
     postID: string;
     accountID: string;
   }): Promise<SelectedBookmarkFields> {
+    const { postID, accountID } = data;
+
+    const bookmarked = await this.checkAccountHaveBookmarkOnPost(
+      accountID,
+      postID,
+    );
+
+    if (bookmarked)
+      throw new ForbiddenException(BookmarkMessages.ALREADY_BOOKMARKED);
+
     const bookmark = await this.bookmarksRepository.save({
       account: { id: data.accountID },
       post: { id: data.postID },
@@ -40,11 +51,15 @@ export class BookmarksService
     return id;
   }
 
-  async getPostBookmarks(postId: string): Promise<PostBookmarks> {
-    return (await this.bookmarksRepository.find({
-      where: { post: { id: postId } },
-      relations: { account: true },
-    })) as any;
+  async checkAccountHaveBookmarkOnPost(
+    accountID: string,
+    postID: string,
+  ): Promise<boolean> {
+    const bookmark = await this.bookmarksRepository.findOne({
+      where: { post: { id: postID }, account: { id: accountID } },
+    });
+
+    return bookmark ? true : false;
   }
 
   async getAccountBookmarks(accountID: string): Promise<AccountBookmarks> {

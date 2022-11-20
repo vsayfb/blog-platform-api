@@ -118,6 +118,7 @@ export class AccountsService
 
     const created = await this.accountsRepository.save({
       ...data,
+      image: `https://robohash.org/${data.username}.png`,
       password: hashedPassword,
     });
 

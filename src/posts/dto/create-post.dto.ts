@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
+import { Allow, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @MinLength(15)
@@ -7,6 +7,7 @@ export class CreatePostDto {
   @MinLength(15)
   content: string;
 
-  // tagnamepipe will transforms tags
+  // tagnamepipe will transform tags -> look tag-name.pipe.ts
+  @Allow()
   tags: string[];
 }
