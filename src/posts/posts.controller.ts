@@ -19,7 +19,6 @@ import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptionalImageFile } from 'src/uploads/pipes/optional-image-file';
-import { TagNamePipe } from 'src/tags/pipes/tag-name.pipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -40,6 +39,8 @@ import { IDeleteController } from 'src/lib/interfaces/delete-controller.interfac
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
 import { CheckClientBookmark } from './interceptors/check-client-bookmark';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
+import { PublishQueryDto } from './pipes/publish-query.pipe';
+import { TagsPipe } from 'src/tags/pipes/tags.pipe';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -56,20 +57,20 @@ export class PostsController
   @UseInterceptors(FileInterceptor('titleImage'))
   @Post(PostRoutes.CREATE)
   async create(
-    @Body(TagNamePipe) createPostDto: CreatePostDto,
+    @Body(TagsPipe) createPostDto: CreatePostDto,
+    @Query() { publish }: PublishQueryDto,
     @UploadedFile(OptionalImageFile) titleImage: Express.Multer.File | null,
     @Account() account: JwtPayload,
-    @Query('published') published?: boolean,
   ): Promise<{ data: CreatedPostDto; message: PostMessages }> {
-    let data: CreatedPostDto;
-
-    const saveData = { authorID: account.sub, dto: createPostDto, titleImage };
-
-    if (published === undefined) {
-      data = await this.postsService.create(saveData);
-    } else data = await this.postsService.create({ ...saveData, published });
-
-    return { data, message: PostMessages.CREATED };
+    return {
+      data: await this.postsService.create({
+        dto: createPostDto,
+        authorID: account.sub,
+        titleImage,
+        publish: publish === 'false' ? false : true,
+      }),
+      message: PostMessages.CREATED,
+    };
   }
 
   @Get(PostRoutes.FIND_ALL)
@@ -131,13 +132,18 @@ export class PostsController
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @Patch(PostRoutes.UPDATE + ':id')
+  @Put(PostRoutes.UPDATE + ':id')
   async update(
     @Data() post: PostDto,
-    @Body(TagNamePipe) updatePostDto: UpdatePostDto,
+    @Body() updatePostDto: UpdatePostDto,
+    @Query() { publish }: PublishQueryDto,
   ) {
     return {
-      data: await this.postsService.update(post, updatePostDto),
+      data: await this.postsService.update(post, {
+        ...updatePostDto,
+        published:
+          publish === 'true' ? true : publish === 'false' ? false : undefined,
+      }),
       message: PostMessages.UPDATED,
     };
   }
@@ -154,7 +160,7 @@ export class PostsController
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @Put(PostRoutes.CHANGE_POST_STATUS + ':id')
+  @Patch(PostRoutes.CHANGE_POST_STATUS + ':id')
   async changePostStatus(@Data() post: PostDto): Promise<{
     data: { id: string; published: boolean };
     message: PostMessages;
@@ -167,7 +173,7 @@ export class PostsController
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @UseInterceptors(FileInterceptor('titleImage'))
-  @Put(PostRoutes.UPDATE_TITLE_IMAGE + ':id')
+  @Patch(PostRoutes.UPDATE_TITLE_IMAGE + ':id')
   async updateTitleImage(
     @Data() post: PostDto,
     @UploadedFile(RequiredImageFile) titleImage: Express.Multer.File,

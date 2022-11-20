@@ -1,7 +1,8 @@
-import { Allow, MinLength } from 'class-validator';
+import { Allow, MaxLength, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @MinLength(15)
+  @MaxLength(34)
   title: string;
 
   @MinLength(15)

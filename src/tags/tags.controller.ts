@@ -26,8 +26,8 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
-import {JwtPayload} from 'src/lib/jwt.payload';
-import {Account} from "src/accounts/decorator/account.decorator";
+import { JwtPayload } from 'src/lib/jwt.payload';
+import { Account } from 'src/accounts/decorator/account.decorator';
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)
@@ -48,7 +48,7 @@ export class TagsController
     };
   }
 
-  @Get(TagRoutes.FIND_ONE + ":name")
+  @Get(TagRoutes.FIND_ONE + ':name')
   async findOne(
     @Param('name') tag: string,
   ): Promise<{ data: SelectedTagFields; message: string }> {
@@ -62,10 +62,13 @@ export class TagsController
   @UseGuards(JwtAuthGuard, DontAllowUserCreate)
   async create(
     @Body() { name }: CreateTagDto,
-    @Account() account:JwtPayload
+    @Account() account: JwtPayload,
   ): Promise<{ data: SelectedTagFields; message: string }> {
     return {
-      data: await this.tagsService.create({tagName:name,authorID:account.sub}),
+      data: await this.tagsService.create({
+        tagName: name,
+        authorID: account.sub,
+      }),
       message: TagMessages.CREATED,
     };
   }

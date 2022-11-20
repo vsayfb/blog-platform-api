@@ -57,12 +57,19 @@ export class TagsService
     return id;
   }
 
+  async checkWithName(name: string): Promise<SelectedTagFields | null> {
+    return await this.tagsRepository.findOne({
+      where: { name },
+      relations: { author: false, posts: false },
+    });
+  }
+
   async create(dto: {
     tagName: string;
     authorID: string;
   }): Promise<SelectedTagFields> {
     await this.tagsRepository.save({
-      name: dto.tagName,
+      name: dto.tagName.toLowerCase(),
       author: { id: dto.authorID },
     });
 
@@ -79,32 +86,5 @@ export class TagsService
     await this.tagsRepository.save(tag);
 
     return this.getOne(newName);
-  }
-
-  private async createIfNotExist(
-    name: string,
-    authorID: string,
-  ): Promise<SelectedTagFields> {
-    const tag = await this.tagsRepository.findOne({ where: { name } });
-
-    if (!tag)
-      return await this.tagsRepository.save({ name, author: { id: authorID } });
-
-    return tag;
-  }
-
-  async createMultipleTagsIfNotExist(
-    tagNames: string[],
-    authorID: string,
-  ): Promise<SelectedTagFields[]> {
-    const tags: SelectedTagFields[] = [];
-
-    for await (const name of tagNames) {
-      const result = await this.createIfNotExist(name, authorID);
-
-      tags.push(result);
-    }
-
-    return tags;
   }
 }

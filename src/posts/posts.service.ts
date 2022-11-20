@@ -36,12 +36,12 @@ export class PostsService
     authorID,
     dto,
     titleImage,
-    published = true,
+    publish,
   }: {
     authorID: string;
     dto: CreatePostDto;
     titleImage: Express.Multer.File;
-    published?: boolean;
+    publish: boolean;
   }): Promise<CreatedPostDto> {
     const url = this.urlManagementService.convertToUniqueUrl(dto.title);
 
@@ -60,7 +60,7 @@ export class PostsService
       tags,
       author: { id: authorID },
       title_image,
-      published,
+      published: publish,
     });
 
     const result = await this.postsRepository.findOne({
@@ -102,20 +102,23 @@ export class PostsService
 
   async update(
     post: PostDto,
-    updatePostDto: UpdatePostDto,
+    updatePostDto: UpdatePostDto & { published?: boolean },
   ): Promise<UpdatedPostDto> {
     post.title = updatePostDto.title;
     post.url = this.urlManagementService.convertToUniqueUrl(post.title);
     post.content = updatePostDto.content;
 
-    if (updatePostDto.published === true) post.published = true;
-
     if (Array.isArray(updatePostDto.tags)) {
-      post.tags = (await this.setPostTags(
+      const newTags = await this.setPostTags(
         updatePostDto.tags,
         post.author.id,
-      )) as Tag[];
+      );
+
+      post.tags = newTags as Tag[];
     }
+
+    if (updatePostDto.published !== undefined)
+      post.published = updatePostDto.published;
 
     const updated = await this.postsRepository.save(post);
 
@@ -124,7 +127,7 @@ export class PostsService
       relations: { tags: true },
     });
 
-    return result as any;
+    return result;
   }
 
   async updateTitleImage(
@@ -146,7 +149,19 @@ export class PostsService
     tags: string[],
     authorID: string,
   ): Promise<SelectedTagFields[]> {
-    return await this.tagsService.createMultipleTagsIfNotExist(tags, authorID);
+    const postTags: SelectedTagFields[] = [];
+
+    for await (const tagName of tags) {
+      let tag = await this.tagsService.checkWithName(tagName);
+
+      if (!tag) {
+        tag = await this.tagsService.create({ tagName, authorID });
+      }
+
+      postTags.push(tag);
+    }
+
+    return postTags;
   }
 
   async getOneByID(id: string): Promise<PostDto> {

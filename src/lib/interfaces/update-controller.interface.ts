@@ -1,3 +1,7 @@
 export interface IUpdateController {
-  update(dto: any, subject: any): Promise<{ data: any; message: string }>;
+  update(
+    dto: any,
+    subject: any,
+    ...args
+  ): Promise<{ data: any; message: string }>;
 }
