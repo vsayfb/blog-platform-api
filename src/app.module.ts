@@ -20,7 +20,6 @@ import { GatewaysModule } from './gateways/gateways.module';
 import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './messages/messages.module';
-import { ExpressionsModule } from './expressions/expressions.module';
 import { RedisModule } from './global/redis/redis.module';
 import { ProcessEnv } from './lib/enums/env';
 import { CacheManagerModule } from './cache/cache-manager.module';
@@ -34,47 +33,44 @@ import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
-
 const imports = [
-   ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot(dataSource.options),
-    RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
-    AccountsModule,
-    AuthModule,
-    UploadsModule,
-    MailsModule,
-    MailgunModule,
-    CodesModule,
-    JobsModule,
-    PostsModule,
-    TagsModule,
-    CaslModule,
-    CommentsModule,
-    BookmarksModule,
-    FollowModule,
-    NotificationsModule,
-    EventsModule,
-    GatewaysModule,
-    ChatsModule,
-    MessagesModule,
-    ExpressionsModule,
-    CacheManagerModule,
-    UrlManagementModule,
-    HashManagerModule,
-    SmsModule,
-    TwilioModule,
+  ConfigModule.forRoot({ isGlobal: true }),
+  TypeOrmModule.forRoot(dataSource.options),
+  RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
+  AccountsModule,
+  AuthModule,
+  UploadsModule,
+  MailsModule,
+  MailgunModule,
+  CodesModule,
+  JobsModule,
+  PostsModule,
+  TagsModule,
+  CaslModule,
+  CommentsModule,
+  BookmarksModule,
+  FollowModule,
+  NotificationsModule,
+  EventsModule,
+  GatewaysModule,
+  ChatsModule,
+  MessagesModule,
+  CacheManagerModule,
+  UrlManagementModule,
+  HashManagerModule,
+  SmsModule,
+  TwilioModule,
 ];
 
-if(process.env.NODE_ENV === "production"){ 
+if (process.env.NODE_ENV === 'production') {
   ServeStaticModule.forRoot({
-     rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
-     exclude: ['api/*']
-  }
-)}
-
+    rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
+    exclude: ['api/*'],
+  });
+}
 
 @Module({
-  imports,	
+  imports,
   providers: [
     {
       provide: APP_FILTER,

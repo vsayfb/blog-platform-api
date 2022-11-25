@@ -13,7 +13,6 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Notification } from 'src/global/notifications/entities/notification.entity';
-import { Expression } from 'src/expressions/entities/expression.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -30,7 +29,6 @@ export type Subjects =
       | typeof Comment
       | typeof Bookmark
       | typeof Notification
-      | typeof Expression
       | typeof Account
     >
   | 'all';
@@ -66,10 +64,6 @@ export class CaslAbilityFactory {
       can(Action.Manage, Notification, {
         'notifable.id': client.sub,
       } as unknown as Notification);
-
-      can(Action.Manage, Expression, {
-        'left.id': client.sub,
-      } as unknown as Expression);
 
       can(Action.Manage, Account, {
         username: client.username,

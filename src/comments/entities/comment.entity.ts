@@ -1,5 +1,4 @@
 import { Account } from 'src/accounts/entities/account.entity';
-import { Expression } from 'src/expressions/entities/expression.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import {
   Column,
@@ -37,9 +36,6 @@ export class Comment {
     nullable: false,
   })
   post: Post;
-
-  @OneToMany(() => Expression, (expression) => expression.comment)
-  expressions: Expression[];
 
   @Column()
   content: string;
