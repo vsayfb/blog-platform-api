@@ -4,7 +4,7 @@ import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { postStub } from 'src/posts/stub/post-stub';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
-import { CommentsService } from '../comments.service';
+import { CommentsService } from '../services/comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { commentStub } from '../stub/comment.stub';

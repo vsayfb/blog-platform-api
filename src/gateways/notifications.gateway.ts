@@ -17,7 +17,7 @@ dotenv.config();
 
 @WebSocketGateway({
   namespace: 'notifications',
-  cors: { origin: process.env[ProcessEnv.CORS_ORIGIN] },
+  cors: { origin: process.env[ProcessEnv.SECURE_HOST] },
 })
 @UseGuards(SocketAuthGuard)
 export class NotificationsGateway
@@ -80,11 +80,11 @@ export class NotificationsGateway
       notification.notifable.id,
     );
 
-    // target user is not online do not try to send notification	
-    if(!notifableSocketID) return null;
+    // target user is not online do not try to send notification
+    if (!notifableSocketID) return null;
 
     // it is not necessarry because notifable is client. do not put it to notification object
-    delete notification.notifable;	
+    delete notification.notifable;
 
     senderSocket.to(notifableSocketID).emit('notification', notification);
   }

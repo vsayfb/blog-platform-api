@@ -13,7 +13,7 @@ import { MessageViewDto } from '../messages/dto/message-view.dto';
 
 @WebSocketGateway({
   namespace: 'chats',
-  cors: { origin: process.env[ProcessEnv.CORS_ORIGIN] },
+  cors: { origin: process.env[ProcessEnv.SECURE_HOST] },
 })
 export class ChatsGateway {
   @WebSocketServer() private server: Server;

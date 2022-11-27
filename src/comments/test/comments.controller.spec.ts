@@ -5,7 +5,7 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
-import { CommentsService } from '../comments.service';
+import { CommentsService } from '../services/comments.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';

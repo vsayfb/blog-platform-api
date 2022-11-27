@@ -6,6 +6,7 @@ import {
   UseGuards,
   Post,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -34,13 +35,13 @@ export class BookmarksController
   @UseGuards(JwtAuthGuard)
   @Post(BookmarkRoutes.CREATE + ':postId')
   async create(
-    @Param('postId', ParseUUIDPipe) postID: string,
-    @Account() account: JwtPayload,
+    @Param('postId') postID: string,
+    @Account() client: JwtPayload,
   ): Promise<{ data: SelectedBookmarkFields; message: string }> {
     return {
       data: await this.bookmarksService.create({
         postID,
-        accountID: account.sub,
+        accountID: client.sub,
       }),
       message: BookmarkMessages.CREATED,
     };
@@ -49,10 +50,10 @@ export class BookmarksController
   @UseGuards(JwtAuthGuard)
   @Get(BookmarkRoutes.FIND_CLIENT_BOOKMARKS)
   async findClientBookmarks(
-    @Account() me: JwtPayload,
+    @Account() client: JwtPayload,
   ): Promise<{ data: AccountBookmarks; message: string }> {
     return {
-      data: await this.bookmarksService.getAccountBookmarks(me.sub),
+      data: await this.bookmarksService.getAccountBookmarks(client.sub),
       message: BookmarkMessages.ALL_FOUND,
     };
   }
@@ -75,6 +76,25 @@ export class BookmarksController
   ): Promise<{ id: string; message: string }> {
     return {
       id: await this.bookmarksService.delete(subject),
+      message: BookmarkMessages.DELETED,
+    };
+  }
+
+  @Delete(BookmarkRoutes.DELETE + 'post/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteByPost(
+    @Account() client: JwtPayload,
+    @Param('id') postID: string,
+  ): Promise<{ id: string; message: string }> {
+    const bookmark = await this.bookmarksService.getByPostAndAccount(
+      postID,
+      client.sub,
+    );
+
+    if (!bookmark) throw new BadRequestException(BookmarkMessages.NOT_FOUND);
+
+    return {
+      id: await this.bookmarksService.delete(bookmark),
       message: BookmarkMessages.DELETED,
     };
   }

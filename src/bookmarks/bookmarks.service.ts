@@ -81,4 +81,10 @@ export class BookmarksService
       relations: { account: true, post: true },
     });
   }
+
+  async getByPostAndAccount(postID: string, accountID: string) {
+    return this.bookmarksRepository.findOne({
+      where: { post: { id: postID }, account: { id: accountID } },
+    });
+  }
 }

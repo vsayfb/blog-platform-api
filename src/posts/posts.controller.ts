@@ -12,7 +12,7 @@ import {
   Query,
   Put,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
+import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Account } from 'src/accounts/decorator/account.decorator';
@@ -37,7 +37,7 @@ import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
-import { CheckClientBookmark } from './interceptors/check-client-bookmark';
+import { CheckClientActions } from './interceptors/check-client-actions';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { PublishQueryDto } from './pipes/publish-query.pipe';
 import { TagsPipe } from 'src/tags/pipes/tags.pipe';
@@ -117,16 +117,24 @@ export class PostsController
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(CheckClientBookmark, CacheJsonInterceptor)
+  @UseInterceptors(CheckClientActions)
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOne(@Param('url') url: string): Promise<{
-    data: PublicPostDto & { bookmarked_by: boolean };
+    data: PublicPostDto & {
+      bookmarked_by: boolean;
+      liked_by: boolean;
+      disliked_by: boolean;
+    };
     message: PostMessages;
   }> {
     const post = await this.postsService.getOne(url);
 
     return {
-      data: post as PublicPostDto & { bookmarked_by: boolean },
+      data: post as PublicPostDto & {
+        bookmarked_by: boolean;
+        liked_by: boolean;
+        disliked_by: boolean;
+      },
       message: PostMessages.FOUND,
     };
   }

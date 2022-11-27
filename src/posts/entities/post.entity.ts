@@ -13,6 +13,7 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
+import { PostExpression } from './post-expression.entity';
 
 @Entity()
 export class Post {
@@ -35,6 +36,9 @@ export class Post {
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.post)
   bookmarks: Bookmark;
+
+  @OneToMany(() => PostExpression, (expression) => expression.post)
+  expressions: PostExpression;
 
   @ManyToMany(() => Tag, (tag) => tag.posts)
   @JoinTable()

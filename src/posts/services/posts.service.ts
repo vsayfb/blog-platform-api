@@ -1,25 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { Post } from './entities/post.entity';
+import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
+import { Post } from '../entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
-import { PostMessages } from './enums/post-messages';
-import { CreatedPostDto } from './dto/created-post.dto';
-import { PublicPostsDto } from './dto/public-posts.dto';
-import { PublicPostDto } from './dto/public-post.dto';
-import { UpdatedPostDto } from './dto/updated-post.dto';
-import { PostDto } from './dto/post.dto';
-import { PostsDto } from './dto/posts.dto';
+import { PostMessages } from '../enums/post-messages';
+import { CreatedPostDto } from '../dto/created-post.dto';
+import { PublicPostsDto } from '../dto/public-posts.dto';
+import { PublicPostDto } from '../dto/public-post.dto';
+import { UpdatedPostDto } from '../dto/updated-post.dto';
+import { PostDto } from '../dto/post.dto';
+import { PostsDto } from '../dto/posts.dto';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { UrlManagementService } from 'src/global/url-management/services/url-management.service';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import { PostExpressionType } from '../entities/post-expression.entity';
 
 @Injectable()
 export class PostsService
@@ -91,8 +92,23 @@ export class PostsService
       .andWhere('post.published=:published', { published: true })
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.tags', 'tags')
-      .leftJoinAndSelect('post.comments', 'post.comments')
-      .loadRelationCountAndMap('post.bookmarks_count', 'post.bookmarks')
+      .loadRelationCountAndMap('post.bookmark_count', 'post.bookmarks')
+      .loadRelationCountAndMap(
+        'post.like_count',
+        'post.expressions',
+        'post_expression',
+        (qb) =>
+          qb.where(`post_expression.expression = '${PostExpressionType.LIKE}'`),
+      )
+      .loadRelationCountAndMap(
+        'post.dislike_count',
+        'post.expressions',
+        'post_expression',
+        (qb) =>
+          qb.where(
+            `post_expression.expression = '${PostExpressionType.DISLIKE}'`,
+          ),
+      )
       .getOne();
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);

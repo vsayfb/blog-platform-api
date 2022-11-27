@@ -1,7 +1,7 @@
 import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
-import { UpdatePostDto } from '../dto/update-post.dto';
-import { Post } from '../entities/post.entity';
-import { postStub } from '../stub/post-stub';
+import { UpdatePostDto } from '../../dto/update-post.dto';
+import { Post } from '../../entities/post.entity';
+import { postStub } from '../../stub/post-stub';
 
 export const PostsService = jest.fn().mockReturnValue({
   create: jest.fn().mockResolvedValue(postStub()),

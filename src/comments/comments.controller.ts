@@ -20,7 +20,7 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { CommentsService } from './comments.service';
+import { CommentsService } from './services/comments.service';
 import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CommentViewDto } from './dto/comment-view.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';

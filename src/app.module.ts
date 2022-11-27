@@ -32,6 +32,7 @@ import { AllExceptionsFilter } from './lib/exception-filters/all-exceptions.filt
 import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed.exception.filter';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ExpressionsModule } from './expressions/expressions.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -50,6 +51,7 @@ const imports = [
   CommentsModule,
   BookmarksModule,
   FollowModule,
+  ExpressionsModule,
   NotificationsModule,
   EventsModule,
   GatewaysModule,

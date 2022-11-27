@@ -2,7 +2,7 @@ import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { PostsController } from 'src/posts/posts.controller';
-import { PostsService } from 'src/posts/posts.service';
+import { PostsService } from 'src/posts/services/posts.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { SelectedPostFields } from '../types/selected-post-fields';
 import { PostMessages } from '../enums/post-messages';
@@ -13,7 +13,7 @@ import { UpdatedPostDto } from '../dto/updated-post.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { CACHE_MANAGER } from '@nestjs/common';
 
-jest.mock('src/posts/posts.service');
+jest.mock('src/posts/services/posts.service');
 
 describe('PostsController', () => {
   let controller: PostsController;

@@ -39,7 +39,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  app.enableCors({ origin: process.env.PROD_SECURE_HOST || '*' });
+  app.enableCors({ origin: process.env.SECURE_HOST });
 
   const config = new DocumentBuilder().setTitle('Blog Platform API').build();
 

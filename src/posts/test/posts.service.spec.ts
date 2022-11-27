@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { TagsService } from 'src/tags/tags.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Post } from '../entities/post.entity';
-import { PostsService } from '../posts.service';
+import { PostsService } from '../services/posts.service';
 import { postStub } from '../stub/post-stub';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
