@@ -22,11 +22,11 @@ export class CommentExpressionsController {
     @Account() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
-    id: { id: string; created_at: Date; expression: CommentExpressionType };
+    data: { id: string; created_at: Date; expression: CommentExpressionType };
     message: ExpressionMessages;
   }> {
     return {
-      id: await this.commentExpressionsService.create({
+      data: await this.commentExpressionsService.create({
         accountID: client.sub,
         commentID,
         expression: CommentExpressionType.LIKE,
@@ -40,11 +40,11 @@ export class CommentExpressionsController {
     @Account() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
-    id: { id: string; created_at: Date; expression: CommentExpressionType };
+    data: { id: string; created_at: Date; expression: CommentExpressionType };
     message: ExpressionMessages;
   }> {
     return {
-      id: await this.commentExpressionsService.create({
+      data: await this.commentExpressionsService.create({
         accountID: client.sub,
         commentID,
         expression: CommentExpressionType.DISLIKE,

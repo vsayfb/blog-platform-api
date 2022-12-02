@@ -25,7 +25,7 @@ export class TagsPipe implements PipeTransform {
       throw new BadRequestException(TagMessages.MAX_THREE_ELEMENTS);
     } else {
       const acceptedLength = parsedTags.every(
-        (t) => t.length > 1 && t.length < 20,
+        (t) => t.length > 1 && t.length < 21,
       );
 
       if (!acceptedLength)

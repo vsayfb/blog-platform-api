@@ -17,6 +17,10 @@ import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import {
+  CommentExpression,
+  CommentExpressionType,
+} from '../entities/comment-expression.entity';
 
 @Injectable()
 export class CommentsService
@@ -77,19 +81,55 @@ export class CommentsService
       .leftJoin('comment.parent', 'parent')
       .leftJoinAndSelect('comment.author', 'author')
       .where('post.id=:postID', { postID })
-      .andWhere('parent IS NULL') // only replies have parent comment
+      .andWhere('parent IS NULL') // just find comments that reply to post
+      .loadRelationCountAndMap(
+        'comment.like_count',
+        'comment.expressions',
+        'comment_expression',
+        (qb) =>
+          qb.where(
+            `comment_expression.expression = '${CommentExpressionType.LIKE}'`,
+          ),
+      )
+      .loadRelationCountAndMap(
+        'comment.dislike_count',
+        'comment.expressions',
+        'comment_expression',
+        (qb) =>
+          qb.where(
+            `comment_expression.expression = '${CommentExpressionType.DISLIKE}'`,
+          ),
+      )
+      .loadRelationCountAndMap('comment.reply_count', 'comment.replies')
       .getMany();
 
-    return result;
+    return result as unknown as CommentViewDto[];
   }
 
   async getCommentReplies(commentID: string): Promise<RepliesViewDto> {
-    const result = await this.commentRepository.findOne({
-      where: { id: commentID },
-      relations: { replies: { author: true } },
-    });
+    const result = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoin('comment.parent', 'parent')
+      .where('parent.id=:commentID', { commentID })
+      .leftJoinAndSelect('comment.author', 'author')
+      .loadRelationCountAndMap(
+        'comment.like_count',
+        'comment.expressions',
+        'comment',
+        (qb) =>
+          qb.where(`comment.expression = '${CommentExpressionType.LIKE}'`),
+      )
+      .loadRelationCountAndMap(
+        'comment.dislike_count',
+        'comment.expressions',
+        'comment',
+        (qb) =>
+          qb.where(`comment.expression = '${CommentExpressionType.DISLIKE}'`),
+      )
+      .loadRelationCountAndMap('comment.reply_count', 'comment.replies')
+      .getMany();
 
-    return result.replies as any;
+    return result as unknown as RepliesViewDto;
   }
 
   async getAccountComments(accountID: string): Promise<AccountCommentsDto> {

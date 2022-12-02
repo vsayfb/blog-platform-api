@@ -35,6 +35,10 @@ export class ChatsService implements ICreateService, IFindService {
 
     if (!to) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
+    if (to.id === dto.initiatorID) {
+      throw new ForbiddenException(ChatMessages.CANT_CHAT);
+    }
+
     await this.checkChatExists([dto.initiatorID, dto.toID]);
 
     const chat = await this.chatsRepository.save({

@@ -79,7 +79,13 @@ export class PostsService
       .leftJoinAndSelect('post.tags', 'tags')
       .leftJoinAndSelect('post.author', 'author')
       .loadRelationCountAndMap('post.comment_count', 'post.comments')
-      .loadRelationCountAndMap('post.bookmark_count', 'post.bookmarks')
+      .loadRelationCountAndMap(
+        'post.like_count',
+        'post.expressions',
+        'post_expression',
+        (qb) =>
+          qb.where(`post_expression.expression = '${PostExpressionType.LIKE}'`),
+      )
       .getMany();
 
     return posts as any;

@@ -7,12 +7,14 @@ import {
   CommentExpression,
   CommentExpressionType,
 } from '../entities/comment-expression.entity';
+import { CommentsService } from './comments.service';
 
 @Injectable()
 export class CommentExpressionsService implements ICreateService {
   constructor(
     @InjectRepository(CommentExpression)
     private readonly commentExpressionRepository: Repository<CommentExpression>,
+    private readonly commentsService: CommentsService,
   ) {}
 
   async checkAnyExpressionLeft(accountID: string, commentID: string) {
@@ -33,6 +35,12 @@ export class CommentExpressionsService implements ICreateService {
     expression: CommentExpressionType;
   }> {
     const { accountID, commentID, expression } = data;
+
+    const comment = await this.commentsService.getOneByID(data.commentID);
+
+    if (comment?.author.id === data.accountID) {
+      throw new ForbiddenException(ExpressionMessages.CANT_LEFT);
+    }
 
     const exp = await this.checkAnyExpressionLeft(accountID, commentID);
 

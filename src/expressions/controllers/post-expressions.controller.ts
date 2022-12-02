@@ -28,11 +28,11 @@ export class PostExpressionsController {
     @Account() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
-    id: { id: string; created_at: Date; expression: PostExpressionType };
+    data: { id: string; created_at: Date; expression: PostExpressionType };
     message: ExpressionMessages;
   }> {
     return {
-      id: await this.postExpressionsService.create({
+      data: await this.postExpressionsService.create({
         accountID: client.sub,
         postID,
         expression: PostExpressionType.LIKE,
@@ -46,11 +46,11 @@ export class PostExpressionsController {
     @Account() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
-    id: { id: string; created_at: Date; expression: PostExpressionType };
+    data: { id: string; created_at: Date; expression: PostExpressionType };
     message: ExpressionMessages;
   }> {
     return {
-      id: await this.postExpressionsService.create({
+      data: await this.postExpressionsService.create({
         accountID: client.sub,
         postID,
         expression: PostExpressionType.DISLIKE,

@@ -8,12 +8,14 @@ import {
   PostExpression,
   PostExpressionType,
 } from '../entities/post-expression.entity';
+import { PostsService } from './posts.service';
 
 @Injectable()
 export class PostExpressionsService implements ICreateService {
   constructor(
     @InjectRepository(PostExpression)
     private readonly postExpressionRepository: Repository<PostExpression>,
+    private readonly postsService: PostsService,
   ) {}
 
   async checkAnyExpressionLeft(accountID: string, postID: string) {
@@ -34,6 +36,12 @@ export class PostExpressionsService implements ICreateService {
     expression: PostExpressionType;
   }> {
     const { accountID, postID, expression } = data;
+
+    const post = await this.postsService.getOneByID(data.postID);
+
+    if (post?.author.id === data.accountID) {
+      throw new ForbiddenException(ExpressionMessages.CANT_LEFT);
+    }
 
     const exp = await this.checkAnyExpressionLeft(accountID, postID);
 

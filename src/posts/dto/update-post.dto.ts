@@ -21,9 +21,9 @@ export class UpdatePostDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @Length(2, 20, { message: TagMessages.MUST_BETWEEN })
+  @Length(2, 20, { message: TagMessages.MUST_BETWEEN, each: true })
   @ArrayMaxSize(3, { message: TagMessages.MAX_THREE_ELEMENTS })
-  @Matches(/^[a-zA-Z]+$/, {
+  @Matches(/^[a-zA-Z-]+$/, {
     each: true,
     message: TagMessages.ONLY_CONTAIN_LETTERS,
   })

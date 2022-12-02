@@ -3,4 +3,5 @@ export enum ExpressionMessages {
   ALREADY_LEFT = 'An expression has already left.',
   REMOVED = 'Expression has been removed.',
   NOT_FOUND = 'An expression not found.',
+  CANT_LEFT = 'You cannot leave an expression to your own entity.',
 }

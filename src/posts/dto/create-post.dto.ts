@@ -8,7 +8,7 @@ export class CreatePostDto {
   @MinLength(15)
   content: string;
 
-  // tagnamepipe will transform tags -> look tag-name.pipe.ts
+  // tagnamepipe will transform tags -> look tags.pipe.ts
   @Allow()
   tags: string[];
 }

@@ -5,7 +5,6 @@ import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { Repository } from 'typeorm';
 import { AccountBookmarks } from './dto/account-bookmarks.dto';
-import { PostBookmarks } from './dto/post-bookmarks.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
@@ -63,10 +62,15 @@ export class BookmarksService
   }
 
   async getAccountBookmarks(accountID: string): Promise<AccountBookmarks> {
-    return (await this.bookmarksRepository.find({
-      where: { account: { id: accountID } },
-      relations: { post: true },
-    })) as any;
+    const result = await this.bookmarksRepository
+      .createQueryBuilder('bookmark')
+      .leftJoinAndSelect('bookmark.post', 'post')
+      .leftJoin('bookmark.account', 'account')
+      .where('post.published=:published', { published: true })
+      .andWhere('account.id=:accountID', { accountID })
+      .getMany();
+
+    return result as unknown as AccountBookmarks;
   }
 
   getOneByID(id: string): Promise<Bookmark> {

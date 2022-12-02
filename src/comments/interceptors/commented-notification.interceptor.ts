@@ -5,9 +5,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
-import { CommentViewDto } from '../dto/comment-view.dto';
 import { CreatedCommentDto } from '../dto/created-comment.dto';
 import { CommentMessages } from '../enums/comment-messages';
 
@@ -21,7 +21,12 @@ export class CommentedNotificationInterceptor implements NestInterceptor {
   intercept(
     _context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<Promise<{ data: CommentViewDto; message: CommentMessages }>> {
+  ): Observable<
+    Promise<{
+      data: CreatedCommentDto;
+      message: CommentMessages;
+    }>
+  > {
     return next.handle().pipe(
       map(async (comment: { data: CreatedCommentDto }) => {
         const {
@@ -49,7 +54,14 @@ export class CommentedNotificationInterceptor implements NestInterceptor {
         }
 
         return {
-          data: { id, content, created_at, updated_at, author: commentAuthor },
+          data: {
+            id,
+            content,
+            created_at,
+            updated_at,
+            post,
+            author: commentAuthor,
+          },
           message: CommentMessages.CREATED,
         };
       }),

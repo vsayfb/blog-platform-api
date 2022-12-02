@@ -18,7 +18,7 @@ export class CommentExpression {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Comment)
+  @ManyToOne(() => Comment, { onDelete: 'CASCADE' })
   comment: Comment;
 
   @Column({ type: 'enum', enum: CommentExpressionType })

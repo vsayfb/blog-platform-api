@@ -12,6 +12,7 @@ import {
   TreeParent,
   UpdateDateColumn,
 } from 'typeorm';
+import { CommentExpression } from './comment-expression.entity';
 
 @Entity()
 @Tree('closure-table')
@@ -21,21 +22,22 @@ export class Comment {
 
   @ManyToOne(() => Account, (account) => account.comments, {
     onDelete: 'CASCADE',
-    nullable: false,
   })
   author: Account;
 
   @TreeChildren()
   replies: Comment[];
 
-  @TreeParent()
+  @TreeParent({ onDelete: 'CASCADE' })
   parent: Comment;
 
   @ManyToOne(() => Post, (post) => post.comments, {
     onDelete: 'CASCADE',
-    nullable: false,
   })
   post: Post;
+
+  @OneToMany(() => CommentExpression, (expression) => expression.comment)
+  expressions: CommentExpression;
 
   @Column()
   content: string;

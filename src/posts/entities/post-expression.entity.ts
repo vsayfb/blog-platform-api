@@ -18,13 +18,13 @@ export class PostExpression {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Post)
+  @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   post: Post;
 
   @Column({ type: 'enum', enum: PostExpressionType })
   expression: PostExpressionType;
 
-  @ManyToOne(() => Account)
+  @ManyToOne(() => Account, { onDelete: 'CASCADE' })
   account: Account;
 
   @CreateDateColumn()

@@ -34,7 +34,7 @@ export class CheckClientActions implements NestInterceptor {
     const client = request.user;
 
     return next.handle().pipe(
-      map(async (result: { data: PublicPostDto }) => {
+      map(async (value: { data: PublicPostDto }) => {
         let bookmarked_by = false;
         let liked_by = false;
         let disliked_by = false;
@@ -43,12 +43,12 @@ export class CheckClientActions implements NestInterceptor {
           bookmarked_by =
             await this.bookmarkService.checkAccountHaveBookmarkOnPost(
               client.sub,
-              result.data.id,
+              value.data.id,
             );
 
           const exp = await this.postExpresionService.checkAnyExpressionLeft(
             client.sub,
-            result.data.id,
+            value.data.id,
           );
 
           if (exp) {
@@ -70,7 +70,7 @@ export class CheckClientActions implements NestInterceptor {
         }
 
         return {
-          data: { ...result.data, bookmarked_by, liked_by, disliked_by },
+          data: { ...value.data, bookmarked_by, liked_by, disliked_by },
           message: PostMessages.FOUND,
         };
       }),

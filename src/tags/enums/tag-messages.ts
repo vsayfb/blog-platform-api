@@ -7,5 +7,5 @@ export enum TagMessages {
   DELETED = 'The tag has been deleted.',
   ONLY_CONTAIN_LETTERS = 'Tag name must only contain letters and (-).',
   MAX_THREE_ELEMENTS = 'Tags must contain not more than 3 elements',
-  MUST_BETWEEN = 'Each value in tags must be longer than or equal to 2 and shorter than or equal to 20 characters',
+  MUST_BETWEEN = 'Each value in tags must be longer than 1 and shorter than 21 characters.',
 }

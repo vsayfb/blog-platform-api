@@ -25,12 +25,16 @@ import { AccountCommentsDto } from './dto/account-comments.dto';
 import { CommentViewDto } from './dto/comment-view.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { RepliesViewDto } from './dto/replies-view.dto';
+import { ReplyViewDto } from './dto/reply-view.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
 import { CommentedNotificationInterceptor } from './interceptors/commented-notification.interceptor';
 import { SelectedCommentFields } from './types/selected-comment-fields';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
+import { CheckClientActionsOnComment } from './interceptors/check-client-actions-on-comment';
+import { CreatedCommentDto } from './dto/created-comment.dto';
 
 @Controller(COMMENTS_ROUTE)
 @ApiTags(COMMENTS_ROUTE)
@@ -49,22 +53,40 @@ export class CommentsController
     };
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
+  @UseInterceptors(CheckClientActionsOnComment)
   @Get(CommentRoutes.POST_COMMENTS + ':id')
-  async findPostComments(
-    @Param('id') id: string,
-  ): Promise<{ data: CommentViewDto[]; message: CommentMessages }> {
+  async findPostComments(@Param('id') id: string): Promise<{
+    data: CommentViewDto[] & { liked_by: boolean; disliked_by: boolean };
+    message: CommentMessages;
+  }> {
+    const data = await this.commentsService.getPostComments(id);
+
     return {
-      data: await this.commentsService.getPostComments(id),
+      data: data as CommentViewDto[] & {
+        liked_by: boolean;
+        disliked_by: boolean;
+      },
       message: CommentMessages.ALL_FOUND,
     };
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
+  @UseInterceptors(CheckClientActionsOnComment)
   @Get(CommentRoutes.COMMENT_REPLIES + ':id')
   async findCommentReplies(
     @Param('id') id: string,
-  ): Promise<{ data: RepliesViewDto; message: CommentMessages }> {
+  ): Promise<{
+    data: RepliesViewDto & { liked_by: boolean; disliked_by: boolean };
+    message: CommentMessages;
+  }> {
+    const data = await this.commentsService.getCommentReplies(id);
+
     return {
-      data: await this.commentsService.getCommentReplies(id),
+      data: data as RepliesViewDto & {
+        liked_by: boolean;
+        disliked_by: boolean;
+      },
       message: CommentMessages.REPLIES_FOUND,
     };
   }
@@ -76,7 +98,7 @@ export class CommentsController
     @Account() account: JwtPayload,
     @Param('postID') postID: string,
     @Body() createCommentDto: CreateCommentDto,
-  ): Promise<{ data: SelectedCommentFields; message: string }> {
+  ): Promise<{ data: CreatedCommentDto; message: string }> {
     return {
       data: await this.commentsService.create({
         authorID: account.sub,
@@ -91,9 +113,9 @@ export class CommentsController
   @Post(CommentRoutes.REPLY_TO_COMMENT + ':commentID')
   async replyToComment(
     @Account() account: JwtPayload,
-    @Param('commentID', ParseUUIDPipe) toID: string,
+    @Param('commentID') toID: string,
     @Body() createCommentDto: CreateCommentDto,
-  ): Promise<{ data: SelectedCommentFields; message: string }> {
+  ): Promise<{ data: ReplyViewDto; message: string }> {
     return {
       data: await this.commentsService.replyToComment({
         authorID: account.sub,

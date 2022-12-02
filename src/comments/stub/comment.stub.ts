@@ -11,6 +11,7 @@ export const commentStub = (): Comment => ({
   created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
   updated_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
   author: accountStub() as Account,
+  expressions: [] as any,
   parent: null,
   replies: [],
 });

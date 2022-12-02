@@ -5,4 +5,5 @@ export enum ChatMessages {
   NOT_FOUND = 'Chat not found.',
   DELETED = 'The chat has been deleted.',
   ALREADY_CREATED = 'A chat already created.',
+  CANT_CHAT = 'You cannot create a chat with yourself.',
 }
