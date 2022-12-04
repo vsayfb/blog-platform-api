@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CodesService } from 'src/codes/codes.service';
-import { JobsService } from 'src/global/jobs/jobs.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { IMailSenderService } from './interfaces/mail-sender-service.interface';
 import {
   ServiceUnavailableException,
   BadRequestException,
 } from '@nestjs/common';
+import { TasksService } from 'src/global/tasks/tasks.service';
 
 @Injectable()
 export class MailsService {
   constructor(
     private readonly codeService: CodesService,
-    private readonly jobsService: JobsService,
+    private readonly tasksService: TasksService,
     @Inject(IMailSenderService)
     private readonly mailSenderService: IMailSenderService,
   ) {}
@@ -40,7 +40,7 @@ export class MailsService {
       throw new ServiceUnavailableException();
     }
 
-    this.jobsService.execAfterTwoMinutes(() =>
+    this.tasksService.execAfterTwoMinutes(() =>
       this.codeService.delete(generatedCode),
     );
 

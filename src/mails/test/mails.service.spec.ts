@@ -5,7 +5,7 @@ import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { CodesService } from 'src/codes/codes.service';
 import { CodeMessages } from 'src/codes/enums/code-messages';
 import { codeStub } from 'src/codes/stub/code.stub';
-import { JobsService } from 'src/global/jobs/jobs.service';
+import { TasksService } from 'src/global/tasks/tasks.service';
 import { IMailSenderService } from '../interfaces/mail-sender-service.interface';
 import { MailsService } from '../mails.service';
 
@@ -16,7 +16,7 @@ jest.mock('src/global/jobs/jobs.service');
 describe('MailsService', () => {
   let service: MailsService;
   let codesService: CodesService;
-  let jobsService: JobsService;
+  let tasksService: TasksService;
   let mailSenderService: IMailSenderService;
 
   beforeAll(async () => {
@@ -24,7 +24,7 @@ describe('MailsService', () => {
       providers: [
         MailsService,
         CodesService,
-        JobsService,
+        TasksService,
         { provide: IMailSenderService, useClass: MailgunService },
         { provide: ConfigService, useValue: { get: jest.fn(() => '') } },
       ],
@@ -33,7 +33,7 @@ describe('MailsService', () => {
     service = module.get<MailsService>(MailsService);
     codesService = module.get<CodesService>(CodesService);
     mailSenderService = module.get<IMailSenderService>(IMailSenderService);
-    jobsService = module.get<JobsService>(JobsService);
+    tasksService = module.get<TasksService>(TasksService);
   });
 
   afterEach(() => {
@@ -67,8 +67,8 @@ describe('MailsService', () => {
         );
       });
 
-      test('calls jobsService.execAfterTwoMinutes', () => {
-        expect(jobsService.execAfterTwoMinutes).toHaveBeenCalledWith(
+      test('calls tasksService.execAfterTwoMinutes', () => {
+        expect(tasksService.execAfterTwoMinutes).toHaveBeenCalledWith(
           expect.any(Function),
         );
       });

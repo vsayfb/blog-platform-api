@@ -11,7 +11,7 @@ function createReverseProxyServer() {
   server.listen(80);
 
   server.get('*', (req, res) =>
-    res.redirect(process.env.PROD_SECURE_HOST + req.url),
+    res.redirect(process.env.SECURE_HOST + req.url),
   );
 }
 

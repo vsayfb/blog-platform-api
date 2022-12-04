@@ -6,7 +6,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { MailsModule } from './mails/mails.module';
 import { MailgunModule } from './apis/mailgun/mailgun.module';
 import { CodesModule } from './codes/codes.module';
-import { JobsModule } from './global/jobs/jobs.module';
+import { TasksModule } from './global/tasks/tasks.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { CaslModule } from './global/casl/casl.module';
@@ -44,7 +44,7 @@ const imports = [
   MailsModule,
   MailgunModule,
   CodesModule,
-  JobsModule,
+  TasksModule,
   PostsModule,
   TagsModule,
   CaslModule,
@@ -65,10 +65,12 @@ const imports = [
 ];
 
 if (process.env.NODE_ENV === 'production') {
-  ServeStaticModule.forRoot({
-    rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
-    exclude: ['api/*'],
-  });
+  imports.push(
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
+      exclude: ['api/*'],
+    }),
+  );
 }
 
 @Module({

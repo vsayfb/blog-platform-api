@@ -1,15 +1,24 @@
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JobsService } from '../jobs.service';
+import { TasksService } from '../tasks.service';
 
-describe('JobsService', () => {
-  let jobsService: JobsService;
+describe('TasksService', () => {
+  let tasksService: TasksService;
+
+  const mockSchedulerRegistry = {
+    addTimeout: jest.fn(),
+    deleteTimeout: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [JobsService],
+      providers: [
+        TasksService,
+        { provide: SchedulerRegistry, useValue: mockSchedulerRegistry },
+      ],
     }).compile();
 
-    jobsService = module.get<JobsService>(JobsService);
+    tasksService = module.get<TasksService>(TasksService);
   });
 
   describe('execAfterTwoMinutes', () => {
@@ -19,9 +28,9 @@ describe('JobsService', () => {
       beforeEach(() => {
         jest.useFakeTimers();
         jest.spyOn(global, 'setTimeout');
-        //private method
-        jest.spyOn(JobsService.prototype as any, 'clearTimer');
-        jobsService.execAfterTwoMinutes(callback);
+        //@ts-ignore
+        jest.spyOn(TasksService.prototype as any, 'deleteTimeout');
+        tasksService.execAfterTwoMinutes(callback);
       });
 
       test('callback should not have been called yet', () => {
@@ -37,9 +46,9 @@ describe('JobsService', () => {
         test('setTimeout exec given callback function after two minutes', () => {
           expect(callback).toHaveBeenCalled();
         });
-        test('then calls clearTimer', () => {
+        test('then calls deleteTimeout', () => {
           //@ts-ignore
-          expect(jobsService.clearTimer).toHaveBeenCalled();
+          expect(tasksService.deleteTimeout).toHaveBeenCalled();
           /** private method  */
         });
       });
