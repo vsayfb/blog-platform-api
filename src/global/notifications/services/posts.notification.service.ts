@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFollowedNotificationDto } from '../dto/create-followed-notification.dto';
 import {
   NotificationActions,
   NotificationObject,
@@ -7,16 +6,24 @@ import {
 import { NotificationsService } from './notifications.service';
 
 @Injectable()
-export class FollowNotificationsService extends NotificationsService {
-  async createFollowedNotification({
+export class PostsNotificationService extends NotificationsService {
+  async createExpressionNotification({
     senderID,
     notifableID,
-  }: CreateFollowedNotificationDto): Promise<{ id: string }> {
+    postID,
+    action,
+  }: {
+    senderID: string;
+    notifableID: string;
+    postID: string;
+    action: NotificationActions;
+  }): Promise<{ id: string }> {
     const { id } = await this.notificationsRepository.save({
-      sender: { id: senderID },
       notifable: { id: notifableID },
-      action: NotificationActions.FOLLOWED,
-      object: NotificationObject.FOLLOW,
+      sender: { id: senderID },
+      post: { id: postID },
+      object: NotificationObject.POST,
+      action,
     });
 
     return { id };

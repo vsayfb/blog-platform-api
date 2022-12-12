@@ -7,8 +7,25 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { NotificationActions } from '../enums/notification-actions';
+
+export enum NotificationActions {
+  FOLLOWED = 'followed you',
+  COMMENTED_POST = 'commented on your post',
+  REPLIED_COMMENT = 'replied your comment',
+  LIKED_POST = 'liked your post',
+  DISLIKED_POST = 'disliked your post',
+  LIKED_COMMENT = 'liked your comment',
+  DISLIKED_COMMENT = 'disliked your comment',
+}
+
+export enum NotificationObject {
+  POST = 'post',
+  FOLLOW = 'follow',
+  POST_COMMENT = 'comment',
+  COMMENT_REPLY = 'reply',
+}
 
 @Entity()
 export class Notification {
@@ -31,12 +48,25 @@ export class Notification {
   })
   comment?: Comment;
 
+  @ManyToOne(() => Comment, {
+    eager: true,
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  reply?: Comment;
+
   @Column({ type: 'enum', enum: NotificationActions })
   action: NotificationActions;
+
+  @Column({ type: 'enum', enum: NotificationObject })
+  object: NotificationObject;
 
   @Column({ default: false })
   seen: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }

@@ -1,13 +1,24 @@
-import { Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CommentExpressionType } from 'src/comments/entities/comment-expression.entity';
+import {
+  CommentExpression,
+  CommentExpressionType,
+} from 'src/comments/entities/comment-expression.entity';
 import { CommentExpressionsService } from 'src/comments/services/comment-expressions.service';
 import { EXPRESSIONS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { ExpressionMessages } from '../enums/expression-messages';
 import { ExpressionRoutes } from '../enums/expression-routes';
+import { CommentExpressionNotificationInterceptor } from '../interceptors/comment-expression-notification.interceptor';
 
 @ApiTags(EXPRESSIONS_ROUTE)
 @Controller(EXPRESSIONS_ROUTE)
@@ -17,12 +28,13 @@ export class CommentExpressionsController {
     private readonly commentExpressionsService: CommentExpressionsService,
   ) {}
 
+  @UseInterceptors(CommentExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.LIKE + '/comment/' + ':id')
   async likeComment(
     @Account() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
-    data: { id: string; created_at: Date; expression: CommentExpressionType };
+    data: CommentExpression;
     message: ExpressionMessages;
   }> {
     return {
@@ -35,12 +47,13 @@ export class CommentExpressionsController {
     };
   }
 
+  @UseInterceptors(CommentExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.DISLIKE + '/comment/' + ':id')
   async dislikeComment(
     @Account() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
-    data: { id: string; created_at: Date; expression: CommentExpressionType };
+    data: CommentExpression;
     message: ExpressionMessages;
   }> {
     return {

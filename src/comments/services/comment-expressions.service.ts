@@ -1,6 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExpressionMessages } from 'src/expressions/enums/expression-messages';
+import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
+import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { Repository } from 'typeorm';
 import {
@@ -14,6 +16,7 @@ export class CommentExpressionsService implements ICreateService {
   constructor(
     @InjectRepository(CommentExpression)
     private readonly commentExpressionRepository: Repository<CommentExpression>,
+    private readonly commentNotificationService: CommentsNotificationService,
     private readonly commentsService: CommentsService,
   ) {}
 
@@ -29,11 +32,7 @@ export class CommentExpressionsService implements ICreateService {
     accountID: string;
     commentID: string;
     expression: CommentExpressionType;
-  }): Promise<{
-    id: string;
-    created_at: Date;
-    expression: CommentExpressionType;
-  }> {
+  }): Promise<CommentExpression> {
     const { accountID, commentID, expression } = data;
 
     const comment = await this.commentsService.getOneByID(data.commentID);
@@ -52,19 +51,32 @@ export class CommentExpressionsService implements ICreateService {
       expression,
     });
 
-    return this.commentExpressionRepository.findOne({
+    return await this.commentExpressionRepository.findOne({
       where: { id: result.id },
+      relations: { account: true, comment: { author: true, post: true } },
     });
   }
 
   async delete(commentID: string, accountID: string): Promise<string> {
     const exp = await this.commentExpressionRepository.findOne({
       where: { comment: { id: commentID }, account: { id: accountID } },
+      relations: { account: true, comment: { author: true } },
     });
 
     if (!exp) throw new ForbiddenException(ExpressionMessages.NOT_FOUND);
 
     const ID = exp.id;
+
+    const action =
+      exp.expression === CommentExpressionType.LIKE
+        ? NotificationActions.LIKED_COMMENT
+        : NotificationActions.DISLIKED_COMMENT;
+
+    this.commentNotificationService.deleteNotificationByIds(
+      exp.account.id,
+      exp.comment.author.id,
+      action,
+    );
 
     await this.commentExpressionRepository.remove(exp);
 

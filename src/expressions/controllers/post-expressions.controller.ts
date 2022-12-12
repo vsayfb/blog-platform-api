@@ -1,11 +1,15 @@
-import { Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { EXPRESSIONS_ROUTE, POSTS_ROUTE } from 'src/lib/constants';
-import { Data } from 'src/lib/decorators/request-data.decorator';
-import { CanManageData } from 'src/lib/guards/CanManageData';
-import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
+import { EXPRESSIONS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import {
   PostExpression,
@@ -14,6 +18,7 @@ import {
 import { PostExpressionsService } from 'src/posts/services/post-expressions.service';
 import { ExpressionMessages } from '../enums/expression-messages';
 import { ExpressionRoutes } from '../enums/expression-routes';
+import { PostExpressionNotificationInterceptor } from '../interceptors/post-expression-notification.interceptor';
 
 @ApiTags(EXPRESSIONS_ROUTE)
 @Controller(EXPRESSIONS_ROUTE)
@@ -23,12 +28,13 @@ export class PostExpressionsController {
     private readonly postExpressionsService: PostExpressionsService,
   ) {}
 
+  @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.LIKE + '/post/' + ':id')
   async likePost(
     @Account() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
-    data: { id: string; created_at: Date; expression: PostExpressionType };
+    data: PostExpression;
     message: ExpressionMessages;
   }> {
     return {
@@ -41,12 +47,13 @@ export class PostExpressionsController {
     };
   }
 
+  @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.DISLIKE + '/post/' + ':id')
   async dislikePost(
     @Account() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
-    data: { id: string; created_at: Date; expression: PostExpressionType };
+    data: PostExpression;
     message: ExpressionMessages;
   }> {
     return {

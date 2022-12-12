@@ -4,7 +4,10 @@ import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Repository } from 'typeorm';
-import { Notification } from '../entities/notification.entity';
+import {
+  Notification,
+  NotificationActions,
+} from '../entities/notification.entity';
 
 @Injectable()
 export class NotificationsService
@@ -31,16 +34,21 @@ export class NotificationsService
   async deleteNotificationByIds(
     senderID: string,
     notifableID: string,
+    action: NotificationActions,
   ): Promise<void> {
     const notification = await this.notificationsRepository.findOne({
-      where: { notifable: { id: notifableID }, sender: { id: senderID } },
+      where: {
+        notifable: { id: notifableID },
+        sender: { id: senderID },
+        action,
+      },
     });
 
     await this.delete(notification);
   }
 
   async update(subject: Notification): Promise<string> {
-    subject.seen = false;
+    subject.seen = true;
 
     await this.notificationsRepository.save(subject);
 

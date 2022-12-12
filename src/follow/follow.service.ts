@@ -13,6 +13,7 @@ import { UserFollowers } from './dto/user-followers.dto';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
 import { NotificationsService } from 'src/global/notifications/services/notifications.service';
+import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
 
 @Injectable()
 export class FollowService implements IDeleteService {
@@ -78,10 +79,10 @@ export class FollowService implements IDeleteService {
 
     if (!follow) throw new NotFoundException(AccountMessages.NOT_FOUND);
 
-    // cancel notification
     this.notificationService.deleteNotificationByIds(
       follow.follower.id,
       follow.followed.id,
+      NotificationActions.FOLLOWED,
     );
 
     await this.delete(follow);

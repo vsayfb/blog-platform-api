@@ -1,4 +1,4 @@
-import { NotificationActions } from '../enums/notification-actions';
+import { NotificationActions } from '../entities/notification.entity';
 
 export type CreateNotificationDto = {
   senderID: string;

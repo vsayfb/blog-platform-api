@@ -57,21 +57,28 @@ export class CommentsService
     authorID: string;
     dto: CreateCommentDto;
   }): Promise<ReplyViewDto> {
-    const to = await this.getOneByID(data.toID);
+    const parent = await this.getOneByID(data.toID);
 
-    if (!to) throw new NotFoundException(CommentMessages.NOT_FOUND);
+    if (!parent) throw new NotFoundException(CommentMessages.NOT_FOUND);
 
     const created = await this.commentRepository.save({
-      parent: to,
-      post: to.post,
+      parent,
+      post: parent.post,
       author: { id: data.authorID },
       content: data.dto.content,
     });
 
-    return this.commentRepository.findOne({
+    const result = await this.commentRepository.findOne({
       where: { id: created.id },
-      relations: { parent: true, author: true },
+      relations: { author: true },
     });
+
+    result.parent = parent;
+    result.post = parent.post;
+
+    delete parent.post;
+
+    return result as any;
   }
 
   async getPostComments(postID: string): Promise<CommentViewDto[]> {

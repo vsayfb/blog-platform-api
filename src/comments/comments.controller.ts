@@ -35,6 +35,7 @@ import { SelectedCommentFields } from './types/selected-comment-fields';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { CheckClientActionsOnComment } from './interceptors/check-client-actions-on-comment';
 import { CreatedCommentDto } from './dto/created-comment.dto';
+import { RepliedNotificationInterceptor } from './interceptors/replied-notification.interceptor';
 
 @Controller(COMMENTS_ROUTE)
 @ApiTags(COMMENTS_ROUTE)
@@ -74,9 +75,7 @@ export class CommentsController
   @UseGuards(OptionalJwtAuthGuard)
   @UseInterceptors(CheckClientActionsOnComment)
   @Get(CommentRoutes.COMMENT_REPLIES + ':id')
-  async findCommentReplies(
-    @Param('id') id: string,
-  ): Promise<{
+  async findCommentReplies(@Param('id') id: string): Promise<{
     data: RepliesViewDto & { liked_by: boolean; disliked_by: boolean };
     message: CommentMessages;
   }> {
@@ -110,6 +109,7 @@ export class CommentsController
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(RepliedNotificationInterceptor)
   @Post(CommentRoutes.REPLY_TO_COMMENT + ':commentID')
   async replyToComment(
     @Account() account: JwtPayload,
