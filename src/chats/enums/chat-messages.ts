@@ -1,5 +1,6 @@
 export enum ChatMessages {
   ALL_FOUND = 'All chats have been found.',
+  COUNT_FOUND = 'Chat count have been found.',
   CREATED = 'The chat has been created.',
   FOUND = 'A chat found.',
   NOT_FOUND = 'Chat not found.',

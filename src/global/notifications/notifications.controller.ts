@@ -18,15 +18,26 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(NotificationRoutes.CLIENT)
-  async findClientNotifications(@Account() account: JwtPayload): Promise<{
+  async findClientNotifications(@Account() client: JwtPayload): Promise<{
     data: Notification[];
     message: NotificationMessages;
   }> {
     return {
-      data: await this.notificationsService.getAccountNotifications(
-        account.sub,
-      ),
+      data: await this.notificationsService.getAccountNotifications(client.sub),
       message: NotificationMessages.ALL_FOUND,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(NotificationRoutes.COUNT)
+  async findClientNotificationCount(@Account() client: JwtPayload) {
+    return {
+      data: {
+        count: await this.notificationsService.getAccountNotificationCount(
+          client.sub,
+        ),
+      },
+      message: NotificationMessages.COUNT_FOUND,
     };
   }
 

@@ -1,8 +1,9 @@
+import { MessageViewDto } from 'src/messages/dto/message-view.dto';
 import { SelectedAccountFields } from '../../accounts/types/selected-account-fields';
 
 export type ChatViewDto = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  members: [SelectedAccountFields];
+  last_message: MessageViewDto;
 };

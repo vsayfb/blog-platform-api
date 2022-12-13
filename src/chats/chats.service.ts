@@ -79,14 +79,27 @@ export class ChatsService implements ICreateService, IFindService {
     return false;
   }
 
-  async getAccountChats(memberID: string): Promise<ChatViewDto[]> {
-    const chats = await this.chatsRepository.find({
-      relations: { members: true },
-    });
+  async getAccountChats(accountID: string): Promise<ChatViewDto[]> {
+    const result = await this.chatsRepository
+      .createQueryBuilder('chats')
+      .leftJoin('chats.members', 'members')
+      .andWhere('members.id=:memberID', { memberID: accountID })
+      .leftJoinAndSelect('chats.messages', 'messages')
+      .leftJoinAndSelect('messages.sender', 'messages.sender')
+      .getMany();
 
-    return chats.filter((c) =>
-      c.members.some((c) => c.id === memberID),
-    ) as unknown as ChatViewDto[];
+    return result.map((c) => {
+      //@ts-ignore
+      c.last_message = c.messages[c.messages.length - 1];
+      delete c.messages;
+      return c;
+    }) as unknown as ChatViewDto[];
+  }
+
+  async getAccountChatCount(accountID: string): Promise<number> {
+    return await this.chatsRepository.count({
+      where: { members: { id: accountID }, messages: { seen: false } },
+    });
   }
 
   async getOne(memberID: string, id: string): Promise<Chat> {

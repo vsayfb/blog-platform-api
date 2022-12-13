@@ -23,6 +23,12 @@ export class NotificationsService
     });
   }
 
+  async getAccountNotificationCount(accountID: string): Promise<number> {
+    return this.notificationsRepository.count({
+      where: { notifable: { id: accountID }, seen: false },
+    });
+  }
+
   async delete(subject: Notification): Promise<string> {
     const ID = subject.id;
 

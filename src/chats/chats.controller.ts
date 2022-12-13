@@ -6,7 +6,6 @@ import {
   Param,
   NotFoundException,
   Body,
-  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,11 +43,19 @@ export class ChatsController implements ICreateController, IFindController {
 
   @Get(ChatRoutes.FIND_CLIENT_CHATS)
   async findClientChats(
-    @Account() me: JwtPayload,
+    @Account() client: JwtPayload,
   ): Promise<{ data: ChatViewDto[]; message: ChatMessages }> {
     return {
-      data: await this.chatsService.getAccountChats(me.sub),
+      data: await this.chatsService.getAccountChats(client.sub),
       message: ChatMessages.ALL_FOUND,
+    };
+  }
+
+  @Get(ChatRoutes.FINC_CLIENT_CHAT_COUNT)
+  async findClientChatCount(@Account() client: JwtPayload) {
+    return {
+      data: { count: await this.chatsService.getAccountChatCount(client.sub) },
+      message: ChatMessages.COUNT_FOUND,
     };
   }
 
