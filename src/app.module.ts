@@ -33,6 +33,7 @@ import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ExpressionsModule } from './expressions/expressions.module';
+import { SocialModule } from './social/social.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -62,6 +63,7 @@ const imports = [
   HashManagerModule,
   SmsModule,
   TwilioModule,
+  SocialModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {

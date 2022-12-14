@@ -3,6 +3,7 @@ import { Chat } from 'src/chats/entities/chat.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { Post } from 'src/posts/entities/post.entity';
+import { Social } from 'src/social/entity/social.entity';
 import {
   Column,
   Entity,
@@ -11,6 +12,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
 } from 'typeorm';
 
 export enum RegisterType {
@@ -63,6 +65,9 @@ export class Account {
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })
   role: Role;
+
+  @ManyToOne(() => Social)
+  social: Social;
 
   @ManyToMany(() => Chat, (chat) => chat.members)
   chats: Chat[];

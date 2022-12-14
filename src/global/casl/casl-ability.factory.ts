@@ -13,6 +13,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { Social } from 'src/social/entity/social.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -30,6 +31,7 @@ export type Subjects =
       | typeof Bookmark
       | typeof Notification
       | typeof Account
+      | typeof Social
     >
   | 'all';
 
@@ -68,6 +70,10 @@ export class CaslAbilityFactory {
       can(Action.Manage, Account, {
         username: client.username,
       });
+
+      can(Action.Manage, Social, {
+        'account.id': client.sub,
+      } as unknown as Social);
 
       /* since casl cannot match nested objects, dot notation must be used. so as unknown as Type
       can(Action.Update, Post, { author:{ id: client.sub} }) */ // that doesn't work
