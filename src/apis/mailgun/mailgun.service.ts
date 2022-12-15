@@ -20,11 +20,12 @@ export class MailgunService implements IMailSenderService {
   }
 
   async sendMail(
-    from: string,
-    to: string,
+    to: string[],
     subject: string,
     html: string,
   ): Promise<boolean> {
+    const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_USER);
+
     try {
       await this.client.messages.create(
         this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
@@ -64,7 +65,7 @@ export class MailgunService implements IMailSenderService {
       subject,
     };
 
-    console.log(data);	
+    console.log(data);
 
     if (options) {
       for (const key in options) {
@@ -80,8 +81,7 @@ export class MailgunService implements IMailSenderService {
 
       return true;
     } catch (error) {
-
-      console.log(error);		
+      console.log(error);
       return false;
     }
   }

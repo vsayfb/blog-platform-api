@@ -15,3 +15,4 @@ export const POSTS_ROUTE = '/posts';
 export const TAGS_ROUTE = '/tags';
 export const NOTIFICATIONS_ROUTE = '/notifications';
 export const SOCIAL_ROUTE = '/social';
+export const SUBSCRIPTIONS_ROUTE = '/subscriptions';

@@ -17,7 +17,7 @@ export class MailsService {
     private readonly mailSenderService: IMailSenderService,
   ) {}
 
-  async sendVerificationCode(to: {
+  async sendVerificationCodeMail(to: {
     email: string;
     username: string;
   }): Promise<{ message: string }> {
@@ -47,7 +47,7 @@ export class MailsService {
     return { message: CodeMessages.CODE_SENT };
   }
 
-  async sendMail(from: string, to: string, subject: string, data: any) {
-    await this.mailSenderService.sendMail(from, to, subject, data);
+  async sendMail(to: string[], subject: string, data: any) {
+    await this.mailSenderService.sendMail(to, subject, data);
   }
 }

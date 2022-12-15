@@ -66,6 +66,6 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
     if (usernameTaken)
       throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
 
-    return await this.mailsService.sendVerificationCode({ username, email });
+    return await this.mailsService.sendVerificationCodeMail({ username, email });
   }
 }

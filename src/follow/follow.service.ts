@@ -14,9 +14,10 @@ import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
 import { NotificationsService } from 'src/global/notifications/services/notifications.service';
 import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
+import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 
 @Injectable()
-export class FollowService implements IDeleteService {
+export class FollowService implements IDeleteService, IUpdateService {
   constructor(
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
@@ -24,22 +25,23 @@ export class FollowService implements IDeleteService {
     private readonly notificationService: NotificationsService,
   ) {}
 
-  private async getFollow(
-    followerID: string,
-    followedID: string,
-  ): Promise<Follow> {
+  async delete(subject: Follow): Promise<string> {
+    const ID = subject.id;
+
+    await this.followRepository.remove(subject);
+
+    return ID;
+  }
+
+  async update(subject: Follow, updateDto: any): Promise<void> {
+    await this.followRepository.save({ ...subject, ...updateDto });
+  }
+
+  async getFollow(followerID: string, followedID: string): Promise<Follow> {
     return await this.followRepository.findOne({
       where: { followed: { id: followedID }, follower: { id: followerID } },
       relations: { followed: true, follower: true },
     });
-  }
-
-  async checkUserByFollowing(username: string, followingBy: string) {
-    const result = await this.followRepository.findOne({
-      where: { followed: { username }, follower: { username: followingBy } },
-    });
-
-    return result ? true : false;
   }
 
   async followAccount(
@@ -106,13 +108,5 @@ export class FollowService implements IDeleteService {
       },
       relations: { followed: true },
     })) as any;
-  }
-
-  async delete(subject: Follow): Promise<string> {
-    const ID = subject.id;
-
-    await this.followRepository.remove(subject);
-
-    return ID;
   }
 }

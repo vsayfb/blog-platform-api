@@ -1,3 +1,5 @@
+import { Subscriptions } from 'src/follow/entities/follow.entity';
+
 export type AccountProfileDto = {
   id: string;
   username: string;
@@ -6,6 +8,5 @@ export type AccountProfileDto = {
   role: string;
   followers_count: number;
   following_count: number;
-  following_by: boolean;
   created_at: Date;
 };

@@ -41,6 +41,7 @@ import { CheckClientActions } from './interceptors/check-client-actions';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { PublishQueryDto } from './pipes/publish-query.pipe';
 import { TagsPipe } from 'src/tags/pipes/tags.pipe';
+import { NotifySubcribers } from './interceptors/notify-subscribers';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -54,7 +55,7 @@ export class PostsController
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('titleImage'))
+  @UseInterceptors(FileInterceptor('titleImage'), NotifySubcribers)
   @Post(PostRoutes.CREATE)
   async create(
     @Body(TagsPipe) createPostDto: CreatePostDto,

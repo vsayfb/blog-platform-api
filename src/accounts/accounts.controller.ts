@@ -38,6 +38,7 @@ import { Account as AccountEntity } from './entities/account.entity';
 import { LoginViewDto } from 'src/auth/dto/login-view.dto';
 import { SignNewJwtToken } from './interceptors/sign-new-jwt.interceptor';
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
+import { Subscriptions } from 'src/follow/entities/follow.entity';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)
@@ -54,11 +55,14 @@ export class AccountsController implements IFindController, IUpdateController {
   @UseInterceptors(CheckClientIsFollowing)
   @Get(AccountRoutes.PROFILE + ':username')
   async findOne(@Param() { username }: UsernameQuery): Promise<{
-    data: AccountProfileDto;
+    data: AccountProfileDto & {
+      following_by: boolean;
+      subscriptions_by: Subscriptions;
+    };
     message: AccountMessages;
   }> {
     return {
-      data: await this.accountsService.getProfile(username),
+      data: (await this.accountsService.getProfile(username)) as any,
       message: AccountMessages.FOUND,
     };
   }
