@@ -38,6 +38,7 @@ export class GoogleAccountsService implements ICreateService {
       email,
       username,
       display_name,
+      image: `https://robohash.org/${username}.png`,
       password: hashedPassword,
       via: RegisterType.GOOGLE,
     });

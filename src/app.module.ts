@@ -33,7 +33,6 @@ import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ExpressionsModule } from './expressions/expressions.module';
-import { SocialModule } from './social/social.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 const imports = [
@@ -64,7 +63,6 @@ const imports = [
   HashManagerModule,
   SmsModule,
   TwilioModule,
-  SocialModule,
   SubscriptionsModule,
 ];
 
