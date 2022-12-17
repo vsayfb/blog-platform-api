@@ -21,7 +21,7 @@ export class MailsService {
     email: string;
     username: string;
   }): Promise<{ message: string }> {
-    const alreadySent = await this.codeService.getOneByEmail(to.email);
+    const alreadySent = await this.codeService.getOneByReceiver(to.email);
 
     if (alreadySent) throw new BadRequestException(CodeMessages.ALREADY_SENT);
 

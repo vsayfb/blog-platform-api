@@ -34,6 +34,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SecurityModule } from './security/security.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -64,6 +65,7 @@ const imports = [
   SmsModule,
   TwilioModule,
   SubscriptionsModule,
+  SecurityModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {

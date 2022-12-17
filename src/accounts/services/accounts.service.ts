@@ -16,12 +16,24 @@ import { UpdateAccountDto } from '../dto/update-account.dto';
 import { Account } from '../entities/account.entity';
 import { AccountMessages } from '../enums/account-messages';
 import { PasswordManagerService } from '../services/password-manager.service';
+import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 
 @Injectable()
 export class AccountsService
   implements IFindService, ICreateService, IUpdateService
 {
+  private readonly credentials = {
+    id: true,
+    username: true,
+    display_name: true,
+    image: true,
+    role: true,
+    email: true,
+    password: true,
+    created_at: true,
+  };
+
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
@@ -62,9 +74,7 @@ export class AccountsService
     return this.accountsRepository.findOne({ where: { id } });
   }
 
-  async getAccount(
-    userNameOrEmail: string,
-  ): Promise<SelectedAccountFields & { email: string; password: string }> {
+  async getAccount(userNameOrEmail: string): Promise<AccountWithCredentials> {
     return await this.accountsRepository.findOne({
       where: [
         {
@@ -74,16 +84,14 @@ export class AccountsService
           email: userNameOrEmail,
         },
       ],
-      select: {
-        id: true,
-        username: true,
-        display_name: true,
-        image: true,
-        role: true,
-        email: true,
-        password: true,
-        created_at: true,
-      },
+      select: this.credentials,
+    });
+  }
+
+  async getWithCredentials(accountID: string): Promise<AccountWithCredentials> {
+    return await this.accountsRepository.findOne({
+      where: { id: accountID },
+      select: this.credentials,
     });
   }
 

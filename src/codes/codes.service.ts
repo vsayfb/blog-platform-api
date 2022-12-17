@@ -27,8 +27,8 @@ export class CodesService implements ICreateService, IDeleteService {
     return this.codesRepository.findOne({ where: { code } });
   }
 
-  async getOneByEmail(email: string): Promise<Code | null> {
-    return this.codesRepository.findOne({ where: { receiver: email } });
+  async getOneByReceiver(receiver: string): Promise<Code | null> {
+    return this.codesRepository.findOne({ where: { receiver } });
   }
 
   async delete(code: Code): Promise<string> {

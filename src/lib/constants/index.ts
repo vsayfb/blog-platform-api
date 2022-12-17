@@ -16,3 +16,4 @@ export const TAGS_ROUTE = '/tags';
 export const NOTIFICATIONS_ROUTE = '/notifications';
 export const SOCIAL_ROUTE = '/social';
 export const SUBSCRIPTIONS_ROUTE = '/subscriptions';
+export const SECURITY_ROUTE = '/security';

@@ -30,7 +30,6 @@ export class LocalAuthController implements IAuthController {
   }
 
   @UseGuards(LocalAuthGuard)
-  @ApiOkResponse({ type: AccessToken })
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)
   async login(@Account() account: SelectedAccountFields): Promise<{
