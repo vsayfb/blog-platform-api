@@ -1,4 +1,6 @@
-export type AccountProfileDto = {
+import { Subscriptions } from "src/follow/entities/follow.entity";
+
+export type ProfileDto = {
   id: string;
   username: string;
   display_name: string;
@@ -6,5 +8,7 @@ export type AccountProfileDto = {
   role: string;
   followers_count: number;
   following_count: number;
+  following_by: boolean;
+  subscriptions_by: Subscriptions;
   created_at: Date;
 };

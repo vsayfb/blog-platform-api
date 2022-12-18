@@ -38,11 +38,14 @@ export class Account {
   @Column()
   display_name: string;
 
+  @Column()
+  image: string;
+
   @Column({ unique: true, select: false })
   email: string;
 
-  @Column()
-  image: string;
+  @Column({ nullable: true, select: false })
+  phone: string | null;
 
   @Column({ select: false })
   password: string;

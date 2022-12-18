@@ -17,7 +17,7 @@ export class CheckPasswordsMatch implements CanActivate {
 
     const client = request.user;
 
-    const account = await this.accountsService.getWithCredentials(client.sub);
+    const account = await this.accountsService.getCredentials(client.sub);
 
     return await this.passwordManagerService.comparePassword(
       request.body?.password,

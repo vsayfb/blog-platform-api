@@ -48,7 +48,7 @@ export class FollowService implements IDeleteService, IUpdateService {
     followerID: string,
     followedUsername: string,
   ): Promise<Follow> {
-    const followed = await this.accountsService.getAccount(followedUsername);
+    const followed = await this.accountsService.getOneByUsername(followedUsername);
 
     if (!followed) throw new NotFoundException(AccountMessages.NOT_FOUND);
 

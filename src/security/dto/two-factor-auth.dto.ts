@@ -1,15 +1,25 @@
-import { IsNumber, MaxLength, MinLength, ValidateIf } from 'class-validator';
-import { TFAVia } from '../entities/two-factor-auth.entity';
+import {
+  IsEmail,
+  IsNumber,
+  IsPhoneNumber,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
-export class TwoFactorAuthDto {
+export class TFADto {
   @MinLength(7)
   @MaxLength(16)
   password: string;
 
-  @ValidateIf((_o, value) => Object.keys(TFAVia).some((v) => v === value))
-  via: TFAVia;
+  @IsEmail()
+  email: string;
 
   @IsNumber()
   @MinLength(6)
   code: number;
+}
+
+export class TFAWithPhoneDto extends TFADto {
+  @IsPhoneNumber()
+  phone: string;
 }

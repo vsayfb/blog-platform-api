@@ -22,14 +22,11 @@ import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
-import { AccountProfileDto } from './dto/account-profile.dto';
 import { EmailQueryDto } from './dto/email-query.dto';
 import { UsernameQuery } from './dto/username-query.dto';
 import { AccountMessages } from './enums/account-messages';
 import { AccountRoutes } from './enums/account-routes';
 import { SelectedAccountFields } from './types/selected-account-fields';
-import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
-import { CheckClientIsFollowing } from './interceptors/check-client-is-following.interceptor';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -37,34 +34,16 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account as AccountEntity } from './entities/account.entity';
 import { LoginViewDto } from 'src/auth/dto/login-view.dto';
 import { SignNewJwtToken } from './interceptors/sign-new-jwt.interceptor';
-import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
-import { Subscriptions } from 'src/follow/entities/follow.entity';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)
-export class AccountsController implements IFindController, IUpdateController {
+export class AccountsController implements IUpdateController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get(AccountRoutes.CLIENT)
   findClient(@Account() account: JwtPayload): JwtPayload {
     return account;
-  }
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(CheckClientIsFollowing)
-  @Get(AccountRoutes.PROFILE + ':username')
-  async findOne(@Param() { username }: UsernameQuery): Promise<{
-    data: AccountProfileDto & {
-      following_by: boolean;
-      subscriptions_by: Subscriptions;
-    };
-    message: AccountMessages;
-  }> {
-    return {
-      data: (await this.accountsService.getProfile(username)) as any,
-      message: AccountMessages.FOUND,
-    };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
@@ -115,18 +94,5 @@ export class AccountsController implements IFindController, IUpdateController {
     if (account) return { data: false, message: AccountMessages.EMAIL_TAKEN };
 
     return { data: true, message: AccountMessages.EMAIL_AVAILABLE };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('image'))
-  @Patch(AccountRoutes.UPLOAD_PROFILE_PHOTO)
-  async uploadProfilePhoto(
-    @Account() account: JwtPayload,
-    @UploadedFile(RequiredImageFile) image: Express.Multer.File,
-  ): Promise<{ data: string; message: AccountMessages }> {
-    return {
-      data: await this.accountsService.changeProfileImage(account, image),
-      message: AccountMessages.PP_CHANGED,
-    };
   }
 }

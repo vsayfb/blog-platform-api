@@ -37,7 +37,7 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
     username: string,
     pass: string,
   ): Promise<SelectedAccountFields> | null {
-    const account = await this.accountsService.getAccount(username);
+    const account = await this.accountsService.getCredentialsByUsernameOrEmail(username);
 
     const passwordsMatch = account
       ? await this.passwordManagerService.comparePassword(

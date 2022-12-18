@@ -15,8 +15,8 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
-import { TwoFactorAuthDto } from '../dto/two-factor-auth.dto';
-import { TwoFactorAuth } from '../entities/two-factor-auth.entity';
+import { TFAWithPhoneDto, TFADto } from '../dto/two-factor-auth.dto';
+import { TFAVia, TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { SecurityMessages } from '../enums/security-messages';
 import { SecurityRoutes } from '../enums/security-routes';
 import { TwoFactorAuthService } from '../services/two-factor-auth.service';
@@ -32,10 +32,24 @@ export class TwoFactorAuthController
   @UseGuards(JwtAuthGuard, CheckPasswordsMatch)
   async create(
     @Param('id') accountID: string,
-    dto: TwoFactorAuthDto,
+    dto: TFADto,
   ): Promise<{ data: TwoFactorAuth; message: SecurityMessages }> {
     return {
-      data: await this.twoFactorAuthService.create({ accountID, via: dto.via }),
+      data: await this.twoFactorAuthService.create({
+        accountID,
+      }),
+      message: SecurityMessages.ACTIVATED_2FA,
+    };
+  }
+
+  @Post(SecurityRoutes.CREATE + ':id')
+  @UseGuards(JwtAuthGuard, CheckPasswordsMatch)
+  async createWithSMS(@Param('id') accountID: string, dto: TFAWithPhoneDto) {
+    return {
+      data: await this.twoFactorAuthService.createWithPhone({
+        accountID,
+        phone: dto.phone,
+      }),
       message: SecurityMessages.ACTIVATED_2FA,
     };
   }
@@ -44,10 +58,10 @@ export class TwoFactorAuthController
   @Patch(SecurityRoutes.UPDATE + ':id')
   async update(
     @Data() data: TwoFactorAuth,
-    dto: TwoFactorAuthDto,
+    dto: TFADto,
   ): Promise<{ data: TwoFactorAuth; message: SecurityMessages }> {
     return {
-      data: await this.twoFactorAuthService.update(data, dto.via),
+      data: await this.twoFactorAuthService.update(data, TFAVia.EMAIL),
       message: SecurityMessages.UPDATED_2FA,
     };
   }

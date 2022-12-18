@@ -4,6 +4,7 @@ export const CASL_SUBJECT = 'CASL_SUBJECT';
 
 /** ROUTES */
 export const ACCOUNTS_ROUTE = '/accounts';
+export const PROFILES_ROUTE = '/profiles';
 export const AUTH_ROUTE = '/auth';
 export const BOOKMARKS_ROUTE = '/bookmarks';
 export const CHATS_ROUTE = '/chats';
