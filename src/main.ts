@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as express from 'express';
 import * as fs from 'fs';
+import { useContainer } from 'class-validator';
 
 function createReverseProxyServer() {
   const server = express();
@@ -27,6 +28,8 @@ async function bootstrap() {
   }
 
   const app = await NestFactory.create(AppModule, nestAppOptions);
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   if (process.env.NODE_ENV === 'production ') createReverseProxyServer();
 

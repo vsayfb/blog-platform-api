@@ -9,6 +9,7 @@ import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { CacheManagerModule } from 'src/cache/cache-manager.module';
 import { PostExpression } from './entities/post-expression.entity';
 import { PostExpressionsService } from './services/post-expressions.service';
+import { CheckPostExists } from './validators/check-post-exists';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PostExpressionsService } from './services/post-expressions.service';
     PostsService,
     PostExpressionsService,
     { provide: MANAGE_DATA_SERVICE, useClass: PostsService },
+    CheckPostExists,
   ],
   exports: [PostsService, PostExpressionsService],
 })

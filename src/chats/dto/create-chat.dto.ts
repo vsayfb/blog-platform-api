@@ -6,5 +6,5 @@ export class CreateChatDto {
 
   @IsNotEmpty()
   @MinLength(1)
-  firstMessage: string;
+  first_message: string;
 }

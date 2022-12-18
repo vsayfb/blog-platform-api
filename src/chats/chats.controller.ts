@@ -6,6 +6,7 @@ import {
   Param,
   NotFoundException,
   Body,
+  Query,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -20,6 +21,7 @@ import { CHATS_ROUTE } from 'src/lib/constants';
 import { ApiTags } from '@nestjs/swagger';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { ChatWithQueryID } from './dto/chat-with-query';
 
 @Controller(CHATS_ROUTE)
 @ApiTags(CHATS_ROUTE)
@@ -30,11 +32,13 @@ export class ChatsController implements ICreateController, IFindController {
   @Post(ChatRoutes.CREATE)
   async create(
     @Account() initiator: JwtPayload,
+    @Query() { with_account_id }: ChatWithQueryID,
     @Body() createChatDto: CreateChatDto,
   ): Promise<{ data: Chat; message: ChatMessages }> {
     return {
       data: await this.chatsService.create({
-        ...createChatDto,
+        toID: with_account_id,
+        firstMessage: createChatDto.first_message,
         initiatorID: initiator.sub,
       }),
       message: ChatMessages.CREATED,

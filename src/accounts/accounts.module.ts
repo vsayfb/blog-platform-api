@@ -7,6 +7,9 @@ import { UploadsModule } from 'src/uploads/uploads.module';
 import { PasswordManagerService } from './services/password-manager.service';
 import { GoogleAccountsService } from './services/google-accounts.service';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
+import { CheckUniqueUsername } from './validators/check-unique-username';
+import { CheckUniqueEmail } from './validators/check-unique-email';
+import { CheckAccountExists } from './validators/check-exists-by-id';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Account]), UploadsModule],
@@ -16,6 +19,9 @@ import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
     GoogleAccountsService,
     PasswordManagerService,
     { provide: MANAGE_DATA_SERVICE, useClass: AccountsService },
+    CheckUniqueUsername,
+    CheckUniqueEmail,
+    CheckAccountExists,
   ],
   exports: [AccountsService, GoogleAccountsService, PasswordManagerService],
 })

@@ -27,11 +27,11 @@ export class MessagesController implements ICreateController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @UseInterceptors(NewMessageInterceptor)
-  @Post(MessageRoutes.CREATE + ':chatID')
+  @Post(MessageRoutes.CREATE + ':chat_id')
   async create(
     @Account() sender: JwtPayload,
     @Body() createMessageDto: CreateMessageDto,
-    @Param('chatID', ParseUUIDPipe) chatID: string,
+    @Param('chat_id', ParseUUIDPipe) chatID: string,
   ): Promise<{
     data: MessageViewDto;
     message: MessageMessages;

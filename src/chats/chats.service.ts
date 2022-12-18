@@ -19,36 +19,31 @@ export class ChatsService implements ICreateService, IFindService {
   constructor(
     @InjectRepository(Chat) private chatsRepository: Repository<Chat>,
     @InjectRepository(Message) private messagesRepository: Repository<Message>,
-    private accountsService: AccountsService,
   ) {}
 
-  async create(dto: {
+  async create({
+    initiatorID,
+    toID,
+    firstMessage,
+  }: {
     initiatorID: string;
     toID: string;
     firstMessage: string;
   }): Promise<Chat> {
-    const initiatorAccount = await this.accountsService.getOneByID(
-      dto.initiatorID,
-    );
-
-    const to = await this.accountsService.getOneByID(dto.toID);
-
-    if (!to) throw new NotFoundException(AccountMessages.NOT_FOUND);
-
-    if (to.id === dto.initiatorID) {
+    if (toID === initiatorID) {
       throw new ForbiddenException(ChatMessages.CANT_CHAT);
     }
 
-    await this.checkChatExists([dto.initiatorID, dto.toID]);
+    await this.checkChatExists([initiatorID, toID]);
 
     const chat = await this.chatsRepository.save({
-      members: [initiatorAccount, to],
+      members: [{ id: initiatorID }, { id: toID }],
     });
 
     await this.messagesRepository.save({
       chat,
-      sender: initiatorAccount,
-      content: dto.firstMessage,
+      sender: { id: initiatorID },
+      content: firstMessage,
     });
 
     return await this.chatsRepository.findOne({

@@ -40,11 +40,10 @@ export class CheckClientActions implements NestInterceptor {
         let disliked_by = false;
 
         if (client) {
-          bookmarked_by =
-            await this.bookmarkService.checkAccountHaveBookmarkOnPost(
-              client.sub,
-              value.data.id,
-            );
+          bookmarked_by = !!(await this.bookmarkService.getByPostAndAccount(
+            client.sub,
+            value.data.id,
+          ));
 
           const exp = await this.postExpresionService.checkAnyExpressionLeft(
             client.sub,

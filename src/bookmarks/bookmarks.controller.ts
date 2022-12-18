@@ -5,7 +5,6 @@ import {
   Delete,
   UseGuards,
   Post,
-  ParseUUIDPipe,
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -15,7 +14,6 @@ import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { BookmarksService } from './bookmarks.service';
-import { PostBookmarks } from './dto/post-bookmarks.dto';
 import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
@@ -33,9 +31,9 @@ export class BookmarksController
   constructor(private readonly bookmarksService: BookmarksService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post(BookmarkRoutes.CREATE + ':postId')
+  @Post(BookmarkRoutes.CREATE + ':post_id')
   async create(
-    @Param('postId') postID: string,
+    @Param('post_id') postID: string,
     @Account() client: JwtPayload,
   ): Promise<{ data: SelectedBookmarkFields; message: string }> {
     return {

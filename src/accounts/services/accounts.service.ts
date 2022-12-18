@@ -41,15 +41,6 @@ export class AccountsService
   ) {}
 
   async create(data: CreateAccountDto): Promise<SelectedAccountFields> {
-    const usernameTaken = await this.getOneByUsername(data.username);
-
-    if (usernameTaken)
-      throw new ForbiddenException(AccountMessages.USERNAME_TAKEN);
-
-    const emailTaken = await this.getOneByEmail(data.email);
-
-    if (emailTaken) throw new ForbiddenException(AccountMessages.EMAIL_TAKEN);
-
     delete data.verification_code;
 
     const hashedPassword = await this.passwordManagerService.hashPassword(
@@ -73,13 +64,20 @@ export class AccountsService
     subject: Account,
     updateDto: any,
   ): Promise<SelectedAccountFields> {
+    console.log(updateDto);
+
+    let anyChanges = false;
+
     for (const key in updateDto) {
       const element = updateDto[key];
 
-      if (element) subject[key] = element;
+      if (element) {
+        subject[key] = element;
+        anyChanges = true;
+      }
     }
 
-    await this.accountsRepository.save(subject);
+    if (anyChanges) await this.accountsRepository.save(subject);
 
     return this.getOneByID(subject.id);
   }

@@ -17,10 +17,7 @@ import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
-import {
-  CommentExpression,
-  CommentExpressionType,
-} from '../entities/comment-expression.entity';
+import { CommentExpressionType } from '../entities/comment-expression.entity';
 
 @Injectable()
 export class CommentsService

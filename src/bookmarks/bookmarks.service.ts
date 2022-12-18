@@ -24,10 +24,7 @@ export class BookmarksService
   }): Promise<SelectedBookmarkFields> {
     const { postID, accountID } = data;
 
-    const bookmarked = await this.checkAccountHaveBookmarkOnPost(
-      accountID,
-      postID,
-    );
+    const bookmarked = await this.getByPostAndAccount(accountID, postID);
 
     if (bookmarked)
       throw new ForbiddenException(BookmarkMessages.ALREADY_BOOKMARKED);
@@ -48,17 +45,6 @@ export class BookmarksService
     await this.bookmarksRepository.remove(subject);
 
     return id;
-  }
-
-  async checkAccountHaveBookmarkOnPost(
-    accountID: string,
-    postID: string,
-  ): Promise<boolean> {
-    const bookmark = await this.bookmarksRepository.findOne({
-      where: { post: { id: postID }, account: { id: accountID } },
-    });
-
-    return bookmark ? true : false;
   }
 
   async getAccountBookmarks(accountID: string): Promise<AccountBookmarks> {
