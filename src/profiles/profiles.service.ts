@@ -37,8 +37,8 @@ export class ProfilesService implements IFindService, IUpdateService {
 
   async getOneByAccountUsername(username: string): Promise<ProfileDto> {
     const profile = await this.profilesRepository
-      .createQueryBuilder('account')
-      .where('account.username=:username', { username })
+      .createQueryBuilder('profile')
+      .where('profile.username=:username', { username })
       .loadRelationCountAndMap('profile.followers_count', 'profile.followers')
       .loadRelationCountAndMap('profile.following_count', 'profile.followed')
       .getOne();

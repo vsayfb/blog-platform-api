@@ -1,30 +1,52 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Account } from 'src/accounts/decorator/account.decorator';
-import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import {
+  CreateAccountWithEmailDto,
+  CreateAccountWithPhoneDto,
+} from 'src/accounts/dto/create-account.dto';
 import { LocalAuthService } from '../services/local-auth.service';
-import { AccessToken } from '../dto/access-token.dto';
 import { RegisterViewDto } from '../dto/register-view.dto';
 import { AuthRoutes } from '../enums/auth-routes';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { AuthMessages } from '../enums/auth-messages';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { BeginVerificationDto } from '../dto/begin-verification.dto';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { LoginViewDto } from '../dto/login-view.dto';
+import { CodeMessages } from 'src/codes/enums/code-messages';
+import {
+  BeginVerificationWithEmailDto,
+  BeginVerificationWithPhoneDto,
+} from '../dto/begin-verification.dto';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)
 export class LocalAuthController implements IAuthController {
   constructor(private readonly localAuthService: LocalAuthService) {}
 
-  @Post(AuthRoutes.REGISTER)
+  @Post(AuthRoutes.REGISTER_WITH_EMAIL)
   async register(
-    @Body() createAccountDto: CreateAccountDto,
+    @Body() createAccountDto: CreateAccountWithEmailDto,
   ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
     return {
-      data: await this.localAuthService.register(createAccountDto),
+      data: await this.localAuthService.register({
+        by: 'mail',
+        dto: createAccountDto,
+      }),
+      message: AuthMessages.SUCCESSFUL_REGISTRATION,
+    };
+  }
+
+  @Post(AuthRoutes.REGISTER_WITH_MOBILE_PHONE)
+  async registerWithMobilePhone(
+    @Body() createAccountDto: CreateAccountWithPhoneDto,
+  ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
+    return {
+      data: await this.localAuthService.register({
+        by: 'sms',
+        dto: createAccountDto,
+      }),
       message: AuthMessages.SUCCESSFUL_REGISTRATION,
     };
   }
@@ -42,14 +64,31 @@ export class LocalAuthController implements IAuthController {
     };
   }
 
-  @Post(AuthRoutes.BEGIN_REGISTER_VERIFICATION)
+  @Post(AuthRoutes.BEGIN_WITH_EMAIL)
   @HttpCode(200)
-  async beginVerification(
-    @Body() data: BeginVerificationDto,
+  async beginEmailVerification(
+    @Body() data: BeginVerificationWithEmailDto,
   ): Promise<{ message: string }> {
-    return await this.localAuthService.beginRegisterVerification(
-      data.username,
-      data.email,
-    );
+    await this.localAuthService.beginRegister({
+      by: 'mail',
+      username: data.username,
+      emailOrMobilePhoneNumber: data.email,
+    });
+
+    return { message: CodeMessages.CODE_SENT_TO_MAIL };
+  }
+
+  @Post(AuthRoutes.BEGIN_WITH_MOBILE_PHONE)
+  @HttpCode(200)
+  async beginMobilePhoneVerification(
+    @Body() data: BeginVerificationWithPhoneDto,
+  ): Promise<{ message: string }> {
+    await this.localAuthService.beginRegister({
+      by: 'sms',
+      username: data.username,
+      emailOrMobilePhoneNumber: data.phone,
+    });
+
+    return { message: CodeMessages.CODE_SENT_TO_PHONE };
   }
 }

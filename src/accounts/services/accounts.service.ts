@@ -1,19 +1,11 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
-import { JwtPayload } from 'src/lib/jwt.payload';
-import { UploadsService } from 'src/uploads/uploads.service';
 import { Like, Repository } from 'typeorm';
 import { CreateAccountDto } from '../dto/create-account.dto';
-import { UpdateAccountDto } from '../dto/update-account.dto';
 import { Account } from '../entities/account.entity';
-import { AccountMessages } from '../enums/account-messages';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
@@ -30,7 +22,7 @@ export class AccountsService
     role: true,
     email: true,
     password: true,
-    phone: true,
+    mobile_phone: true,
     created_at: true,
   };
 
@@ -40,7 +32,9 @@ export class AccountsService
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
 
-  async create(data: CreateAccountDto): Promise<SelectedAccountFields> {
+  async create(
+    data: CreateAccountDto & { email?: string; phone?: string },
+  ): Promise<SelectedAccountFields> {
     delete data.verification_code;
 
     const hashedPassword = await this.passwordManagerService.hashPassword(
@@ -82,16 +76,19 @@ export class AccountsService
     return this.getOneByID(subject.id);
   }
 
-  async getCredentialsByUsernameOrEmail(
-    userNameOrEmail: string,
+  async getCredentialsByUsernameOrEmailOrPhone(
+    value: string,
   ): Promise<AccountWithCredentials> {
     return await this.accountsRepository.findOne({
       where: [
         {
-          username: userNameOrEmail,
+          username: value,
         },
         {
-          email: userNameOrEmail,
+          email: value,
+        },
+        {
+          mobile_phone: value,
         },
       ],
       select: this.credentials,
@@ -107,6 +104,10 @@ export class AccountsService
 
   async getOneByEmail(email: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({ where: { email } });
+  }
+
+  async getOneByMobilePhone(phone: string): Promise<SelectedAccountFields> {
+    return this.accountsRepository.findOne({ where: { mobile_phone: phone } });
   }
 
   async getOneByUsername(username: string): Promise<SelectedAccountFields> {

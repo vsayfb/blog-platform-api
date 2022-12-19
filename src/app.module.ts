@@ -36,6 +36,7 @@ import { ExpressionsModule } from './expressions/expressions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SecurityModule } from './security/security.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { VerificationsModule } from './verifications/verifications.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -68,6 +69,7 @@ const imports = [
   TwilioModule,
   SubscriptionsModule,
   SecurityModule,
+  VerificationsModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {

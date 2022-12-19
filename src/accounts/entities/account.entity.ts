@@ -41,11 +41,11 @@ export class Account {
   @Column()
   image: string;
 
-  @Column({ unique: true, select: false })
+  @Column({ unique: true, select: false, nullable: true })
   email: string;
 
   @Column({ nullable: true, select: false })
-  phone: string | null;
+  mobile_phone: string | null;
 
   @Column({ select: false })
   password: string;

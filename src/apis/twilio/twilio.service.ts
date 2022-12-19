@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { ISmsSenderService } from 'src/sms/interfaces/sms-service.interface';
 import * as twilio from 'twilio';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+
+type InvalidPhone = {
+  status: number;
+  code: number;
+};
 
 @Injectable()
 export class TwilioService implements ISmsSenderService {
@@ -16,15 +22,21 @@ export class TwilioService implements ISmsSenderService {
     this.twilioClient = twilio(accountSid, authToken);
   }
 
-  async sendMessage(to: string, data: string): Promise<void> {
+  async send(to: string, data: string): Promise<MessageInstance> {
     const from = this.configService.get<string>(
       ProcessEnv.TWILIO_MESSAGING_SERVICE_SID,
     );
 
-    await this.twilioClient.messages.create({
-      to,
-      messagingServiceSid: from,
-      body: data,
-    });
+    try {
+      return await this.twilioClient.messages.create({
+        to,
+        messagingServiceSid: from,
+        body: data,
+      });
+    } catch (error: InvalidPhone | any) {
+      if (error.code === 21211) {
+        throw new BadRequestException('Invalid mobile phone number.');
+      } else throw error;
+    }
   }
 }

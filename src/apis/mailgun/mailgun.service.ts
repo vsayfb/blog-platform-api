@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Mailgun from 'mailgun.js';
 import * as formData from 'form-data';
 import { ConfigService } from '@nestjs/config';
 import Client from 'mailgun.js/client';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { IMailSenderService } from 'src/mails/interfaces/mail-sender-service.interface';
+import { MessagesSendResult } from 'mailgun.js/interfaces/Messages';
 
 @Injectable()
 export class MailgunService implements IMailSenderService {
@@ -23,34 +24,40 @@ export class MailgunService implements IMailSenderService {
     to: string[],
     subject: string,
     html: string,
-  ): Promise<boolean> {
+  ): Promise<MessagesSendResult> {
     const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_USER);
 
     try {
-      await this.client.messages.create(
+      return await this.client.messages.create(
         this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
         { from, to, subject, html },
       );
-
-      return true;
     } catch (error) {
-      return false;
+      if (error.details.indexOf('not a valid') >= 0) {
+        throw new BadRequestException('Invalid email address.');
+      } else throw error;
     }
   }
 
   async sendVerificationMail(
     to: { email: string; username: string },
     code: string,
-  ): Promise<boolean> {
+  ): Promise<MessagesSendResult> {
     const from = this.configService.get<string>(ProcessEnv.MAILGUN_SENDER_USER);
 
-    return await this.sendTemplateMail(from, to.email, 'Verification Code', {
-      template: 'verification_code',
-      'h:X-Mailgun-Variables': JSON.stringify({
-        code,
-        username: to.username,
-      }),
-    });
+    try {
+      return await this.sendTemplateMail(from, to.email, 'Verification Code', {
+        template: 'verification_code',
+        'h:X-Mailgun-Variables': JSON.stringify({
+          code,
+          username: to.username,
+        }),
+      });
+    } catch (error: { status: number; details: string } | any) {
+      if (error.details.indexOf('not a valid') >= 0) {
+        throw new BadRequestException('Invalid email address.');
+      } else throw error;
+    }
   }
 
   private async sendTemplateMail(
@@ -58,14 +65,12 @@ export class MailgunService implements IMailSenderService {
     to: string,
     subject: string,
     options?: { [key: string]: any },
-  ) {
+  ): Promise<MessagesSendResult> {
     const data = {
       from,
       to,
       subject,
     };
-
-    console.log(data);
 
     if (options) {
       for (const key in options) {
@@ -73,16 +78,9 @@ export class MailgunService implements IMailSenderService {
       }
     }
 
-    try {
-      await this.client.messages.create(
-        this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
-        data as any,
-      );
-
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+    return await this.client.messages.create(
+      this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN),
+      data as any,
+    );
   }
 }

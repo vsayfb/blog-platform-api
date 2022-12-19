@@ -6,20 +6,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { GoogleModule } from 'src/apis/google/google.module';
-import { CodesModule } from 'src/codes/codes.module';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { LocalAuthController } from './controllers/local-auth.controller';
 import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleAuthService } from './services/google-auth.service';
-import { MailsModule } from 'src/mails/mails.module';
 import { LocalAuthService } from './services/local-auth.service';
+import { VerificationsModule } from 'src/verifications/verifications.module';
+import { CodesModule } from 'src/codes/codes.module';
 
 @Module({
   imports: [
     AccountsModule,
     PassportModule,
+    VerificationsModule,
     CodesModule,
-    MailsModule,
     GoogleModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({

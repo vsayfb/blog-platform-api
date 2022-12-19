@@ -18,6 +18,10 @@ export class CheckUniqueEmail implements ValidatorConstraintInterface {
 
     return !account;
   }
+
+  defaultMessage(validationArguments?: ValidationArguments): string {
+    return 'The email has been taken.';
+  }
 }
 
 export function UniqueEmail(validationOptions?: ValidationOptions) {

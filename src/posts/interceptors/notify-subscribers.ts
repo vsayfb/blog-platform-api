@@ -38,7 +38,7 @@ export class NotifySubcribers implements NestInterceptor {
           author.id,
         );
 
-        this.mailsService.sendMail(
+        this.mailsService.send(
           subscribers.map((s) => s.email),
           `${author.display_name} - ${title}`,
           content,

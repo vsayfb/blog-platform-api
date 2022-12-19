@@ -14,9 +14,8 @@ export class TFADto {
   @IsEmail()
   email: string;
 
-  @IsNumber()
   @MinLength(6)
-  code: number;
+  verification_code: number;
 }
 
 export class TFAWithPhoneDto extends TFADto {

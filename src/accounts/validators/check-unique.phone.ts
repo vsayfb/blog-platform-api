@@ -10,28 +10,28 @@ import { AccountsService } from '../services/accounts.service';
 
 @Injectable()
 @ValidatorConstraint({ async: true })
-export class CheckUniqueUsername implements ValidatorConstraintInterface {
+export class CheckUniquePhone implements ValidatorConstraintInterface {
   constructor(private readonly accountsService: AccountsService) {}
 
-  async validate(username: string, args: ValidationArguments) {
-    const account = await this.accountsService.getOneByEmail(username);
+  async validate(phone: string, args: ValidationArguments) {
+    const account = await this.accountsService.getOneByMobilePhone(phone);
 
     return !account;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'The username has been taken.';
+    return 'The phone number has been taken.';
   }
 }
 
-export function UniqueUsername(validationOptions?: ValidationOptions) {
+export function UniquePhone(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: CheckUniqueUsername,
+      validator: CheckUniquePhone,
     });
   };
 }

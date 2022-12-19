@@ -1,5 +1,5 @@
 export interface ISmsSenderService {
-  sendMessage(to: string, data: string): Promise<void>;
+  send(to: string, data: string): Promise<any>;
 }
 
 export const ISmsSenderService = Symbol('ISmsSenderService');

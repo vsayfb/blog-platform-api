@@ -14,5 +14,5 @@ export const LocalAuthService = jest.fn().mockReturnValue({
 
   beginRegisterVerification: jest
     .fn()
-    .mockResolvedValue({ message: CodeMessages.CODE_SENT }),
+    .mockResolvedValue({ message: CodeMessages.CODE_SENT_TO_MAIL }),
 });

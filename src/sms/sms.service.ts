@@ -3,7 +3,6 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { SmsMessages } from './enums/messages';
 import { ISmsSenderService } from './interfaces/sms-service.interface';
 
 @Injectable()
@@ -13,7 +12,13 @@ export class SmsService {
     private readonly smsSenderService: ISmsSenderService,
   ) {}
 
-  async sendSms(to: string, data: string): Promise<void> {
-    await this.smsSenderService.sendMessage(to, data);
+  async sendSMS(to: string, data: string): Promise<boolean> {
+    try {
+      await this.smsSenderService.send(to, data);
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

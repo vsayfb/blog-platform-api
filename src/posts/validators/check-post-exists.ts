@@ -6,6 +6,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { PostMessages } from '../enums/post-messages';
 import { PostsService } from '../services/posts.service';
 
 @Injectable()
@@ -17,6 +18,10 @@ export class CheckPostExists implements ValidatorConstraintInterface {
     const post = await this.postsService.getOneByID(id);
 
     return !post;
+  }
+
+  defaultMessage(validationArguments?: ValidationArguments): string {
+    return PostMessages.NOT_FOUND;
   }
 }
 

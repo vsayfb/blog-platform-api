@@ -5,9 +5,9 @@ export interface IMailSenderService {
       username: string;
     },
     code: string,
-  ): Promise<boolean>;
+  ): Promise<any>;
 
-  sendMail(to: string[], subject: string, html: string): Promise<boolean>;
+  sendMail(to: string[], subject: string, html: string): Promise<any>;
 }
 
 export const IMailSenderService = Symbol('IMailSenderService');

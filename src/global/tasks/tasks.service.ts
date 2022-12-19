@@ -6,7 +6,7 @@ export class TasksService {
   constructor(private schedulerRegistry: SchedulerRegistry) {}
 
   execAfterTwoMinutes(cb: Function) {
-    const TIMEOUT_NAME = 'after_two';
+    const TIMEOUT_NAME = 'after_two_' + Date.now().toString();
 
     const timeout = setTimeout(() => {
       cb();

@@ -10,6 +10,7 @@ import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { CheckUniqueUsername } from './validators/check-unique-username';
 import { CheckUniqueEmail } from './validators/check-unique-email';
 import { CheckAccountExists } from './validators/check-exists-by-id';
+import { CheckUniquePhone } from './validators/check-unique.phone';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Account]), UploadsModule],
@@ -21,6 +22,7 @@ import { CheckAccountExists } from './validators/check-exists-by-id';
     { provide: MANAGE_DATA_SERVICE, useClass: AccountsService },
     CheckUniqueUsername,
     CheckUniqueEmail,
+    CheckUniquePhone,
     CheckAccountExists,
   ],
   exports: [AccountsService, GoogleAccountsService, PasswordManagerService],
