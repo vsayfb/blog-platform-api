@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { CaslAbilityFactory } from 'src/global/casl/casl-ability.factory';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
+import { CommentsNotificationService } from 'src/global/account_notifications/services/comments-notification.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { CommentsController } from '../comments.controller';
 import { CommentsService } from '../services/comments.service';

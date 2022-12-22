@@ -18,6 +18,7 @@ export enum CodeProcessEnum {
   ENABLE_TFA_MOBILE_PHONE = 'enable_tfa_mobile_phone',
   LOGIN_TFA_MOBILE_PHONE = 'login_tfa_mobile_phone',
   DISABLE_TFA_MOBILE_PHONE = 'disable_tfa_mobile_phone',
+  UPDATE_PASSWORD = 'update_password',
 }
 
 @Entity()

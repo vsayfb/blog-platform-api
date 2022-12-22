@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Account } from '../accounts/decorator/account.decorator';
 import { JwtPayload } from '../lib/jwt.payload';
 import { ChatRoutes } from './enums/chat-routes';
 import { ChatMessages } from './enums/chat-messages';
@@ -22,6 +21,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { ChatWithQueryID } from './dto/chat-with-query';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(CHATS_ROUTE)
 @ApiTags(CHATS_ROUTE)
@@ -31,7 +31,7 @@ export class ChatsController implements ICreateController, IFindController {
 
   @Post(ChatRoutes.CREATE)
   async create(
-    @Account() initiator: JwtPayload,
+    @Client() initiator: JwtPayload,
     @Query() { with_account_id }: ChatWithQueryID,
     @Body() createChatDto: CreateChatDto,
   ): Promise<{ data: Chat; message: ChatMessages }> {
@@ -47,7 +47,7 @@ export class ChatsController implements ICreateController, IFindController {
 
   @Get(ChatRoutes.FIND_CLIENT_CHATS)
   async findClientChats(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: ChatViewDto[]; message: ChatMessages }> {
     return {
       data: await this.chatsService.getAccountChats(client.sub),
@@ -56,7 +56,7 @@ export class ChatsController implements ICreateController, IFindController {
   }
 
   @Get(ChatRoutes.FINC_CLIENT_CHAT_COUNT)
-  async findClientChatCount(@Account() client: JwtPayload) {
+  async findClientChatCount(@Client() client: JwtPayload) {
     return {
       data: { count: await this.chatsService.getAccountChatCount(client.sub) },
       message: ChatMessages.COUNT_FOUND,
@@ -66,9 +66,9 @@ export class ChatsController implements ICreateController, IFindController {
   @Get(ChatRoutes.FIND_ONE + ':id')
   async findOne(
     @Param('id') chatID: string,
-    @Account() me: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: Chat; message: ChatMessages }> {
-    const chat = await this.chatsService.getOne(me.sub, chatID);
+    const chat = await this.chatsService.getOne(client.sub, chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
 

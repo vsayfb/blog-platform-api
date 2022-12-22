@@ -15,7 +15,6 @@ import {
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptionalImageFile } from 'src/uploads/pipes/optional-image-file';
@@ -30,7 +29,6 @@ import { PublicPostsDto } from './dto/public-posts.dto';
 import { PostsDto } from './dto/posts.dto';
 import { PostDto } from './dto/post.dto';
 import { CreatedPostDto } from './dto/created-post.dto';
-import { CacheJsonInterceptor } from 'src/cache/cache-json.interceptor';
 import { POSTS_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
@@ -42,6 +40,7 @@ import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { PublishQueryDto } from './pipes/publish-query.pipe';
 import { TagsPipe } from 'src/tags/pipes/tags.pipe';
 import { NotifySubcribers } from './interceptors/notify-subscribers';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -61,12 +60,12 @@ export class PostsController
     @Body(TagsPipe) createPostDto: CreatePostDto,
     @Query() { publish }: PublishQueryDto,
     @UploadedFile(OptionalImageFile) titleImage: Express.Multer.File | null,
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: CreatedPostDto; message: PostMessages }> {
     return {
       data: await this.postsService.create({
         dto: createPostDto,
-        authorID: account.sub,
+        authorID: client.sub,
         titleImage,
         publish: publish === 'false' ? false : true,
       }),
@@ -88,10 +87,10 @@ export class PostsController
   @UseGuards(JwtAuthGuard)
   @Get(PostRoutes.FIND_CLIENT_POSTS)
   async findClientPosts(
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: PostsDto; message: PostMessages }> {
     return {
-      data: await this.postsService.getAccountPosts(account.sub),
+      data: await this.postsService.getAccountPosts(client.sub),
       message: PostMessages.ALL_FOUND,
     };
   }

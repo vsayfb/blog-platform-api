@@ -7,7 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { EXPRESSIONS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -31,7 +31,7 @@ export class PostExpressionsController {
   @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.LIKE + '/post/' + ':id')
   async likePost(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
     data: PostExpression;
@@ -50,7 +50,7 @@ export class PostExpressionsController {
   @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.DISLIKE + '/post/' + ':id')
   async dislikePost(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{
     data: PostExpression;
@@ -69,7 +69,7 @@ export class PostExpressionsController {
   @Delete('post' + ExpressionRoutes.DELETE + ':id')
   async removeExpression(
     @Param('id') postID: string,
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ id: string; message: ExpressionMessages }> {
     return {
       id: await this.postExpressionsService.delete(postID, client.sub),

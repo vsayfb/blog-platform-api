@@ -27,7 +27,7 @@ import { IDeleteController } from 'src/lib/interfaces/delete-controller.interfac
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)
@@ -62,12 +62,12 @@ export class TagsController
   @UseGuards(JwtAuthGuard, DontAllowUserCreate)
   async create(
     @Body() { name }: CreateTagDto,
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: SelectedTagFields; message: string }> {
     return {
       data: await this.tagsService.create({
         tagName: name,
-        authorID: account.sub,
+        authorID: client.sub,
       }),
       message: TagMessages.CREATED,
     };

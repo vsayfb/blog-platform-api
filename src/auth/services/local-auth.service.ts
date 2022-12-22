@@ -62,6 +62,11 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
     if (passwordsMatch) {
       if (account.two_factor_auth) throw new TFAEnabledException(account);
 
+      delete account.two_factor_auth;
+      delete account.mobile_phone;
+      delete account.email;
+      delete account.password;
+
       return account;
     }
 

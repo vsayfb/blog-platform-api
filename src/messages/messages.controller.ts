@@ -10,7 +10,6 @@ import {
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageRoutes } from './enums/message-routes';
-import { Account } from '../accounts/decorator/account.decorator';
 import { JwtPayload } from '../lib/jwt.payload';
 import { MessageMessages } from './enums/message-messages';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -19,6 +18,7 @@ import { NewMessageInterceptor } from './interceptors/new-message.interceptor';
 import { ApiTags } from '@nestjs/swagger';
 import { MESSAGES_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(MESSAGES_ROUTE)
 @ApiTags(MESSAGES_ROUTE)
@@ -29,7 +29,7 @@ export class MessagesController implements ICreateController {
   @UseInterceptors(NewMessageInterceptor)
   @Post(MessageRoutes.CREATE + ':chat_id')
   async create(
-    @Account() sender: JwtPayload,
+    @Client() sender: JwtPayload,
     @Body() createMessageDto: CreateMessageDto,
     @Param('chat_id', ParseUUIDPipe) chatID: string,
   ): Promise<{

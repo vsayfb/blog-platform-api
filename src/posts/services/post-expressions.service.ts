@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExpressionMessages } from 'src/expressions/enums/expression-messages';
-import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
-import { PostsNotificationService } from 'src/global/notifications/services/posts.notification.service';
+import { NotificationActions } from 'src/global/account_notifications/entities/notification.entity';
+import { PostsNotificationService } from 'src/global/account_notifications/services/posts.notification.service';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { Repository } from 'typeorm';
 import {

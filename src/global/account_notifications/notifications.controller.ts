@@ -1,6 +1,6 @@
 import { Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { NOTIFICATIONS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -18,7 +18,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(NotificationRoutes.CLIENT)
-  async findClientNotifications(@Account() client: JwtPayload): Promise<{
+  async findClientNotifications(@Client() client: JwtPayload): Promise<{
     data: Notification[];
     message: NotificationMessages;
   }> {
@@ -30,7 +30,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(NotificationRoutes.COUNT)
-  async findClientNotificationCount(@Account() client: JwtPayload) {
+  async findClientNotificationCount(@Client() client: JwtPayload) {
     return {
       data: {
         count: await this.notificationsService.getAccountNotificationCount(

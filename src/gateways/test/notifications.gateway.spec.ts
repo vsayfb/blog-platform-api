@@ -2,8 +2,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GatewayEventsService } from 'src/global/events/__mocks__/gateway-events.service';
-import { NotificationsService } from 'src/global/notifications/services/notifications.service';
-import { notificationStub } from 'src/global/notifications/stub/notification-stub';
+import { NotificationsService } from 'src/global/account_notifications/services/notifications.service';
+import { notificationStub } from 'src/global/account_notifications/stub/notification-stub';
 import { NotificationsGateway } from '../notifications.gateway';
 
 jest.mock('src/global/notifications/services/notifications.service');

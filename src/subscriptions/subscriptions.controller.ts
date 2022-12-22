@@ -1,6 +1,6 @@
 import { Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SUBSCRIPTIONS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -16,7 +16,7 @@ export class SubscriptionsController {
 
   @Post(SubscriptionsRoutes.SUBSCRIBE_EMAIL + '/:followed_id')
   async subscribeToMails(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
   ) {
     return {
@@ -31,7 +31,7 @@ export class SubscriptionsController {
 
   @Delete(SubscriptionsRoutes.UNSUBSCRIBE_EMAIL + '/:followed_id')
   async unsubscribeToMails(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
   ) {
     return {
@@ -46,7 +46,7 @@ export class SubscriptionsController {
 
   @Post(SubscriptionsRoutes.SUBSCRIBE_NOTIFICATION + '/:followed_id')
   async subscribeToNotifications(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
   ) {
     return {
@@ -61,7 +61,7 @@ export class SubscriptionsController {
 
   @Delete(SubscriptionsRoutes.UNSUBSCRIBE_NOTIFICATION + '/:followed_id')
   async unsubscribeToNotifications(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
   ) {
     return {

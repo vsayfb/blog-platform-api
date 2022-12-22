@@ -6,7 +6,7 @@ import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
-import { NotificationFactory } from 'src/notifications/services/verification-factory.service';
+import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { Repository } from 'typeorm';
 import { TwoFactorAuth, TFAVia } from '../entities/two-factor-auth.entity';
@@ -71,8 +71,6 @@ export class TwoFactorAuthService
 
     return ID;
   }
-
-  
 
   getAll(): Promise<TwoFactorAuth[]> {
     return this.twoFactorAuthRepository.find({ relations: { account: true } });

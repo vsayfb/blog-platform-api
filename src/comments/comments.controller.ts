@@ -10,7 +10,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { COMMENTS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -36,6 +35,7 @@ import { CheckClientActionsOnComment } from './interceptors/check-client-actions
 import { CreatedCommentDto } from './dto/created-comment.dto';
 import { RepliedNotificationInterceptor } from './interceptors/replied-notification.interceptor';
 import { PostIDParam } from './dto/post-id-param';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(COMMENTS_ROUTE)
 @ApiTags(COMMENTS_ROUTE)
@@ -94,13 +94,13 @@ export class CommentsController
   @UseInterceptors(CommentedNotificationInterceptor)
   @Post(CommentRoutes.CREATE + ':post_id')
   async create(
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
     @Param() { post_id }: PostIDParam,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: CreatedCommentDto; message: string }> {
     return {
       data: await this.commentsService.create({
-        authorID: account.sub,
+        authorID: client.sub,
         postID: post_id,
         createCommentDto,
       }),
@@ -112,7 +112,7 @@ export class CommentsController
   @UseInterceptors(RepliedNotificationInterceptor)
   @Post(CommentRoutes.REPLY_TO_COMMENT + ':comment_id')
   async replyToComment(
-    @Account() account: JwtPayload,
+    @Client() account: JwtPayload,
     @Param('comment_id') toID: string,
     @Body() createCommentDto: CreateCommentDto,
   ): Promise<{ data: ReplyViewDto; message: string }> {

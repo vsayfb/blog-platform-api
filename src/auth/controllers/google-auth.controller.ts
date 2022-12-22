@@ -1,8 +1,8 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { AUTH_ROUTE } from 'src/lib/constants';
+import { Client } from '../decorator/client.decorator';
 import { AccessToken } from '../dto/access-token.dto';
 import { LoginViewDto } from '../dto/login-view.dto';
 import { RegisterViewDto } from '../dto/register-view.dto';
@@ -31,12 +31,12 @@ export class GoogleAuthController implements IAuthController {
   @HttpCode(200)
   @UseGuards(GoogleAuthGuard)
   @Post(AuthRoutes.LOGIN)
-  async login(@Account() account: SelectedAccountFields): Promise<{
+  async login(@Client() client: SelectedAccountFields): Promise<{
     data: LoginViewDto;
     message: AuthMessages;
   }> {
     return {
-      data: this.googleAuthService.login(account),
+      data: this.googleAuthService.login(client),
       message: AuthMessages.SUCCESSFUL_LOGIN,
     };
   }

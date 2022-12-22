@@ -12,7 +12,7 @@ import { Role, Account } from 'src/accounts/entities/account.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
-import { Notification } from 'src/global/notifications/entities/notification.entity';
+import { Notification } from 'src/global/account_notifications/entities/notification.entity';
 import { TwoFactorAuth } from 'src/security/entities/two-factor-auth.entity';
 
 export enum Action {

@@ -12,8 +12,8 @@ import { UserFollowed } from './dto/user-followed.dto';
 import { UserFollowers } from './dto/user-followers.dto';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
-import { NotificationsService } from 'src/global/notifications/services/notifications.service';
-import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
+import { NotificationsService } from 'src/global/account_notifications/services/notifications.service';
+import { NotificationActions } from 'src/global/account_notifications/entities/notification.entity';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 
 @Injectable()
@@ -48,7 +48,9 @@ export class FollowService implements IDeleteService, IUpdateService {
     followerID: string,
     followedUsername: string,
   ): Promise<Follow> {
-    const followed = await this.accountsService.getOneByUsername(followedUsername);
+    const followed = await this.accountsService.getOneByUsername(
+      followedUsername,
+    );
 
     if (!followed) throw new NotFoundException(AccountMessages.NOT_FOUND);
 

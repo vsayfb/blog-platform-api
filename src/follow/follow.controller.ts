@@ -7,7 +7,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FollowService } from './follow.service';
@@ -21,6 +20,7 @@ import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FOLLOW_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(FOLLOW_ROUTE)
 @ApiTags(FOLLOW_ROUTE)
@@ -31,11 +31,11 @@ export class FollowController implements ICreateController {
   @UseInterceptors(FollowedNotificationInterceptor)
   @Post(FollowRoutes.FOLLOW + ':username')
   async create(
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
     @Param() { username }: UsernameQuery,
   ): Promise<{ data: Follow; message: FollowMessages }> {
     return {
-      data: await this.followService.followAccount(account.sub, username),
+      data: await this.followService.followAccount(client.sub, username),
       message: FollowMessages.FOLLOWED,
     };
   }
@@ -43,12 +43,12 @@ export class FollowController implements ICreateController {
   @UseGuards(JwtAuthGuard)
   @Delete(FollowRoutes.UNFOLLOW + ':username')
   async unfollow(
-    @Account() account: JwtPayload,
+    @Client() client: JwtPayload,
     @Param() { username }: UsernameQuery,
   ): Promise<{ data: string; message: FollowMessages }> {
     return {
       data: await this.followService.unfollowAccount(
-        account.username,
+        client.username,
         username,
       ),
       message: FollowMessages.UNFOLLOWED,

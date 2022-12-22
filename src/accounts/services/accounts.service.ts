@@ -22,6 +22,7 @@ export class AccountsService
     username: true,
     display_name: true,
     image: true,
+    via: true,
     role: true,
     email: true,
     password: true,
@@ -59,7 +60,7 @@ export class AccountsService
 
   async update(
     subject: Account,
-    updateDto: any,
+    updateDto: Record<string, any>,
   ): Promise<SelectedAccountFields> {
     let anyChanges = false;
 
@@ -97,10 +98,11 @@ export class AccountsService
     });
   }
 
-  async getCredentials(accountID: string): Promise<AccountWithCredentials> {
+  async getCredentials(accountID: string): Promise<TFAAccount> {
     return await this.accountsRepository.findOne({
       where: { id: accountID },
       select: this.credentials,
+      relations: { two_factor_auth: true },
     });
   }
 

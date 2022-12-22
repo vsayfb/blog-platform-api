@@ -1,8 +1,8 @@
 jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
-import { NotificationMessages } from 'src/global/notifications/enums/notification-messages';
-import { NotificationRoutes } from 'src/global/notifications/enums/notification-routes';
+import { NotificationMessages } from 'src/global/account_notifications/enums/notification-messages';
+import { NotificationRoutes } from 'src/global/account_notifications/enums/notification-routes';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';

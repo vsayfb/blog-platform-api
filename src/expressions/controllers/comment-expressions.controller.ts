@@ -7,7 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   CommentExpression,
@@ -31,7 +31,7 @@ export class CommentExpressionsController {
   @UseInterceptors(CommentExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.LIKE + '/comment/' + ':id')
   async likeComment(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
     data: CommentExpression;
@@ -50,7 +50,7 @@ export class CommentExpressionsController {
   @UseInterceptors(CommentExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.DISLIKE + '/comment/' + ':id')
   async dislikeComment(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('id') commentID: string,
   ): Promise<{
     data: CommentExpression;
@@ -69,7 +69,7 @@ export class CommentExpressionsController {
   @Delete('comment' + ExpressionRoutes.DELETE + ':id')
   async removeExpression(
     @Param('id') commentID: string,
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ id: string; message: ExpressionMessages }> {
     return {
       id: await this.commentExpressionsService.delete(commentID, client.sub),

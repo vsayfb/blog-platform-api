@@ -10,8 +10,8 @@ import {
   CommentExpressionType,
 } from 'src/comments/entities/comment-expression.entity';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { NotificationActions } from 'src/global/notifications/entities/notification.entity';
-import { CommentsNotificationService } from 'src/global/notifications/services/comments-notification.service';
+import { NotificationActions } from 'src/global/account_notifications/entities/notification.entity';
+import { CommentsNotificationService } from 'src/global/account_notifications/services/comments-notification.service';
 import {
   PostExpression,
   PostExpressionType,

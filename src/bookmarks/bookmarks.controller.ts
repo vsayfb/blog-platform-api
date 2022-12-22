@@ -8,7 +8,6 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
@@ -22,6 +21,7 @@ import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 import { BOOKMARKS_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
+import { Client } from 'src/auth/decorator/client.decorator';
 
 @Controller(BOOKMARKS_ROUTE)
 @ApiTags(BOOKMARKS_ROUTE)
@@ -34,7 +34,7 @@ export class BookmarksController
   @Post(BookmarkRoutes.CREATE + ':post_id')
   async create(
     @Param('post_id') postID: string,
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: SelectedBookmarkFields; message: string }> {
     return {
       data: await this.bookmarksService.create({
@@ -48,7 +48,7 @@ export class BookmarksController
   @UseGuards(JwtAuthGuard)
   @Get(BookmarkRoutes.FIND_CLIENT_BOOKMARKS)
   async findClientBookmarks(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
   ): Promise<{ data: AccountBookmarks; message: string }> {
     return {
       data: await this.bookmarksService.getAccountBookmarks(client.sub),
@@ -81,7 +81,7 @@ export class BookmarksController
   @Delete(BookmarkRoutes.DELETE + 'post/:id')
   @UseGuards(JwtAuthGuard)
   async deleteByPost(
-    @Account() client: JwtPayload,
+    @Client() client: JwtPayload,
     @Param('id') postID: string,
   ): Promise<{ id: string; message: string }> {
     const bookmark = await this.bookmarksService.getByPostAndAccount(

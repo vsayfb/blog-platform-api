@@ -4,7 +4,7 @@ import { TFAAccount } from 'src/accounts/types/tfa-account';
 import { AuthRoutes } from 'src/auth/enums/auth-routes';
 import { CodesService } from 'src/codes/codes.service';
 import { AUTH_ROUTE } from 'src/lib/constants';
-import { NotificationFactory } from 'src/notifications/services/verification-factory.service';
+import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { TFAProcess } from '../types/tfa-process';
 import { TFAEnabledException } from './tfa-enable.exception';
 

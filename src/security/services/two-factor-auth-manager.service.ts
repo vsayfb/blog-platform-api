@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { NotificationFactory } from 'src/notifications/services/verification-factory.service';
+import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { TFAProcess } from '../types/tfa-process';
 import { TwoFactorAuthService } from './two-factor-auth.service';

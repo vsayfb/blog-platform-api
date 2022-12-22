@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Account } from 'src/accounts/decorator/account.decorator';
+import { Client } from 'src/auth/decorator/client.decorator';
 import {
   CreateAccountWithEmailDto,
   CreateAccountWithPhoneDto,
@@ -37,7 +37,7 @@ import { JwtPayload } from 'src/lib/jwt.payload';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
 import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email.guard';
-import { NotificationFactory } from 'src/notifications/services/verification-factory.service';
+import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)
@@ -50,8 +50,8 @@ export class LocalAuthController implements IAuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.CLIENT)
-  findClient(@Account() account: JwtPayload): JwtPayload {
-    return account;
+  findClient(@Client() client: JwtPayload): JwtPayload {
+    return client;
   }
 
   @UseInterceptors(DeleteVerificationCodeInBody)
@@ -95,12 +95,12 @@ export class LocalAuthController implements IAuthController {
   @UseFilters(TFAEnabledExceptionFilter)
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)
-  async login(@Account() account: SelectedAccountFields): Promise<{
+  async login(@Client() client: SelectedAccountFields): Promise<{
     data: LoginViewDto;
     message: AuthMessages;
   }> {
     return {
-      data: this.localAuthService.login(account),
+      data: this.localAuthService.login(client),
       message: AuthMessages.SUCCESSFUL_LOGIN,
     };
   }
