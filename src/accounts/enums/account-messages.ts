@@ -10,4 +10,5 @@ export enum AccountMessages {
   FOUND_BY_USERNAME = 'Accounts have been found according to the query string.',
   UPDATED = 'Account has been updated.',
   PP_CHANGED = 'User profile picture has been changed.',
+  WRONG_PASSWORD = 'Password was wrong.',
 }

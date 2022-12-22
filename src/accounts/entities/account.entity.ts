@@ -42,9 +42,9 @@ export class Account {
   image: string;
 
   @Column({ unique: true, select: false, nullable: true })
-  email: string;
+  email: string | null;
 
-  @Column({ nullable: true, select: false })
+  @Column({ unique: true, select: false, nullable: true })
   mobile_phone: string | null;
 
   @Column({ select: false })
@@ -67,7 +67,7 @@ export class Account {
   })
   via: RegisterType;
 
-  @OneToOne(() => TwoFactorAuth, (t2a) => t2a.account)
+  @OneToOne(() => TwoFactorAuth, (t2a) => t2a.account, { onUpdate: 'CASCADE' })
   two_factor_auth: TwoFactorAuth;
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })

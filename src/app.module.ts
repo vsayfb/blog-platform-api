@@ -13,7 +13,7 @@ import { CaslModule } from './global/casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
-import { NotificationsModule } from './global/notifications/notifications.module';
+import { AccountsNotificationsModule } from './global/notifications/notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from 'ormconfig';
 import { GatewaysModule } from './gateways/gateways.module';
@@ -36,7 +36,7 @@ import { ExpressionsModule } from './expressions/expressions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SecurityModule } from './security/security.module';
 import { ProfilesModule } from './profiles/profiles.module';
-import { VerificationsModule } from './verifications/verifications.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -57,7 +57,7 @@ const imports = [
   BookmarksModule,
   FollowModule,
   ExpressionsModule,
-  NotificationsModule,
+  AccountsNotificationsModule,
   EventsModule,
   GatewaysModule,
   ChatsModule,
@@ -69,7 +69,7 @@ const imports = [
   TwilioModule,
   SubscriptionsModule,
   SecurityModule,
-  VerificationsModule,
+  NotificationsModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {

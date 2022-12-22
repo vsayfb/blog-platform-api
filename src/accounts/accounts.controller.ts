@@ -1,24 +1,15 @@
 import {
   Body,
   Controller,
-  forwardRef,
   Get,
-  HttpCode,
-  Inject,
-  Param,
-  Post,
-  Patch,
   Put,
   Query,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNTS_ROUTE } from 'src/lib/constants';
-import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountsService } from './services/accounts.service';
 import { Account } from './decorator/account.decorator';
@@ -39,12 +30,6 @@ import { SignNewJwtToken } from './interceptors/sign-new-jwt.interceptor';
 @ApiTags(ACCOUNTS_ROUTE)
 export class AccountsController implements IUpdateController {
   constructor(private readonly accountsService: AccountsService) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Get(AccountRoutes.CLIENT)
-  findClient(@Account() account: JwtPayload): JwtPayload {
-    return account;
-  }
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @UseInterceptors(SignNewJwtToken)

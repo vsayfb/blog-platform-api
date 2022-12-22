@@ -26,4 +26,4 @@ import { PostsNotificationService } from './services/posts.notification.service'
     PostsNotificationService,
   ],
 })
-export class NotificationsModule {}
+export class AccountsNotificationsModule {}

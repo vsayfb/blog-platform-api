@@ -1,13 +1,19 @@
 import {
+  Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Put,
+  Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CheckPasswordsMatch } from 'src/accounts/guards/check-passwords-match.guard';
+import { Account } from 'src/accounts/decorator/account.decorator';
+import { PasswordsMatch } from 'src/accounts/guards/check-passwords-match.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SECURITY_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -15,65 +21,117 @@ import { CanManageData } from 'src/lib/guards/CanManageData';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
-import { TFAWithPhoneDto, TFADto } from '../dto/two-factor-auth.dto';
+import { JwtPayload } from 'src/lib/jwt.payload';
+import { TFADto } from '../dto/two-factor-auth.dto';
 import { TFAVia, TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { SecurityMessages } from '../enums/security-messages';
 import { SecurityRoutes } from '../enums/security-routes';
 import { TwoFactorAuthService } from '../services/two-factor-auth.service';
+import { CodesMatchForCreateMobileTFA } from '../guards/codes-match-for-enable-mobile-tfa.guard';
+import { CodesMatchForCreateEmailTFA } from '../guards/codes-match-for-enable-email-tfa.guard';
+import { CodeSentForEnableMobileTFA } from '../guards/code-sent-for-enable-mobile-tfa.guard';
+import { CodeSentForEnableEmailTFA } from '../guards/code-sent-for-enable-email-tfa.guard';
+import { CodeSentForDisableTFA } from '../guards/code-sent-for-disable-tfa.guard';
+import { CodesMatchForDisableTFA } from '../guards/codes-match-for-disable-tfa.guard';
+import { CodeMessages } from 'src/codes/enums/code-messages';
+import { DeleteVerificationCodeInBody } from 'src/codes/interceptors/delete-code-in-body.interceptor';
+import { TwoFactorAuthManager } from '../services/two-factor-auth-manager.service';
 
 @Controller(SECURITY_ROUTE + '/2fa')
 @ApiTags(SECURITY_ROUTE + '/2fa')
+@UseGuards(JwtAuthGuard)
 export class TwoFactorAuthController
-  implements ICreateController, IUpdateController, IDeleteController
+  implements ICreateController, IDeleteController
 {
-  constructor(private readonly twoFactorAuthService: TwoFactorAuthService) {}
+  constructor(
+    private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly twoFactorAuthManager: TwoFactorAuthManager,
+  ) {}
 
-  @Post(SecurityRoutes.CREATE + ':id')
-  @UseGuards(JwtAuthGuard, CheckPasswordsMatch)
+  @Get(SecurityRoutes.ME)
+  async findClientTFA(@Account() client: JwtPayload) {
+    return {
+      data: await this.twoFactorAuthService.getOneByAccountID(client.sub),
+      message: SecurityMessages.FOUND,
+    };
+  }
+
+  @Post(SecurityRoutes.CREATE)
+  @UseInterceptors(DeleteVerificationCodeInBody)
+  @UseGuards(PasswordsMatch, CodesMatchForCreateEmailTFA)
   async create(
-    @Param('id') accountID: string,
-    dto: TFADto,
+    @Account() client: JwtPayload,
+    @Body() dto: TFADto,
   ): Promise<{ data: TwoFactorAuth; message: SecurityMessages }> {
     return {
       data: await this.twoFactorAuthService.create({
-        accountID,
+        via: 'email',
+        accountID: client.sub,
       }),
-      message: SecurityMessages.ACTIVATED_2FA,
+      message: SecurityMessages.ENABLED_2FA,
     };
   }
 
-  @Post(SecurityRoutes.CREATE + ':id')
-  @UseGuards(JwtAuthGuard, CheckPasswordsMatch)
-  async createWithSMS(@Param('id') accountID: string, dto: TFAWithPhoneDto) {
+  @Post(SecurityRoutes.CREATE_MOBILE_PHONE)
+  @UseInterceptors(DeleteVerificationCodeInBody)
+  @UseGuards(CodesMatchForCreateMobileTFA, PasswordsMatch)
+  async createWithMobilePhone(
+    @Account() client: JwtPayload,
+    @Body() dto: TFADto,
+  ) {
     return {
-      data: await this.twoFactorAuthService.createWithPhone({
-        accountID,
-        phone: dto.phone,
+      data: await this.twoFactorAuthService.create({
+        via: 'mobile_phone',
+        accountID: client.sub,
       }),
-      message: SecurityMessages.ACTIVATED_2FA,
+      message: SecurityMessages.ENABLED_2FA,
     };
   }
 
-  @UseGuards(JwtAuthGuard, CanManageData, CheckPasswordsMatch)
-  @Patch(SecurityRoutes.UPDATE + ':id')
-  async update(
-    @Data() data: TwoFactorAuth,
-    dto: TFADto,
-  ): Promise<{ data: TwoFactorAuth; message: SecurityMessages }> {
-    return {
-      data: await this.twoFactorAuthService.update(data, TFAVia.EMAIL),
-      message: SecurityMessages.UPDATED_2FA,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard, CanManageData, CheckPasswordsMatch)
-  @Delete(SecurityRoutes.DELETE + ':id')
+  @UseGuards(CodesMatchForDisableTFA, CanManageData, PasswordsMatch)
+  @UseInterceptors(DeleteVerificationCodeInBody)
+  @Patch(SecurityRoutes.DELETE + ':id')
   async delete(
-    subject: TwoFactorAuth,
+    @Data() subject: TwoFactorAuth,
   ): Promise<{ id: string; message: SecurityMessages }> {
     return {
-      id: await this.twoFactorAuthService.delete(subject),
-      message: SecurityMessages.DEACTIVATED_2FA,
+      id: await this.twoFactorAuthService.delete({
+        subject,
+      }),
+      message: SecurityMessages.DISABLED_2FA,
+    };
+  }
+
+  @UseGuards(PasswordsMatch, CodeSentForEnableEmailTFA)
+  @Post(SecurityRoutes.ENABLE_WITH_EMAIL_FACTOR)
+  async enable2FAWithEmail(@Account() client: JwtPayload) {
+    await this.twoFactorAuthManager.enable({
+      by: 'email',
+      accountID: client.sub,
+    });
+
+    return { message: CodeMessages.CODE_SENT_TO_MAIL };
+  }
+
+  @UseGuards(PasswordsMatch, CodeSentForEnableMobileTFA)
+  @Post(SecurityRoutes.ENABLE_WITH_MOBILE_PHONE)
+  async enable2FAWithMobilePhone(@Account() client: JwtPayload) {
+    await this.twoFactorAuthManager.enable({
+      by: 'mobile_phone',
+      accountID: client.sub,
+    });
+
+    return { message: CodeMessages.CODE_SENT_TO_PHONE };
+  }
+
+  @UseGuards(PasswordsMatch, CodeSentForDisableTFA)
+  @Post(SecurityRoutes.DISABLE)
+  async disable2FA(@Account() client: JwtPayload) {
+    await this.twoFactorAuthManager.disable(client.sub);
+
+    return {
+      data: null,
+      message: CodeMessages.SENT,
     };
   }
 }

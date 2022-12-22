@@ -11,14 +11,14 @@ import { LocalAuthController } from './controllers/local-auth.controller';
 import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleAuthService } from './services/google-auth.service';
 import { LocalAuthService } from './services/local-auth.service';
-import { VerificationsModule } from 'src/verifications/verifications.module';
 import { CodesModule } from 'src/codes/codes.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
     AccountsModule,
     PassportModule,
-    VerificationsModule,
+    NotificationsModule,
     CodesModule,
     GoogleModule,
     JwtModule.registerAsync({

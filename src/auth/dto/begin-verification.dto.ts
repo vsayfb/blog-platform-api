@@ -23,5 +23,5 @@ export class BeginVerificationWithEmailDto extends BeginVerificationDto {
 export class BeginVerificationWithPhoneDto extends BeginVerificationDto {
   @IsMobilePhone()
   @UniquePhone()
-  phone: string;
+  mobile_phone: string;
 }

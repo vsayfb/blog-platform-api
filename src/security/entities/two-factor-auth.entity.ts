@@ -1,4 +1,5 @@
 import { Account } from 'src/accounts/entities/account.entity';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 import {
   Column,
   CreateDateColumn,
@@ -8,17 +9,14 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum TFAVia {
-  SMS = 'sms',
-  EMAIL = 'email',
-}
+export type TFAVia = NotificationBy;
 
 @Entity()
 export class TwoFactorAuth {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: TFAVia })
+  @Column({ type: 'enum', enum: ['mobile_phone', 'email'] })
   via: TFAVia;
 
   @ManyToOne(() => Account, { onDelete: 'CASCADE' })

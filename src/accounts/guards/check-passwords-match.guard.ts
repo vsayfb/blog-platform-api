@@ -1,10 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { AccountMessages } from '../enums/account-messages';
 
 @Injectable()
-export class CheckPasswordsMatch implements CanActivate {
+export class PasswordsMatch implements CanActivate {
   constructor(
     private readonly passwordManagerService: PasswordManagerService,
     private readonly accountsService: AccountsService,
@@ -19,9 +25,18 @@ export class CheckPasswordsMatch implements CanActivate {
 
     const account = await this.accountsService.getCredentials(client.sub);
 
-    return await this.passwordManagerService.comparePassword(
-      request.body?.password,
-      account.password,
-    );
+    if (
+      request.body.password?.length >= 7 &&
+      request.body.password?.length <= 16
+    ) {
+      const matches = await this.passwordManagerService.comparePassword(
+        request.body.password,
+        account.password,
+      );
+
+      if (matches) return true;
+    }
+
+    throw new ForbiddenException(AccountMessages.WRONG_PASSWORD);
   }
 }

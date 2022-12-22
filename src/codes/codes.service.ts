@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';
-import { Code, CodeVerificationProcess } from './entities/code.entity';
+import { Code, CodeProcess } from './entities/code.entity';
 
 @Injectable()
 export class CodesService implements ICreateService, IDeleteService {
@@ -22,7 +22,7 @@ export class CodesService implements ICreateService, IDeleteService {
   }: {
     receiver: string;
     code: string;
-    process: CodeVerificationProcess;
+    process: CodeProcess;
   }): Promise<Code> {
     const { id } = await this.codesRepository.save({
       code,
@@ -36,14 +36,14 @@ export class CodesService implements ICreateService, IDeleteService {
   async getCodeByCredentials(
     code: string,
     receiver: string,
-    process: CodeVerificationProcess,
+    process: CodeProcess,
   ): Promise<Code | null> {
     return this.codesRepository.findOne({ where: { code, receiver, process } });
   }
 
   async getOneByReceiverAndType(
     receiver: string,
-    process: CodeVerificationProcess,
+    process: CodeProcess,
   ): Promise<Code | null> {
     return this.codesRepository.findOne({
       where: { receiver, process },
@@ -58,7 +58,13 @@ export class CodesService implements ICreateService, IDeleteService {
     return codeID;
   }
 
-  async deleteIfExists(codeID: string) {
+  async deleteByCode(code: string): Promise<void> {
+    const result = await this.codesRepository.findOneBy({ code });
+
+    if (result) await this.delete(result);
+  }
+
+  async deleteIfExists(codeID: string): Promise<void> {
     const code = await this.codesRepository.findOneBy({ id: codeID });
 
     if (code) await this.codesRepository.remove(code);

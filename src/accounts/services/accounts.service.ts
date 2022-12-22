@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
+import { TwoFactorAuth } from 'src/security/entities/two-factor-auth.entity';
+import { SelectedTFAFields } from 'src/security/types/selected-tfa';
 import { Like, Repository } from 'typeorm';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { Account } from '../entities/account.entity';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
+import { TFAAccount } from '../types/tfa-account';
 
 @Injectable()
 export class AccountsService
@@ -58,8 +61,6 @@ export class AccountsService
     subject: Account,
     updateDto: any,
   ): Promise<SelectedAccountFields> {
-    console.log(updateDto);
-
     let anyChanges = false;
 
     for (const key in updateDto) {
@@ -78,7 +79,7 @@ export class AccountsService
 
   async getCredentialsByUsernameOrEmailOrPhone(
     value: string,
-  ): Promise<AccountWithCredentials> {
+  ): Promise<TFAAccount> {
     return await this.accountsRepository.findOne({
       where: [
         {
@@ -91,6 +92,7 @@ export class AccountsService
           mobile_phone: value,
         },
       ],
+      relations: { two_factor_auth: true },
       select: this.credentials,
     });
   }
