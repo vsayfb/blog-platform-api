@@ -4,19 +4,19 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeMessages } from 'src/codes/enums/code-messages';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 
 @Injectable()
 export class CodeSentForRegisterEmail implements CanActivate {
-  constructor(private readonly codesService: CodesService) {}
+  constructor(private readonly codesService: VerificationCodesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
     if (!request.body.email) return false;
 
-    const sent = await this.codesService.getOneByReceiverAndType(
+    const sent = await this.codesService.getOneByReceiverAndProcess(
       request.body.email,
       'register_email',
     );

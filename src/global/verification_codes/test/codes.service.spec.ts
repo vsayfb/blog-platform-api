@@ -1,8 +1,8 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { codeStub } from 'src/codes/stub/code.stub';
+import { codeStub } from 'src/verification_codes/stub/code.stub';
 import { Test } from '@nestjs/testing';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { CodesService } from 'src/codes/codes.service';
+import { CodesService } from 'src/verification_codes/verification-codes.service';
 import { Code } from '../entities/code.entity';
 import { Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';

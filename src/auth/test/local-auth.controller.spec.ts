@@ -7,7 +7,7 @@ import { LocalAuthService } from '../services/local-auth.service';
 import { RegisterViewDto } from '../dto/register-view.dto';
 import { AuthMessages } from '../enums/auth-messages';
 import { BeginVerificationDto } from '../dto/begin-verification.dto';
-import { CodeMessages } from 'src/codes/enums/code-messages';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { registerPayloadStub } from '../stub/register-payload.stub';
 

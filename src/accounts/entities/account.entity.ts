@@ -12,7 +12,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
-  ManyToOne,
   OneToOne,
 } from 'typeorm';
 
@@ -67,7 +66,7 @@ export class Account {
   })
   via: RegisterType;
 
-  @OneToOne(() => TwoFactorAuth, (t2a) => t2a.account, { onUpdate: 'CASCADE' })
+  @OneToOne(() => TwoFactorAuth, (t2a) => t2a.account)
   two_factor_auth: TwoFactorAuth;
 
   @Column({ type: 'enum', default: Role.USER, enum: Role })

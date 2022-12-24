@@ -23,7 +23,6 @@ import { AUTH_ROUTE } from 'src/lib/constants';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { LoginViewDto } from '../dto/login-view.dto';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import {
   BeginVerificationWithEmailDto,
   BeginVerificationWithPhoneDto,
@@ -32,12 +31,13 @@ import { TFAEnabledExceptionFilter } from 'src/security/exceptions/tfa-enabled-e
 import { TFAGuard } from '../guards/tfa.guard';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { TFAAuthDto } from '../dto/tfa-auth.dto';
-import { DeleteVerificationCodeInBody } from 'src/codes/interceptors/delete-code-in-body.interceptor';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
 import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email.guard';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
+import { DeleteVerificationCodeInBody } from 'src/global/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)
@@ -84,6 +84,11 @@ export class LocalAuthController implements IAuthController {
       await this.accountsService.getCredentialsByUsernameOrEmailOrPhone(
         dto.username,
       );
+
+    delete account.password;
+    delete account.two_factor_auth;
+    delete account.email;
+    delete account.mobile_phone;
 
     return {
       data: this.localAuthService.login(account),

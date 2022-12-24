@@ -2,7 +2,7 @@ import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { Test } from '@nestjs/testing';
 import { MailgunService } from 'src/apis/mailgun/mailgun.service';
 import { ConfigService } from '@nestjs/config';
-import { codeStub } from 'src/codes/stub/code.stub';
+import { codeStub } from 'src/verification_codes/stub/code.stub';
 
 describe('MailgunService', () => {
   let mailgunService: MailgunService;

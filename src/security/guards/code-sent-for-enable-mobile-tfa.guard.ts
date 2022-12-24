@@ -6,30 +6,27 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 
-/**
- * Use this guard after JwtAuthGuard
- */
 @Injectable()
 export class CodeSentForEnableMobileTFA implements CanActivate {
-  constructor(
-    private readonly codesService: CodesService,
-    private readonly accountsService: AccountsService,
-  ) {}
+  constructor(private readonly codesService: VerificationCodesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: { user: JwtPayload; body: { verification_code: string } } =
-      context.switchToHttp().getRequest();
+    const req: {
+      user: JwtPayload;
+      account_credentials: AccountWithCredentials;
+    } = context.switchToHttp().getRequest();
 
-    const { mobile_phone } = await this.accountsService.getCredentials(
-      request.user.sub,
-    );
+    if (!req.account_credentials.mobile_phone)
+      throw new ForbiddenException(AccountMessages.HAS_NOT_PHONE);
 
-    const code = await this.codesService.getOneByReceiverAndType(
-      mobile_phone,
+    const code = await this.codesService.getOneByReceiverAndProcess(
+      req.account_credentials.mobile_phone,
       'enable_tfa_mobile_phone',
     );
 

@@ -5,7 +5,6 @@ import { AuthModule } from './auth/auth.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { MailsModule } from './mails/mails.module';
 import { MailgunModule } from './apis/mailgun/mailgun.module';
-import { CodesModule } from './codes/codes.module';
 import { TasksModule } from './global/tasks/tasks.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
@@ -37,6 +36,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SecurityModule } from './security/security.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { VerificationCodesModule } from './global/verification_codes/verification-codes.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -48,7 +48,7 @@ const imports = [
   UploadsModule,
   MailsModule,
   MailgunModule,
-  CodesModule,
+  VerificationCodesModule,
   TasksModule,
   PostsModule,
   TagsModule,

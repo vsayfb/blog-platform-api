@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CodesService } from 'src/codes/codes.service';
-
 import { TasksService } from 'src/global/tasks/tasks.service';
+import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 import { TFAProcess } from 'src/security/types/tfa-process';
 import { SmsService } from 'src/sms/sms.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
@@ -17,11 +17,14 @@ export class MobilePhoneNotificationService implements INotificationService {
   constructor(
     private readonly smsService: SmsService,
     private readonly tasksService: TasksService,
-    private readonly codesService: CodesService,
+    private readonly verificationCodesService: VerificationCodesService,
   ) {}
 
-  async notifyForRegister(username: string, phone: string): Promise<void> {
-    const code = this.codesService.generate();
+  async notifyForRegister(
+    username: string,
+    phone: string,
+  ): Promise<VerificationCode> {
+    const code = await this.verificationCodesService.generate();
 
     const sent = await this.smsService.sendSMS(
       phone,
@@ -29,20 +32,25 @@ export class MobilePhoneNotificationService implements INotificationService {
     );
 
     if (sent) {
-      const { id } = await this.codesService.create({
+      const verificationCode = await this.verificationCodesService.create({
         receiver: phone,
         code,
         process: 'register_mobile_phone',
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(id),
+        this.verificationCodesService.deleteIfExists(verificationCode.id),
       );
+
+      return verificationCode;
     }
   }
 
-  async notifyForTFA(phone: string, process: TFAProcess): Promise<void> {
-    const code = this.codesService.generate();
+  async notifyForTFA(
+    phone: string,
+    process: TFAProcess,
+  ): Promise<VerificationCode> {
+    const code = await this.verificationCodesService.generate();
 
     const sent = await this.smsService.sendSMS(
       phone,
@@ -50,19 +58,21 @@ export class MobilePhoneNotificationService implements INotificationService {
     );
 
     if (sent) {
-      const { id } = await this.codesService.create({
+      const verificationCode = await this.verificationCodesService.create({
         receiver: phone,
         code,
         process,
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(id),
+        this.verificationCodesService.deleteIfExists(verificationCode.id),
       );
+
+      return verificationCode;
     }
   }
 
-  notify(receiver: string, data: string): Promise<void> {
+  notify(receiver: string, data: string): Promise<VerificationCode> {
     throw new Error('Method not implemented.');
   }
 }

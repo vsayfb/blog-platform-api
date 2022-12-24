@@ -8,7 +8,12 @@ import { AccountsService } from 'src/accounts/services/accounts.service';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountMessages } from '../enums/account-messages';
+import { AccountWithCredentials } from '../types/account-with-credentials';
 
+/**
+ * This guard checks that given password matches with database password.
+ * It they are matched puts the account into the request.account.
+ */
 @Injectable()
 export class PasswordsMatch implements CanActivate {
   constructor(
@@ -17,26 +22,25 @@ export class PasswordsMatch implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: { user: JwtPayload; body: { password?: string } } = context
-      .switchToHttp()
-      .getRequest();
+    const request: {
+      user: JwtPayload;
+      account_credentials?: AccountWithCredentials;
+      body: { password: string };
+    } = context.switchToHttp().getRequest();
 
     const client = request.user;
 
     const account = await this.accountsService.getCredentials(client.sub);
 
-    if (
-      request.body.password?.length >= 7 &&
-      request.body.password?.length <= 16
-    ) {
-      const matches = await this.passwordManagerService.comparePassword(
-        request.body.password,
-        account.password,
-      );
+    const matched = await this.passwordManagerService.comparePassword(
+      request.body.password,
+      account.password,
+    );
 
-      if (matches) return true;
-    }
+    if (!matched) throw new ForbiddenException(AccountMessages.WRONG_PASSWORD);
 
-    throw new ForbiddenException(AccountMessages.WRONG_PASSWORD);
+    request.account_credentials = account;
+
+    return true;
   }
 }

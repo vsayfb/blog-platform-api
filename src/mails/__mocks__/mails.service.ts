@@ -1,4 +1,4 @@
-import { CodeMessages } from 'src/codes/enums/code-messages';
+import { CodeMessages } from "src/global/verification_codes/enums/code-messages";
 
 export const MailsService = jest.fn().mockReturnValue({
   sendVerificationCode: jest

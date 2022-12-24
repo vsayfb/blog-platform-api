@@ -5,37 +5,31 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { AccountsService } from 'src/accounts/services/accounts.service';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeMessages } from 'src/codes/enums/code-messages';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { TFAVia } from '../entities/two-factor-auth.entity';
-import { TwoFactorAuthService } from '../services/two-factor-auth.service';
 import { TFAProcess } from '../types/tfa-process';
 
 @Injectable()
 export class CodeSentForDisableTFA implements CanActivate {
-  constructor(
-    private readonly codesService: CodesService,
-    private readonly accountsService: AccountsService,
-    private readonly twoFactorAuthService: TwoFactorAuthService,
-  ) {}
+  constructor(private readonly codesService: VerificationCodesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: { user: JwtPayload; body: { verification_code: string } } =
-      context.switchToHttp().getRequest();
+    const req: {
+      user: JwtPayload;
+      account_credentials: AccountWithCredentials;
+    } = context.switchToHttp().getRequest();
 
-    const { via } = await this.twoFactorAuthService.getOneByAccountID(
-      request.user.sub,
-    );
+    const tfa = req.account_credentials.two_factor_auth;
 
-    const account = await this.accountsService.getCredentials(request.user.sub);
+    if (!tfa) return false;
 
     const process: TFAProcess =
-      via === 'email' ? 'disable_tfa_email' : 'disable_tfa_mobile_phone';
+      tfa.via === 'email' ? 'disable_tfa_email' : 'disable_tfa_mobile_phone';
 
-    const code = await this.codesService.getOneByReceiverAndType(
-      account[via],
+    const code = await this.codesService.getOneByReceiverAndProcess(
+      req.account_credentials[tfa.via],
       process,
     );
 

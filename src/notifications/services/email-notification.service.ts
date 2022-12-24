@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CodesService } from 'src/codes/codes.service';
 import { TasksService } from 'src/global/tasks/tasks.service';
+import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 import { MailsService } from 'src/mails/mails.service';
 import { TFAProcess } from 'src/security/types/tfa-process';
 import { INotificationService } from '../interfaces/notification-service.interface';
@@ -16,11 +17,14 @@ export class EmailNotificationService implements INotificationService {
   constructor(
     private readonly mailsService: MailsService,
     private readonly tasksService: TasksService,
-    private readonly codesService: CodesService,
+    private readonly codesService: VerificationCodesService,
   ) {}
 
-  async notifyForRegister(username: string, email: string): Promise<void> {
-    const code = this.codesService.generate();
+  async notifyForRegister(
+    username: string,
+    email: string,
+  ): Promise<VerificationCode> {
+    const code = await this.codesService.generate();
 
     let sent = await this.mailsService.sendVerificationCode(
       { username, email },
@@ -28,20 +32,25 @@ export class EmailNotificationService implements INotificationService {
     );
 
     if (sent) {
-      const { id } = await this.codesService.create({
+      const verificationCode = await this.codesService.create({
         receiver: email,
         code,
         process: 'register_email',
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(id),
+        this.codesService.deleteIfExists(verificationCode.id),
       );
+
+      return verificationCode;
     }
   }
 
-  async notifyForTFA(to: string, process: TFAProcess): Promise<void> {
-    const code = this.codesService.generate();
+  async notifyForTFA(
+    to: string,
+    process: TFAProcess,
+  ): Promise<VerificationCode> {
+    const code = await this.codesService.generate();
 
     const sent = await this.mailsService.send(
       [to],
@@ -52,17 +61,21 @@ export class EmailNotificationService implements INotificationService {
     );
 
     if (sent) {
-      const { id } = await this.codesService.create({
+      const verificationCode = await this.codesService.create({
         receiver: to,
         code,
         process,
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(id),
+        this.codesService.deleteIfExists(verificationCode.id),
       );
+
+      return verificationCode;
     }
   }
 
-  async notify(email: string, data: string) {}
+  notify(receiver: string, data: string): Promise<VerificationCode> {
+    throw new Error('Method not implemented.');
+  }
 }

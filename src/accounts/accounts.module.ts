@@ -11,9 +11,14 @@ import { CheckUniqueUsername } from './validators/check-unique-username';
 import { CheckUniqueEmail } from './validators/check-unique-email';
 import { CheckAccountExists } from './validators/check-exists-by-id';
 import { CheckUniquePhone } from './validators/check-unique.phone';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account]), UploadsModule],
+  imports: [
+    TypeOrmModule.forFeature([Account]),
+    UploadsModule,
+    NotificationsModule,
+  ],
   controllers: [AccountsController],
   providers: [
     AccountsService,

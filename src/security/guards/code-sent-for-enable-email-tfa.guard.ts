@@ -2,32 +2,29 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Inject,
   Injectable,
 } from '@nestjs/common';
-import { AccountsService } from 'src/accounts/services/accounts.service';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { AccountMessages } from 'src/accounts/enums/account-messages';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 
 @Injectable()
 export class CodeSentForEnableEmailTFA implements CanActivate {
-  constructor(
-    private readonly codesService: CodesService,
-    private readonly accountsService: AccountsService,
-  ) {}
+  constructor(private readonly codesService: VerificationCodesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: { user: JwtPayload; body: { verification_code: string } } =
-      context.switchToHttp().getRequest();
+    const req: {
+      user: JwtPayload;
+      account_credentials: AccountWithCredentials;
+    } = context.switchToHttp().getRequest();
 
-    const { email } = await this.accountsService.getCredentials(
-      request.user.sub,
-    );
+    if (!req.account_credentials.email)
+      throw new ForbiddenException(AccountMessages.HAS_NOT_EMAIL);
 
-    const code = await this.codesService.getCodeByCredentials(
-      request.body.verification_code,
-      email,
+    const code = await this.codesService.getOneByReceiverAndProcess(
+      req.account_credentials.email,
       'enable_tfa_email',
     );
 

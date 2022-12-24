@@ -1,16 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeProcess } from 'src/codes/entities/code.entity';
+import { CodeProcess } from 'src/global/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 
 @Injectable()
 export class TFAGuard implements CanActivate {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly passwordService: PasswordManagerService,
-    private readonly codesService: CodesService,
+    private readonly codesService: VerificationCodesService,
   ) {}
 
   async canActivate(context: ExecutionContext) {

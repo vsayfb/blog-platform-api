@@ -15,6 +15,6 @@ export const MESSAGES_ROUTE = '/messages';
 export const POSTS_ROUTE = '/posts';
 export const TAGS_ROUTE = '/tags';
 export const NOTIFICATIONS_ROUTE = '/notifications';
-export const SOCIAL_ROUTE = '/social';
 export const SUBSCRIPTIONS_ROUTE = '/subscriptions';
 export const SECURITY_ROUTE = '/security';
+export const TFA_ROUTE = SECURITY_ROUTE + '/2fa';

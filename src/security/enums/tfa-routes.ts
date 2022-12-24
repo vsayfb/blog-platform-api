@@ -1,6 +1,7 @@
-export enum SecurityRoutes {
+export enum TFARoutes {
   ME = 'me',
   CREATE = '/email',
+  VERIFY_TFA = '/verify/',
   CREATE_MOBILE_PHONE = '/mobile_phone',
   UPDATE = '/',
   DELETE = '/remove/',

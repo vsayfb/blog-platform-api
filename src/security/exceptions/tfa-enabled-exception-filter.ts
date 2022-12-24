@@ -1,8 +1,8 @@
 import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Response } from 'express';
-import { TFAAccount } from 'src/accounts/types/tfa-account';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { AuthRoutes } from 'src/auth/enums/auth-routes';
-import { CodesService } from 'src/codes/codes.service';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { TFAProcess } from '../types/tfa-process';
@@ -12,7 +12,7 @@ import { TFAEnabledException } from './tfa-enable.exception';
 export class TFAEnabledExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly notificationFactory: NotificationFactory,
-    private readonly codesService: CodesService,
+    private readonly codesService: VerificationCodesService,
   ) {}
 
   async catch(exception: TFAEnabledException, host: ArgumentsHost) {
@@ -20,7 +20,7 @@ export class TFAEnabledExceptionFilter implements ExceptionFilter {
 
     const response = ctx.getResponse<Response>();
 
-    const account = exception.getResponse() as TFAAccount;
+    const account = exception.getResponse() as AccountWithCredentials;
 
     const receiver = account[account.two_factor_auth.via];
 
@@ -29,7 +29,7 @@ export class TFAEnabledExceptionFilter implements ExceptionFilter {
     const process: TFAProcess =
       via === 'email' ? 'login_tfa_email' : 'login_tfa_mobile_phone';
 
-    const alreadySent = await this.codesService.getOneByReceiverAndType(
+    const alreadySent = await this.codesService.getOneByReceiverAndProcess(
       receiver,
       process,
     );

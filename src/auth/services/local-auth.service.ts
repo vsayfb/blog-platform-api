@@ -1,8 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
-import { CodesService } from 'src/codes/codes.service';
-import { CodeMessages } from 'src/codes/enums/code-messages';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
@@ -10,12 +8,14 @@ import { RegisterViewDto } from '../dto/register-view.dto';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { RegisterProcess } from '../types/register-process';
 import { TFAEnabledException } from 'src/security/exceptions/tfa-enable.exception';
+import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
 
 @Injectable()
 export class LocalAuthService extends BaseAuthService implements IAuthService {
   constructor(
     private readonly accountsService: AccountsService,
-    private readonly codesService: CodesService,
+    private readonly codesService: VerificationCodesService,
   ) {
     super();
   }
@@ -60,12 +60,13 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
       : false;
 
     if (passwordsMatch) {
-      if (account.two_factor_auth) throw new TFAEnabledException(account);
-
-      delete account.two_factor_auth;
       delete account.mobile_phone;
       delete account.email;
       delete account.password;
+
+      if (account.two_factor_auth) throw new TFAEnabledException(account);
+
+      delete account.two_factor_auth;
 
       return account;
     }

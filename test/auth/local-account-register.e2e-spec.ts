@@ -13,11 +13,11 @@ import {
   generateFakeUser,
 } from 'test/helpers/utils/generateFakeUser';
 import { faker } from '@faker-js/faker';
-import { CodesService } from 'src/codes/codes.service';
+import { CodesService } from 'src/verification_codes/verification-codes.service';
 import { AccountRoutes } from 'src/accounts/enums/account-routes';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { RegisterViewDto } from 'src/auth/dto/register-view.dto';
-import { CodeMessages } from 'src/codes/enums/code-messages';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 
 describe('(POST) create', () => {

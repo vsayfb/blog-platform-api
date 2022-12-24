@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,7 +21,10 @@ export class TwoFactorAuth {
   @Column({ type: 'enum', enum: ['mobile_phone', 'email'] })
   via: TFAVia;
 
-  @ManyToOne(() => Account, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  @OneToOne(() => Account, (acc) => acc.two_factor_auth, {
+    onDelete: 'CASCADE',
+  })
   account: Account;
 
   @CreateDateColumn()

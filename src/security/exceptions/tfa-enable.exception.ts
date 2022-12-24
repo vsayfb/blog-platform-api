@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { TFAAccount } from 'src/accounts/types/tfa-account';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 
 export class TFAEnabledException extends HttpException {
-  constructor(account: TFAAccount) {
+  constructor(account: AccountWithCredentials) {
     super(account, HttpStatus.OK);
   }
 }
