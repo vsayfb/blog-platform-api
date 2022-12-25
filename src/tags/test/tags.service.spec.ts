@@ -6,7 +6,7 @@ import { tagStub } from '../stub/tag.stub';
 import { Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { SelectedTagFields } from '../types/selected-tag-fields';
-import { TagsDto } from '../dto/tags.dto';
+import { TagsDto } from '../response-dto/tags.dto';
 
 describe('TagsService', () => {
   let tagsService: TagsService;

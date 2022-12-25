@@ -1,4 +1,4 @@
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { UpdateCommentDto } from '../request-dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { commentStub } from '../stub/comment.stub';
 

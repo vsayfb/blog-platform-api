@@ -7,7 +7,7 @@ import { BOOKMARKS_ROUTE } from 'src/lib/constants';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
-import { PostBookmarks } from 'src/bookmarks/dto/post-bookmarks.dto';
+import { PostBookmarks } from 'src/bookmarks/response-dto/post-bookmark.dto';
 import * as request from 'supertest';
 
 describe('(GET) post bookmarks', () => {

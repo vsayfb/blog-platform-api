@@ -8,7 +8,7 @@ import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
 import * as request from 'supertest';
-import { AccountBookmarks } from 'src/bookmarks/dto/account-bookmarks.dto';
+import { AccountBookmarks } from 'src/bookmarks/response-dto/account-bookmark.dto';
 
 describe('(GET) client bookmarks', () => {
   let app: INestApplication;

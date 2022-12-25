@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { FollowNotificationsService } from 'src/global/account_notifications/services/follow-notifications.service';
+import { FollowNotificationsService } from 'src/account_notifications/services/follow-notifications.service';
 import { Follow } from '../entities/follow.entity';
 import { FollowMessages } from '../enums/follow-messages';
 

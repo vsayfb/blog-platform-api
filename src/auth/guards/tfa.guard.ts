@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
-import { CodeProcess } from 'src/global/verification_codes/entities/code.entity';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { CodeProcess } from 'src/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
 @Injectable()
 export class TFAGuard implements CanActivate {
@@ -48,7 +48,7 @@ export class TFAGuard implements CanActivate {
 
     if (!code) return false;
 
-    request.tfa_account_username = account.username;
+    request.tfa_account = account;
 
     return true;
   }

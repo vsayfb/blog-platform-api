@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { GoogleAccountsService } from 'src/accounts/services/google-accounts.service';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { GoogleService } from 'src/apis/google/google.service';
-import { RegisterViewDto } from '../dto/register-view.dto';
+import { RegisterDto } from '../response-dto/register.dto';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
 
@@ -15,7 +15,7 @@ export class GoogleAuthService extends BaseAuthService implements IAuthService {
     super();
   }
 
-  async register(accessToken: string): Promise<RegisterViewDto> {
+  async register(accessToken: string): Promise<RegisterDto> {
     const googleAccount = await this.googleService.getUserCredentials(
       accessToken,
     );

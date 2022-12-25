@@ -8,7 +8,7 @@ import { ModuleRef } from '@nestjs/core';
 import { map, Observable } from 'rxjs';
 import { MailsService } from 'src/mails/mails.service';
 import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
-import { CreatedPostDto } from '../dto/created-post.dto';
+import { CreatedPostDto } from '../response-dto/created-post.dto';
 import { PostMessages } from '../enums/post-messages';
 
 @Injectable()

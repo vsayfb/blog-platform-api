@@ -1,4 +1,3 @@
-import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { SelectedPostFields } from '../types/selected-post-fields';
 
 export const postStub = (): SelectedPostFields => ({
@@ -10,5 +9,4 @@ export const postStub = (): SelectedPostFields => ({
   published: true,
   created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
   updated_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
-  author: accountStub(),
 });

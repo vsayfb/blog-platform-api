@@ -36,6 +36,7 @@ async function bootstrap() {
   const globalValidationPipe = new ValidationPipe({
     forbidUnknownValues: true,
     whitelist: true,
+    stopAtFirstError: true,
   });
 
   app.useGlobalPipes(globalValidationPipe);

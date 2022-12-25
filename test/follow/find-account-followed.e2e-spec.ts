@@ -1,7 +1,7 @@
 jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
-import { UserFollowers } from 'src/follow/dto/user-followers.dto';
+import { UserFollowers } from 'src/follow/response-dto/user-followers.dto';
 import { FollowMessages } from 'src/follow/enums/follow-messages';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';

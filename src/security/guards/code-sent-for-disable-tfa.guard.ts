@@ -6,8 +6,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { TFAProcess } from '../types/tfa-process';
 

@@ -5,7 +5,7 @@ import { postStub } from 'src/posts/stub/post-stub';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { Repository } from 'typeorm';
 import { CommentsService } from '../services/comments.service';
-import { CreateCommentDto } from '../dto/create-comment.dto';
+import { CreateCommentDto } from '../request-dto/create-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { commentStub } from '../stub/comment.stub';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
@@ -15,7 +15,7 @@ import { CommentViewDto } from '../dto/comment-view.dto';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { ReplyViewDto } from '../dto/reply-view.dto';
 import { RepliesViewDto } from '../dto/replies-view.dto';
-import { AccountCommentsDto } from '../dto/account-comments.dto';
+import { AccountCommentsDto } from '../response-dto/account-comments.dto';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { CommentMessages } from '../enums/comment-messages';
 

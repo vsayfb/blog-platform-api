@@ -5,13 +5,13 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { ChatsService } from '../../chats/chats.service';
-import { CreateMessageDto } from '../dto/create-message.dto';
+import { CreateMessageDto } from '../request-dto/create-message.dto';
 import { messageStub } from '../stub/message-stub';
 import { accountStub } from '../../accounts/test/stub/account.stub';
 import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { chatStub } from '../../chats/stub/chat-stub';
 import { ChatMessages } from '../../chats/enums/chat-messages';
-import { MessageViewDto } from '../dto/message-view.dto';
+import { MessageViewDto } from '../response-dto/message-view.dto';
 
 jest.mock('src/chats/chats.service');
 

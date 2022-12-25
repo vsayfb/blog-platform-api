@@ -2,7 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Response } from 'express';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { AuthRoutes } from 'src/auth/enums/auth-routes';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { TFAProcess } from '../types/tfa-process';

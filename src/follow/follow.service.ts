@@ -8,13 +8,13 @@ import { AccountsService } from 'src/accounts/services/accounts.service';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';
-import { UserFollowed } from './dto/user-followed.dto';
-import { UserFollowers } from './dto/user-followers.dto';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
-import { NotificationsService } from 'src/global/account_notifications/services/notifications.service';
-import { NotificationActions } from 'src/global/account_notifications/entities/notification.entity';
+import { NotificationsService } from 'src/account_notifications/services/notifications.service';
+import { NotificationActions } from 'src/account_notifications/entities/notification.entity';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
+import { UserFollowers } from './types/user-followers';
+import { UserFollowed } from './types/user-followed';
 
 @Injectable()
 export class FollowService implements IDeleteService, IUpdateService {
@@ -95,20 +95,24 @@ export class FollowService implements IDeleteService, IUpdateService {
   }
 
   async getUserFollowers(username: string): Promise<UserFollowers> {
-    return (await this.followRepository.find({
+    const data = await this.followRepository.find({
       where: {
         followed: { username },
       },
       relations: { follower: true },
-    })) as any;
+    });
+
+    return data as unknown as UserFollowers;
   }
 
   async getUserFollowed(username: string): Promise<UserFollowed> {
-    return (await this.followRepository.find({
+    const data = await this.followRepository.find({
       where: {
         follower: { username },
       },
       relations: { followed: true },
-    })) as any;
+    });
+
+    return data as unknown as UserFollowed;
   }
 }

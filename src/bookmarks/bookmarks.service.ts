@@ -4,10 +4,10 @@ import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { Repository } from 'typeorm';
-import { AccountBookmarks } from './dto/account-bookmarks.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
+import { AccountBookmark } from './types/account-bookmark';
 
 @Injectable()
 export class BookmarksService
@@ -47,7 +47,7 @@ export class BookmarksService
     return id;
   }
 
-  async getAccountBookmarks(accountID: string): Promise<AccountBookmarks> {
+  async getAccountBookmarks(accountID: string): Promise<AccountBookmark[]> {
     const result = await this.bookmarksRepository
       .createQueryBuilder('bookmark')
       .leftJoinAndSelect('bookmark.post', 'post')
@@ -56,7 +56,7 @@ export class BookmarksService
       .andWhere('account.id=:accountID', { accountID })
       .getMany();
 
-    return result as unknown as AccountBookmarks;
+    return result as unknown as AccountBookmark[];
   }
 
   getOneByID(id: string): Promise<Bookmark> {
@@ -72,7 +72,10 @@ export class BookmarksService
     });
   }
 
-  async getByPostAndAccount(postID: string, accountID: string) {
+  async getByPostAndAccount(
+    postID: string,
+    accountID: string,
+  ): Promise<SelectedBookmarkFields> {
     return this.bookmarksRepository.findOne({
       where: { post: { id: postID }, account: { id: accountID } },
     });

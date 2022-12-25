@@ -1,4 +1,4 @@
-import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
 import { TFAProcess } from 'src/security/types/tfa-process';
 
 export interface INotificationService {

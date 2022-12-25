@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { CommentsNotificationService } from 'src/global/account_notifications/services/comments-notification.service';
-import { CreatedCommentDto } from '../dto/created-comment.dto';
+import { CommentsNotificationService } from 'src/account_notifications/services/comments-notification.service';
+import { CreatedCommentDto } from '../response-dto/created-comment.dto';
 import { CommentMessages } from '../enums/comment-messages';
 
 @Injectable()

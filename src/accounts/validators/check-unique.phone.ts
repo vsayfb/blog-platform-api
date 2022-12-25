@@ -13,8 +13,8 @@ import { AccountsService } from '../services/accounts.service';
 export class CheckUniquePhone implements ValidatorConstraintInterface {
   constructor(private readonly accountsService: AccountsService) {}
 
-  async validate(phone: string, args: ValidationArguments) {
-    const account = await this.accountsService.getOneByMobilePhone(phone);
+  async validate(mobile_phone: string, args: ValidationArguments) {
+    const account = await this.accountsService.getOneByMobilePhone(mobile_phone);
 
     return !account;
   }

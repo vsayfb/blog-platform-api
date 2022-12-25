@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { CreateAccountDto } from 'src/accounts/request-dto/create-account.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { LocalAuthController } from '../controllers/local-auth.controller';

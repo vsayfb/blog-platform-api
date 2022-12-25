@@ -5,7 +5,7 @@ import { TagMessages } from 'src/tags/enums/tag-messages';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
-import { UpdateTagDto } from 'src/tags/dto/update-tag.dto';
+import { UpdateTagDto } from 'src/tags/response-dto/update-tag.dto';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { TAGS_ROUTE } from 'src/lib/constants';
 import { TagRoutes } from 'src/tags/enums/tag-routes';

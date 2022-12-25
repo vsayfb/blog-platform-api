@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-import { Notification } from 'src/global/account_notifications/entities/notification.entity';
+import { Notification } from 'src/account_notifications/entities/notification.entity';
 import { JwtPayload } from 'src/lib/jwt.payload';
 
 dotenv.config();

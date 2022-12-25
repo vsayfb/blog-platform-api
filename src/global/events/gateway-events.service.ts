@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationsService } from 'src/global/account_notifications/services/notifications.service';
+import { NotificationsService } from 'src/account_notifications/services/notifications.service';
 import { NotificationsGateway } from '../../gateways/notifications.gateway';
-import { MessageViewDto } from '../../messages/dto/message-view.dto';
+import { NewMessageDto } from '../../messages/response-dto/message-view.dto';
 import { ChatsGateway } from '../../gateways/chats.gateway';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class GatewayEventsService {
     await this.notificationsGateway.pushNotification(notification);
   }
 
-  newMessage(message: MessageViewDto) {
-    this.chatsGateway.sendMessageToChat(message.chatID, message);
+  newMessage(message: NewMessageDto) {
+    this.chatsGateway.sendMessageToChat(message.chat_id, message);
   }
 }

@@ -4,9 +4,9 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
 @Injectable()
 export class VerifyTFAProcess implements CanActivate {

@@ -1,15 +1,14 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { CreateAccountDto } from 'src/accounts/request-dto/create-account.dto';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
-import { RegisterViewDto } from '../dto/register-view.dto';
-import { NotificationBy } from 'src/notifications/types/notification-by';
+import { RegisterDto } from '../response-dto/register.dto';
 import { RegisterProcess } from '../types/register-process';
 import { TFAEnabledException } from 'src/security/exceptions/tfa-enable.exception';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 
 @Injectable()
 export class LocalAuthService extends BaseAuthService implements IAuthService {
@@ -22,7 +21,7 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
 
   async register(
     dto: CreateAccountDto & { email?: string; mobile_phone?: string },
-  ): Promise<RegisterViewDto> {
+  ): Promise<RegisterDto> {
     const registerBy = dto?.email ? 'email' : 'mobile_phone';
 
     const process: RegisterProcess =

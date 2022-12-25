@@ -13,14 +13,14 @@ import { FollowService } from './follow.service';
 import { FollowMessages } from './enums/follow-messages';
 import { FollowRoutes } from './enums/follow-routes';
 import { Follow } from './entities/follow.entity';
-import { UserFollowers } from './dto/user-followers.dto';
-import { UserFollowed } from './dto/user-followed.dto';
+import { UserFollowersDto } from './response-dto/user-followers.dto';
+import { UserFollowedDto } from './response-dto/user-followed.dto';
 import { FollowedNotificationInterceptor } from './interceptors/followed-notification.interceptor';
-import { UsernameQuery } from 'src/accounts/dto/username-query.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FOLLOW_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { Client } from 'src/auth/decorator/client.decorator';
+import { UsernameDto } from 'src/accounts/request-dto/username.dto';
 
 @Controller(FOLLOW_ROUTE)
 @ApiTags(FOLLOW_ROUTE)
@@ -32,7 +32,7 @@ export class FollowController implements ICreateController {
   @Post(FollowRoutes.FOLLOW + ':username')
   async create(
     @Client() client: JwtPayload,
-    @Param() { username }: UsernameQuery,
+    @Param() { username }: UsernameDto,
   ): Promise<{ data: Follow; message: FollowMessages }> {
     return {
       data: await this.followService.followAccount(client.sub, username),
@@ -44,20 +44,17 @@ export class FollowController implements ICreateController {
   @Delete(FollowRoutes.UNFOLLOW + ':username')
   async unfollow(
     @Client() client: JwtPayload,
-    @Param() { username }: UsernameQuery,
+    @Param() { username }: UsernameDto,
   ): Promise<{ data: string; message: FollowMessages }> {
     return {
-      data: await this.followService.unfollowAccount(
-        client.username,
-        username,
-      ),
+      data: await this.followService.unfollowAccount(client.username, username),
       message: FollowMessages.UNFOLLOWED,
     };
   }
 
   @Get(FollowRoutes.USER_FOLLOWERS + ':username')
-  async findUserFollowers(@Param() { username }: UsernameQuery): Promise<{
-    data: UserFollowers;
+  async findUserFollowers(@Param() { username }: UsernameDto): Promise<{
+    data: UserFollowersDto;
     message: FollowMessages;
   }> {
     return {
@@ -67,8 +64,8 @@ export class FollowController implements ICreateController {
   }
 
   @Get(FollowRoutes.USER_FOLLOWED + ':username')
-  async findUserFollowed(@Param() { username }: UsernameQuery): Promise<{
-    data: UserFollowed;
+  async findUserFollowed(@Param() { username }: UsernameDto): Promise<{
+    data: UserFollowedDto;
     message: FollowMessages;
   }> {
     return {

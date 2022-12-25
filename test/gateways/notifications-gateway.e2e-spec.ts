@@ -5,9 +5,9 @@ import { initializeEndToEndTestModule } from '../helpers/utils/initializeEndToEn
 import { io, Socket } from 'socket.io-client';
 import { INestApplication } from '@nestjs/common';
 import { HelpersService } from '../helpers/helpers.service';
-import { NotificationsService } from 'src/global/account_notifications/services/notifications.service';
+import { NotificationsService } from 'src/account_notifications/services/notifications.service';
 import { NotificationActions } from 'src/global/notifications/enums/notification-actions';
-import { Notification } from 'src/global/account_notifications/entities/notification.entity';
+import { Notification } from 'src/account_notifications/entities/notification.entity';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
 import {
   DatabaseUser,

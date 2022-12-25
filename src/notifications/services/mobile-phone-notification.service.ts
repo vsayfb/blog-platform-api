@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TasksService } from 'src/global/tasks/tasks.service';
-import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { TFAProcess } from 'src/security/types/tfa-process';
 import { SmsService } from 'src/sms/sms.service';
 import { INotificationService } from '../interfaces/notification-service.interface';

@@ -13,8 +13,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostsService } from './services/posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { CreatePostDto } from './request-dto/create-post.dto';
+import { UpdatePostDto } from './request-dto/update-post.dto';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { OptionalImageFile } from 'src/uploads/pipes/optional-image-file';
@@ -24,23 +24,24 @@ import { Data } from 'src/lib/decorators/request-data.decorator';
 import { PostRoutes } from './enums/post-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PostMessages } from './enums/post-messages';
-import { PublicPostDto } from './dto/public-post.dto';
-import { PublicPostsDto } from './dto/public-posts.dto';
-import { PostsDto } from './dto/posts.dto';
-import { PostDto } from './dto/post.dto';
-import { CreatedPostDto } from './dto/created-post.dto';
+import { PublicPostDto } from './response-dto/public-post.dto';
+import { PublicPostsDto } from './response-dto/public-posts.dto';
+import { PostDto } from './response-dto/post.dto';
+import { CreatedPostDto } from './response-dto/created-post.dto';
 import { POSTS_ROUTE } from 'src/lib/constants';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
-import { CheckClientActions } from './interceptors/check-client-actions';
+import { CheckClientActionsOnPost } from './interceptors/check-client-actions-on-post';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { PublishQueryDto } from './pipes/publish-query.pipe';
 import { TagsPipe } from 'src/tags/pipes/tags.pipe';
 import { NotifySubcribers } from './interceptors/notify-subscribers';
 import { Client } from 'src/auth/decorator/client.decorator';
+import { AccountPostsDto } from './response-dto/account-posts.dto';
+import { UpdatedPostDto } from './response-dto/updated-post.dto';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -88,7 +89,7 @@ export class PostsController
   @Get(PostRoutes.FIND_CLIENT_POSTS)
   async findClientPosts(
     @Client() client: JwtPayload,
-  ): Promise<{ data: PostsDto; message: PostMessages }> {
+  ): Promise<{ data: AccountPostsDto; message: PostMessages }> {
     return {
       data: await this.postsService.getAccountPosts(client.sub),
       message: PostMessages.ALL_FOUND,
@@ -98,7 +99,7 @@ export class PostsController
   @Get(PostRoutes.FIND_ACCOUNT_POSTS + ':id')
   async findAccountPosts(
     @Param('id') accountID: string,
-  ): Promise<{ data: PostsDto; message: PostMessages }> {
+  ): Promise<{ data: AccountPostsDto; message: PostMessages }> {
     return {
       data: await this.postsService.getAccountPublicPosts(accountID),
       message: PostMessages.ALL_FOUND,
@@ -117,24 +118,14 @@ export class PostsController
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(CheckClientActions)
+  @UseInterceptors(CheckClientActionsOnPost)
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOne(@Param('url') url: string): Promise<{
-    data: PublicPostDto & {
-      bookmarked_by: boolean;
-      liked_by: boolean;
-      disliked_by: boolean;
-    };
+    data: PublicPostDto;
     message: PostMessages;
   }> {
-    const post = await this.postsService.getOne(url);
-
     return {
-      data: post as PublicPostDto & {
-        bookmarked_by: boolean;
-        liked_by: boolean;
-        disliked_by: boolean;
-      },
+      data: await this.postsService.getOne(url),
       message: PostMessages.FOUND,
     };
   }
@@ -145,7 +136,10 @@ export class PostsController
     @Data() post: PostDto,
     @Body() updatePostDto: UpdatePostDto,
     @Query() { publish }: PublishQueryDto,
-  ) {
+  ): Promise<{
+    data: UpdatedPostDto;
+    message: PostMessages;
+  }> {
     return {
       data: await this.postsService.update(post, {
         ...updatePostDto,
@@ -185,9 +179,11 @@ export class PostsController
   async updateTitleImage(
     @Data() post: PostDto,
     @UploadedFile(RequiredImageFile) titleImage: Express.Multer.File,
-  ): Promise<{ data: string; message: PostMessages }> {
+  ): Promise<{ data: { title_image: string }; message: PostMessages }> {
     return {
-      data: await this.postsService.updateTitleImage(post, titleImage),
+      data: {
+        title_image: await this.postsService.updateTitleImage(post, titleImage),
+      },
       message: PostMessages.TITLE_IMAGE_UPDATED,
     };
   }

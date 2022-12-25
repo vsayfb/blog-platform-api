@@ -12,8 +12,8 @@ import { FollowMessages } from '../enums/follow-messages';
 import { followStub } from '../stub/follow-stub';
 import { randomUUID } from 'crypto';
 import { Account } from 'src/accounts/entities/account.entity';
-import { UserFollowers } from '../dto/user-followers.dto';
-import { UserFollowed } from '../dto/user-followed.dto';
+import { UserFollowers } from '../response-dto/user-followers.dto';
+import { UserFollowed } from '../response-dto/user-followed.dto';
 
 jest.mock('src/accounts/services/accounts.service');
 

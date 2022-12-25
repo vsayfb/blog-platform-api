@@ -3,13 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { PostsService } from 'src/posts/services/posts.service';
 import { Repository } from 'typeorm';
-import { AccountCommentsDto } from '../dto/account-comments.dto';
-import { CommentViewDto } from '../dto/comment-view.dto';
-import { CreateCommentDto } from '../dto/create-comment.dto';
-import { CreatedCommentDto } from '../dto/created-comment.dto';
-import { RepliesViewDto } from '../dto/replies-view.dto';
-import { ReplyViewDto } from '../dto/reply-view.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CreateCommentDto } from '../request-dto/create-comment.dto';
+import { UpdateCommentDto } from '../request-dto/update-comment.dto';
 import { Comment } from '../entities/comment.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
@@ -18,6 +13,11 @@ import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { CommentExpressionType } from '../entities/comment-expression.entity';
+import { NewComment } from '../types/new-comment';
+import { NewReply } from '../types/new-reply';
+import { PostComment } from '../types/post-comment';
+import { AccountComment } from '../types/account-comment';
+import { CommentReply } from '../types/comment-reply';
 
 @Injectable()
 export class CommentsService
@@ -33,7 +33,7 @@ export class CommentsService
     authorID: string;
     postID: string;
     createCommentDto: CreateCommentDto;
-  }): Promise<CreatedCommentDto> {
+  }): Promise<NewComment> {
     const post = await this.postsService.getOneByID(dto.postID);
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
@@ -53,7 +53,7 @@ export class CommentsService
     toID: string;
     authorID: string;
     dto: CreateCommentDto;
-  }): Promise<ReplyViewDto> {
+  }): Promise<NewReply> {
     const parent = await this.getOneByID(data.toID);
 
     if (!parent) throw new NotFoundException(CommentMessages.NOT_FOUND);
@@ -75,10 +75,10 @@ export class CommentsService
 
     delete parent.post;
 
-    return result as any;
+    return result as NewReply;
   }
 
-  async getPostComments(postID: string): Promise<CommentViewDto[]> {
+  async getPostComments(postID: string): Promise<PostComment[]> {
     const result = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.post', 'post')
@@ -107,10 +107,10 @@ export class CommentsService
       .loadRelationCountAndMap('comment.reply_count', 'comment.replies')
       .getMany();
 
-    return result as unknown as CommentViewDto[];
+    return result as unknown as PostComment[];
   }
 
-  async getCommentReplies(commentID: string): Promise<RepliesViewDto> {
+  async getCommentReplies(commentID: string): Promise<CommentReply[]> {
     const result = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.parent', 'parent')
@@ -133,14 +133,16 @@ export class CommentsService
       .loadRelationCountAndMap('comment.reply_count', 'comment.replies')
       .getMany();
 
-    return result as unknown as RepliesViewDto;
+    return result as unknown as CommentReply[];
   }
 
-  async getAccountComments(accountID: string): Promise<AccountCommentsDto> {
-    return (await this.commentRepository.find({
+  async getAccountComments(accountID: string): Promise<AccountComment[]> {
+    const comments = await this.commentRepository.find({
       where: { author: { id: accountID } },
       relations: { post: true },
-    })) as any;
+    });
+
+    return comments;
   }
 
   async getOneByID(id: string): Promise<Comment> {

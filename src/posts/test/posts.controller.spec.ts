@@ -6,10 +6,10 @@ import { PostsService } from 'src/posts/services/posts.service';
 import { postStub } from 'src/posts/stub/post-stub';
 import { SelectedPostFields } from '../types/selected-post-fields';
 import { PostMessages } from '../enums/post-messages';
-import { PostsDto } from '../dto/posts.dto';
-import { PublicPostDto } from '../dto/public-post.dto';
-import { PostDto } from '../dto/post.dto';
-import { UpdatedPostDto } from '../dto/updated-post.dto';
+import { PostsDto } from '../request-dto/posts.dto';
+import { PublicPostDto } from '../request-dto/public-post.dto';
+import { PostDto } from '../request-dto/post.dto';
+import { UpdatedPostDto } from '../response-dto/updated-post.dto';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { CACHE_MANAGER } from '@nestjs/common';
 

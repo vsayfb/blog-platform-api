@@ -1,5 +1,5 @@
 import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
-import { UpdatePostDto } from '../../dto/update-post.dto';
+import { UpdatePostDto } from '../../request-dto/update-post.dto';
 import { Post } from '../../entities/post.entity';
 import { postStub } from '../../stub/post-stub';
 

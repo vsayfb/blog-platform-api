@@ -5,7 +5,7 @@ import { RegisterViewDto } from '../dto/register-view.dto';
 import { AuthMessages } from '../enums/auth-messages';
 import { GoogleAuthController } from '../controllers/google-auth.controller';
 import { GoogleAuthService } from '../services/google-auth.service';
-import { AccessToken } from '../dto/access-token.dto';
+import { AccessToken } from '../request-dto/access-token.dto';
 import { registerPayloadStub } from '../stub/register-payload.stub';
 
 jest.mock('../services/google-auth.service');

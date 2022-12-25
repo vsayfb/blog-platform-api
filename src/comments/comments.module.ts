@@ -7,11 +7,13 @@ import { PostsModule } from 'src/posts/posts.module';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { CommentExpression } from './entities/comment-expression.entity';
 import { CommentExpressionsService } from './services/comment-expressions.service';
+import { AccountsNotificationsModule } from 'src/account_notifications/account-notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Comment, CommentExpression]),
     PostsModule,
+    AccountsNotificationsModule,
   ],
   controllers: [CommentsController],
   providers: [

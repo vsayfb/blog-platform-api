@@ -7,7 +7,7 @@ import { ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
-import { AccountProfileDto } from 'src/profiles/dto/profile.dto';
+import { AccountProfileDto } from 'src/profiles/response-dto/profile.dto';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { generateFakeUser } from 'test/helpers/utils/generateFakeUser';
 

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Req,
   UseFilters,
   UseGuards,
   UseInterceptors,
@@ -12,32 +13,34 @@ import { ApiTags } from '@nestjs/swagger';
 import { Client } from 'src/auth/decorator/client.decorator';
 import {
   CreateAccountWithEmailDto,
-  CreateAccountWithPhoneDto,
-} from 'src/accounts/dto/create-account.dto';
+  CreateAccountWithMobilePhoneDto,
+} from 'src/accounts/request-dto/create-account.dto';
 import { LocalAuthService } from '../services/local-auth.service';
-import { RegisterViewDto } from '../dto/register-view.dto';
+import { RegisterDto } from '../response-dto/register.dto';
 import { AuthRoutes } from '../enums/auth-routes';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { AuthMessages } from '../enums/auth-messages';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthController } from '../interfaces/auth-controller.interface';
-import { LoginViewDto } from '../dto/login-view.dto';
+import { LoginDto } from '../response-dto/login.dto';
 import {
   BeginVerificationWithEmailDto,
   BeginVerificationWithPhoneDto,
-} from '../dto/begin-verification.dto';
+} from '../request-dto/begin-verification.dto';
 import { TFAEnabledExceptionFilter } from 'src/security/exceptions/tfa-enabled-exception-filter';
 import { TFAGuard } from '../guards/tfa.guard';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { TFAAuthDto } from '../dto/tfa-auth.dto';
+import { TFAAuthDto } from '../request-dto/tfa-auth.dto';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
 import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email.guard';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
-import { DeleteVerificationCodeInBody } from 'src/global/verification_codes/interceptors/delete-code-in-body.interceptor';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { TFADto } from 'src/security/dto/two-factor-auth.dto';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)
@@ -58,7 +61,7 @@ export class LocalAuthController implements IAuthController {
   @Post(AuthRoutes.REGISTER_WITH_EMAIL)
   async register(
     @Body() createAccountDto: CreateAccountWithEmailDto,
-  ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
+  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
     return {
       data: await this.localAuthService.register(createAccountDto),
       message: AuthMessages.SUCCESSFUL_REGISTRATION,
@@ -68,8 +71,8 @@ export class LocalAuthController implements IAuthController {
   @UseInterceptors(DeleteVerificationCodeInBody)
   @Post(AuthRoutes.REGISTER_WITH_MOBILE_PHONE)
   async registerWithMobilePhone(
-    @Body() createAccountDto: CreateAccountWithPhoneDto,
-  ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
+    @Body() createAccountDto: CreateAccountWithMobilePhoneDto,
+  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
     return {
       data: await this.localAuthService.register(createAccountDto),
       message: AuthMessages.SUCCESSFUL_REGISTRATION,
@@ -79,19 +82,22 @@ export class LocalAuthController implements IAuthController {
   @UseGuards(TFAGuard)
   @UseInterceptors(DeleteVerificationCodeInBody)
   @Post(AuthRoutes.VERIFY_LOGIN)
-  async verifyLogin(@Body() dto: TFAAuthDto) {
-    const account =
-      await this.accountsService.getCredentialsByUsernameOrEmailOrPhone(
-        dto.username,
-      );
+  async verifyLogin(
+    @Body() dto: TFAAuthDto,
+    @Req() req: { tfa_account: AccountWithCredentials },
+  ): Promise<{
+    data: { account: SelectedAccountFields; access_token: string };
+    message: AuthMessages;
+  }> {
+    const { tfa_account } = req;
 
-    delete account.password;
-    delete account.two_factor_auth;
-    delete account.email;
-    delete account.mobile_phone;
+    delete tfa_account.password;
+    delete tfa_account.two_factor_auth;
+    delete tfa_account.email;
+    delete tfa_account.mobile_phone;
 
     return {
-      data: this.localAuthService.login(account),
+      data: this.localAuthService.login(tfa_account),
       message: AuthMessages.SUCCESSFUL_LOGIN,
     };
   }
@@ -101,7 +107,7 @@ export class LocalAuthController implements IAuthController {
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)
   async login(@Client() client: SelectedAccountFields): Promise<{
-    data: LoginViewDto;
+    data: LoginDto;
     message: AuthMessages;
   }> {
     return {
@@ -115,7 +121,7 @@ export class LocalAuthController implements IAuthController {
   @HttpCode(200)
   async beginEmailVerification(
     @Body() data: BeginVerificationWithEmailDto,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: CodeMessages }> {
     const notificationFactory =
       this.notificationFactory.createNotification('email');
 
@@ -129,7 +135,7 @@ export class LocalAuthController implements IAuthController {
   @HttpCode(200)
   async beginMobilePhoneVerification(
     @Body() data: BeginVerificationWithPhoneDto,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: CodeMessages }> {
     const notificationFactory =
       this.notificationFactory.createNotification('mobile_phone');
 

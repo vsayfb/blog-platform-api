@@ -8,7 +8,7 @@ import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
 import { POSTS_ROUTE } from 'src/lib/constants';
 import { PostRoutes } from 'src/posts/enums/post-routes';
-import { PublicPostDto } from 'src/posts/dto/public-post.dto';
+import { PublicPostDto } from 'src/posts/request-dto/public-post.dto';
 
 describe('/ (GET) find with URL', () => {
   let app: INestApplication;

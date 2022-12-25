@@ -9,16 +9,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateTagDto } from './dto/create-tag.dto';
+import { CreateTagDto } from './request-dto/create-tag.dto';
 import { TagsService } from './tags.service';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { Tag } from './entities/tag.entity';
-import { UpdateTagDto } from './dto/update-tag.dto';
+import { UpdateTagDto } from './request-dto/update-tag.dto';
 import { TagRoutes } from './enums/tag-routes';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TagMessages } from './enums/tag-messages';
-import { TagsDto } from './dto/tags.dto';
+import { TagsDto } from './response-dto/tags.dto';
 import { SelectedTagFields } from './types/selected-tag-fields';
 import { DontAllowUserCreate } from 'src/lib/guards/DontAllowUserCreate';
 import { TAGS_ROUTE } from 'src/lib/constants';
@@ -28,6 +28,9 @@ import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { Client } from 'src/auth/decorator/client.decorator';
+import { TagWithPostsDto } from './response-dto/tag.dto';
+import { CreatedTagDto } from './response-dto/created-tag.dto';
+import { UpdatedTagDto } from './response-dto/updated-tag.dto';
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)
@@ -51,7 +54,7 @@ export class TagsController
   @Get(TagRoutes.FIND_ONE + ':name')
   async findOne(
     @Param('name') tag: string,
-  ): Promise<{ data: SelectedTagFields; message: string }> {
+  ): Promise<{ data: TagWithPostsDto; message: string }> {
     return {
       data: await this.tagsService.getOne(tag),
       message: TagMessages.FOUND,
@@ -63,7 +66,7 @@ export class TagsController
   async create(
     @Body() { name }: CreateTagDto,
     @Client() client: JwtPayload,
-  ): Promise<{ data: SelectedTagFields; message: string }> {
+  ): Promise<{ data: CreatedTagDto; message: string }> {
     return {
       data: await this.tagsService.create({
         tagName: name,
@@ -78,7 +81,7 @@ export class TagsController
   async update(
     @Body() { name }: UpdateTagDto,
     @Data() tag: Tag,
-  ): Promise<{ data: SelectedTagFields; message: string }> {
+  ): Promise<{ data: UpdatedTagDto; message: string }> {
     return {
       data: await this.tagsService.update(tag, name),
       message: TagMessages.UPDATED,

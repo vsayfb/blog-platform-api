@@ -1,19 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreatePostDto } from '../dto/create-post.dto';
-import { UpdatePostDto } from '../dto/update-post.dto';
+import { CreatePostDto } from '../request-dto/create-post.dto';
+import { UpdatePostDto } from '../request-dto/update-post.dto';
 import { Post } from '../entities/post.entity';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { PostMessages } from '../enums/post-messages';
-import { CreatedPostDto } from '../dto/created-post.dto';
-import { PublicPostsDto } from '../dto/public-posts.dto';
-import { PublicPostDto } from '../dto/public-post.dto';
-import { UpdatedPostDto } from '../dto/updated-post.dto';
-import { PostDto } from '../dto/post.dto';
-import { PostsDto } from '../dto/posts.dto';
+import { PostDto } from '../response-dto/post.dto';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
 import { UrlManagementService } from 'src/global/url-management/services/url-management.service';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
@@ -21,6 +16,11 @@ import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { PostExpressionType } from '../entities/post-expression.entity';
+import { NewPost } from '../types/new-post';
+import { PublicPost } from '../types/public-post';
+import { UpdatedPost } from '../types/updated-post';
+import { PostType } from '../types/post';
+import { AccountPost } from '../types/account-post';
 
 @Injectable()
 export class PostsService
@@ -43,7 +43,7 @@ export class PostsService
     dto: CreatePostDto;
     titleImage: Express.Multer.File;
     publish: boolean;
-  }): Promise<CreatedPostDto> {
+  }): Promise<NewPost> {
     const url = this.urlManagementService.convertToUniqueUrl(dto.title);
 
     const tags = await this.setPostTags(dto.tags, authorID);
@@ -69,10 +69,10 @@ export class PostsService
       relations: { tags: true, author: true },
     });
 
-    return result as any;
+    return result;
   }
 
-  async getAll(): Promise<PublicPostsDto> {
+  async getAll(): Promise<PublicPost[]> {
     const posts = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.published= :published', { published: true })
@@ -88,10 +88,10 @@ export class PostsService
       )
       .getMany();
 
-    return posts as any;
+    return posts as unknown as PublicPost[];
   }
 
-  async getOne(url: string): Promise<PublicPostDto> {
+  async getOne(url: string): Promise<PublicPost> {
     const post = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.url=:url', { url })
@@ -119,13 +119,13 @@ export class PostsService
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
 
-    return post as unknown as PublicPostDto;
+    return post as unknown as PublicPost;
   }
 
   async update(
     post: PostDto,
     updatePostDto: UpdatePostDto & { published?: boolean },
-  ): Promise<UpdatedPostDto> {
+  ): Promise<UpdatedPost> {
     post.title = updatePostDto.title;
     post.url = this.urlManagementService.convertToUniqueUrl(post.title);
     post.content = updatePostDto.content;
@@ -174,7 +174,7 @@ export class PostsService
     const postTags: SelectedTagFields[] = [];
 
     for await (const tagName of tags) {
-      let tag = await this.tagsService.checkWithName(tagName);
+      let tag = await this.tagsService.checkExistWithName(tagName);
 
       if (!tag) {
         tag = await this.tagsService.create({ tagName, authorID });
@@ -186,11 +186,11 @@ export class PostsService
     return postTags;
   }
 
-  async getOneByID(id: string): Promise<PostDto> {
-    return (await this.postsRepository.findOne({
+  async getOneByID(id: string): Promise<PostType> {
+    return await this.postsRepository.findOne({
       where: { id },
       relations: { author: true, tags: true },
-    })) as any;
+    });
   }
 
   async changePostStatus(
@@ -203,7 +203,7 @@ export class PostsService
     return { id, published };
   }
 
-  async getAccountPosts(id: string): Promise<PostsDto> {
+  async getAccountPosts(id: string): Promise<AccountPost[]> {
     const posts = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.author=:id', { id })
@@ -213,10 +213,10 @@ export class PostsService
       .loadRelationCountAndMap('post.bookmarks_count', 'post.bookmarks')
       .getMany();
 
-    return posts as any;
+    return posts as unknown as AccountPost[];
   }
 
-  async getAccountPublicPosts(id: string): Promise<PostsDto> {
+  async getAccountPublicPosts(id: string): Promise<AccountPost[]> {
     const posts = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.author=:id', { id })
@@ -227,7 +227,7 @@ export class PostsService
       .loadRelationCountAndMap('post.bookmarks_count', 'post.bookmarks')
       .getMany();
 
-    return posts as any;
+    return posts as unknown as AccountPost[];
   }
 
   async delete(post: PostDto): Promise<string> {

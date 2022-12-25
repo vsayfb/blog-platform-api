@@ -9,7 +9,7 @@ import { ProcessEnv } from '../lib/enums/env';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { SocketAuthGuard } from './guards/socket-auth.guard';
-import { MessageViewDto } from '../messages/dto/message-view.dto';
+import { NewMessageDto } from '../messages/response-dto/message-view.dto';
 
 @WebSocketGateway({
   namespace: 'chats',
@@ -26,7 +26,7 @@ export class ChatsGateway {
     client.emit('joined', chatID);
   }
 
-  sendMessageToChat(chatID: string, message: MessageViewDto) {
+  sendMessageToChat(chatID: string, message: NewMessageDto) {
     this.server.to(chatID).emit('message', message);
   }
 }

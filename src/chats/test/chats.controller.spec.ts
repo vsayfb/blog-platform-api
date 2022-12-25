@@ -5,7 +5,7 @@ import { jwtPayloadStub } from '../../auth/stub/jwt-payload.stub';
 import { Chat } from '../entities/chat.entity';
 import { chatStub } from '../stub/chat-stub';
 import { ChatMessages } from '../enums/chat-messages';
-import { ChatViewDto } from '../dto/chat-view.dto';
+import { ChatViewDto } from '../response-dto/account-chat.dto';
 
 jest.mock('src/chats/chats.service');
 

@@ -12,7 +12,7 @@ import { CaslModule } from './global/casl/casl.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
-import { AccountsNotificationsModule } from './global/account_notifications/account-notifications.module';
+import { AccountsNotificationsModule } from './account_notifications/account-notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from 'ormconfig';
 import { GatewaysModule } from './gateways/gateways.module';
@@ -36,7 +36,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SecurityModule } from './security/security.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { VerificationCodesModule } from './global/verification_codes/verification-codes.module';
+import { VerificationCodesModule } from './verification_codes/verification-codes.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),

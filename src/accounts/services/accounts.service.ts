@@ -4,7 +4,7 @@ import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Like, Repository } from 'typeorm';
-import { CreateAccountDto } from '../dto/create-account.dto';
+import { CreateAccountDto } from '../request-dto/create-account.dto';
 import { Account } from '../entities/account.entity';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
@@ -34,7 +34,7 @@ export class AccountsService
   ) {}
 
   async create(
-    data: CreateAccountDto & { email?: string; phone?: string },
+    data: CreateAccountDto & { email?: string; mobile_phone?: string },
   ): Promise<SelectedAccountFields> {
     delete data.verification_code;
 

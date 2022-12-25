@@ -5,7 +5,6 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable, of } from 'rxjs';
-import { PublicPostDto } from 'src/posts/dto/public-post.dto';
 import { BaseCacheInterceptor } from './interceptors/base-cache.interceptor';
 
 @Injectable()

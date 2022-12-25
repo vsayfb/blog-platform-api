@@ -1,18 +1,12 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
-import { ArrayContains, Repository } from 'typeorm';
-import { AccountsService } from '../accounts/services/accounts.service';
-import { AccountMessages } from '../accounts/enums/account-messages';
+import { Repository } from 'typeorm';
 import { Message } from '../messages/entities/message.entity';
 import { ChatMessages } from './enums/chat-messages';
-import { ChatViewDto } from './dto/chat-view.dto';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { AccountChat } from './types/account-chat';
 
 @Injectable()
 export class ChatsService implements ICreateService, IFindService {
@@ -74,7 +68,7 @@ export class ChatsService implements ICreateService, IFindService {
     return false;
   }
 
-  async getAccountChats(accountID: string): Promise<ChatViewDto[]> {
+  async getAccountChats(accountID: string): Promise<AccountChat[]> {
     const result = await this.chatsRepository
       .createQueryBuilder('chats')
       .leftJoin('chats.members', 'members')
@@ -88,7 +82,7 @@ export class ChatsService implements ICreateService, IFindService {
       c.last_message = c.messages[c.messages.length - 1];
       delete c.messages;
       return c;
-    }) as unknown as ChatViewDto[];
+    }) as unknown as AccountChat[];
   }
 
   async getAccountChatCount(accountID: string): Promise<number> {

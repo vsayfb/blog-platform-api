@@ -7,7 +7,7 @@ import { AccountsService } from '../services/accounts.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';
 
-import { AccountProfileDto } from '../../profiles/dto/profile.dto';
+import { AccountProfileDto } from '../../profiles/response-dto/profile.dto';
 
 jest.mock('../services/accounts.service');
 

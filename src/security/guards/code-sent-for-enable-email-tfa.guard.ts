@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 
 @Injectable()

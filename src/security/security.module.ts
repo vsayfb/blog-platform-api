@@ -13,17 +13,19 @@ import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { TwoFactorAuthManager } from './services/two-factor-auth-manager.service';
 import { validateBodyDto } from 'src/lib/middlewares/validate-body-dto';
-import { VerificationCodeDto } from 'src/global/verification_codes/dto/verification-code.dto';
+import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
 import { TFARoutes } from './enums/tfa-routes';
-import { PasswordDto } from 'src/accounts/dto/password.dto';
+import { PasswordDto } from 'src/accounts/request-dto/password.dto';
 import { validateParamDto } from 'src/lib/middlewares/validate-param.dto';
-import { VerificationTokenDto } from 'src/global/verification_codes/dto/verification-token.dto';
+import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
+import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TwoFactorAuth]),
     NotificationsModule,
     AccountsModule,
+    VerificationCodesModule,
   ],
   controllers: [TwoFactorAuthController],
   providers: [

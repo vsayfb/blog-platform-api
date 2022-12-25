@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from 'src/accounts/entities/account.entity';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
-import { UploadsService } from 'src/uploads/uploads.service';
 import { Repository } from 'typeorm';
-import { ProfileDto } from './dto/profile.dto';
 import { ProfileMessages } from './enums/profile-messages';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { ProfileType } from './types/profile';
 
 @Injectable()
 export class ProfilesService implements IFindService, IUpdateService {
@@ -18,7 +18,7 @@ export class ProfilesService implements IFindService, IUpdateService {
   async update(
     subject: Account,
     updateDto: { display_name?: string; image?: string },
-  ): Promise<any> {
+  ): Promise<SelectedAccountFields> {
     let anyChanges = false;
 
     for (const key in updateDto) {
@@ -35,7 +35,7 @@ export class ProfilesService implements IFindService, IUpdateService {
     return subject;
   }
 
-  async getOneByAccountUsername(username: string): Promise<ProfileDto> {
+  async getOneByAccountUsername(username: string): Promise<ProfileType> {
     const profile = await this.profilesRepository
       .createQueryBuilder('profile')
       .where('profile.username=:username', { username })
@@ -45,16 +45,16 @@ export class ProfilesService implements IFindService, IUpdateService {
 
     if (!profile) throw new NotFoundException(ProfileMessages.NOT_FOUND);
 
-    return profile as unknown as ProfileDto;
+    return profile as unknown as ProfileType;
   }
 
-  async getOneByID(id: string): Promise<any> {
+  async getOneByID(id: string): Promise<SelectedAccountFields> {
     return this.profilesRepository.findOne({
       where: { id },
     });
   }
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<SelectedAccountFields[]> {
     return this.profilesRepository.find();
   }
 }

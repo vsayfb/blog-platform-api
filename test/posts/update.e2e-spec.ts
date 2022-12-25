@@ -8,8 +8,8 @@ import { HelpersService } from 'test/helpers/helpers.service';
 import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndToEndTestModule';
 import { POSTS_ROUTE } from 'src/lib/constants';
 import { PostRoutes } from 'src/posts/enums/post-routes';
-import { UpdatedPostDto } from 'src/posts/dto/updated-post.dto';
-import { UpdatePostDto } from 'src/posts/dto/update-post.dto';
+import { UpdatedPostDto } from 'src/posts/response-dto/updated-post.dto';
+import { UpdatePostDto } from 'src/posts/request-dto/update-post.dto';
 import { generateFakePost } from 'test/helpers/utils/generateFakePost';
 import { Role } from 'src/accounts/entities/account.entity';
 

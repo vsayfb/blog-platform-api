@@ -4,9 +4,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TagsController } from '../tags.controller';
 import { TagsService } from '../tags.service';
 import { tagStub } from '../stub/tag.stub';
-import { UpdateTagDto } from '../dto/update-tag.dto';
+import { UpdateTagDto } from '../response-dto/update-tag.dto';
 import { SelectedTagFields } from '../types/selected-tag-fields';
-import { TagsDto } from '../dto/tags.dto';
+import { TagsDto } from '../response-dto/tags.dto';
 import { CASL_SUBJECT, MANAGE_DATA_SERVICE } from 'src/lib/constants';
 
 jest.mock('src/tags/tags.service.ts');

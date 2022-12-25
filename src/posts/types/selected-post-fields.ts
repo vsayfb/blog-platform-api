@@ -1,7 +1,4 @@
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-
 export type SelectedPostFields = {
-  author: SelectedAccountFields;
   id: string;
   title: string;
   title_image: string | null;

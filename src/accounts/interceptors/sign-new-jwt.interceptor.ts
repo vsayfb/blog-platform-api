@@ -6,8 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { map, Observable } from 'rxjs';
-import { LoginViewDto } from 'src/auth/dto/login-view.dto';
+import { map } from 'rxjs';
 import { LocalAuthService } from 'src/auth/services/local-auth.service';
 import { AccountMessages } from '../enums/account-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';
@@ -24,19 +23,23 @@ export class SignNewJwtToken implements NestInterceptor, OnModuleInit {
     });
   }
 
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ){
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
     return next.handle().pipe(
-      map((account:{data:SelectedAccountFields,message:AccountMessages}) => {
-	
-        const result = this.localAuthService.login(account.data);
+      map(
+        (account: {
+          data: SelectedAccountFields;
+          message: AccountMessages;
+        }) => {
+          const result = this.localAuthService.login(account.data);
 
-        const {access_token} = result;
+          const { access_token } = result;
 
-        return { data : {access_token,account:account.data} , message: AccountMessages.UPDATED };
-      }),
+          return {
+            data: { access_token, account: account.data },
+            message: AccountMessages.UPDATED,
+          };
+        },
+      ),
     );
   }
 }

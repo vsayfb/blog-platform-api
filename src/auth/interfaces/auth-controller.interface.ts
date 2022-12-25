@@ -1,11 +1,11 @@
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { LoginViewDto } from '../dto/login-view.dto';
-import { RegisterViewDto } from '../dto/register-view.dto';
+import { LoginDto } from '../response-dto/login.dto';
+import { RegisterDto } from '../response-dto/register.dto';
 
 export interface IAuthController {
-  register(...data: any): Promise<{ data: RegisterViewDto; message: string }>;
+  register(...data: any): Promise<{ data: RegisterDto; message: string }>;
 
   login(
     account: SelectedAccountFields,
-  ): Promise<{ data: LoginViewDto; message: string }>;
+  ): Promise<{ data: LoginDto; message: string }>;
 }

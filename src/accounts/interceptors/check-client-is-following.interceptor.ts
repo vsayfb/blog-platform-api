@@ -11,7 +11,7 @@ import { map, Observable } from 'rxjs';
 import { Subscriptions } from 'src/follow/entities/follow.entity';
 import { FollowService } from 'src/follow/follow.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { ProfileDto } from 'src/profiles/dto/profile.dto';
+import { ProfileDto } from 'src/profiles/response-dto/profile.dto';
 import { AccountMessages } from '../enums/account-messages';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async onModuleInit() {
-    // use global scope because for prevent circulary dependency between follow -> account modules
+    // use global scope to prevent circulary dependency between follow -> account modules
     this.followService = this.moduleRef.get(FollowService, { strict: false });
   }
 
@@ -31,7 +31,10 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
   ): Promise<
     Observable<
       Promise<{
-        data: ProfileDto;
+        data: ProfileDto & {
+          following_by: boolean;
+          subscriptions_by: Subscriptions;
+        };
         message: AccountMessages;
       }>
     >
@@ -74,7 +77,7 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
           data: {
             ...profile.data,
             following_by: clientFollowsProfile,
-            subscriptions,
+            subscriptions_by: subscriptions,
           },
           message: AccountMessages.FOUND,
         };

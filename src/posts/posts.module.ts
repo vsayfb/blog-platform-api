@@ -10,6 +10,7 @@ import { CacheManagerModule } from 'src/cache/cache-manager.module';
 import { PostExpression } from './entities/post-expression.entity';
 import { PostExpressionsService } from './services/post-expressions.service';
 import { CheckPostExists } from './validators/check-post-exists';
+import { AccountsNotificationsModule } from 'src/account_notifications/account-notifications.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CheckPostExists } from './validators/check-post-exists';
     UploadsModule,
     TagsModule,
     CacheManagerModule,
+    AccountsNotificationsModule,
   ],
   controllers: [PostsController],
   providers: [

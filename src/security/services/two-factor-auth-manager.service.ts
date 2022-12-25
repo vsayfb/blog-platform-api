@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { TFAMessages } from '../enums/tfa-messages';

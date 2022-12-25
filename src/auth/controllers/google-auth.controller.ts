@@ -3,9 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { Client } from '../decorator/client.decorator';
-import { AccessToken } from '../dto/access-token.dto';
-import { LoginViewDto } from '../dto/login-view.dto';
-import { RegisterViewDto } from '../dto/register-view.dto';
+import { AccessTokenDto } from '../request-dto/access-token.dto';
+import { LoginDto } from '../response-dto/login.dto';
+import { RegisterDto } from '../response-dto/register.dto';
 import { AuthMessages } from '../enums/auth-messages';
 import { AuthRoutes } from '../enums/auth-routes';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
@@ -20,8 +20,8 @@ export class GoogleAuthController implements IAuthController {
   @HttpCode(200)
   @Post(AuthRoutes.REGISTER)
   async register(
-    @Body() body: AccessToken,
-  ): Promise<{ data: RegisterViewDto; message: AuthMessages }> {
+    @Body() body: AccessTokenDto,
+  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
     return {
       data: await this.googleAuthService.register(body.access_token),
       message: AuthMessages.SUCCESSFUL_REGISTRATION,
@@ -32,7 +32,7 @@ export class GoogleAuthController implements IAuthController {
   @UseGuards(GoogleAuthGuard)
   @Post(AuthRoutes.LOGIN)
   async login(@Client() client: SelectedAccountFields): Promise<{
-    data: LoginViewDto;
+    data: LoginDto;
     message: AuthMessages;
   }> {
     return {

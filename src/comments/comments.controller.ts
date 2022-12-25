@@ -19,23 +19,23 @@ import { IDeleteController } from 'src/lib/interfaces/delete-controller.interfac
 import { IUpdateController } from 'src/lib/interfaces/update-controller.interface';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CommentsService } from './services/comments.service';
-import { AccountCommentsDto } from './dto/account-comments.dto';
-import { CommentViewDto } from './dto/comment-view.dto';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { RepliesViewDto } from './dto/replies-view.dto';
-import { ReplyViewDto } from './dto/reply-view.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
+import { AccountCommentsDto } from './response-dto/account-comments.dto';
+import { CreateCommentDto } from './request-dto/create-comment.dto';
+import { RepliesDto } from './response-dto/replies.dto';
+import { CreatedReplyDto } from './response-dto/created-reply.dto';
+import { UpdateCommentDto } from './request-dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
 import { CommentedNotificationInterceptor } from './interceptors/commented-notification.interceptor';
-import { SelectedCommentFields } from './types/selected-comment-fields';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { CheckClientActionsOnComment } from './interceptors/check-client-actions-on-comment';
-import { CreatedCommentDto } from './dto/created-comment.dto';
+import { CreatedCommentDto } from './response-dto/created-comment.dto';
 import { RepliedNotificationInterceptor } from './interceptors/replied-notification.interceptor';
-import { PostIDParam } from './dto/post-id-param';
+import { PostIDParam } from './request-dto/post-id-param';
 import { Client } from 'src/auth/decorator/client.decorator';
+import { PostCommentsDto } from './response-dto/post-comments.dto';
+import { UpdatedCommentDto } from './response-dto/updated-comment.dto';
 
 @Controller(COMMENTS_ROUTE)
 @ApiTags(COMMENTS_ROUTE)
@@ -58,16 +58,11 @@ export class CommentsController
   @UseInterceptors(CheckClientActionsOnComment)
   @Get(CommentRoutes.POST_COMMENTS + ':id')
   async findPostComments(@Param('id') id: string): Promise<{
-    data: CommentViewDto[] & { liked_by: boolean; disliked_by: boolean };
+    data: PostCommentsDto;
     message: CommentMessages;
   }> {
-    const data = await this.commentsService.getPostComments(id);
-
     return {
-      data: data as CommentViewDto[] & {
-        liked_by: boolean;
-        disliked_by: boolean;
-      },
+      data: await this.commentsService.getPostComments(id),
       message: CommentMessages.ALL_FOUND,
     };
   }
@@ -76,16 +71,11 @@ export class CommentsController
   @UseInterceptors(CheckClientActionsOnComment)
   @Get(CommentRoutes.COMMENT_REPLIES + ':id')
   async findCommentReplies(@Param('id') id: string): Promise<{
-    data: RepliesViewDto & { liked_by: boolean; disliked_by: boolean };
+    data: RepliesDto;
     message: CommentMessages;
   }> {
-    const data = await this.commentsService.getCommentReplies(id);
-
     return {
-      data: data as RepliesViewDto & {
-        liked_by: boolean;
-        disliked_by: boolean;
-      },
+      data: await this.commentsService.getCommentReplies(id),
       message: CommentMessages.REPLIES_FOUND,
     };
   }
@@ -115,7 +105,7 @@ export class CommentsController
     @Client() account: JwtPayload,
     @Param('comment_id') toID: string,
     @Body() createCommentDto: CreateCommentDto,
-  ): Promise<{ data: ReplyViewDto; message: string }> {
+  ): Promise<{ data: CreatedReplyDto; message: string }> {
     return {
       data: await this.commentsService.replyToComment({
         authorID: account.sub,
@@ -142,7 +132,7 @@ export class CommentsController
   async update(
     @Data() comment: Comment,
     @Body() updateCommentDto: UpdateCommentDto,
-  ): Promise<{ data: SelectedCommentFields; message: string }> {
+  ): Promise<{ data: UpdatedCommentDto; message: string }> {
     return {
       data: await this.commentsService.update(comment, updateCommentDto),
       message: CommentMessages.UPDATED,

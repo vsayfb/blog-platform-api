@@ -9,8 +9,8 @@ import { Bookmark } from '../entities/bookmark.entity';
 import { bookmarkStub } from '../stub/bookmark-stub';
 import { accountStub } from 'src/accounts/test/stub/account.stub';
 import { SelectedBookmarkFields } from '../types/selected-bookmark-fields';
-import { PostBookmarks } from '../dto/post-bookmarks.dto';
-import { AccountBookmarks } from '../dto/account-bookmarks.dto';
+import { PostBookmarks } from '../response-dto/post-bookmark.dto';
+import { AccountBookmarks } from '../response-dto/account-bookmark.dto';
 
 describe('BookmarksService', () => {
   let bookmarksService: BookmarksService;

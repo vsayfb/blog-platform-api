@@ -4,6 +4,7 @@ import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SUBSCRIPTIONS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { SubscribeDto } from './dto/subcribe.dto';
 import { SubscriptionsMessages } from './enums/subscriptions-messages';
 import { SubscriptionsRoutes } from './enums/subscriptions-routes';
 import { SubscriptionsService } from './subscriptions.service';
@@ -18,7 +19,7 @@ export class SubscriptionsController {
   async subscribeToMails(
     @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
-  ) {
+  ): Promise<{ data: SubscribeDto; message: SubscriptionsMessages }> {
     return {
       data: await this.subscriptionsService.create({
         followedID,
@@ -33,13 +34,20 @@ export class SubscriptionsController {
   async unsubscribeToMails(
     @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
-  ) {
+  ): Promise<{
+    data: SubscribeDto;
+    message: SubscriptionsMessages;
+  }> {
+    const followID = await this.subscriptionsService.delete({
+      followedID,
+      followerID: client.sub,
+      subscriptions: { mails_turned_on: false },
+    });
+
     return {
-      data: await this.subscriptionsService.delete({
-        followedID,
-        followerID: client.sub,
-        subscriptions: { mails_turned_on: false },
-      }),
+      data: {
+        subscriptions: await this.subscriptionsService.getOneByID(followID),
+      },
       message: SubscriptionsMessages.UNSUBSCRIBED_TO_MAILS,
     };
   }
@@ -48,7 +56,7 @@ export class SubscriptionsController {
   async subscribeToNotifications(
     @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
-  ) {
+  ): Promise<{ data: SubscribeDto; message: SubscriptionsMessages }> {
     return {
       data: await this.subscriptionsService.create({
         followedID,
@@ -63,13 +71,17 @@ export class SubscriptionsController {
   async unsubscribeToNotifications(
     @Client() client: JwtPayload,
     @Param('followed_id') followedID: string,
-  ) {
+  ): Promise<{ data: SubscribeDto; message: SubscriptionsMessages }> {
+    const followID = await this.subscriptionsService.delete({
+      followedID,
+      followerID: client.sub,
+      subscriptions: { notifications_turned_on: false },
+    });
+
     return {
-      data: await this.subscriptionsService.delete({
-        followedID,
-        followerID: client.sub,
-        subscriptions: { notifications_turned_on: false },
-      }),
+      data: {
+        subscriptions: await this.subscriptionsService.getOneByID(followID),
+      },
       message: SubscriptionsMessages.UNSUBSCRIBED_TO_NOTIFICATIONS,
     };
   }

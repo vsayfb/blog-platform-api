@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { CommentsNotificationService } from 'src/global/account_notifications/services/comments-notification.service';
-import { ReplyViewDto } from '../dto/reply-view.dto';
+import { CommentsNotificationService } from 'src/account_notifications/services/comments-notification.service';
 import { CommentMessages } from '../enums/comment-messages';
+import { CreatedReplyDto } from '../response-dto/created-reply.dto';
 
 @Injectable()
 export class RepliedNotificationInterceptor implements NestInterceptor {
@@ -22,12 +22,12 @@ export class RepliedNotificationInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<
     Promise<{
-      data: ReplyViewDto;
+      data: CreatedReplyDto;
       message: CommentMessages;
     }>
   > {
     return next.handle().pipe(
-      map(async (comment: { data: ReplyViewDto }) => {
+      map(async (comment: { data: CreatedReplyDto }) => {
         const {
           id,
           content,

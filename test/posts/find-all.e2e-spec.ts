@@ -2,7 +2,7 @@ jest.setTimeout(30000);
 
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { PublicPostsDto } from 'src/posts/dto/public-posts.dto';
+import { PublicPostsDto } from 'src/posts/request-dto/public-posts.dto';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { TestDatabaseService } from 'test/helpers/database/database.service';
 import { HelpersService } from 'test/helpers/helpers.service';

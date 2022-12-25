@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { DisplayNameDto } from 'src/accounts/request-dto/display-name.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import { CheckClientIsFollowing } from 'src/accounts/interceptors/check-client-is-following.interceptor';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -18,14 +19,14 @@ import { PROFILES_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { IFindController } from 'src/lib/interfaces/find-controller.interface';
-import { JwtPayload } from 'src/lib/jwt.payload';
 import { RequiredImageFile } from 'src/uploads/pipes/required-image-file';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { ProfileDto } from './dto/profile.dto';
-import { UpdateDisplayNameDto } from './dto/update-display-name.dto';
+import { ProfileDto } from './response-dto/profile.dto';
 import { ProfileMessages } from './enums/profile-messages';
 import { ProfileRoutes } from './enums/profile-routes';
 import { ProfilesService } from './profiles.service';
+import { ImageUpdatedDto } from './response-dto/image-updated.dto';
+import { DisplayNameUpdatedDto } from './response-dto/display-name-updated.dto';
 
 @Controller(PROFILES_ROUTE)
 @ApiTags(PROFILES_ROUTE)
@@ -53,13 +54,13 @@ export class ProfilesController implements IFindController {
   async updateImage(
     @Data() profile: Account,
     @UploadedFile(RequiredImageFile) image: Express.Multer.File,
-  ): Promise<{ data: string; message: ProfileMessages }> {
+  ): Promise<{ data: ImageUpdatedDto; message: ProfileMessages }> {
     const newURL = await this.uploadsService.uploadProfileImage(image);
 
     await this.profilesService.update(profile, { image: newURL });
 
     return {
-      data: newURL,
+      data: { image: newURL },
       message: ProfileMessages.IMAGE_CHANGED,
     };
   }
@@ -68,10 +69,12 @@ export class ProfilesController implements IFindController {
   @Patch(ProfileRoutes.UPDATE_DISPLAY_NAME + ':id')
   async updateDisplayname(
     @Data() profile: Account,
-    @Body() body: UpdateDisplayNameDto,
-  ): Promise<{ data: string; message: ProfileMessages }> {
+    @Body() body: DisplayNameDto,
+  ): Promise<{ data: DisplayNameUpdatedDto; message: ProfileMessages }> {
+    const updated = await this.profilesService.update(profile, body);
+
     return {
-      data: await this.profilesService.update(profile, body),
+      data: { display_name: updated.display_name },
       message: ProfileMessages.DISPLAY_NAME_UPDATED,
     };
   }

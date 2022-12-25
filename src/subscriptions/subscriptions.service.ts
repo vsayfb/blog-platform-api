@@ -5,6 +5,7 @@ import { FollowMessages } from 'src/follow/enums/follow-messages';
 import { FollowService } from 'src/follow/follow.service';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
+import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Repository } from 'typeorm';
 import { SubscribeDto } from './dto/subcribe.dto';
@@ -12,7 +13,7 @@ import { OptionalSubscriptions } from './types/optional-subscriptions';
 
 @Injectable()
 export class SubscriptionsService
-  implements ICreateService, IDeleteService, IUpdateService
+  implements IFindService, ICreateService, IDeleteService, IUpdateService
 {
   constructor(
     @InjectRepository(Follow)
@@ -36,21 +37,10 @@ export class SubscriptionsService
     return await this.update(follow, subscriptions);
   }
 
-  //@ts-ignore
-  async delete({
-    followedID,
-    followerID,
-    subscriptions,
-  }: {
-    followedID: string;
-    followerID: string;
-    subscriptions: OptionalSubscriptions;
-  }): Promise<SubscribeDto> {
-    const follow = await this.followService.getFollow(followerID, followedID);
+  async getOneByID(followID: string): Promise<Subscriptions> {
+    const data = await this.followRepository.findOneBy({ id: followID });
 
-    if (!follow) throw new ForbiddenException(FollowMessages.NOT_FOLLOWING);
-
-    return await this.update(follow, subscriptions);
+    return data.subscriptions;
   }
 
   async update(
@@ -70,6 +60,24 @@ export class SubscriptionsService
     return { subscriptions: { ...follow.subscriptions, ...subscriptions } };
   }
 
+  async delete({
+    followedID,
+    followerID,
+    subscriptions,
+  }: {
+    followedID: string;
+    followerID: string;
+    subscriptions: OptionalSubscriptions;
+  }): Promise<string> {
+    const follow = await this.followService.getFollow(followerID, followedID);
+
+    if (!follow) throw new ForbiddenException(FollowMessages.NOT_FOLLOWING);
+
+    await this.update(follow, subscriptions);
+
+    return follow.id;
+  }
+
   async getSubscribers(
     followedAccountID: string,
   ): Promise<{ id: string; email: string }[]> {
@@ -85,5 +93,11 @@ export class SubscriptionsService
       id: f.follower.id,
       email: f.follower.email,
     }));
+  }
+
+  async getAll(): Promise<Subscriptions[]> {
+    const data = await this.followRepository.find({});
+
+    return data.map((d) => d.subscriptions);
   }
 }

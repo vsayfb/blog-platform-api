@@ -4,9 +4,9 @@ import { Message } from './entities/message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from '../chats/chats.service';
 import { ChatMessages } from '../chats/enums/chat-messages';
-import { MessageViewDto } from './dto/message-view.dto';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
+import { ChatMessage } from './types/new-message';
 
 @Injectable()
 export class MessagesService implements ICreateService, IFindService {
@@ -20,7 +20,7 @@ export class MessagesService implements ICreateService, IFindService {
     content: string;
     initiatorID: string;
     chatID: string;
-  }): Promise<MessageViewDto> {
+  }): Promise<ChatMessage> {
     const chat = await this.chatsService.getOneByID(dto.chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
@@ -37,7 +37,7 @@ export class MessagesService implements ICreateService, IFindService {
     });
 
     return {
-      chatID: chat.id,
+      chat_id: chat.id,
       content: message.content,
       sender: result.sender,
       created_at: message.created_at,

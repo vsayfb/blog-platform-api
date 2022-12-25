@@ -8,7 +8,7 @@ import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndTo
 import { FollowRoutes } from 'src/follow/enums/follow-routes';
 import { FOLLOW_ROUTE } from 'src/lib/constants';
 import * as request from 'supertest';
-import { UserFollowed } from 'src/follow/dto/user-followed.dto';
+import { UserFollowed } from 'src/follow/response-dto/user-followed.dto';
 
 jest.mock('src/gateways/notifications.gateway');
 

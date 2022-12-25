@@ -9,7 +9,7 @@ import { initializeEndToEndTestModule } from 'test/helpers/utils/initializeEndTo
 import { POSTS_ROUTE } from 'src/lib/constants';
 import { PostRoutes } from 'src/posts/enums/post-routes';
 import { Role } from 'src/accounts/entities/account.entity';
-import { PostDto } from 'src/posts/dto/post.dto';
+import { PostDto } from 'src/posts/request-dto/post.dto';
 
 describe('/ (GET) find by ID', () => {
   let app: INestApplication;

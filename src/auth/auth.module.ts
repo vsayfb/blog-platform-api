@@ -12,7 +12,7 @@ import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleAuthService } from './services/google-auth.service';
 import { LocalAuthService } from './services/local-auth.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
-import { VerificationCodesModule } from 'src/global/verification_codes/verification-codes.module';
+import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
 
 @Module({
   imports: [

@@ -20,7 +20,7 @@ export class CheckUniqueEmail implements ValidatorConstraintInterface {
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'The email has been taken.';
+    return 'email has been taken.';
   }
 }
 

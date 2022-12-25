@@ -12,7 +12,7 @@ import { Like, Repository } from 'typeorm';
 import { mockRepository } from '../../../test/helpers/utils/mockRepository';
 import { AccountMessages } from '../enums/account-messages';
 import { SelectedAccountFields } from '../types/selected-account-fields';
-import { CreateAccountDto } from '../dto/create-account.dto';
+import { CreateAccountDto } from '../request-dto/create-account.dto';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { hashStub } from 'src/global/hash-manager/test/stub/hash.stub';
 

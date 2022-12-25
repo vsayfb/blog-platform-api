@@ -7,7 +7,7 @@ import { AccountsService } from 'src/accounts/services/accounts.service';
 import { CodesService } from 'src/verification_codes/verification-codes.service';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { RegisterViewDto } from '../dto/register-view.dto';
-import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
+import { CreateAccountDto } from 'src/accounts/request-dto/create-account.dto';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { codeStub } from 'src/verification_codes/stub/code.stub';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';

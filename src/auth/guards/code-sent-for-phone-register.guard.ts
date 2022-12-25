@@ -4,8 +4,8 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
-import { VerificationCodesService } from 'src/global/verification_codes/verification-codes.service';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
 @Injectable()
 export class CodeSentForMobilePhoneRegister implements CanActivate {

@@ -4,7 +4,7 @@ import { HelpersService } from '../helpers/helpers.service';
 import { DatabaseUser } from '../helpers/database/database.service';
 import { io, Socket } from 'socket.io-client';
 import { ChatMessages } from '../../src/chats/enums/chat-messages';
-import { MessageViewDto } from '../../src/messages/dto/message-view.dto';
+import { MessageViewDto } from '../../src/messages/response-dto/message-view.dto';
 
 jest.setTimeout(30000);
 

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { CommentViewDto } from '../dto/comment-view.dto';
+import { CommentDto } from '../response-dto/comment.dto';
 import { CommentExpressionType } from '../entities/comment-expression.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { CommentExpressionsService } from '../services/comment-expressions.service';
@@ -20,7 +20,7 @@ export class CheckClientActionsOnComment implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+  ): Observable<Promise<{ data: CommentDto[]; message: CommentMessages }>> {
     const request: { user: JwtPayload | false } = context
       .switchToHttp()
       .getRequest();
@@ -29,7 +29,7 @@ export class CheckClientActionsOnComment implements NestInterceptor {
 
     return next.handle().pipe(
       map(
-        async (value: { data: CommentViewDto[]; message: CommentMessages }) => {
+        async (value: { data: CommentDto[]; message: CommentMessages }) => {
           const comments = value.data.map((c) => {
             //@ts-ignore
             c.liked_by = false;

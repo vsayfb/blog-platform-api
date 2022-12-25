@@ -12,9 +12,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PasswordsMatch } from 'src/accounts/guards/check-passwords-match.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { SECURITY_ROUTE, TFA_ROUTE } from 'src/lib/constants';
+import { TFA_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { TFAMessages } from '../enums/tfa-messages';
@@ -26,11 +25,12 @@ import { CodeSentForDisableTFA } from '../guards/code-sent-for-disable-tfa.guard
 import { TwoFactorAuthManager } from '../services/two-factor-auth-manager.service';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { VerifyTFAProcess } from '../guards/verify-tfa-process.guard';
-import { VerificationCode } from 'src/global/verification_codes/entities/code.entity';
-import { CodeMessages } from 'src/global/verification_codes/enums/code-messages';
-import { DeleteVerificationCodeInBody } from 'src/global/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
 import { SelectedTFAFields } from '../types/selected-tfa';
-import { VerificationCodeObj } from 'src/global/verification_codes/decorators/verification-code.decorator';
+import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
+import { PasswordsMatch } from 'src/accounts/guards/passwords-match.guard';
 
 @Controller(TFA_ROUTE)
 @ApiTags(TFA_ROUTE)

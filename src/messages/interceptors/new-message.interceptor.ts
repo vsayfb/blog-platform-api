@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { MessageViewDto } from '../dto/message-view.dto';
+import { NewMessageDto } from '../response-dto/message-view.dto';
 import { MessageMessages } from '../enums/message-messages';
 import { GatewayEventsService } from '../../global/events/gateway-events.service';
 
@@ -16,9 +16,9 @@ export class NewMessageInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<{ data: MessageViewDto; message: MessageMessages }> {
+  ): Observable<{ data: NewMessageDto; message: MessageMessages }> {
     return next.handle().pipe(
-      map((message: { data: MessageViewDto }) => {
+      map((message: { data: NewMessageDto }) => {
         this.gatewayEventsService.newMessage(message.data);
 
         return { data: message.data, message: MessageMessages.SENT };
