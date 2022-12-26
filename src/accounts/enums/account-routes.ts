@@ -1,10 +1,14 @@
 export enum AccountRoutes {
   CLIENT = '/me/',
-  BEGIN_UPDATE_PASSWORD = '/begin_update_password/',
-  UPDATE_PASSWORD = '/password/',
+  CHANGE_PASSWORD = '/change_password/',
+  ADD_MOBILE_PHONE = '/add_mobile_phone/',
+  REMOVE_MOBILE_PHONE = '/remove_mobile_phone/',
+  ADD_EMAIL = '/add_email/',
+  REMOVE_EMAIL = '/remove_email/',
+  UPDATE_PASSWORD = '/update_password/',
   IS_AVAILABLE_USERNAME = '/is_available_username/',
   SEARCH_BY_USERNAME = '/search_by_username/',
   IS_AVAILABLE_EMAIL = '/is_available_email/',
   UPDATE_USERNAME = '/username/',
-  VERIFY_PASSWORD = '/verify/new_password/',
+  VERIFY_PROCESS = '/verify/',
 }

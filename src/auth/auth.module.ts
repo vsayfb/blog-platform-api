@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -13,6 +18,10 @@ import { GoogleAuthService } from './services/google-auth.service';
 import { LocalAuthService } from './services/local-auth.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
+import { validateBodyDto } from 'src/lib/middlewares/validate-body-dto';
+import { AUTH_ROUTE } from 'src/lib/constants';
+import { AuthRoutes } from './enums/auth-routes';
+import { TFADto } from 'src/security/dto/two-factor-auth.dto';
 
 @Module({
   imports: [
@@ -34,4 +43,11 @@ import { VerificationCodesModule } from 'src/verification_codes/verification-cod
   controllers: [LocalAuthController, GoogleAuthController],
   providers: [LocalAuthService, GoogleAuthService, LocalStrategy, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(validateBodyDto(TFADto)).forRoutes({
+      path: AUTH_ROUTE + AuthRoutes.VERIFY_LOGIN,
+      method: RequestMethod.POST,
+    });
+  }
+}

@@ -2,14 +2,13 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Inject,
   Injectable,
 } from '@nestjs/common';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { TFAProcess } from '../types/tfa-process';
+import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 
 @Injectable()
 export class CodeSentForDisableTFA implements CanActivate {
@@ -25,8 +24,10 @@ export class CodeSentForDisableTFA implements CanActivate {
 
     if (!tfa) return false;
 
-    const process: TFAProcess =
-      tfa.via === 'email' ? 'disable_tfa_email' : 'disable_tfa_mobile_phone';
+    const process: CodeProcess =
+      tfa.via === 'email'
+        ? CodeProcess.DISABLE_TFA_EMAIL_FOR_ACCOUNT
+        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
 
     const code = await this.codesService.getOneByReceiverAndProcess(
       req.account_credentials[tfa.via],

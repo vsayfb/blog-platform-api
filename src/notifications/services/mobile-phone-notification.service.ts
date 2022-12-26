@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { TasksService } from 'src/global/tasks/tasks.service';
-import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import {
+  CodeProcess,
+  VerificationCode,
+} from 'src/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
-import { TFAProcess } from 'src/security/types/tfa-process';
 import { SmsService } from 'src/sms/sms.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
-
-export enum MobilePhoneVerificationProcess {
-  REGISTER_MOBIL_PHONE = 'register_mobile_phone_verification',
-  CREATE_TFA_SMS = 'create_tfa_sms_verification',
-  DISABLE_TFA = 'disable_tfa_sms_verification',
-}
 
 @Injectable()
 export class MobilePhoneNotificationService implements INotificationService {
@@ -35,7 +31,7 @@ export class MobilePhoneNotificationService implements INotificationService {
       const verificationCode = await this.verificationCodesService.create({
         receiver: phone,
         code,
-        process: 'register_mobile_phone',
+        process: CodeProcess.REGISTER_WITH_MOBIL_PHONE,
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
@@ -48,7 +44,7 @@ export class MobilePhoneNotificationService implements INotificationService {
 
   async notifyForTFA(
     phone: string,
-    process: TFAProcess,
+    process: CodeProcess,
   ): Promise<VerificationCode> {
     const code = await this.verificationCodesService.generate();
 

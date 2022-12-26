@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { Repository } from 'typeorm';
-import { VerificationCode, CodeProcess } from './entities/code.entity';
+import { CodeProcess, VerificationCode } from './entities/code.entity';
 import { nanoid } from 'nanoid';
 
 @Injectable()

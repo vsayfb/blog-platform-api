@@ -64,7 +64,7 @@ export class AccountsService
     for (const key in updateDto) {
       const element = updateDto[key];
 
-      if (element) {
+      if (element || element === null) {
         if (key === 'password') {
           subject[key] = await this.passwordManagerService.hashPassword(
             element,

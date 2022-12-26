@@ -23,6 +23,7 @@ export const validateParamDto =
       await validateOrReject(dto, {
         forbidUnknownValues: true,
         whitelist: true,
+        stopAtFirstError: true,
       });
     } catch (error: any) {
       const messages = [];

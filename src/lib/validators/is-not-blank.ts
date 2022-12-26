@@ -9,7 +9,9 @@ import {
 @ValidatorConstraint({ async: false })
 class IsNotBlankConstraint implements ValidatorConstraintInterface {
   validate(value: any) {
-    return typeof value === 'string' && value.trim().length > 0;
+    if (typeof value !== 'string') return true;
+
+    return value.trim().length > 0;
   }
 
   defaultMessage(args: ValidationArguments) {

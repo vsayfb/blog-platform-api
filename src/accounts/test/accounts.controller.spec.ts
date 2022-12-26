@@ -2,7 +2,7 @@ import { BeginVerificationDto } from '../../auth/dto/begin-verification.dto';
 import { UsernameQuery } from '../dto/username-query.dto';
 import { accountStub } from './stub/account.stub';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountsController } from '../accounts.controller';
+import { AccountsController } from '../controllers/accounts.controller';
 import { AccountsService } from '../services/accounts.service';
 import { jwtPayloadStub } from 'src/auth/stub/jwt-payload.stub';
 import { AccountMessages } from '../enums/account-messages';

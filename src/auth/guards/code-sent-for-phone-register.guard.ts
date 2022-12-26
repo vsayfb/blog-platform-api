@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
@@ -18,7 +19,7 @@ export class CodeSentForMobilePhoneRegister implements CanActivate {
 
     const sent = await this.codesService.getOneByReceiverAndProcess(
       request.body.mobile_phone,
-      'register_mobile_phone',
+      CodeProcess.REGISTER_WITH_MOBIL_PHONE,
     );
 
     if (sent) throw new ForbiddenException(CodeMessages.ALREADY_SENT);

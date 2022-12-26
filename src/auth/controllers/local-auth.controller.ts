@@ -31,7 +31,6 @@ import {
 import { TFAEnabledExceptionFilter } from 'src/security/exceptions/tfa-enabled-exception-filter';
 import { TFAGuard } from '../guards/tfa.guard';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { TFAAuthDto } from '../request-dto/tfa-auth.dto';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
@@ -39,8 +38,8 @@ import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
-import { TFADto } from 'src/security/dto/two-factor-auth.dto';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 
 @Controller(AUTH_ROUTE)
 @ApiTags(AUTH_ROUTE)
@@ -83,7 +82,6 @@ export class LocalAuthController implements IAuthController {
   @UseInterceptors(DeleteVerificationCodeInBody)
   @Post(AuthRoutes.VERIFY_LOGIN)
   async verifyLogin(
-    @Body() dto: TFAAuthDto,
     @Req() req: { tfa_account: AccountWithCredentials },
   ): Promise<{
     data: { account: SelectedAccountFields; access_token: string };
@@ -122,8 +120,9 @@ export class LocalAuthController implements IAuthController {
   async beginEmailVerification(
     @Body() data: BeginVerificationWithEmailDto,
   ): Promise<{ message: CodeMessages }> {
-    const notificationFactory =
-      this.notificationFactory.createNotification('email');
+    const notificationFactory = this.notificationFactory.createNotification(
+      NotificationBy.EMAIL,
+    );
 
     await notificationFactory.notifyForRegister(data.username, data.email);
 
@@ -136,8 +135,9 @@ export class LocalAuthController implements IAuthController {
   async beginMobilePhoneVerification(
     @Body() data: BeginVerificationWithPhoneDto,
   ): Promise<{ message: CodeMessages }> {
-    const notificationFactory =
-      this.notificationFactory.createNotification('mobile_phone');
+    const notificationFactory = this.notificationFactory.createNotification(
+      NotificationBy.MOBILE_PHONE,
+    );
 
     await notificationFactory.notifyForRegister(
       data.username,

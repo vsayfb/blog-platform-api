@@ -5,8 +5,8 @@ import { AuthRoutes } from 'src/auth/enums/auth-routes';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
-import { TFAProcess } from '../types/tfa-process';
 import { TFAEnabledException } from './tfa-enable.exception';
+import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 
 @Catch(TFAEnabledException)
 export class TFAEnabledExceptionFilter implements ExceptionFilter {
@@ -26,8 +26,10 @@ export class TFAEnabledExceptionFilter implements ExceptionFilter {
 
     const via = account.two_factor_auth.via;
 
-    const process: TFAProcess =
-      via === 'email' ? 'login_tfa_email' : 'login_tfa_mobile_phone';
+    const process: CodeProcess =
+      via === 'email'
+        ? CodeProcess.LOGIN_TFA_EMAIL_FOR_ACCOUNT
+        : CodeProcess.LOGIN_TFA_MOBILE_PHONE_FOR_ACCOUNT;
 
     const alreadySent = await this.codesService.getOneByReceiverAndProcess(
       receiver,

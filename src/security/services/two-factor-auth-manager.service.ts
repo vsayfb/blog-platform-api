@@ -1,11 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import {
+  CodeProcess,
+  VerificationCode,
+} from 'src/verification_codes/entities/code.entity';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { TFAMessages } from '../enums/tfa-messages';
-import { TFAProcess } from '../types/tfa-process';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 
 @Injectable()
@@ -38,8 +40,10 @@ export class TwoFactorAuthManager {
 
     const notificationFactory = this.notificationFactory.createNotification(by);
 
-    const process: TFAProcess =
-      by === 'email' ? 'enable_tfa_email' : 'enable_tfa_mobile_phone';
+    const process: CodeProcess =
+      by === 'email'
+        ? CodeProcess.ENABLE_TFA_EMAIL_FOR_ACCOUNT
+        : CodeProcess.ENABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
 
     return await notificationFactory.notifyForTFA(account[by], process);
   }
@@ -55,8 +59,10 @@ export class TwoFactorAuthManager {
       tfa.via,
     );
 
-    const process: TFAProcess =
-      tfa.via === 'email' ? 'disable_tfa_email' : 'disable_tfa_mobile_phone';
+    const process: CodeProcess =
+      tfa.via === 'email'
+        ? CodeProcess.DISABLE_TFA_EMAIL_FOR_ACCOUNT
+        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
 
     return await notificationFactory.notifyForTFA(account[tfa.via], process);
   }

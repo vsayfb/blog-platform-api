@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
 import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
@@ -16,10 +17,6 @@ export class TFAGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const { body } = request;
-
-    if (!body.username || !body.password || !body.verification_code) {
-      return false;
-    }
 
     const account =
       await this.accountsService.getCredentialsByUsernameOrEmailOrPhone(
@@ -38,7 +35,9 @@ export class TFAGuard implements CanActivate {
     const { via } = account.two_factor_auth;
 
     const process: CodeProcess =
-      via === 'email' ? 'login_tfa_email' : 'login_tfa_mobile_phone';
+      via === NotificationBy.EMAIL
+        ? CodeProcess.LOGIN_TFA_EMAIL_FOR_ACCOUNT
+        : CodeProcess.LOGIN_TFA_MOBILE_PHONE_FOR_ACCOUNT;
 
     const code = await this.codesService.getCodeByCredentials(
       body.verification_code,

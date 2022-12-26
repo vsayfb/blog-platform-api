@@ -30,13 +30,13 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './lib/exception-filters/all-exceptions.filter';
 import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed.exception.filter';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SecurityModule } from './security/security.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { VerificationCodesModule } from './verification_codes/verification-codes.module';
+import { join } from 'path';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),

@@ -11,8 +11,11 @@ import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 
 /**
+ * Validate "password" value at req.body before using this guard.
+ * 
  * This guard checks that given password matches with database password.
- * It they are matched puts the account into the request.account.
+ * 
+ * It they are matched account will be put to the request.account_credentials.
  */
 @Injectable()
 export class PasswordsMatch implements CanActivate {

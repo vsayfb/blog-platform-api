@@ -9,6 +9,7 @@ import { RegisterProcess } from '../types/register-process';
 import { TFAEnabledException } from 'src/security/exceptions/tfa-enable.exception';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 
 @Injectable()
 export class LocalAuthService extends BaseAuthService implements IAuthService {
@@ -24,8 +25,10 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
   ): Promise<RegisterDto> {
     const registerBy = dto?.email ? 'email' : 'mobile_phone';
 
-    const process: RegisterProcess =
-      registerBy === 'email' ? 'register_email' : 'register_mobile_phone';
+    const process: CodeProcess =
+      registerBy === 'email'
+        ? CodeProcess.REGISTER_WITH_EMAIL
+        : CodeProcess.REGISTER_WITH_MOBIL_PHONE;
 
     const receiver = registerBy === 'email' ? dto.email : dto.mobile_phone;
 

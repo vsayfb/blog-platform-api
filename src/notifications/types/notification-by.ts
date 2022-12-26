@@ -1,1 +1,4 @@
-export type NotificationBy = 'mobile_phone' | 'email';
+export enum NotificationBy {
+  MOBILE_PHONE = 'mobile_phone',
+  EMAIL = 'email',
+}

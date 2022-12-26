@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { TasksService } from 'src/global/tasks/tasks.service';
-import { VerificationCode } from 'src/verification_codes/entities/code.entity';
+import {
+  CodeProcess,
+  VerificationCode,
+} from 'src/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { MailsService } from 'src/mails/mails.service';
-import { TFAProcess } from 'src/security/types/tfa-process';
 import { INotificationService } from '../interfaces/notification-service.interface';
-
-export enum EmailVerificationProcess {
-  REGISTER_EMAIL = 'register_email_verification',
-  CREATE_TFA_EMAIL = 'create_tfa_mail_verification',
-  DISABLE_TFA = 'disable_tfa_verification',
-}
 
 @Injectable()
 export class EmailNotificationService implements INotificationService {
@@ -35,7 +31,7 @@ export class EmailNotificationService implements INotificationService {
       const verificationCode = await this.codesService.create({
         receiver: email,
         code,
-        process: 'register_email',
+        process: CodeProcess.REGISTER_WITH_EMAIL,
       });
 
       this.tasksService.execAfterTwoMinutes(() =>
@@ -48,7 +44,7 @@ export class EmailNotificationService implements INotificationService {
 
   async notifyForTFA(
     to: string,
-    process: TFAProcess,
+    process: CodeProcess,
   ): Promise<VerificationCode> {
     const code = await this.codesService.generate();
 
