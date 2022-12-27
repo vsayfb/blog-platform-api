@@ -10,46 +10,26 @@ import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 
-@Injectable()
-export class AccountsService
-  implements IFindService, ICreateService, IUpdateService
-{
-  private readonly credentials = {
-    id: true,
-    username: true,
-    display_name: true,
-    image: true,
-    via: true,
-    role: true,
-    email: true,
-    password: true,
-    mobile_phone: true,
-    created_at: true,
-  };
+export const CREDENTIALS = {
+  id: true,
+  username: true,
+  display_name: true,
+  image: true,
+  via: true,
+  role: true,
+  email: true,
+  password: true,
+  mobile_phone: true,
+  created_at: true,
+};
 
+@Injectable()
+export class AccountsService implements IFindService, IUpdateService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
-
-  async create(
-    data: CreateAccountDto & { email?: string; mobile_phone?: string },
-  ): Promise<SelectedAccountFields> {
-    delete data.verification_code;
-
-    const hashedPassword = await this.passwordManagerService.hashPassword(
-      data.password,
-    );
-
-    const created = await this.accountsRepository.save({
-      ...data,
-      image: `https://robohash.org/${data.username}.png`,
-      password: hashedPassword,
-    });
-
-    return await this.accountsRepository.findOneBy({ id: created.id });
-  }
 
   async getOneByID(id: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOneBy({ id });
@@ -98,14 +78,14 @@ export class AccountsService
         },
       ],
       relations: { two_factor_auth: true },
-      select: this.credentials,
+      select: CREDENTIALS,
     });
   }
 
   async getCredentials(accountID: string): Promise<AccountWithCredentials> {
     return await this.accountsRepository.findOne({
       where: { id: accountID },
-      select: this.credentials,
+      select: CREDENTIALS,
       relations: { two_factor_auth: true },
     });
   }

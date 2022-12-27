@@ -5,17 +5,19 @@ import { AuthRoutes } from 'src/auth/enums/auth-routes';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
-import { TFAEnabledException } from './tfa-enable.exception';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
+import { EnabledEmailFactorException } from './enabled-email-factor.exception';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 
-@Catch(TFAEnabledException)
-export class TFAEnabledExceptionFilter implements ExceptionFilter {
+@Catch(EnabledEmailFactorException)
+export class EnabledEmailFactorFilter implements ExceptionFilter {
   constructor(
     private readonly notificationFactory: NotificationFactory,
     private readonly codesService: VerificationCodesService,
   ) {}
 
-  async catch(exception: TFAEnabledException, host: ArgumentsHost) {
+  async catch(exception: EnabledEmailFactorException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
 
     const response = ctx.getResponse<Response>();
@@ -24,12 +26,9 @@ export class TFAEnabledExceptionFilter implements ExceptionFilter {
 
     const receiver = account[account.two_factor_auth.via];
 
-    const via = account.two_factor_auth.via;
+    const via = NotificationBy.EMAIL;
 
-    const process: CodeProcess =
-      via === 'email'
-        ? CodeProcess.LOGIN_TFA_EMAIL_FOR_ACCOUNT
-        : CodeProcess.LOGIN_TFA_MOBILE_PHONE_FOR_ACCOUNT;
+    const process = CodeProcess.LOGIN_TFA_EMAIL_FOR_ACCOUNT;
 
     const alreadySent = await this.codesService.getOneByReceiverAndProcess(
       receiver,
@@ -40,19 +39,17 @@ export class TFAEnabledExceptionFilter implements ExceptionFilter {
       return response.status(403).json({
         statusCode: 403,
         error: 'Forbidden',
-        message: `A code already sent to your ${
-          via === 'email' ? via : 'mobil phone.'
-        }`,
+        message: CodeMessages.ALREADY_SENT,
       });
     }
 
     await this.notificationFactory
       .createNotification(via)
-      .notifyForTFA(account[via], process);
+      .notifyForTFA(via, process);
 
     return response.status(200).json({
       following_link: AUTH_ROUTE + AuthRoutes.VERIFY_LOGIN,
-      message: `A code sent to your ${via === 'email' ? via : 'mobil phone.'}`,
+      message: CodeMessages.CODE_SENT_TO_MAIL,
     });
   }
 }

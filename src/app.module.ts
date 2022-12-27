@@ -32,7 +32,7 @@ import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { SecurityModule } from './security/security.module';
+import { TwoFactorAuthModule } from './tfa/tfa.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { VerificationCodesModule } from './verification_codes/verification-codes.module';
@@ -68,7 +68,7 @@ const imports = [
   SmsModule,
   TwilioModule,
   SubscriptionsModule,
-  SecurityModule,
+  TwoFactorAuthModule,
   NotificationsModule,
 ];
 

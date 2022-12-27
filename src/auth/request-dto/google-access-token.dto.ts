@@ -1,8 +1,8 @@
 import { IsString } from 'class-validator';
 import { IsNotBlank } from 'src/lib/validators/is-not-blank';
 
-export class AccessTokenDto {
+export class GoogleAccessTokenDto {
   @IsString()
   @IsNotBlank()
-  access_token: string;
+  google_access_token: string;
 }

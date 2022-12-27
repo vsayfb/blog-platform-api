@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleAccountsService } from 'src/accounts/services/google-accounts.service';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { GoogleService } from 'src/apis/google/google.service';
+import {
+  GoogleService,
+  GoogleUserCredentials,
+} from 'src/apis/google/google.service';
 import { RegisterDto } from '../response-dto/register.dto';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
+import { EnabledMobilePhoneFactorException } from 'src/tfa/exceptions/enabled-mobile-phone-factor.exception';
 
 @Injectable()
 export class GoogleAuthService extends BaseAuthService implements IAuthService {
@@ -15,12 +19,14 @@ export class GoogleAuthService extends BaseAuthService implements IAuthService {
     super();
   }
 
-  async register(accessToken: string): Promise<RegisterDto> {
-    const googleAccount = await this.googleService.getUserCredentials(
-      accessToken,
-    );
+  async register(googleUser: GoogleUserCredentials): Promise<RegisterDto> {
+    const { email, family_name, given_name } = googleUser;
 
-    const registered = await this.googleAccountsService.create(googleAccount);
+    const registered = await this.googleAccountsService.create({
+      email,
+      familyName: family_name,
+      givenName: given_name,
+    });
 
     return this.login(registered);
   }
@@ -34,15 +40,20 @@ export class GoogleAuthService extends BaseAuthService implements IAuthService {
 
     if (!googleAccount) return null;
 
-    const account = await this.googleAccountsService.getOneByEmail(
+    const account = await this.googleAccountsService.getCredentialsByEmail(
       googleAccount.email,
     );
 
     if (!account) return null;
 
-    delete account.email;
+    if (account.two_factor_auth)
+      throw new EnabledMobilePhoneFactorException(account);
 
+    delete account.mobile_phone;
+    delete account.email;
+    delete account.via;
     delete account.password;
+    delete account.two_factor_auth;
 
     return account;
   }

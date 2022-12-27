@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ACCOUNTS_2FA_ROUTE, ACCOUNTS_ROUTE } from 'src/lib/constants';
+import {
+  ACCOUNTS_ROUTE,
+  LOCAL_ACCOUNTS_CREDENTIALS_ROUTE,
+} from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
@@ -18,22 +21,30 @@ import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-
 import { AccountCredentials } from '../decorators/account.decorator';
 import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
+import { IsLocalAccount } from '../guards/is-local-account.guard';
 import { PasswordsMatch } from '../guards/passwords-match.guard';
 import { AddNewEmail } from '../request-dto/add-new-email.dto';
+import { AddNewPhoneDto } from '../request-dto/add-new-phone.dto';
+import { PasswordDto } from '../request-dto/password.dto';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 
-@Controller(ACCOUNTS_2FA_ROUTE)
-@ApiTags(ACCOUNTS_2FA_ROUTE)
-export class Accounts2FAController {
+@Controller(LOCAL_ACCOUNTS_CREDENTIALS_ROUTE)
+@ApiTags(LOCAL_ACCOUNTS_CREDENTIALS_ROUTE)
+export class LocalAccountsCredentialsController {
   constructor(private readonly notificationFactory: NotificationFactory) {}
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(
+    JwtAuthGuard,
+    IsLocalAccount,
+    PasswordsMatch,
+    VerificationCodeAlreadySent,
+  )
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
   async addNewPhone(
     @AccountCredentials() account: AccountWithCredentials,
-    @Body() dto: { mobile_phone: string },
+    @Body() dto: AddNewPhoneDto,
   ) {
     if (account.mobile_phone)
       throw new ForbiddenException(AccountMessages.HAS_PHONE);
@@ -55,10 +66,16 @@ export class Accounts2FAController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(
+    JwtAuthGuard,
+    IsLocalAccount,
+    PasswordsMatch,
+    VerificationCodeAlreadySent,
+  )
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
   async removeMobilPhone(
     @AccountCredentials() account: AccountWithCredentials,
+    @Body() body: PasswordDto,
   ) {
     if (!account.email) {
       throw new ForbiddenException(
@@ -83,7 +100,12 @@ export class Accounts2FAController {
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.ADD_EMAIL_TO_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(
+    JwtAuthGuard,
+    IsLocalAccount,
+    PasswordsMatch,
+    VerificationCodeAlreadySent,
+  )
   @Post(AccountRoutes.ADD_EMAIL)
   async addEmail(
     @AccountCredentials() account: AccountWithCredentials,
@@ -108,9 +130,17 @@ export class Accounts2FAController {
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.REMOVE_EMAIL_FROM_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(
+    JwtAuthGuard,
+    IsLocalAccount,
+    PasswordsMatch,
+    VerificationCodeAlreadySent,
+  )
   @Post(AccountRoutes.REMOVE_EMAIL)
-  async removeEmail(@AccountCredentials() account: AccountWithCredentials) {
+  async removeEmail(
+    @AccountCredentials() account: AccountWithCredentials,
+    @Body() body: PasswordDto,
+  ) {
     if (!account.email) throw new ForbiddenException(AccountMessages.HAS_EMAIL);
 
     if (!account.mobile_phone)
@@ -133,10 +163,11 @@ export class Accounts2FAController {
     };
   }
 
-  @Post(AccountRoutes.UPDATE_PASSWORD)
-  @UseGuards(JwtAuthGuard, PasswordsMatch)
-  async beginToUpdatePassword(
+  @Post(AccountRoutes.CHANGE_PASSWORD)
+  @UseGuards(JwtAuthGuard, IsLocalAccount, PasswordsMatch)
+  async changePassword(
     @AccountCredentials() account: AccountWithCredentials,
+    @Body() body: PasswordDto,
   ) {
     let notifyBy: NotificationBy;
 

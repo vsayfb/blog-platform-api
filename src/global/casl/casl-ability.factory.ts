@@ -13,7 +13,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
 import { Notification } from 'src/account_notifications/entities/notification.entity';
-import { TwoFactorAuth } from 'src/security/entities/two-factor-auth.entity';
+import { TwoFactorAuth } from 'src/tfa/entities/two-factor-auth.entity';
 
 export enum Action {
   Manage = 'manage',

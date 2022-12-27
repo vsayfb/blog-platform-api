@@ -8,7 +8,7 @@ import { MANAGE_DATA_SERVICE, TFA_ROUTE } from 'src/lib/constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 import { AccountsModule } from 'src/accounts/accounts.module';
-import { TwoFactorAuthController } from './controllers/two-factor-auth.controller';
+import { LocalAccountTFAController } from './controllers/local-account-tfa.controller';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { TwoFactorAuthManager } from './services/two-factor-auth-manager.service';
@@ -19,6 +19,8 @@ import { PasswordDto } from 'src/accounts/request-dto/password.dto';
 import { validateParamDto } from 'src/lib/middlewares/validate-param.dto';
 import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
 import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
+import { GoogleAccountTFAController } from './controllers/google-account-tfa.controller';
+import { AccountTFAController } from './controllers/tfa-account.controller';
 
 @Module({
   imports: [
@@ -27,14 +29,18 @@ import { VerificationCodesModule } from 'src/verification_codes/verification-cod
     AccountsModule,
     VerificationCodesModule,
   ],
-  controllers: [TwoFactorAuthController],
+  controllers: [
+    AccountTFAController,
+    LocalAccountTFAController,
+    GoogleAccountTFAController,
+  ],
   providers: [
     TwoFactorAuthService,
     TwoFactorAuthManager,
     { provide: MANAGE_DATA_SERVICE, useClass: TwoFactorAuthService },
   ],
 })
-export class SecurityModule implements NestModule {
+export class TwoFactorAuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(validateBodyDto(PasswordDto)).forRoutes(
       {

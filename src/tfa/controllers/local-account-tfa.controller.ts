@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { TFA_ROUTE } from 'src/lib/constants';
+import { LOCAL_ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { TFAMessages } from '../enums/tfa-messages';
@@ -33,25 +33,16 @@ import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
 import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
 import { NotificationBy } from 'src/notifications/types/notification-by';
+import { IsLocalAccount } from 'src/accounts/guards/is-local-account.guard';
 
-@Controller(TFA_ROUTE)
-@ApiTags(TFA_ROUTE)
-@UseGuards(JwtAuthGuard)
-export class TwoFactorAuthController {
+@Controller(LOCAL_ACCOUNT_TFA)
+@ApiTags(LOCAL_ACCOUNT_TFA)
+@UseGuards(JwtAuthGuard, IsLocalAccount)
+export class LocalAccountTFAController {
   constructor(
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly twoFactorAuthManager: TwoFactorAuthManager,
   ) {}
-
-  @Get(TFARoutes.ME)
-  async findClientTFA(
-    @Client() client: JwtPayload,
-  ): Promise<{ data: SelectedTFAFields; message: TFAMessages }> {
-    return {
-      data: await this.twoFactorAuthService.getOneByAccountID(client.sub),
-      message: TFAMessages.FOUND,
-    };
-  }
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_EMAIL_FOR_ACCOUNT)
   @NotificationTo(NotificationBy.EMAIL)
@@ -92,21 +83,6 @@ export class TwoFactorAuthController {
     return {
       following_link: TFA_ROUTE + TFARoutes.VERIFY_TFA + code.url_token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
-    };
-  }
-
-  @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT)
-  @NotificationTo(NotificationBy.MOBILE_PHONE)
-  @UseGuards(PasswordsMatch, VerificationCodeAlreadySent)
-  @Post(TFARoutes.DISABLE)
-  async disable2FA(
-    @Client() client: JwtPayload,
-  ): Promise<{ following_link: string; message: CodeMessages }> {
-    const code = await this.twoFactorAuthManager.disable(client.sub);
-
-    return {
-      following_link: TFA_ROUTE + TFARoutes.VERIFY_TFA + code.url_token,
-      message: CodeMessages.SENT,
     };
   }
 

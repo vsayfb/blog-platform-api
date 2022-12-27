@@ -3,7 +3,7 @@ import { Chat } from 'src/chats/entities/chat.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Follow } from 'src/follow/entities/follow.entity';
 import { Post } from 'src/posts/entities/post.entity';
-import { TwoFactorAuth } from 'src/security/entities/two-factor-auth.entity';
+import { TwoFactorAuth } from 'src/tfa/entities/two-factor-auth.entity';
 import {
   Column,
   Entity,

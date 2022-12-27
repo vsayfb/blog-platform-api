@@ -1,6 +1,6 @@
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Role } from 'src/accounts/entities/account.entity';
-import { AccessToken } from 'src/auth/request-dto/access-token.dto';
+import { AccessToken } from 'src/auth/request-dto/google-access-token.dto';
 import { DatabaseUser, TestDatabaseService } from './database/database.service';
 import * as request from 'supertest';
 import { PostRoutes } from 'src/posts/enums/post-routes';

@@ -1,53 +1,43 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
-import { NotificationBy } from 'src/notifications/types/notification-by';
-import { CodeProcess } from 'src/verification_codes/entities/code.entity';
+import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
+
+/**
+ * Validate verification_code in body and token in params before using this guard.
+ *
+ * If verication code matches in database code this guard puts account.credentials at req.account_credentials
+ *
+ * You can get it with @AccountCredentials decorator.
+ */
 
 @Injectable()
 export class TFAGuard implements CanActivate {
   constructor(
-    private readonly accountsService: AccountsService,
-    private readonly passwordService: PasswordManagerService,
     private readonly codesService: VerificationCodesService,
+    private readonly accountsService: AccountsService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
-    const request = context.switchToHttp().getRequest();
+    const req: {
+      body: { verification_code: string };
+      params: { token: string };
+      account_credentials: AccountWithCredentials;
+    } = context.switchToHttp().getRequest();
 
-    const { body } = request;
-
-    const account =
-      await this.accountsService.getCredentialsByUsernameOrEmailOrPhone(
-        body.username,
-      );
-
-    if (!account) return false;
-
-    const matched = await this.passwordService.comparePassword(
-      body.password,
-      account.password,
-    );
-
-    if (!matched) return false;
-
-    const { via } = account.two_factor_auth;
-
-    const process: CodeProcess =
-      via === NotificationBy.EMAIL
-        ? CodeProcess.LOGIN_TFA_EMAIL_FOR_ACCOUNT
-        : CodeProcess.LOGIN_TFA_MOBILE_PHONE_FOR_ACCOUNT;
-
-    const code = await this.codesService.getCodeByCredentials(
-      body.verification_code,
-      account[via],
-      process,
+    const code = await this.codesService.getOneByCodeAndToken(
+      req.body.verification_code,
+      req.params.token,
     );
 
     if (!code) return false;
 
-    request.tfa_account = account;
+    const account =
+      await this.accountsService.getCredentialsByUsernameOrEmailOrPhone(
+        code.receiver,
+      );
+
+    req.account_credentials = account;
 
     return true;
   }

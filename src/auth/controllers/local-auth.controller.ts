@@ -20,7 +20,7 @@ import { RegisterDto } from '../response-dto/register.dto';
 import { AuthRoutes } from '../enums/auth-routes';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { AuthMessages } from '../enums/auth-messages';
-import { AUTH_ROUTE } from 'src/lib/constants';
+import { LOCAL_AUTH_ROUTE } from 'src/lib/constants';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { LoginDto } from '../response-dto/login.dto';
@@ -28,33 +28,24 @@ import {
   BeginVerificationWithEmailDto,
   BeginVerificationWithPhoneDto,
 } from '../request-dto/begin-verification.dto';
-import { TFAEnabledExceptionFilter } from 'src/security/exceptions/tfa-enabled-exception-filter';
-import { TFAGuard } from '../guards/tfa.guard';
-import { AccountsService } from 'src/accounts/services/accounts.service';
-import { JwtPayload } from 'src/lib/jwt.payload';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
 import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email.guard';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
-import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { NotificationBy } from 'src/notifications/types/notification-by';
+import { EnabledEmailFactorException } from 'src/tfa/exceptions/enabled-email-factor.exception';
+import { EnabledMobilePhoneFactorException } from 'src/tfa/exceptions/enabled-mobile-phone-factor.exception';
+import { EnabledEmailFactorFilter } from 'src/tfa/exceptions/enabled-email-factor-filter';
+import { EnabledMobilePhoneFactorFilter } from 'src/tfa/exceptions/enabled-mobile-phone-factor-filter';
 
-@Controller(AUTH_ROUTE)
-@ApiTags(AUTH_ROUTE)
+@Controller(LOCAL_AUTH_ROUTE)
+@ApiTags(LOCAL_AUTH_ROUTE)
 export class LocalAuthController implements IAuthController {
   constructor(
     private readonly localAuthService: LocalAuthService,
-    private readonly accountsService: AccountsService,
     private readonly notificationFactory: NotificationFactory,
   ) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Get(AuthRoutes.CLIENT)
-  findClient(@Client() client: JwtPayload): JwtPayload {
-    return client;
-  }
 
   @UseInterceptors(DeleteVerificationCodeInBody)
   @Post(AuthRoutes.REGISTER_WITH_EMAIL)
@@ -78,30 +69,8 @@ export class LocalAuthController implements IAuthController {
     };
   }
 
-  @UseGuards(TFAGuard)
-  @UseInterceptors(DeleteVerificationCodeInBody)
-  @Post(AuthRoutes.VERIFY_LOGIN)
-  async verifyLogin(
-    @Req() req: { tfa_account: AccountWithCredentials },
-  ): Promise<{
-    data: { account: SelectedAccountFields; access_token: string };
-    message: AuthMessages;
-  }> {
-    const { tfa_account } = req;
-
-    delete tfa_account.password;
-    delete tfa_account.two_factor_auth;
-    delete tfa_account.email;
-    delete tfa_account.mobile_phone;
-
-    return {
-      data: this.localAuthService.login(tfa_account),
-      message: AuthMessages.SUCCESSFUL_LOGIN,
-    };
-  }
-
   @UseGuards(LocalAuthGuard)
-  @UseFilters(TFAEnabledExceptionFilter)
+  @UseFilters(EnabledEmailFactorFilter, EnabledMobilePhoneFactorFilter)
   @HttpCode(200)
   @Post(AuthRoutes.LOGIN)
   async login(@Client() client: SelectedAccountFields): Promise<{

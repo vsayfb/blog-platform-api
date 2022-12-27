@@ -9,9 +9,10 @@ import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
+import { TFAMessages } from '../enums/tfa-messages';
 
 @Injectable()
-export class CodeSentForDisableTFA implements CanActivate {
+export class CodeAlreadySentForDisableTFA implements CanActivate {
   constructor(private readonly codesService: VerificationCodesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -22,7 +23,7 @@ export class CodeSentForDisableTFA implements CanActivate {
 
     const tfa = req.account_credentials.two_factor_auth;
 
-    if (!tfa) return false;
+    if (!tfa) throw new ForbiddenException(TFAMessages.NOT_ENABLED);
 
     const process: CodeProcess =
       tfa.via === 'email'

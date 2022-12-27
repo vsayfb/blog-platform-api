@@ -19,7 +19,7 @@ export class GoogleService {
 
   async getUserCredentials(
     access_token: string,
-  ): Promise<{ email: string; given_name: string; family_name: string }> {
+  ): Promise<GoogleUserCredentials> {
     const { data }: { data: GoogleUserCredentials } = await axios.get(
       this.userInfoURL,
       {
@@ -30,10 +30,6 @@ export class GoogleService {
       },
     );
 
-    return {
-      email: data.email,
-      given_name: data.given_name,
-      family_name: data.family_name,
-    };
+    return data;
   }
 }

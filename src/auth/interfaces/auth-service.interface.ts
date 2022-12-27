@@ -5,7 +5,7 @@ export interface IAuthService {
     data: any,
   ): Promise<{ account: SelectedAccountFields; access_token: string }>;
 
-  login(data: any): {
+  login(data: SelectedAccountFields): {
     account: SelectedAccountFields;
     access_token: string;
   };
