@@ -64,10 +64,24 @@ export class AuthModule implements NestModule {
         validateBodyDto(VerificationCodeDto),
       )
       .forRoutes({
-        path: AUTH_ROUTE + AuthRoutes.VERIFY_LOGIN + ':token',
+        path: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN + ':token',
         method: RequestMethod.POST,
       });
 
     /** AUTH ROUTES */
+
+    /** LOCAL AUTH ROUTES */
+
+    consumer
+      .apply(
+        validateParamDto(VerificationTokenDto),
+        validateBodyDto(VerificationCodeDto),
+      )
+      .forRoutes({
+        path: AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + ':token',
+        method: RequestMethod.POST,
+      });
+
+    /** LOCAL AUTH ROUTES */
   }
 }

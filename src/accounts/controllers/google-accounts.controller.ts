@@ -24,6 +24,7 @@ import {
   CodeProcess,
   VerificationCode,
 } from 'src/verification_codes/entities/code.entity';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
 import { AccountCredentials } from '../decorators/account.decorator';
 import { VerifiedGoogleUser } from '../decorators/google-user.decorator';
@@ -93,7 +94,7 @@ export class GoogleAccountsController {
           message: AccountMessages.PHONE_REMOVED,
         };
       default:
-        throw new ForbiddenException();
+        throw new ForbiddenException(CodeMessages.INVALID_CODE);
     }
   }
 }

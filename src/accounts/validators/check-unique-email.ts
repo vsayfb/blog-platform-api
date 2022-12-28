@@ -6,21 +6,30 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { AccountMessages } from '../enums/account-messages';
 import { AccountsService } from '../services/accounts.service';
+import { TemporaryAccountsService } from '../services/temporary-accounts.service';
 
 @Injectable()
 @ValidatorConstraint({ async: true })
 export class CheckUniqueEmail implements ValidatorConstraintInterface {
-  constructor(private readonly accountsService: AccountsService) {}
+  constructor(
+    private readonly accountsService: AccountsService,
+    private readonly tempAccountsService: TemporaryAccountsService,
+  ) {}
 
   async validate(email: string, args: ValidationArguments) {
     const account = await this.accountsService.getOneByEmail(email);
 
-    return !account;
+    const tempAccount = await this.tempAccountsService.getOneByEmail(email);
+
+    if (account || tempAccount) return false;
+
+    return true;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'email has been taken.';
+    return AccountMessages.EMAIL_TAKEN;
   }
 }
 

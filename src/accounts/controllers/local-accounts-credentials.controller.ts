@@ -17,7 +17,7 @@ import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-
 import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
-import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-already-sent.guard';
+import { VerificationCodeAlreadySentToAccount } from 'src/verification_codes/guards/code-already-sent.guard';
 import { AccountCredentials } from '../decorators/account.decorator';
 import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
@@ -39,7 +39,7 @@ export class LocalAccountsCredentialsController {
     JwtAuthGuard,
     IsLocalAccount,
     PasswordsMatch,
-    VerificationCodeAlreadySent,
+    VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
   async addNewPhone(
@@ -70,7 +70,7 @@ export class LocalAccountsCredentialsController {
     JwtAuthGuard,
     IsLocalAccount,
     PasswordsMatch,
-    VerificationCodeAlreadySent,
+    VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
   async removeMobilPhone(
@@ -104,7 +104,7 @@ export class LocalAccountsCredentialsController {
     JwtAuthGuard,
     IsLocalAccount,
     PasswordsMatch,
-    VerificationCodeAlreadySent,
+    VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.ADD_EMAIL)
   async addEmail(
@@ -134,7 +134,7 @@ export class LocalAccountsCredentialsController {
     JwtAuthGuard,
     IsLocalAccount,
     PasswordsMatch,
-    VerificationCodeAlreadySent,
+    VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.REMOVE_EMAIL)
   async removeEmail(

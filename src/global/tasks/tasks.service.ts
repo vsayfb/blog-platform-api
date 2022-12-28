@@ -5,14 +5,26 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 export class TasksService {
   constructor(private schedulerRegistry: SchedulerRegistry) {}
 
-  execAfterTwoMinutes(cb: Function) {
-    const TIMEOUT_NAME = 'after_two_' + Date.now().toString();
+  execAfterGivenMinutes(cb: Function, minutes: number) {
+    const TIMEOUT_NAME = 'after_minutes_' + Date.now().toString();
 
     const timeout = setTimeout(() => {
       cb();
 
       this.deleteTimeout(TIMEOUT_NAME);
-    }, 120000);
+    }, minutes * 60000);
+
+    this.schedulerRegistry.addTimeout(TIMEOUT_NAME, timeout);
+  }
+
+  execAfterGivenSeconds(cb: Function, seconds: number) {
+    const TIMEOUT_NAME = 'after_seconds_' + Date.now().toString();
+
+    const timeout = setTimeout(() => {
+      cb();
+
+      this.deleteTimeout(TIMEOUT_NAME);
+    }, seconds * 1000);
 
     this.schedulerRegistry.addTimeout(TIMEOUT_NAME, timeout);
   }

@@ -29,7 +29,7 @@ import { VerificationCodeMatches } from 'src/verification_codes/guards/check-ver
 import { AccountCredentials } from 'src/accounts/decorators/account.decorator';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { AccountMessages } from 'src/accounts/enums/account-messages';
-import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-already-sent.guard';
+import { VerificationCodeAlreadySentToAccount } from 'src/verification_codes/guards/code-already-sent.guard';
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
 import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
 import { NotificationBy } from 'src/notifications/types/notification-by';
@@ -44,9 +44,9 @@ export class LocalAccountTFAController {
     private readonly twoFactorAuthManager: TwoFactorAuthManager,
   ) {}
 
-  @VerificationCodeProcess(CodeProcess.ENABLE_TFA_EMAIL_FOR_ACCOUNT)
+  @VerificationCodeProcess(CodeProcess.ENABLE_TFA_EMAIL_FACTOR)
   @NotificationTo(NotificationBy.EMAIL)
-  @UseGuards(PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_EMAIL_FACTOR)
   async enable2FAWithEmail(
     @AccountCredentials() account: AccountWithCredentials,
@@ -60,14 +60,14 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.VERIFY_TFA + code.url_token,
+      following_link: TFA_ROUTE + TFARoutes.CREATE + code.url_token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     };
   }
 
-  @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT)
+  @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR)
   @NotificationTo(NotificationBy.MOBILE_PHONE)
-  @UseGuards(PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_MOBILE_PHONE)
   async enable2FAWithMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
@@ -81,14 +81,14 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.VERIFY_TFA + code.url_token,
+      following_link: TFA_ROUTE + TFARoutes.CREATE + code.url_token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }
 
   @UseGuards(JwtAuthGuard, VerificationCodeMatches)
   @UseInterceptors(DeleteVerificationCodeInBody)
-  @Post(TFARoutes.VERIFY_TFA + ':token')
+  @Post(TFARoutes.CREATE + ':token')
   async makeProcessOfCode(
     @Client() client: JwtPayload,
     @VerificationCodeObj() verification_code: VerificationCode,
@@ -98,15 +98,11 @@ export class LocalAccountTFAController {
   }> {
     const { process } = verification_code;
 
-    if (process.includes('DISABLE_TFA')) {
-      const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
-
-      await this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
-
-      return { data: tfa, message: TFAMessages.TFA_DISABLED };
-    } else if (process.includes('ENABLE_TFA')) {
+    if (!process.includes('ENABLE_TFA')) {
+      throw new ForbiddenException(CodeMessages.INVALID_CODE);
+    } else {
       const via =
-        process === CodeProcess.ENABLE_TFA_EMAIL_FOR_ACCOUNT
+        process === CodeProcess.ENABLE_TFA_EMAIL_FACTOR
           ? NotificationBy.EMAIL
           : NotificationBy.MOBILE_PHONE;
 
@@ -116,8 +112,6 @@ export class LocalAccountTFAController {
       });
 
       return { data: tfa, message: TFAMessages.TFA_ENABLED };
-    } else {
-      throw new ForbiddenException();
     }
   }
 }

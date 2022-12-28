@@ -11,7 +11,6 @@ export class CreateAccountDto extends IntersectionType(
   UniqueUsernameDto,
   PasswordDto,
   DisplayNameDto,
-  VerificationCodeDto,
 ) {}
 
 export class CreateAccountWithEmailDto extends IntersectionType(

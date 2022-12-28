@@ -1,12 +1,29 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PasswordsMatch } from 'src/accounts/guards/passwords-match.guard';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ACCOUNTS_ROUTE, ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { Data } from 'src/lib/decorators/request-data.decorator';
+import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
+import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
+import { VerificationCode } from 'src/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
-import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-already-sent.guard';
+import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
+import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { TFAMessages } from '../enums/tfa-messages';
 import { TFARoutes } from '../enums/tfa-routes';
 import { CodeAlreadySentForDisableTFA } from '../guards/code-sent-for-disable-tfa.guard';
@@ -41,8 +58,28 @@ export class AccountTFAController {
     const code = await this.twoFactorAuthManager.disable(client.sub);
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.VERIFY_TFA + code.url_token,
+      following_link: TFA_ROUTE + TFARoutes.DELETE + code.url_token,
       message: CodeMessages.SENT,
     };
+  }
+
+  @UseGuards(JwtAuthGuard, CanManageData, VerificationCodeMatches)
+  @UseInterceptors(DeleteVerificationCodeInBody)
+  @Delete(TFARoutes.DELETE + ':token')
+  async delete(
+    @Client() client: JwtPayload,
+    @VerificationCodeObj() code: VerificationCode,
+    @Param() token: VerificationCodeDto,
+    @Body() body: VerificationCodeDto,
+  ) {
+    if (!code.process.includes('DISABLE_TFA')) {
+      throw new ForbiddenException(CodeMessages.INVALID_CODE);
+    }
+
+    const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
+
+    await this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
+
+    return { data: null, message: TFAMessages.TFA_DISABLED };
   }
 }

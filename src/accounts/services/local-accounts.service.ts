@@ -1,4 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateLocalAccount } from 'src/auth/types/create-local-account';
 import { Brackets, Repository } from 'typeorm';
 import { Account, RegisterType } from '../entities/account.entity';
 import { CreateAccountDto } from '../request-dto/create-account.dto';
@@ -14,11 +15,7 @@ export class LocalAccountsService {
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
 
-  async create(
-    data: CreateAccountDto & { email?: string; mobile_phone?: string },
-  ): Promise<SelectedAccountFields> {
-    delete data.verification_code;
-
+  async create(data: CreateLocalAccount): Promise<SelectedAccountFields> {
     const hashedPassword = await this.passwordManagerService.hashPassword(
       data.password,
     );

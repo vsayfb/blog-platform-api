@@ -20,6 +20,7 @@ import {
   CodeProcess,
   VerificationCode,
 } from 'src/verification_codes/entities/code.entity';
+import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
 import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
 import { Account } from '../entities/account.entity';
@@ -85,7 +86,7 @@ export class LocalAccountsController {
           message: AccountMessages.PHONE_REMOVED,
         };
       default:
-        throw new ForbiddenException();
+        throw new ForbiddenException(CodeMessages.INVALID_CODE);
     }
   }
 
@@ -99,7 +100,7 @@ export class LocalAccountsController {
     @Body() dto: NewPasswordDto,
   ) {
     if (verification_code.process !== CodeProcess.UPDATE_PASSWORD) {
-      throw new ForbiddenException();
+      throw new ForbiddenException(CodeMessages.INVALID_CODE);
     }
 
     const account = (await this.accountsService.getOneByID(

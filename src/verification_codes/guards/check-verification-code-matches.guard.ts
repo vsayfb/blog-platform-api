@@ -9,13 +9,11 @@ import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
 
 /**
- * Validate body with value "verification_code" and validate params with "token" before using this guard.
+ * Validate "verification_code" in req.body and validate "token" in req.params before using this guard.
  *
- * If verification code matches in database verification code, verification code will be put to request.verification_code.
+ * If verification code matches in database verification code, you can get verification code with @VerificationCodeObj from request object.
  *
- * You can get verification code with @VerificationCodeObj from request object.
- *
- * You can use @DeleteVerificationCodeInBody interceptor to remove matched code in database.
+ * You can use @DeleteVerificationCodeInBody interceptor to remove code which matched in database.
  */
 
 @Injectable()

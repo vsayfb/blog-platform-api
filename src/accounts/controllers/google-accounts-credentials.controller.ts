@@ -17,7 +17,7 @@ import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-
 import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
-import { VerificationCodeAlreadySent } from 'src/verification_codes/guards/code-already-sent.guard';
+import { VerificationCodeAlreadySentToAccount } from 'src/verification_codes/guards/code-already-sent.guard';
 import { AccountCredentials } from '../decorators/account.decorator';
 import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
@@ -33,7 +33,7 @@ export class GoogleAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
   async addNewPhone(
     @AccountCredentials() account: AccountWithCredentials,
@@ -59,7 +59,7 @@ export class GoogleAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
-  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySent)
+  @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
   async removeMobilPhone(
     @AccountCredentials() account: AccountWithCredentials,

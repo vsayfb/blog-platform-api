@@ -27,8 +27,8 @@ export class CodeAlreadySentForDisableTFA implements CanActivate {
 
     const process: CodeProcess =
       tfa.via === 'email'
-        ? CodeProcess.DISABLE_TFA_EMAIL_FOR_ACCOUNT
-        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
+        ? CodeProcess.DISABLE_TFA_EMAIL_FACTOR
+        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FACTOR;
 
     const code = await this.codesService.getOneByReceiverAndProcess(
       req.account_credentials[tfa.via],

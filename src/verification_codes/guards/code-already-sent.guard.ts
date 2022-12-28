@@ -21,7 +21,7 @@ import { CodeProcess } from '../entities/code.entity';
  */
 
 @Injectable()
-export class VerificationCodeAlreadySent implements CanActivate {
+export class VerificationCodeAlreadySentToAccount implements CanActivate {
   constructor(
     private reflector: Reflector,
     private readonly codesService: VerificationCodesService,

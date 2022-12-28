@@ -1,20 +1,16 @@
 import {
   Body,
   Controller,
-  Get,
+  ForbiddenException,
   HttpCode,
+  Param,
   Post,
-  Req,
   UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Client } from 'src/auth/decorator/client.decorator';
-import {
-  CreateAccountWithEmailDto,
-  CreateAccountWithMobilePhoneDto,
-} from 'src/accounts/request-dto/create-account.dto';
 import { LocalAuthService } from '../services/local-auth.service';
 import { RegisterDto } from '../response-dto/register.dto';
 import { AuthRoutes } from '../enums/auth-routes';
@@ -24,20 +20,28 @@ import { LOCAL_AUTH_ROUTE } from 'src/lib/constants';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { LoginDto } from '../response-dto/login.dto';
-import {
-  BeginVerificationWithEmailDto,
-  BeginVerificationWithPhoneDto,
-} from '../request-dto/begin-verification.dto';
-import { CodeSentForMobilePhoneRegister } from '../guards/code-sent-for-phone-register.guard';
-import { CodeSentForRegisterEmail } from '../guards/code-sent-for-register-email.guard';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
-import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { NotificationBy } from 'src/notifications/types/notification-by';
-import { EnabledEmailFactorException } from 'src/tfa/exceptions/enabled-email-factor.exception';
-import { EnabledMobilePhoneFactorException } from 'src/tfa/exceptions/enabled-mobile-phone-factor.exception';
 import { EnabledEmailFactorFilter } from 'src/tfa/exceptions/enabled-email-factor-filter';
 import { EnabledMobilePhoneFactorFilter } from 'src/tfa/exceptions/enabled-mobile-phone-factor-filter';
+import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
+import {
+  CodeProcess,
+  VerificationCode,
+} from 'src/verification_codes/entities/code.entity';
+import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
+import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
+import { TemporaryAccountsService } from 'src/accounts/services/temporary-accounts.service';
+import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
+import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
+import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
+import {
+  RegisterWithEmailDto,
+  RegisterWithMobilePhoneDto,
+} from '../request-dto/register.dto';
+import { DeleteTemporaryAccount } from '../interceptors/delete-temp-account.interceptor';
 
 @Controller(LOCAL_AUTH_ROUTE)
 @ApiTags(LOCAL_AUTH_ROUTE)
@@ -45,29 +49,8 @@ export class LocalAuthController implements IAuthController {
   constructor(
     private readonly localAuthService: LocalAuthService,
     private readonly notificationFactory: NotificationFactory,
+    private readonly temporaryAccountsService: TemporaryAccountsService,
   ) {}
-
-  @UseInterceptors(DeleteVerificationCodeInBody)
-  @Post(AuthRoutes.REGISTER_WITH_EMAIL)
-  async register(
-    @Body() createAccountDto: CreateAccountWithEmailDto,
-  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
-    return {
-      data: await this.localAuthService.register(createAccountDto),
-      message: AuthMessages.SUCCESSFUL_REGISTRATION,
-    };
-  }
-
-  @UseInterceptors(DeleteVerificationCodeInBody)
-  @Post(AuthRoutes.REGISTER_WITH_MOBILE_PHONE)
-  async registerWithMobilePhone(
-    @Body() createAccountDto: CreateAccountWithMobilePhoneDto,
-  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
-    return {
-      data: await this.localAuthService.register(createAccountDto),
-      message: AuthMessages.SUCCESSFUL_REGISTRATION,
-    };
-  }
 
   @UseGuards(LocalAuthGuard)
   @UseFilters(EnabledEmailFactorFilter, EnabledMobilePhoneFactorFilter)
@@ -83,36 +66,77 @@ export class LocalAuthController implements IAuthController {
     };
   }
 
-  @Post(AuthRoutes.BEGIN_WITH_EMAIL)
-  @UseGuards(CodeSentForRegisterEmail)
-  @HttpCode(200)
-  async beginEmailVerification(
-    @Body() data: BeginVerificationWithEmailDto,
-  ): Promise<{ message: CodeMessages }> {
+  @Post(AuthRoutes.VERIFY_REGISTER + ':token')
+  @UseGuards(VerificationCodeMatches)
+  @UseInterceptors(DeleteVerificationCodeInBody)
+  async register(
+    @Param() params: VerificationTokenDto,
+    @Body() body: VerificationCodeDto,
+    @VerificationCodeObj() code: VerificationCode,
+  ): Promise<{ data: RegisterDto; message: AuthMessages }> {
+    //
+    if (!code.process.includes('REGISTER')) {
+      throw new ForbiddenException(CodeMessages.INVALID_CODE);
+    }
+
+    const tempAccount =
+      await this.temporaryAccountsService.getOneByEmailOrMobilePhone(
+        code.receiver,
+      );
+
+    const registered = await this.localAuthService.register(tempAccount);
+
+    await this.temporaryAccountsService.delete(tempAccount);
+
+    return {
+      data: registered,
+      message: AuthMessages.SUCCESSFUL_REGISTRATION,
+    };
+  }
+
+  @NotificationTo(NotificationBy.EMAIL)
+  @VerificationCodeProcess(CodeProcess.REGISTER_WITH_EMAIL)
+  @UseInterceptors(DeleteTemporaryAccount)
+  @Post(AuthRoutes.REGISTER_WITH_EMAIL)
+  async registerWithEmail(@Body() body: RegisterWithEmailDto) {
+    await this.temporaryAccountsService.create({ ...body, mobile_phone: null });
+
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.EMAIL,
     );
 
-    await notificationFactory.notifyForRegister(data.username, data.email);
+    const code = await notificationFactory.notifyForRegister(
+      body.username,
+      body.email,
+    );
 
-    return { message: CodeMessages.CODE_SENT_TO_MAIL };
+    return {
+      following_url:
+        LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.url_token,
+      message: CodeMessages.CODE_SENT_TO_MAIL,
+    };
   }
 
-  @Post(AuthRoutes.BEGIN_WITH_MOBILE_PHONE)
-  @UseGuards(CodeSentForMobilePhoneRegister)
-  @HttpCode(200)
-  async beginMobilePhoneVerification(
-    @Body() data: BeginVerificationWithPhoneDto,
-  ): Promise<{ message: CodeMessages }> {
+  @NotificationTo(NotificationBy.MOBILE_PHONE)
+  @VerificationCodeProcess(CodeProcess.REGISTER_WITH_MOBIL_PHONE)
+  @UseInterceptors(DeleteTemporaryAccount)
+  @Post(AuthRoutes.REGISTER_WITH_MOBILE_PHONE)
+  async registerWithMobilePhone(@Body() body: RegisterWithMobilePhoneDto) {
+    await this.temporaryAccountsService.create({ ...body, email: null });
+
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
     );
 
-    await notificationFactory.notifyForRegister(
-      data.username,
-      data.mobile_phone,
+    const code = await notificationFactory.notifyForRegister(
+      body.username,
+      body.mobile_phone,
     );
 
-    return { message: CodeMessages.CODE_SENT_TO_PHONE };
+    return {
+      following_url:
+        LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.url_token,
+      message: CodeMessages.CODE_SENT_TO_PHONE,
+    };
   }
 }

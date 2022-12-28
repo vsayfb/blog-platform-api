@@ -4,7 +4,12 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { MANAGE_DATA_SERVICE, TFA_ROUTE } from 'src/lib/constants';
+import {
+  GOOGLE_ACCOUNT_TFA,
+  LOCAL_ACCOUNT_TFA,
+  MANAGE_DATA_SERVICE,
+  TFA_ROUTE,
+} from 'src/lib/constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 import { AccountsModule } from 'src/accounts/accounts.module';
@@ -45,11 +50,15 @@ export class TwoFactorAuthModule implements NestModule {
     consumer.apply(validateBodyDto(PasswordDto)).forRoutes(
       {
         method: RequestMethod.POST,
-        path: TFA_ROUTE + TFARoutes.ENABLE_WITH_EMAIL_FACTOR,
+        path: LOCAL_ACCOUNT_TFA + TFARoutes.ENABLE_WITH_EMAIL_FACTOR,
       },
       {
         method: RequestMethod.POST,
-        path: TFA_ROUTE + TFARoutes.ENABLE_WITH_MOBILE_PHONE,
+        path: LOCAL_ACCOUNT_TFA + TFARoutes.ENABLE_WITH_MOBILE_PHONE,
+      },
+      {
+        method: RequestMethod.POST,
+        path: GOOGLE_ACCOUNT_TFA + TFARoutes.ENABLE_WITH_MOBILE_PHONE,
       },
     );
 
@@ -58,9 +67,19 @@ export class TwoFactorAuthModule implements NestModule {
         validateParamDto(VerificationTokenDto),
         validateBodyDto(VerificationCodeDto),
       )
-      .forRoutes({
-        method: RequestMethod.POST,
-        path: TFA_ROUTE + TFARoutes.VERIFY_TFA + ':token',
-      });
+      .forRoutes(
+        {
+          method: RequestMethod.POST,
+          path: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + ':token',
+        },
+        {
+          method: RequestMethod.POST,
+          path: GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE + ':token',
+        },
+        {
+          path: TFA_ROUTE + TFARoutes.DELETE + ':token',
+          method: RequestMethod.DELETE,
+        },
+      );
   }
 }

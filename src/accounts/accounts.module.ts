@@ -42,10 +42,12 @@ import { LocalAccountsController } from './controllers/local-accounts.controller
 import { UniqueMobilePhoneDto } from './request-dto/unique-mobile-phone.dto';
 import { UpdateGoogleAccountPasswordDto } from './request-dto/update-google-account-password.dto';
 import { GoogleModule } from 'src/apis/google/google.module';
+import { TemporaryAccount } from './entities/temporary-account.entity';
+import { TemporaryAccountsService } from './services/temporary-accounts.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Account]),
+    TypeOrmModule.forFeature([Account, TemporaryAccount]),
     GoogleModule,
     UploadsModule,
     NotificationsModule,
@@ -60,17 +62,19 @@ import { GoogleModule } from 'src/apis/google/google.module';
   ],
   providers: [
     AccountsService,
+    TemporaryAccountsService,
     GoogleAccountsService,
     LocalAccountsService,
     PasswordManagerService,
-    { provide: MANAGE_DATA_SERVICE, useClass: AccountsService },
     CheckUniqueUsername,
     CheckUniqueEmail,
     CheckUniquePhone,
     CheckAccountExists,
+    { provide: MANAGE_DATA_SERVICE, useClass: AccountsService },
   ],
   exports: [
     AccountsService,
+    TemporaryAccountsService,
     GoogleAccountsService,
     LocalAccountsService,
     PasswordManagerService,

@@ -28,7 +28,7 @@ export class EnabledMobilePhoneFactorFilter implements ExceptionFilter {
 
     const via = NotificationBy.MOBILE_PHONE;
 
-    const process = CodeProcess.LOGIN_TFA_MOBILE_PHONE_FOR_ACCOUNT;
+    const process = CodeProcess.LOGIN_TFA_MOBILE_PHONE;
 
     const alreadySent = await this.codesService.getOneByReceiverAndProcess(
       receiver,
@@ -48,7 +48,7 @@ export class EnabledMobilePhoneFactorFilter implements ExceptionFilter {
       .notifyForTFA(via, process);
 
     return response.status(200).json({
-      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_LOGIN,
+      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     });
   }

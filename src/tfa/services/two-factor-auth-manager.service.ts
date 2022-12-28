@@ -42,8 +42,8 @@ export class TwoFactorAuthManager {
 
     const process: CodeProcess =
       by === 'email'
-        ? CodeProcess.ENABLE_TFA_EMAIL_FOR_ACCOUNT
-        : CodeProcess.ENABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
+        ? CodeProcess.ENABLE_TFA_EMAIL_FACTOR
+        : CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR;
 
     return await notificationFactory.notifyForTFA(account[by], process);
   }
@@ -61,8 +61,8 @@ export class TwoFactorAuthManager {
 
     const process: CodeProcess =
       tfa.via === 'email'
-        ? CodeProcess.DISABLE_TFA_EMAIL_FOR_ACCOUNT
-        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FOR_ACCOUNT;
+        ? CodeProcess.DISABLE_TFA_EMAIL_FACTOR
+        : CodeProcess.DISABLE_TFA_MOBILE_PHONE_FACTOR;
 
     return await notificationFactory.notifyForTFA(account[tfa.via], process);
   }

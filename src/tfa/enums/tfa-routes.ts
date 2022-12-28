@@ -1,7 +1,6 @@
 export enum TFARoutes {
   ME = 'me',
-  CREATE = '/email',
-  VERIFY_TFA = '/verify/',
+  CREATE = '/create/',
   CREATE_MOBILE_PHONE = '/mobile_phone',
   UPDATE = '/',
   DELETE = '/remove/',

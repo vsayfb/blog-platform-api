@@ -34,8 +34,9 @@ export class EmailNotificationService implements INotificationService {
         process: CodeProcess.REGISTER_WITH_EMAIL,
       });
 
-      this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(verificationCode.id),
+      this.tasksService.execAfterGivenMinutes(
+        () => this.codesService.deleteIfExists(verificationCode.id),
+        5,
       );
 
       return verificationCode;
@@ -63,8 +64,9 @@ export class EmailNotificationService implements INotificationService {
         process,
       });
 
-      this.tasksService.execAfterTwoMinutes(() =>
-        this.codesService.deleteIfExists(verificationCode.id),
+      this.tasksService.execAfterGivenMinutes(
+        () => this.codesService.deleteIfExists(verificationCode.id),
+        2,
       );
 
       return verificationCode;

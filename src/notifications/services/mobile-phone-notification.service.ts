@@ -34,8 +34,9 @@ export class MobilePhoneNotificationService implements INotificationService {
         process: CodeProcess.REGISTER_WITH_MOBIL_PHONE,
       });
 
-      this.tasksService.execAfterTwoMinutes(() =>
-        this.verificationCodesService.deleteIfExists(verificationCode.id),
+      this.tasksService.execAfterGivenMinutes(
+        () => this.verificationCodesService.deleteIfExists(verificationCode.id),
+        5,
       );
 
       return verificationCode;
@@ -60,8 +61,9 @@ export class MobilePhoneNotificationService implements INotificationService {
         process,
       });
 
-      this.tasksService.execAfterTwoMinutes(() =>
-        this.verificationCodesService.deleteIfExists(verificationCode.id),
+      this.tasksService.execAfterGivenMinutes(
+        () => this.verificationCodesService.deleteIfExists(verificationCode.id),
+        2,
       );
 
       return verificationCode;
