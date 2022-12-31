@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IMailSenderService } from './interfaces/mail-sender-service.interface';
-import { ServiceUnavailableException } from '@nestjs/common';
 
 @Injectable()
 export class MailsService {

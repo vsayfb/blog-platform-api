@@ -6,28 +6,29 @@ import { VerificationCodesService } from 'src/verification_codes/verification-co
 import { AUTH_ROUTE } from 'src/lib/constants';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
-import { EnabledEmailFactorException } from './enabled-email-factor.exception';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { NotificationBy } from 'src/notifications/types/notification-by';
+import { EnabledMobilePhoneFactorException } from './enabled-mobile-phone-factor.exception';
 
-@Catch(EnabledEmailFactorException)
+@Catch(EnabledMobilePhoneFactorException)
 export class EnabledMobilePhoneFactorFilter implements ExceptionFilter {
   constructor(
     private readonly notificationFactory: NotificationFactory,
     private readonly codesService: VerificationCodesService,
   ) {}
 
-  async catch(exception: EnabledEmailFactorException, host: ArgumentsHost) {
+  async catch(
+    exception: EnabledMobilePhoneFactorException,
+    host: ArgumentsHost,
+  ) {
     const ctx = host.switchToHttp();
 
     const response = ctx.getResponse<Response>();
 
     const account = exception.getResponse() as AccountWithCredentials;
 
-    const receiver = account[account.two_factor_auth.via];
-
     const via = NotificationBy.MOBILE_PHONE;
-
+    const receiver = account[via];
     const process = CodeProcess.LOGIN_TFA_MOBILE_PHONE;
 
     const alreadySent = await this.codesService.getOneByReceiverAndProcess(
@@ -43,12 +44,13 @@ export class EnabledMobilePhoneFactorFilter implements ExceptionFilter {
       });
     }
 
-    await this.notificationFactory
-      .createNotification(via)
-      .notifyForTFA(via, process);
+    const notificationFactory =
+      this.notificationFactory.createNotification(via);
+
+    const code = await notificationFactory.notifyForTFA(receiver, process);
 
     return response.status(200).json({
-      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN,
+      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     });
   }

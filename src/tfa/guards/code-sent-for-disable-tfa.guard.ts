@@ -10,10 +10,15 @@ import { VerificationCodesService } from 'src/verification_codes/verification-co
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { CodeProcess } from 'src/verification_codes/entities/code.entity';
 import { TFAMessages } from '../enums/tfa-messages';
+import { Reflector } from '@nestjs/core';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 
 @Injectable()
 export class CodeAlreadySentForDisableTFA implements CanActivate {
-  constructor(private readonly codesService: VerificationCodesService) {}
+  constructor(
+    private reflector: Reflector,
+    private readonly codesService: VerificationCodesService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: {
@@ -25,6 +30,11 @@ export class CodeAlreadySentForDisableTFA implements CanActivate {
 
     if (!tfa) throw new ForbiddenException(TFAMessages.NOT_ENABLED);
 
+    const followingLink = this.reflector.get(
+      'followingLink',
+      context.getHandler(),
+    );
+
     const process: CodeProcess =
       tfa.via === 'email'
         ? CodeProcess.DISABLE_TFA_EMAIL_FACTOR
@@ -35,7 +45,14 @@ export class CodeAlreadySentForDisableTFA implements CanActivate {
       process,
     );
 
-    if (code) throw new ForbiddenException(CodeMessages.ALREADY_SENT);
+    if (code) {
+      const via = tfa.via === NotificationBy.EMAIL ? 'email' : 'mobile phone.';
+
+      throw new ForbiddenException({
+        following_link: followingLink,
+        message: CodeMessages.ALREADY_SENT.slice(0, -1) + ' ' + via,
+      });
+    }
 
     return true;
   }

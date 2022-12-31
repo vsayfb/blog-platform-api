@@ -3,6 +3,6 @@ import { AccountWithCredentials } from 'src/accounts/types/account-with-credenti
 
 export class EnabledEmailFactorException extends HttpException {
   constructor(account: AccountWithCredentials) {
-    super(account, HttpStatus.OK);
+    super(account, HttpStatus.FORBIDDEN);
   }
 }

@@ -46,8 +46,9 @@ export class GoogleAuthService extends BaseAuthService implements IAuthService {
 
     if (!account) return null;
 
-    if (account.two_factor_auth)
+    if (account.two_factor_auth) {
       throw new EnabledMobilePhoneFactorException(account);
+    }
 
     delete account.mobile_phone;
     delete account.email;

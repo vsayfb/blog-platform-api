@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Param,
   Post,
+  Patch,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -13,6 +16,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { LOCAL_ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { starEmail, starMobilePhone } from 'src/lib/star-text';
+import { NotificationBy } from 'src/notifications/types/notification-by';
+import { TwoFactorAuth } from 'src/tfa/entities/two-factor-auth.entity';
+import { TwoFactorAuthService } from 'src/tfa/services/two-factor-auth.service';
 import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
 import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
 import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
@@ -37,6 +43,7 @@ export class LocalAccountsController {
   constructor(
     private readonly localAccountsService: LocalAccountsService,
     private readonly accountsService: AccountsService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   @UseGuards(JwtAuthGuard, IsLocalAccount, VerificationCodeMatches)
@@ -52,47 +59,68 @@ export class LocalAccountsController {
 
     const account = await this.localAccountsService.getOneByID(client.sub);
 
-    switch (process) {
-      case CodeProcess.ADD_EMAIL_TO_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          email: verification_code.receiver,
-        });
-        return {
-          data: { email: starEmail(verification_code.receiver) },
-          message: AccountMessages.EMAIL_ADDED,
-        };
-      case CodeProcess.REMOVE_EMAIL_FROM_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          email: null,
-        });
-        return {
-          data: { email: null },
-          message: AccountMessages.EMAIL_REMOVED,
-        };
-      case CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          mobile_phone: verification_code.receiver,
-        });
-        return {
-          data: { mobile_phone: starMobilePhone(verification_code.receiver) },
-          message: AccountMessages.PHONE_ADDED,
-        };
-      case CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          mobile_phone: null,
-        });
-        return {
-          data: { mobile_phone: null },
-          message: AccountMessages.PHONE_REMOVED,
-        };
-      default:
-        throw new ForbiddenException(CodeMessages.INVALID_CODE);
+    if (process.includes('ADD')) {
+      switch (process) {
+        case CodeProcess.ADD_EMAIL_TO_ACCOUNT:
+          await this.accountsService.update(account as Account, {
+            email: verification_code.receiver,
+          });
+          return {
+            data: { email: starEmail(verification_code.receiver) },
+            message: AccountMessages.EMAIL_ADDED,
+          };
+
+        case CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT:
+          await this.accountsService.update(account as Account, {
+            mobile_phone: verification_code.receiver,
+          });
+          return {
+            data: { mobile_phone: starMobilePhone(verification_code.receiver) },
+            message: AccountMessages.PHONE_ADDED,
+          };
+        default:
+          throw new ForbiddenException(CodeMessages.INVALID_CODE);
+      }
+    } else {
+      const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
+
+      switch (process) {
+        case CodeProcess.REMOVE_EMAIL_FROM_ACCOUNT:
+          await this.accountsService.update(account as Account, {
+            email: null,
+          });
+
+          if (tfa && tfa.via === NotificationBy.EMAIL) {
+            this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
+          }
+
+          return {
+            data: { email: null },
+            message: AccountMessages.EMAIL_REMOVED,
+          };
+
+        case CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT:
+          await this.accountsService.update(account as Account, {
+            mobile_phone: null,
+          });
+
+          if (tfa && tfa.via === NotificationBy.MOBILE_PHONE) {
+            this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
+          }
+          return {
+            data: { mobile_phone: null },
+            message: AccountMessages.PHONE_REMOVED,
+          };
+
+        default:
+          throw new ForbiddenException(CodeMessages.INVALID_CODE);
+      }
     }
   }
 
   @UseGuards(JwtAuthGuard, IsLocalAccount, VerificationCodeMatches)
   @UseInterceptors(DeleteVerificationCodeInBody)
-  @Post(AccountRoutes.UPDATE_PASSWORD + ':token')
+  @Patch(AccountRoutes.UPDATE_PASSWORD + ':token')
   async updatePassword(
     @Client() client: JwtPayload,
     @Param() params: VerificationTokenDto,

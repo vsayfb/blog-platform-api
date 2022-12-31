@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { Repository } from 'typeorm';
@@ -69,19 +73,15 @@ export class ChatsService implements ICreateService, IFindService {
   }
 
   async getAccountChats(accountID: string): Promise<AccountChat[]> {
-    const result = await this.chatsRepository
-      .createQueryBuilder('chats')
-      .leftJoin('chats.members', 'members')
-      .andWhere('members.id=:memberID', { memberID: accountID })
-      .leftJoinAndSelect('chats.messages', 'messages')
-      .leftJoinAndSelect('messages.sender', 'messages.sender')
-      .getMany();
+    const chats = await this.chatsRepository.find({
+      relations: { members: true, messages: { sender: true } },
+    });
 
-    return result.map((c) => {
+    return chats.filter((c) => {
       //@ts-ignore
       c.last_message = c.messages[c.messages.length - 1];
       delete c.messages;
-      return c;
+      return c.members.some((c) => c.id === accountID);
     }) as unknown as AccountChat[];
   }
 

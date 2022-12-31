@@ -1,10 +1,12 @@
 import {
+  forwardRef,
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
 import {
+  ACCOUNT_TFA,
   GOOGLE_ACCOUNT_TFA,
   LOCAL_ACCOUNT_TFA,
   MANAGE_DATA_SERVICE,
@@ -25,14 +27,14 @@ import { validateParamDto } from 'src/lib/middlewares/validate-param.dto';
 import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
 import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
 import { GoogleAccountTFAController } from './controllers/google-account-tfa.controller';
-import { AccountTFAController } from './controllers/tfa-account.controller';
+import { AccountTFAController } from './controllers/account-tfa.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TwoFactorAuth]),
     NotificationsModule,
-    AccountsModule,
     VerificationCodesModule,
+    forwardRef(() => AccountsModule),
   ],
   controllers: [
     AccountTFAController,
@@ -44,6 +46,7 @@ import { AccountTFAController } from './controllers/tfa-account.controller';
     TwoFactorAuthManager,
     { provide: MANAGE_DATA_SERVICE, useClass: TwoFactorAuthService },
   ],
+  exports: [TwoFactorAuthService],
 })
 export class TwoFactorAuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -77,8 +80,8 @@ export class TwoFactorAuthModule implements NestModule {
           path: GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE + ':token',
         },
         {
-          path: TFA_ROUTE + TFARoutes.DELETE + ':token',
-          method: RequestMethod.DELETE,
+          method: RequestMethod.POST,
+          path: ACCOUNT_TFA + TFARoutes.DELETE + ':token',
         },
       );
   }

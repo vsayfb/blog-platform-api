@@ -24,11 +24,9 @@ export class EnabledEmailFactorFilter implements ExceptionFilter {
 
     const account = exception.getResponse() as AccountWithCredentials;
 
-    const receiver = account[account.two_factor_auth.via];
-
     const via = NotificationBy.EMAIL;
-
     const process = CodeProcess.LOGIN_TFA_EMAIL;
+    const receiver = account[via];
 
     const alreadySent = await this.codesService.getOneByReceiverAndProcess(
       receiver,
@@ -43,12 +41,13 @@ export class EnabledEmailFactorFilter implements ExceptionFilter {
       });
     }
 
-    await this.notificationFactory
-      .createNotification(via)
-      .notifyForTFA(via, process);
+    const notificationFactory =
+      this.notificationFactory.createNotification(via);
+
+    const code = await notificationFactory.notifyForTFA(receiver, process);
 
     return response.status(200).json({
-      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN,
+      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN + code.token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     });
   }

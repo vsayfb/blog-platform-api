@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateAccountDto } from 'src/accounts/request-dto/create-account.dto';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { IAuthService } from '../interfaces/auth-service.interface';
@@ -32,12 +32,12 @@ export class LocalAuthService extends BaseAuthService implements IAuthService {
         username,
       );
 
-    const passwordsMatch = account
-      ? await this.passwordManagerService.comparePassword(
-          pass,
-          account.password,
-        )
-      : false;
+    if (!account) return null;
+
+    const passwordsMatch = await this.passwordManagerService.comparePassword(
+      pass,
+      account.password,
+    );
 
     if (passwordsMatch) {
       if (account.two_factor_auth) {

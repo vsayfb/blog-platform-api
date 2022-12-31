@@ -13,7 +13,8 @@ import { PasswordsMatch } from 'src/accounts/guards/passwords-match.guard';
 import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { GOOGLE_ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { ACCOUNT_TFA, GOOGLE_ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
@@ -44,6 +45,7 @@ export class GoogleAccountTFAController {
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR)
   @NotificationTo(NotificationBy.MOBILE_PHONE)
+  @FollowingLink(GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_MOBILE_PHONE)
   async enable2FAWithMobilePhone(
@@ -58,7 +60,7 @@ export class GoogleAccountTFAController {
     });
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.CREATE + code.url_token,
+      following_link: GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }

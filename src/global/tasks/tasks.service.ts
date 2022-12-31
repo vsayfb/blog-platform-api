@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { randomUUID } from 'crypto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class TasksService {
   constructor(private schedulerRegistry: SchedulerRegistry) {}
 
   execAfterGivenMinutes(cb: Function, minutes: number) {
-    const TIMEOUT_NAME = 'after_minutes_' + Date.now().toString();
+    const TIMEOUT_NAME = 'after_minutes_' + nanoid();
 
     const timeout = setTimeout(() => {
       cb();
@@ -18,7 +20,7 @@ export class TasksService {
   }
 
   execAfterGivenSeconds(cb: Function, seconds: number) {
-    const TIMEOUT_NAME = 'after_seconds_' + Date.now().toString();
+    const TIMEOUT_NAME = 'after_seconds_' + nanoid();
 
     const timeout = setTimeout(() => {
       cb();

@@ -17,7 +17,7 @@ export class CheckAccountExists implements ValidatorConstraintInterface {
   async validate(id: string, args: ValidationArguments) {
     const account = await this.accountsService.getOneByID(id);
 
-    return !account;
+    return !!account;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

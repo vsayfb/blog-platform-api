@@ -10,7 +10,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ACCOUNTS_ROUTE,
   LOCAL_ACCOUNTS_CREDENTIALS_ROUTE,
+  LOCAL_ACCOUNTS_ROUTE,
 } from 'src/lib/constants';
+import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
@@ -35,6 +37,7 @@ export class LocalAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
+  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -59,13 +62,14 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
+  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -93,13 +97,14 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.ADD_EMAIL_TO_ACCOUNT)
+  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -123,13 +128,14 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     };
   }
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.REMOVE_EMAIL_FROM_ACCOUNT)
+  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -158,12 +164,13 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     };
   }
 
   @Post(AccountRoutes.CHANGE_PASSWORD)
+  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD)
   @UseGuards(JwtAuthGuard, IsLocalAccount, PasswordsMatch)
   async changePassword(
     @AccountCredentials() account: AccountWithCredentials,
@@ -189,7 +196,7 @@ export class LocalAccountsCredentialsController {
 
     return {
       following_link:
-        ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD + code.url_token,
+        LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD + code.token,
       message:
         notifyBy === NotificationBy.EMAIL
           ? CodeMessages.CODE_SENT_TO_MAIL

@@ -1,16 +1,14 @@
 import {
   Controller,
   ForbiddenException,
-  Get,
   Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { LOCAL_ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { LOCAL_ACCOUNT_TFA } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { TwoFactorAuth } from '../entities/two-factor-auth.entity';
 import { TFAMessages } from '../enums/tfa-messages';
 import { TFARoutes } from '../enums/tfa-routes';
 import { TwoFactorAuthService } from '../services/two-factor-auth.service';
@@ -34,6 +32,7 @@ import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-
 import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { IsLocalAccount } from 'src/accounts/guards/is-local-account.guard';
+import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
 
 @Controller(LOCAL_ACCOUNT_TFA)
 @ApiTags(LOCAL_ACCOUNT_TFA)
@@ -46,6 +45,7 @@ export class LocalAccountTFAController {
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_EMAIL_FACTOR)
   @NotificationTo(NotificationBy.EMAIL)
+  @FollowingLink(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_EMAIL_FACTOR)
   async enable2FAWithEmail(
@@ -60,13 +60,14 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.CREATE + code.url_token,
+      following_link: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     };
   }
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR)
   @NotificationTo(NotificationBy.MOBILE_PHONE)
+  @FollowingLink(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_MOBILE_PHONE)
   async enable2FAWithMobilePhone(
@@ -81,7 +82,7 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: TFA_ROUTE + TFARoutes.CREATE + code.url_token,
+      following_link: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }

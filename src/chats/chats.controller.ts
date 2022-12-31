@@ -29,17 +29,17 @@ import { Client } from 'src/auth/decorator/client.decorator';
 export class ChatsController implements ICreateController, IFindController {
   constructor(private readonly chatsService: ChatsService) {}
 
-  @Post(ChatRoutes.CREATE)
+  @Post(ChatRoutes.CREATE + ':id')
   async create(
     @Client() initiator: JwtPayload,
-    @Query() { with_account_id }: ChatWithQueryID,
+    @Param() { id }: ChatWithQueryID,
     @Body() createChatDto: CreateChatDto,
   ): Promise<{ data: Chat; message: ChatMessages }> {
     return {
       data: await this.chatsService.create({
-        toID: with_account_id,
-        firstMessage: createChatDto.first_message,
         initiatorID: initiator.sub,
+        toID: id,
+        firstMessage: createChatDto.first_message,
       }),
       message: ChatMessages.CREATED,
     };

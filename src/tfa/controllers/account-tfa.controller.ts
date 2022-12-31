@@ -14,11 +14,14 @@ import { PasswordsMatch } from 'src/accounts/guards/passwords-match.guard';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
+import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
 import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
+import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
 import { VerificationCode } from 'src/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/verification_codes/enums/code-messages';
 import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
@@ -50,26 +53,32 @@ export class AccountTFAController {
     };
   }
 
+  @FollowingLink(ACCOUNT_TFA + TFARoutes.DELETE)
   @UseGuards(PasswordsMatch, CodeAlreadySentForDisableTFA)
   @Post(TFARoutes.DISABLE)
   async disable2FA(
     @Client() client: JwtPayload,
-  ): Promise<{ following_link: string; message: CodeMessages }> {
+  ): Promise<{ following_link: string; message: string }> {
     const code = await this.twoFactorAuthManager.disable(client.sub);
 
+    const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
+
+    const codeSentTo =
+      tfa.via === NotificationBy.EMAIL ? 'email' : 'mobile phone';
+
     return {
-      following_link: TFA_ROUTE + TFARoutes.DELETE + code.url_token,
-      message: CodeMessages.SENT,
+      following_link: ACCOUNT_TFA + TFARoutes.DELETE + code.token,
+      message: CodeMessages.SENT + 'to your ' + codeSentTo,
     };
   }
 
-  @UseGuards(JwtAuthGuard, CanManageData, VerificationCodeMatches)
+  @UseGuards(JwtAuthGuard, VerificationCodeMatches)
   @UseInterceptors(DeleteVerificationCodeInBody)
-  @Delete(TFARoutes.DELETE + ':token')
+  @Post(TFARoutes.DELETE + ':token')
   async delete(
     @Client() client: JwtPayload,
     @VerificationCodeObj() code: VerificationCode,
-    @Param() token: VerificationCodeDto,
+    @Param() token: VerificationTokenDto,
     @Body() body: VerificationCodeDto,
   ) {
     if (!code.process.includes('DISABLE_TFA')) {

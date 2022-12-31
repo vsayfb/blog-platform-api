@@ -30,8 +30,11 @@ export class ProfilesService implements IFindService, IUpdateService {
       }
     }
 
-    if (anyChanges) await this.profilesRepository.save(subject);
+    if (anyChanges) {
+      const updated = await this.profilesRepository.save(subject);
 
+      return this.profilesRepository.findOneBy({ id: updated.id });
+    }
     return subject;
   }
 

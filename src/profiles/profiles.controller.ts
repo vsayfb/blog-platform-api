@@ -27,6 +27,8 @@ import { ProfileRoutes } from './enums/profile-routes';
 import { ProfilesService } from './profiles.service';
 import { ImageUpdatedDto } from './response-dto/image-updated.dto';
 import { DisplayNameUpdatedDto } from './response-dto/display-name-updated.dto';
+import { SignNewJwtToken } from 'src/accounts/interceptors/sign-new-jwt.interceptor';
+import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 
 @Controller(PROFILES_ROUTE)
 @ApiTags(PROFILES_ROUTE)
@@ -49,32 +51,32 @@ export class ProfilesController implements IFindController {
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('image'), SignNewJwtToken)
   @Patch(ProfileRoutes.UPDATE_IMAGE + ':id')
   async updateImage(
     @Data() profile: Account,
     @UploadedFile(RequiredImageFile) image: Express.Multer.File,
-  ): Promise<{ data: ImageUpdatedDto; message: ProfileMessages }> {
+  ): Promise<{ data: SelectedAccountFields; message: ProfileMessages }> {
     const newURL = await this.uploadsService.uploadProfileImage(image);
 
-    await this.profilesService.update(profile, { image: newURL });
-
     return {
-      data: { image: newURL },
+      data: await this.profilesService.update(profile, { image: newURL }),
       message: ProfileMessages.IMAGE_CHANGED,
     };
   }
 
   @UseGuards(JwtAuthGuard, CanManageData)
+  @UseInterceptors(SignNewJwtToken)
   @Patch(ProfileRoutes.UPDATE_DISPLAY_NAME + ':id')
   async updateDisplayname(
     @Data() profile: Account,
     @Body() body: DisplayNameDto,
-  ): Promise<{ data: DisplayNameUpdatedDto; message: ProfileMessages }> {
-    const updated = await this.profilesService.update(profile, body);
-
+  ): Promise<{
+    data: SelectedAccountFields;
+    message: ProfileMessages;
+  }> {
     return {
-      data: { display_name: updated.display_name },
+      data: await this.profilesService.update(profile, body),
       message: ProfileMessages.DISPLAY_NAME_UPDATED,
     };
   }

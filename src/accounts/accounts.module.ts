@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -44,6 +45,7 @@ import { UpdateGoogleAccountPasswordDto } from './request-dto/update-google-acco
 import { GoogleModule } from 'src/apis/google/google.module';
 import { TemporaryAccount } from './entities/temporary-account.entity';
 import { TemporaryAccountsService } from './services/temporary-accounts.service';
+import { TwoFactorAuthModule } from 'src/tfa/tfa.module';
 
 @Module({
   imports: [
@@ -52,6 +54,7 @@ import { TemporaryAccountsService } from './services/temporary-accounts.service'
     UploadsModule,
     NotificationsModule,
     VerificationCodesModule,
+    forwardRef(() => TwoFactorAuthModule),
   ],
   controllers: [
     AccountsController,
@@ -114,7 +117,7 @@ export class AccountsModule implements NestModule {
 
     consumer.apply(validateBodyDto(UpdateGoogleAccountPasswordDto)).forRoutes({
       path: GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD,
-      method: RequestMethod.POST,
+      method: RequestMethod.PATCH,
     });
     /** GOOGLE ACCOUNTS ROUTE */
 
@@ -161,7 +164,7 @@ export class AccountsModule implements NestModule {
       )
       .forRoutes({
         path: LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD + ':token',
-        method: RequestMethod.POST,
+        method: RequestMethod.PATCH,
       });
 
     /** LOCAL ACCOUNTS ROUTE */

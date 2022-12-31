@@ -17,11 +17,11 @@ export class NotifySubcribers implements NestInterceptor {
   private mailsService: MailsService;
 
   constructor(private readonly moduleRef: ModuleRef) {
-    this.subscriptionsService = moduleRef.get(SubscriptionsService, {
+    this.subscriptionsService = this.moduleRef.get(SubscriptionsService, {
       strict: false,
     });
 
-    this.mailsService = moduleRef.get(MailsService, {
+    this.mailsService = this.moduleRef.get(MailsService, {
       strict: false,
     });
   }
@@ -29,7 +29,7 @@ export class NotifySubcribers implements NestInterceptor {
   intercept(
     _context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+  ): Observable<Promise<{ data: CreatedPostDto; message: PostMessages }>> {
     return next.handle().pipe(
       map(async (value: { data: CreatedPostDto; message: PostMessages }) => {
         const { author, title, content } = value.data;
@@ -38,11 +38,13 @@ export class NotifySubcribers implements NestInterceptor {
           author.id,
         );
 
-        this.mailsService.send(
-          subscribers.map((s) => s.email),
-          `${author.display_name} - ${title}`,
-          content,
-        );
+        if (subscribers.length) {
+          this.mailsService.send(
+            subscribers.map((s) => s.email),
+            `${author.display_name} - ${title}`,
+            content,
+          );
+        }
 
         return value;
       }),

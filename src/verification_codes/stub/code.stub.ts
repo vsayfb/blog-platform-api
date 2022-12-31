@@ -5,6 +5,6 @@ export const codeStub = (): VerificationCode => ({
   code: '123456',
   receiver: 'receiver@gmail.com',
   process: CodeProcess.REGISTER_WITH_EMAIL,
-  url_token:"asWDmdkQEIKOMD",
+  token: 'asWDmdkQEIKOMD',
   created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
 });

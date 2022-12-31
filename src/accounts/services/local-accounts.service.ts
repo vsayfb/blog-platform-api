@@ -46,13 +46,14 @@ export class LocalAccountsService {
           qb.where('account.username = :username', {
             username: value,
           })
-            .orWhere('user.email = :email', { email: value })
-            .orWhere('user.mobil_phone = :mobile_phone', {
+            .orWhere('account.email = :email', { email: value })
+            .orWhere('account.mobile_phone = :mobile_phone', {
               mobile_phone: value,
             });
         }),
       )
       .select(Object.keys(CREDENTIALS).map((c) => 'account.' + c))
+      .leftJoinAndSelect('account.two_factor_auth', 'two_factor_auth')
       .getOne();
 
     return result;

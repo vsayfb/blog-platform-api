@@ -15,9 +15,10 @@ import { CodeProcess } from '../entities/code.entity';
 /**
  * You have to use below decorators before this guard.
  *
- * NotificationTo()
  *
- * VerificationCodeProcess()
+ * @NotificationTo
+ * @VerificationCodeProcess
+ * @FollowingLink
  */
 
 @Injectable()
@@ -45,12 +46,21 @@ export class VerificationCodeAlreadySentToAccount implements CanActivate {
       context.getHandler(),
     );
 
+    const followingLink = this.reflector.get<string>(
+      'followingLink',
+      context.getHandler(),
+    );
+
     const code = await this.codesService.getOneByReceiverAndProcess(
       account[notificationBy],
       process,
     );
 
-    if (code) throw new ForbiddenException(CodeMessages.ALREADY_SENT);
+    if (code)
+      throw new ForbiddenException({
+        following_link: followingLink + code.token,
+        message: CodeMessages.ALREADY_SENT,
+      });
 
     return true;
   }

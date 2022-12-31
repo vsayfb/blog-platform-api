@@ -17,6 +17,19 @@ export class GoogleAccountsService implements ICreateService {
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
 
+  private async generateUniqueUsername(text: string) {
+    let username = text;
+
+    // TODO
+
+    // length -> (2,16)
+    // only allow underscore special char -> /[^A-Za-z0-9_]/g
+    // min two letters -> /[A-Za-z]/gi
+    // max two underscores -> /[_]/gi
+
+    return username;
+  }
+
   async create(data: {
     email: string;
     givenName: string;
@@ -32,14 +45,14 @@ export class GoogleAccountsService implements ICreateService {
       Math.random().toString(36).substring(2, 8),
     );
 
-    const username = (givenName + familyName).replace(/ /g, '').toLowerCase();
+    const displayName = givenName + ' ' + familyName;
 
-    const display_name = givenName + ' ' + familyName;
+    const username = await this.generateUniqueUsername(givenName + familyName);
 
     const newGoogleAccount = await this.accountsRepository.save({
       email,
       username,
-      display_name,
+      display_name: displayName,
       image: `https://robohash.org/${username}.png`,
       password: hashedPassword,
       via: RegisterType.GOOGLE,
@@ -63,6 +76,7 @@ export class GoogleAccountsService implements ICreateService {
         email,
       },
       select: CREDENTIALS,
+      relations: { two_factor_auth: true },
     });
 
     return result;

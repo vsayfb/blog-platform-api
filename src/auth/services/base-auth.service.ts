@@ -16,7 +16,10 @@ export abstract class BaseAuthService {
   @Inject(PasswordManagerService)
   protected readonly passwordManagerService: PasswordManagerService;
 
-  login(account: SelectedAccountFields) {
+  login(account: SelectedAccountFields): {
+    account: SelectedAccountFields;
+    access_token: string;
+  } {
     const payload: JwtPayload = {
       sub: account.id,
       username: account.username,

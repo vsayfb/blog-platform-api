@@ -89,10 +89,12 @@ export class SubscriptionsService
       select: { follower: { email: true, id: true } },
     });
 
-    return followers.map((f) => ({
+    const subscribers = followers.map((f) => ({
       id: f.follower.id,
       email: f.follower.email,
     }));
+
+    return subscribers;
   }
 
   async getAll(): Promise<Subscriptions[]> {

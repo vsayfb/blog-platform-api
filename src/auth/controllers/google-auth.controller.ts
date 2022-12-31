@@ -28,7 +28,6 @@ import { GoogleUserCredentials } from 'src/apis/google/google.service';
 export class GoogleAuthController implements IAuthController {
   constructor(private readonly googleAuthService: GoogleAuthService) {}
 
-  @HttpCode(200)
   @UseGuards(VerifyGoogleUser)
   @Post(AuthRoutes.REGISTER)
   async register(
@@ -41,9 +40,8 @@ export class GoogleAuthController implements IAuthController {
     };
   }
 
-  @HttpCode(200)
-  @UseGuards(GoogleAuthGuard)
   @UseFilters(EnabledMobilePhoneFactorFilter)
+  @UseGuards(GoogleAuthGuard)
   @Post(AuthRoutes.LOGIN)
   async login(@Client() client: SelectedAccountFields): Promise<{
     data: LoginDto;

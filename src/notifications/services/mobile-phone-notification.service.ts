@@ -24,7 +24,7 @@ export class MobilePhoneNotificationService implements INotificationService {
 
     const sent = await this.smsService.sendSMS(
       phone,
-      `Thanks for signing up ${username}. Your verification code is here - ${code}`,
+      `Thanks for signing up @${username}. Your verification code is here - ${code}`,
     );
 
     if (sent) {

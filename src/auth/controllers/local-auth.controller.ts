@@ -111,8 +111,7 @@ export class LocalAuthController implements IAuthController {
     );
 
     return {
-      following_url:
-        LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.url_token,
+      following_url: LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.token,
       message: CodeMessages.CODE_SENT_TO_MAIL,
     };
   }
@@ -134,8 +133,7 @@ export class LocalAuthController implements IAuthController {
     );
 
     return {
-      following_url:
-        LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.url_token,
+      following_url: LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }

@@ -10,7 +10,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ACCOUNTS_ROUTE,
   GOOGLE_ACCOUNTS_CREDENTIALS_ROUTE,
+  GOOGLE_ACCOUNTS_ROUTE,
 } from 'src/lib/constants';
+import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
@@ -33,6 +35,7 @@ export class GoogleAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
+  @FollowingLink(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
   async addNewPhone(
@@ -52,13 +55,14 @@ export class GoogleAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
+  @FollowingLink(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
   async removeMobilPhone(
@@ -81,7 +85,7 @@ export class GoogleAccountsCredentialsController {
     );
 
     return {
-      data: ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.url_token,
+      following_link: GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
       message: CodeMessages.CODE_SENT_TO_PHONE,
     };
   }

@@ -43,7 +43,7 @@ export class VerificationCodesService
     const { id } = await this.verificationCodesRepository.save({
       code,
       process,
-      url_token: nanoid(72),
+      token: nanoid(72),
       receiver,
     });
 
@@ -63,7 +63,7 @@ export class VerificationCodesService
   async getOneByCodeAndToken(code: string, token: string) {
     return this.verificationCodesRepository.findOneBy({
       code,
-      url_token: token,
+      token,
     });
   }
 

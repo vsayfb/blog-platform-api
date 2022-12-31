@@ -33,7 +33,7 @@ export class VerificationCode {
   receiver: string;
 
   @Column({ unique: true })
-  url_token: string;
+  token: string;
 
   @Column({ type: 'enum', enum: CodeProcess, nullable: false })
   process: CodeProcess;

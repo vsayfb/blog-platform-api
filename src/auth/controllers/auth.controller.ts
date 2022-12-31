@@ -16,6 +16,7 @@ import { SelectedAccountFields } from 'src/accounts/types/selected-account-field
 import { AUTH_ROUTE, TFA_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
+import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
 import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
 import {
   CodeProcess,
@@ -50,7 +51,7 @@ export class AuthController {
   async verifyTFALogin(
     @VerificationCodeObj() code: VerificationCode,
     @Param() params: VerificationTokenDto,
-    @Body() body: VerificationCode,
+    @Body() body: VerificationCodeDto,
   ): Promise<{
     data: { account: SelectedAccountFields; access_token: string };
     message: AuthMessages;

@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,9 @@ import {
 } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { starEmail, starMobilePhone } from 'src/lib/star-text';
+import { NotificationBy } from 'src/notifications/types/notification-by';
+import { TwoFactorAuth } from 'src/tfa/entities/two-factor-auth.entity';
+import { TwoFactorAuthService } from 'src/tfa/services/two-factor-auth.service';
 import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
 import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
 import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
@@ -36,7 +40,6 @@ import { VerifyGoogleUser } from '../guards/verify-google-user.guard';
 import { UpdateGoogleAccountPasswordDto } from '../request-dto/update-google-account-password.dto';
 import { AccountsService } from '../services/accounts.service';
 import { GoogleAccountsService } from '../services/google-accounts.service';
-import { AccountWithCredentials } from '../types/account-with-credentials';
 
 @Controller(GOOGLE_ACCOUNTS_ROUTE)
 @ApiTags(GOOGLE_ACCOUNTS_ROUTE)
@@ -44,10 +47,11 @@ export class GoogleAccountsController {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly googleAccountsService: GoogleAccountsService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   @UseGuards(JwtAuthGuard, IsGoogleAccount, VerifyGoogleUser)
-  @Post(AccountRoutes.UPDATE_PASSWORD)
+  @Patch(AccountRoutes.UPDATE_PASSWORD)
   async updatePassword(
     @Client() client: JwtPayload,
     @Body() body: UpdateGoogleAccountPasswordDto,
@@ -89,6 +93,15 @@ export class GoogleAccountsController {
         await this.accountsService.update(account as Account, {
           mobile_phone: null,
         });
+
+        const tfa = await this.twoFactorAuthService.getOneByAccountID(
+          client.sub,
+        );
+
+        if (tfa && tfa.via === NotificationBy.MOBILE_PHONE) {
+          this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
+        }
+
         return {
           data: { mobile_phone: null },
           message: AccountMessages.PHONE_REMOVED,
