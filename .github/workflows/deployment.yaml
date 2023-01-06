@@ -1,0 +1,26 @@
+name: Deployment process
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build process
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            cd bpi
+            sudo git fetch origin master
+            sudo git reset --hard FETCH_HEAD
+            sudo npm i --legacy-peer-deps
+            sudo pm2 delete 0
+            sudo npm run build
+            sudo npm run migrate
+            sudo npm run start:prod

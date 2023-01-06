@@ -1,0 +1,64 @@
+services:
+  app:
+    image: node:18-alpine
+    container_name: app
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "if [[ ${NODE_ENV} == "production" ]]; then
+      npm i pm2 -g && npm i --legacy-peer-deps && npm run build && npm run migrate && npm run start:prod;
+      else
+      npm i --legacy-peer-deps && npm run start:dev;
+      fi"
+    ports:
+      - 80:5555
+      - 443:5555
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      JWT_SECRET: ${JWT_SECRET}
+      DEV_DATABASE: ${DEV_DATABASE}
+      PROD_DATABASE: ${PROD_DATABASE}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      MAILGUN_API_KEY: ${MAILGUN_API_KEY}
+      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN}
+      MAILGUN_SENDER_USER: ${MAILGUN_SENDER_USER}
+      MAILGUN_USERNAME: ${MAILGUN_USERNAME}
+      MAILGUN_API_URL: ${MAILGUN_API_URL}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_MESSAGING_SERVICE_SID: ${TWILIO_MESSAGING_SERVICE_SID}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      REDIS_URL: ${REDIS_URL}
+      SSL_KEY_PATH: ${SSL_KEY_PATH}
+      SSL_CERT_PATH: ${SSL_CERT_PATH}
+      SSL_CA_PATH: ${SSL_CA_PATH}
+      SECURE_HOST: ${SECURE_HOST}
+      PORT: ${PORT}
+
+  postgresql-database:
+    image: postgres
+    container_name: postgresql-database
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - ./init-postgres.sh:/docker-entrypoint-initdb.d/init-database.sh
+    environment:
+      POSTGRES_DB_NAME: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  redis-database:
+    image: redislabs/redismod
+    container_name: redis-database
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgresql-data:
+  redis-data:
