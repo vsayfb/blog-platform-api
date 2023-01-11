@@ -11,6 +11,8 @@ import {
   UploadedFile,
   Query,
   Put,
+  CacheTTL,
+  CacheKey,
 } from '@nestjs/common';
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './request-dto/create-post.dto';
@@ -42,6 +44,7 @@ import { NotifySubcribers } from './interceptors/notify-subscribers';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { AccountPostsDto } from './response-dto/account-posts.dto';
 import { UpdatedPostDto } from './response-dto/updated-post.dto';
+import { CacheJSON } from 'src/cache/cache-json.interceptor';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -118,7 +121,7 @@ export class PostsController
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(CheckClientActionsOnPost)
+  @UseInterceptors(CheckClientActionsOnPost, CacheJSON)
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOne(@Param('url') url: string): Promise<{
     data: PublicPostDto;

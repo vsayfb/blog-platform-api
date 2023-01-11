@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   Param,
-  ParseUUIDPipe,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -27,11 +26,11 @@ export class MessagesController implements ICreateController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @UseInterceptors(NewMessageInterceptor)
-  @Post(MessageRoutes.CREATE + ':chat_id')
+  @Post(MessageRoutes.CREATE + ':id')
   async create(
     @Client() sender: JwtPayload,
     @Body() createMessageDto: CreateMessageDto,
-    @Param('chat_id') chatID: string,
+    @Param('id') chatID: string,
   ): Promise<{
     data: NewMessageDto;
     message: MessageMessages;

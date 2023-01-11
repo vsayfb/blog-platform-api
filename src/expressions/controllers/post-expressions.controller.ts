@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   UseGuards,
@@ -22,12 +23,12 @@ import { PostExpressionNotificationInterceptor } from '../interceptors/post-expr
 
 @ApiTags(EXPRESSIONS_ROUTE)
 @Controller(EXPRESSIONS_ROUTE)
-@UseGuards(JwtAuthGuard)
 export class PostExpressionsController {
   constructor(
     private readonly postExpressionsService: PostExpressionsService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.LIKE + '/post/' + ':id')
   async likePost(
@@ -47,6 +48,7 @@ export class PostExpressionsController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(PostExpressionNotificationInterceptor)
   @Post(ExpressionRoutes.DISLIKE + '/post/' + ':id')
   async dislikePost(
@@ -66,6 +68,18 @@ export class PostExpressionsController {
     };
   }
 
+  @Get(ExpressionRoutes.FIND_COUNT_ON_POST + ':id')
+  async findExpressionsCount(@Param('id') postID: string): Promise<{
+    data: { like_count: number; dislike_count: number };
+    message: ExpressionMessages;
+  }> {
+    return {
+      data: await this.postExpressionsService.getCount(postID),
+      message: ExpressionMessages.COUNT_FOUND,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete('post' + ExpressionRoutes.DELETE + ':id')
   async removeExpression(
     @Param('id') postID: string,

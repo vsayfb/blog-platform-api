@@ -21,6 +21,7 @@ import { PublicPost } from '../types/public-post';
 import { UpdatedPost } from '../types/updated-post';
 import { PostType } from '../types/post';
 import { AccountPost } from '../types/account-post';
+import { PublicPosts } from '../types/public-posts';
 
 @Injectable()
 export class PostsService
@@ -72,7 +73,7 @@ export class PostsService
     return result;
   }
 
-  async getAll(): Promise<PublicPost[]> {
+  async getAll(): Promise<PublicPosts> {
     const posts = await this.postsRepository
       .createQueryBuilder('post')
       .where('post.published= :published', { published: true })
@@ -88,7 +89,7 @@ export class PostsService
       )
       .getMany();
 
-    return posts as unknown as PublicPost[];
+    return posts as unknown as PublicPosts;
   }
 
   async getOne(url: string): Promise<PublicPost> {
@@ -97,24 +98,6 @@ export class PostsService
       .where('post.url=:url', { url })
       .andWhere('post.published=:published', { published: true })
       .leftJoinAndSelect('post.author', 'author')
-      .leftJoinAndSelect('post.tags', 'tags')
-      .loadRelationCountAndMap('post.bookmark_count', 'post.bookmarks')
-      .loadRelationCountAndMap(
-        'post.like_count',
-        'post.expressions',
-        'post_expression',
-        (qb) =>
-          qb.where(`post_expression.expression = '${PostExpressionType.LIKE}'`),
-      )
-      .loadRelationCountAndMap(
-        'post.dislike_count',
-        'post.expressions',
-        'post_expression',
-        (qb) =>
-          qb.where(
-            `post_expression.expression = '${PostExpressionType.DISLIKE}'`,
-          ),
-      )
       .getOne();
 
     if (!post) throw new NotFoundException(PostMessages.NOT_FOUND);
@@ -190,6 +173,16 @@ export class PostsService
     return await this.postsRepository.findOne({
       where: { id },
       relations: { author: true, tags: true },
+      select: {
+        published: true,
+        id: true,
+        content: true,
+        title_image: true,
+        title: true,
+        url: true,
+        created_at: true,
+        updated_at: true,
+      },
     });
   }
 
@@ -228,6 +221,10 @@ export class PostsService
       .getMany();
 
     return posts as unknown as AccountPost[];
+  }
+
+  async checkByID(id: string) {
+    return !!(await this.postsRepository.findOneBy({ id }));
   }
 
   async delete(post: PostDto): Promise<string> {

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExpressionMessages } from 'src/expressions/enums/expression-messages';
 import { NotificationActions } from 'src/account_notifications/entities/notification.entity';
@@ -10,6 +14,7 @@ import {
   PostExpressionType,
 } from '../entities/post-expression.entity';
 import { PostsService } from './posts.service';
+import { PostMessages } from '../enums/post-messages';
 
 @Injectable()
 export class PostExpressionsService implements ICreateService {
@@ -81,5 +86,29 @@ export class PostExpressionsService implements ICreateService {
     await this.postExpressionRepository.remove(exp);
 
     return ID;
+  }
+
+  async getCount(
+    postID: string,
+  ): Promise<{ like_count: number; dislike_count: number }> {
+    if (!(await this.postsService.checkByID(postID)))
+      throw new BadRequestException(PostMessages.NOT_FOUND);
+
+    const exp = await this.postExpressionRepository.find({
+      where: {
+        post: { id: postID },
+      },
+      select: { created_at: true },
+    });
+
+    const likeCount = exp.filter(
+      (e) => e.expression === PostExpressionType.LIKE,
+    ).length;
+
+    const dislikeCount = exp.filter(
+      (e) => e.expression === PostExpressionType.DISLIKE,
+    ).length;
+
+    return { like_count: likeCount, dislike_count: dislikeCount };
   }
 }

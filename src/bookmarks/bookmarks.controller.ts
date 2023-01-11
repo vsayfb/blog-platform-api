@@ -69,6 +69,14 @@ export class BookmarksController
     };
   }
 
+  @Get(BookmarkRoutes.FIND_POST_BOOKMARKS_COUNT + ':id')
+  async findBookmarkCountOnPost(@Param('id') postID: string) {
+    return {
+      data: await this.bookmarksService.getCountOnPost(postID),
+      message: BookmarkMessages.COUNT_FOUND,
+    };
+  }
+
   @Delete(BookmarkRoutes.DELETE + ':id')
   @UseGuards(JwtAuthGuard, CanManageData)
   async delete(

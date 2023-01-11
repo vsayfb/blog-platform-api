@@ -8,17 +8,12 @@ import { map, Observable, of } from 'rxjs';
 import { BaseCacheInterceptor } from './interceptors/base-cache.interceptor';
 
 @Injectable()
-export class CacheJsonInterceptor
-  extends BaseCacheInterceptor
-  implements NestInterceptor
-{
+export class CacheJSON extends BaseCacheInterceptor implements NestInterceptor {
   async intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
-    const req = this.getHttp(context).getRequest();
-
-    const key = this.extractKey(req);
+    const key = this.extractKey(context);
 
     const cached = await this.cacheManager.json.get(key);
 
@@ -28,7 +23,11 @@ export class CacheJsonInterceptor
 
     return next.handle().pipe(
       map((value) => {
+        const TTL = this.extractTTL(context);
+
         this.cacheManager.json.set(key, '$', value);
+
+        this.cacheManager.expire(key, TTL);
 
         return value;
       }),

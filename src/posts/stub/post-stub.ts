@@ -6,7 +6,6 @@ export const postStub = (): SelectedPostFields => ({
   title_image: null,
   content: '<h1>Hello World...</h1>',
   url: 'foo-title-example-url',
-  published: true,
   created_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
   updated_at: '2022-07-18T12:55:25.513Z' as unknown as Date,
 });

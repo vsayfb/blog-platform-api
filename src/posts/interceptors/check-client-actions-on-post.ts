@@ -46,45 +46,47 @@ export class CheckClientActionsOnPost implements NestInterceptor {
     const client = request.user;
 
     return next.handle().pipe(
-      map(async (value: { data: PublicPostDto }) => {
-        let bookmarked_by = false;
-        let liked_by = false;
-        let disliked_by = false;
+      map(
+        async (value: { data: PublicPostDto; message: PostMessages.FOUND }) => {
+          let bookmarked_by = false;
+          let liked_by = false;
+          let disliked_by = false;
 
-        if (client) {
-          bookmarked_by = !!(await this.bookmarkService.getByPostAndAccount(
-            client.sub,
-            value.data.id,
-          ));
+          if (client) {
+            bookmarked_by = !!(await this.bookmarkService.getByPostAndAccount(
+              client.sub,
+              value.data.id,
+            ));
 
-          const exp = await this.postExpresionService.checkAnyExpressionLeft(
-            client.sub,
-            value.data.id,
-          );
+            const exp = await this.postExpresionService.checkAnyExpressionLeft(
+              client.sub,
+              value.data.id,
+            );
 
-          if (exp) {
-            const type: PostExpressionType = exp.expression;
+            if (exp) {
+              const type: PostExpressionType = exp.expression;
 
-            switch (type) {
-              case PostExpressionType.LIKE:
-                liked_by = true;
-                break;
+              switch (type) {
+                case PostExpressionType.LIKE:
+                  liked_by = true;
+                  break;
 
-              case PostExpressionType.DISLIKE:
-                disliked_by = true;
-                break;
+                case PostExpressionType.DISLIKE:
+                  disliked_by = true;
+                  break;
 
-              default:
-                break;
+                default:
+                  break;
+              }
             }
           }
-        }
 
-        return {
-          data: { ...value.data, bookmarked_by, liked_by, disliked_by },
-          message: PostMessages.FOUND,
-        };
-      }),
+          return {
+            data: { ...value.data, bookmarked_by, liked_by, disliked_by },
+            message: PostMessages.FOUND,
+          };
+        },
+      ),
     );
   }
 }

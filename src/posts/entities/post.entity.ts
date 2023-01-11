@@ -50,7 +50,7 @@ export class Post {
   @Column()
   content: string;
 
-  @Column({ default: true })
+  @Column({ default: true, select: false })
   published: boolean;
 
   @CreateDateColumn()

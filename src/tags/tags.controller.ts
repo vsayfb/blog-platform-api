@@ -31,6 +31,7 @@ import { Client } from 'src/auth/decorator/client.decorator';
 import { TagWithPostsDto } from './response-dto/tag.dto';
 import { CreatedTagDto } from './response-dto/created-tag.dto';
 import { UpdatedTagDto } from './response-dto/updated-tag.dto';
+import { PostTagsDto } from './response-dto/post-tags.dto';
 
 @Controller(TAGS_ROUTE)
 @ApiTags(TAGS_ROUTE)
@@ -47,6 +48,16 @@ export class TagsController
   async findAll(): Promise<{ data: TagsDto; message: string }> {
     return {
       data: await this.tagsService.getAll(),
+      message: TagMessages.ALL_FOUND,
+    };
+  }
+
+  @Get(TagRoutes.FIND_POST_TAGS + ':id')
+  async findPostTags(
+    @Param('id') postID: string,
+  ): Promise<{ data: PostTagsDto; message: TagMessages }> {
+    return {
+      data: await this.tagsService.getPostTags(postID),
       message: TagMessages.ALL_FOUND,
     };
   }

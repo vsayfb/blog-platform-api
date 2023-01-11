@@ -1,3 +1,3 @@
-import { PublicPost } from '../types/public-post';
+import { PublicPosts } from '../types/public-posts';
 
-export type PublicPostsDto = PublicPost[];
+export type PublicPostsDto = PublicPosts;

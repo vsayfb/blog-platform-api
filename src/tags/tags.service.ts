@@ -82,6 +82,10 @@ export class TagsService
     return data as unknown as TagsDto;
   }
 
+  async getPostTags(postID: string): Promise<SelectedTagFields[]> {
+    return this.tagsRepository.findBy({ posts: { id: postID } });
+  }
+
   async checkExistWithName(name: string): Promise<SelectedTagFields | null> {
     return await this.tagsRepository.findOne({
       where: { name },

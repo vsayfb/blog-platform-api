@@ -24,7 +24,7 @@ export class BookmarksService
   }): Promise<SelectedBookmarkFields> {
     const { postID, accountID } = data;
 
-    const bookmarked = await this.getByPostAndAccount(accountID, postID);
+    const bookmarked = await this.getByPostAndAccount(postID, accountID);
 
     if (bookmarked)
       throw new ForbiddenException(BookmarkMessages.ALREADY_BOOKMARKED);
@@ -70,6 +70,10 @@ export class BookmarksService
     return this.bookmarksRepository.find({
       relations: { account: true, post: true },
     });
+  }
+
+  async getCountOnPost(postID: string): Promise<number> {
+    return this.bookmarksRepository.countBy({ post: { id: postID } });
   }
 
   async getByPostAndAccount(

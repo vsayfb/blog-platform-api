@@ -1,10 +1,10 @@
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 import { SelectedTagFields } from 'src/tags/types/selected-tag-fields';
-import { SelectedPostFields } from './selected-post-fields';
+import { SelectedPostFields } from '../types/selected-post-fields';
 
-// public and private post
-export type PostType = SelectedPostFields & {
+export type PublicPosts = SelectedPostFields & {
   author: SelectedAccountFields;
   tags: SelectedTagFields[];
-  published: boolean;
-};
+  comment_count: number;
+  like_count: number;
+}[];

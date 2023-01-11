@@ -1,4 +1,4 @@
 export enum MessageRoutes {
-  CREATE = '/to/',
+  CREATE = '/to/chat/',
   ME = '/me/',
 }
