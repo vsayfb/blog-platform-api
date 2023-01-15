@@ -62,9 +62,11 @@ export class NotificationsGateway
   private async getSenderSocket(senderID: string): Promise<Socket> {
     const sockets = await this.server.fetchSockets();
 
-    const { socketID } = this.sockets.find((s) => s.userID === senderID);
+    const socket = this.sockets.find((s) => s.userID === senderID);
 
-    return sockets.find((s) => s.id === socketID) as unknown as Socket;
+    if (!socket) return null;
+
+    return sockets.find((s) => s.id === socket.socketID) as unknown as Socket;
   }
 
   private getNotifableSocketID(userID: string): string {

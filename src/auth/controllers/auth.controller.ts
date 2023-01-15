@@ -9,11 +9,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { AccountCredentials } from 'src/accounts/decorators/account.decorator';
 import { AccountsService } from 'src/accounts/services/accounts.service';
-import { AccountWithCredentials } from 'src/accounts/types/account-with-credentials';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { AUTH_ROUTE, TFA_ROUTE } from 'src/lib/constants';
+import { AUTH_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
 import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';

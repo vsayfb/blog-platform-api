@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICreateService } from 'src/lib/interfaces/create-service.interface';
+import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
+import { CacheJsonService } from 'src/cache/services/cache-json.service';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Like, Repository } from 'typeorm';
-import { CreateAccountDto } from '../request-dto/create-account.dto';
 import { Account } from '../entities/account.entity';
 import { PasswordManagerService } from '../services/password-manager.service';
 import { AccountWithCredentials } from '../types/account-with-credentials';
@@ -29,6 +29,7 @@ export class AccountsService implements IFindService, IUpdateService {
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
     private readonly passwordManagerService: PasswordManagerService,
+    private readonly cacheJsonService: CacheJsonService,
   ) {}
 
   async getOneByID(id: string): Promise<SelectedAccountFields> {
@@ -39,12 +40,12 @@ export class AccountsService implements IFindService, IUpdateService {
     subject: Account,
     updateDto: Record<string, any>,
   ): Promise<SelectedAccountFields> {
-    let anyChanges = false;
+    let updatedFields: Record<string, string> = {};
 
     for (const key in updateDto) {
       const element = updateDto[key];
 
-      if (element || element === null) {
+      if ((element || element === null) && element !== subject[key]) {
         if (key === 'password') {
           subject[key] = await this.passwordManagerService.hashPassword(
             element,
@@ -53,11 +54,18 @@ export class AccountsService implements IFindService, IUpdateService {
           subject[key] = element;
         }
 
-        anyChanges = true;
+        updatedFields = { ...updatedFields, [key]: element };
       }
     }
 
-    if (anyChanges) await this.accountsRepository.save(subject);
+    if (!Object.keys(updatedFields).length) throw new ForbiddenException();
+
+    await this.accountsRepository.save(subject);
+
+    this.cacheJsonService.updateFields(
+      CACHED_ROUTES.CLIENT_ACCOUNT + subject.id,
+      updatedFields,
+    );
 
     return this.getOneByID(subject.id);
   }

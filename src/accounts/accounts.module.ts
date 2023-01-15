@@ -14,7 +14,6 @@ import { PasswordManagerService } from './services/password-manager.service';
 import { GoogleAccountsService } from './services/google-accounts.service';
 import {
   LOCAL_ACCOUNTS_CREDENTIALS_ROUTE,
-  ACCOUNTS_ROUTE,
   MANAGE_DATA_SERVICE,
   GOOGLE_ACCOUNTS_ROUTE,
   GOOGLE_ACCOUNTS_CREDENTIALS_ROUTE,
@@ -46,6 +45,7 @@ import { GoogleModule } from 'src/apis/google/google.module';
 import { TemporaryAccount } from './entities/temporary-account.entity';
 import { TemporaryAccountsService } from './services/temporary-accounts.service';
 import { TwoFactorAuthModule } from 'src/tfa/tfa.module';
+import { CacheManagerModule } from 'src/cache/cache-manager.module';
 
 @Module({
   imports: [
@@ -54,6 +54,7 @@ import { TwoFactorAuthModule } from 'src/tfa/tfa.module';
     UploadsModule,
     NotificationsModule,
     VerificationCodesModule,
+    CacheManagerModule,
     forwardRef(() => TwoFactorAuthModule),
   ],
   controllers: [

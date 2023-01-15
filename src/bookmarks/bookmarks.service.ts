@@ -8,6 +8,9 @@ import { Bookmark } from './entities/bookmark.entity';
 import { BookmarkMessages } from './enums/bookmark-messages';
 import { SelectedBookmarkFields } from './types/selected-bookmark-fields';
 import { AccountBookmark } from './types/account-bookmark';
+import { CacheJsonService } from 'src/cache/services/cache-json.service';
+import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
+import { PostsService } from 'src/posts/services/posts.service';
 
 @Injectable()
 export class BookmarksService
@@ -16,6 +19,7 @@ export class BookmarksService
   constructor(
     @InjectRepository(Bookmark)
     private readonly bookmarksRepository: Repository<Bookmark>,
+    private readonly cacheJsonService: CacheJsonService,
   ) {}
 
   async create(data: {
@@ -29,22 +33,45 @@ export class BookmarksService
     if (bookmarked)
       throw new ForbiddenException(BookmarkMessages.ALREADY_BOOKMARKED);
 
-    const bookmark = await this.bookmarksRepository.save({
+    const savedBookmark = await this.bookmarksRepository.save({
       account: { id: data.accountID },
       post: { id: data.postID },
     });
 
-    return this.bookmarksRepository.findOne({
-      where: { id: bookmark.id },
-    }) as any;
+    const newBookmark = await this.bookmarksRepository.findOne({
+      where: { id: savedBookmark.id },
+      relations: { post: true },
+    });
+
+    const cacheBookmark: AccountBookmark = {
+      id: newBookmark.id,
+      created_at: newBookmark.created_at,
+      post: newBookmark.post,
+    };
+
+    this.cacheJsonService.insertToArray(
+      CACHED_ROUTES.CLIENT_BOOKMARKS + accountID,
+      cacheBookmark,
+    );
+
+    delete newBookmark.post;
+
+    return newBookmark;
   }
 
   async delete(subject: Bookmark): Promise<string> {
-    const id = subject.id;
+    const bookmarkID = subject.id;
 
-    await this.bookmarksRepository.remove(subject);
+    const removed = await this.bookmarksRepository.remove(subject);
 
-    return id;
+    const removeCache: AccountBookmark = { ...removed, id: bookmarkID };
+
+    this.cacheJsonService.removeFromArray(
+      CACHED_ROUTES.CLIENT_BOOKMARKS + subject.account.id,
+      removeCache,
+    );
+
+    return bookmarkID;
   }
 
   async getAccountBookmarks(accountID: string): Promise<AccountBookmark[]> {
@@ -79,9 +106,10 @@ export class BookmarksService
   async getByPostAndAccount(
     postID: string,
     accountID: string,
-  ): Promise<SelectedBookmarkFields> {
+  ): Promise<Bookmark> {
     return this.bookmarksRepository.findOne({
       where: { post: { id: postID }, account: { id: accountID } },
+      relations: { post: true, account: true },
     });
   }
 }

@@ -7,6 +7,8 @@ import {
   NotFoundException,
   Body,
   Query,
+  CacheTTL,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -22,12 +24,25 @@ import { IFindController } from 'src/lib/interfaces/find-controller.interface';
 import { ICreateController } from 'src/lib/interfaces/create-controller.interface';
 import { ChatWithQueryID } from './request-dto/chat-with-query';
 import { Client } from 'src/auth/decorator/client.decorator';
+import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
 
 @Controller(CHATS_ROUTE)
 @ApiTags(CHATS_ROUTE)
 @UseGuards(JwtAuthGuard)
 export class ChatsController implements ICreateController, IFindController {
   constructor(private readonly chatsService: ChatsService) {}
+
+  @CacheTTL(30)
+  @UseInterceptors(CachePersonalJSON)
+  @Get(ChatRoutes.CLIENT)
+  async findClientChats(
+    @Client() client: JwtPayload,
+  ): Promise<{ data: AccountChatDto[]; message: ChatMessages }> {
+    return {
+      data: await this.chatsService.getAccountChats(client.sub),
+      message: ChatMessages.ALL_FOUND,
+    };
+  }
 
   @Post(ChatRoutes.CREATE + ':id')
   async create(
@@ -45,17 +60,7 @@ export class ChatsController implements ICreateController, IFindController {
     };
   }
 
-  @Get(ChatRoutes.FIND_CLIENT_CHATS)
-  async findClientChats(
-    @Client() client: JwtPayload,
-  ): Promise<{ data: AccountChatDto[]; message: ChatMessages }> {
-    return {
-      data: await this.chatsService.getAccountChats(client.sub),
-      message: ChatMessages.ALL_FOUND,
-    };
-  }
-
-  @Get(ChatRoutes.FINC_CLIENT_CHAT_COUNT)
+  @Get(ChatRoutes.CLIENT_COUNT)
   async findClientChatCount(
     @Client() client: JwtPayload,
   ): Promise<{ data: { count: number }; message: ChatMessages }> {

@@ -1,7 +1,15 @@
-import { Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import {
+  CacheTTL,
+  Controller,
+  Get,
+  Patch,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
 import { NOTIFICATIONS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
@@ -17,7 +25,9 @@ import { NotificationsService } from './services/notifications.service';
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
+  @CacheTTL(300)
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(CachePersonalJSON)
   @Get(NotificationRoutes.CLIENT)
   async findClientNotifications(@Client() client: JwtPayload): Promise<{
     data: AccountNotifications;
@@ -30,7 +40,7 @@ export class NotificationsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(NotificationRoutes.COUNT)
+  @Get(NotificationRoutes.CLIENT_COUNT)
   async findClientNotificationCount(
     @Client() client: JwtPayload,
   ): Promise<{ data: { count: number }; message: NotificationMessages }> {
@@ -46,9 +56,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(NotificationRoutes.SEEN + ':id')
-  async makeVisibilitySeen(
-    @Data() notification: Notification,
-  ): Promise<{
+  async makeVisibilitySeen(@Data() notification: Notification): Promise<{
     data: { id: string; seen: boolean };
     message: NotificationMessages;
   }> {

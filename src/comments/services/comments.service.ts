@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostMessages } from 'src/posts/enums/post-messages';
 import { PostsService } from 'src/posts/services/posts.service';
@@ -79,6 +83,9 @@ export class CommentsService
   }
 
   async getPostComments(postID: string): Promise<PostComment[]> {
+    if (!(await this.postsService.checkPublicByID(postID)))
+      throw new ForbiddenException();
+
     const result = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.post', 'post')

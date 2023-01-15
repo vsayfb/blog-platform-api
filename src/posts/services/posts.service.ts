@@ -107,7 +107,7 @@ export class PostsService
 
   async update(
     post: PostDto,
-    updatePostDto: UpdatePostDto & { published?: boolean },
+    updatePostDto: UpdatePostDto,
   ): Promise<UpdatedPost> {
     post.title = updatePostDto.title;
     post.url = this.urlManagementService.convertToUniqueUrl(post.title);
@@ -121,9 +121,6 @@ export class PostsService
 
       post.tags = newTags as Tag[];
     }
-
-    if (updatePostDto.published !== undefined)
-      post.published = updatePostDto.published;
 
     const updated = await this.postsRepository.save(post);
 
@@ -172,7 +169,7 @@ export class PostsService
   async getOneByID(id: string): Promise<PostType> {
     return await this.postsRepository.findOne({
       where: { id },
-      relations: { author: true, tags: true },
+      relations: { author: true },
       select: {
         published: true,
         id: true,
@@ -204,6 +201,7 @@ export class PostsService
       .leftJoinAndSelect('post.tags', 'tags')
       .loadRelationCountAndMap('post.comments_count', 'post.comments')
       .loadRelationCountAndMap('post.bookmarks_count', 'post.bookmarks')
+      .addSelect('post.published')
       .getMany();
 
     return posts as unknown as AccountPost[];
@@ -223,8 +221,8 @@ export class PostsService
     return posts as unknown as AccountPost[];
   }
 
-  async checkByID(id: string) {
-    return !!(await this.postsRepository.findOneBy({ id }));
+  async checkPublicByID(id: string) {
+    return !!(await this.postsRepository.findOneBy({ id, published: true }));
   }
 
   async delete(post: PostDto): Promise<string> {

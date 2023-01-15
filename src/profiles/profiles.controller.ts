@@ -25,8 +25,6 @@ import { ProfileDto } from './response-dto/profile.dto';
 import { ProfileMessages } from './enums/profile-messages';
 import { ProfileRoutes } from './enums/profile-routes';
 import { ProfilesService } from './profiles.service';
-import { ImageUpdatedDto } from './response-dto/image-updated.dto';
-import { DisplayNameUpdatedDto } from './response-dto/display-name-updated.dto';
 import { SignNewJwtToken } from 'src/accounts/interceptors/sign-new-jwt.interceptor';
 import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
 

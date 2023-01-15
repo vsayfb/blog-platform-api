@@ -3,6 +3,6 @@ export enum BookmarkRoutes {
   FIND_ONE = '/',
   FIND_POST_BOOKMARKS = '/post/',
   FIND_POST_BOOKMARKS_COUNT = '/post/count/',
-  FIND_CLIENT_BOOKMARKS = '/me/',
+  CLIENT = '/me/',
   DELETE = '/',
 }

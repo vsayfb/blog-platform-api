@@ -5,9 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { AccountsModule } from '../accounts/accounts.module';
 import { Message } from '../messages/entities/message.entity';
+import { CacheManagerModule } from 'src/cache/cache-manager.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message]), AccountsModule],
+  imports: [
+    TypeOrmModule.forFeature([Chat, Message]),
+    AccountsModule,
+    CacheManagerModule,
+  ],
   controllers: [ChatsController],
   providers: [ChatsService, { provide: 'SERVICE', useClass: ChatsService }],
   exports: [ChatsService],

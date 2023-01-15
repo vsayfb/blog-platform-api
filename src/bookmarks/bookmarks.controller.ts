@@ -6,6 +6,8 @@ import {
   UseGuards,
   Post,
   BadRequestException,
+  UseInterceptors,
+  CacheTTL,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -22,6 +24,7 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { IDeleteController } from 'src/lib/interfaces/delete-controller.interface';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { NewBookmarkDto } from './response-dto/new-bookmark.dto';
+import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
 
 @Controller(BOOKMARKS_ROUTE)
 @ApiTags(BOOKMARKS_ROUTE)
@@ -45,8 +48,10 @@ export class BookmarksController
     };
   }
 
+  @CacheTTL(200)
   @UseGuards(JwtAuthGuard)
-  @Get(BookmarkRoutes.FIND_CLIENT_BOOKMARKS)
+  @UseInterceptors(CachePersonalJSON)
+  @Get(BookmarkRoutes.CLIENT)
   async findClientBookmarks(
     @Client() client: JwtPayload,
   ): Promise<{ data: AccountBookmarkDto[]; message: string }> {
@@ -102,7 +107,7 @@ export class BookmarksController
     if (!bookmark) throw new BadRequestException(BookmarkMessages.NOT_FOUND);
 
     return {
-      id: await this.bookmarksService.delete(bookmark as Bookmark),
+      id: await this.bookmarksService.delete(bookmark),
       message: BookmarkMessages.DELETED,
     };
   }

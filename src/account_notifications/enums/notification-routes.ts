@@ -1,5 +1,5 @@
 export enum NotificationRoutes {
-  CLIENT = '/me',
-  COUNT = '/me/count',
+  CLIENT = '/me/',
+  CLIENT_COUNT = '/me/count',
   SEEN = '/seen/',
 }

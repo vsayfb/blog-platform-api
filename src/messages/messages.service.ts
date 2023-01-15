@@ -7,6 +7,9 @@ import { ChatMessages } from '../chats/enums/chat-messages';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { ChatMessage } from './types/new-message';
+import { CacheJsonService } from 'src/cache/services/cache-json.service';
+import { AccountChat } from 'src/chats/types/account-chat';
+import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
 
 @Injectable()
 export class MessagesService implements ICreateService, IFindService {
@@ -14,34 +17,53 @@ export class MessagesService implements ICreateService, IFindService {
     @InjectRepository(Message)
     private readonly messagesRepository: Repository<Message>,
     private readonly chatsService: ChatsService,
+    private readonly cacheJsonService: CacheJsonService,
   ) {}
 
-  async create(dto: {
+  async create({
+    content,
+    senderID,
+    chatID,
+  }: {
     content: string;
-    initiatorID: string;
+    senderID: string;
     chatID: string;
   }): Promise<ChatMessage> {
-    const chat = await this.chatsService.getOneByID(dto.chatID);
+    const chat = await this.chatsService.getOneByID(chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
 
     const message = await this.messagesRepository.save({
       chat,
-      sender: { id: dto.initiatorID },
-      content: dto.content,
+      sender: { id: senderID },
+      content,
     });
 
-    const result = await this.messagesRepository.findOne({
+    const newMessage = await this.messagesRepository.findOne({
       where: { id: message.id },
       relations: { sender: true },
     });
 
+    // update last message of chat
+    const cacheChat: AccountChat = {
+      ...chat,
+      last_message: {
+        ...newMessage,
+        chat_id: chat.id,
+      },
+    };
+
+    chat.members.map((m) => {
+      this.cacheJsonService.updateInArray(
+        CACHED_ROUTES.CLIENT_CHATS + m.id,
+        chat.id,
+        cacheChat,
+      );
+    });
+
     return {
+      ...newMessage,
       chat_id: chat.id,
-      content: message.content,
-      sender: result.sender,
-      created_at: message.created_at,
-      updated_at: message.updated_at,
     };
   }
 

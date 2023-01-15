@@ -12,10 +12,6 @@ import {
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
 import { NotificationActions } from 'src/account_notifications/entities/notification.entity';
 import { CommentsNotificationService } from 'src/account_notifications/services/comments-notification.service';
-import {
-  PostExpression,
-  PostExpressionType,
-} from 'src/posts/entities/post-expression.entity';
 import { ExpressionMessages } from '../enums/expression-messages';
 
 @Injectable()

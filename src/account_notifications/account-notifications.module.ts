@@ -7,9 +7,10 @@ import { FollowNotificationsService } from './services/follow-notifications.serv
 import { CommentsNotificationService } from './services/comments-notification.service';
 import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { PostsNotificationService } from './services/posts.notification.service';
+import { CacheManagerModule } from 'src/cache/cache-manager.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification])],
+  imports: [TypeOrmModule.forFeature([Notification]), CacheManagerModule],
   controllers: [NotificationsController],
   providers: [
     NotificationsService,

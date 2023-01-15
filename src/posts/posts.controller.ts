@@ -44,7 +44,7 @@ import { NotifySubcribers } from './interceptors/notify-subscribers';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { AccountPostsDto } from './response-dto/account-posts.dto';
 import { UpdatedPostDto } from './response-dto/updated-post.dto';
-import { CacheJSON } from 'src/cache/cache-json.interceptor';
+import { CachePublicJSON } from 'src/cache/interceptors/cache-public-json.interceptor';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)
@@ -121,7 +121,7 @@ export class PostsController
   }
 
   @UseGuards(OptionalJwtAuthGuard)
-  @UseInterceptors(CheckClientActionsOnPost, CacheJSON)
+  @UseInterceptors(CheckClientActionsOnPost, CachePublicJSON)
   @Get(PostRoutes.FIND_ONE_BY_URL + ':url')
   async findOne(@Param('url') url: string): Promise<{
     data: PublicPostDto;
@@ -138,7 +138,6 @@ export class PostsController
   async update(
     @Data() post: PostDto,
     @Body() updatePostDto: UpdatePostDto,
-    @Query() { publish }: PublishQueryDto,
   ): Promise<{
     data: UpdatedPostDto;
     message: PostMessages;
@@ -146,8 +145,6 @@ export class PostsController
     return {
       data: await this.postsService.update(post, {
         ...updatePostDto,
-        published:
-          publish === 'true' ? true : publish === 'false' ? false : undefined,
       }),
       message: PostMessages.UPDATED,
     };

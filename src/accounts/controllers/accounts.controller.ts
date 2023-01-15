@@ -1,10 +1,9 @@
 import {
   Body,
+  CacheTTL,
   Controller,
-  ForbiddenException,
   Get,
   Patch,
-  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -28,14 +27,17 @@ import { UniqueUsernameDto } from '../request-dto/unique-username.dto';
 import { LoginDto } from 'src/auth/response-dto/login.dto';
 import { ClientAccountDto } from '../response-dto/client-account.dto';
 import { FoundUserDto } from '../response-dto/found-user.dto';
+import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
-  @Get(AccountRoutes.CLIENT)
+  @CacheTTL(300)
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(CachePersonalJSON)
+  @Get(AccountRoutes.CLIENT)
   async findClient(@Client() client: JwtPayload): Promise<{
     data: ClientAccountDto;
     message: AccountMessages;

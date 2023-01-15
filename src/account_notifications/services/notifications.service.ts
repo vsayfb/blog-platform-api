@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
+import { CacheJsonService } from 'src/cache/services/cache-json.service';
 import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
@@ -14,8 +16,11 @@ import { AccountNotification } from '../types/account-notification';
 export class NotificationsService
   implements IFindService, IDeleteService, IUpdateService
 {
-  @InjectRepository(Notification)
-  protected readonly notificationsRepository: Repository<Notification>;
+  constructor(
+    @InjectRepository(Notification)
+    protected readonly notificationsRepository: Repository<Notification>,
+    protected readonly cacheJsonService: CacheJsonService,
+  ) {}
 
   async getAccountNotifications(
     accountID: string,
@@ -33,11 +38,16 @@ export class NotificationsService
   }
 
   async delete(subject: Notification): Promise<string> {
-    const ID = subject.id;
+    const removedNotification = { ...subject };
 
     await this.notificationsRepository.remove(subject);
 
-    return ID;
+    this.cacheJsonService.removeFromArray(
+      CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
+      removedNotification,
+    );
+
+    return removedNotification.id;
   }
 
   async deleteNotificationByIds(
@@ -60,6 +70,11 @@ export class NotificationsService
     subject.seen = true;
 
     await this.notificationsRepository.save(subject);
+
+    this.cacheJsonService.removeFromArray(
+      CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
+      subject,
+    );
 
     return subject.id;
   }

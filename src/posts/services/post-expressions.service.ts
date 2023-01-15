@@ -91,9 +91,6 @@ export class PostExpressionsService implements ICreateService {
   async getCount(
     postID: string,
   ): Promise<{ like_count: number; dislike_count: number }> {
-    if (!(await this.postsService.checkByID(postID)))
-      throw new BadRequestException(PostMessages.NOT_FOUND);
-
     const exp = await this.postExpressionRepository.find({
       where: {
         post: { id: postID },

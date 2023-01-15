@@ -37,7 +37,7 @@ export class MessagesController implements ICreateController {
   }> {
     return {
       data: await this.messagesService.create({
-        initiatorID: sender.sub,
+        senderID: sender.sub,
         chatID: chatID,
         content: createMessageDto.content,
       }),

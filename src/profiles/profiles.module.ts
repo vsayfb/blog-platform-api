@@ -5,9 +5,14 @@ import { MANAGE_DATA_SERVICE } from 'src/lib/constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Account } from 'src/accounts/entities/account.entity';
 import { UploadsModule } from 'src/uploads/uploads.module';
+import { CacheManagerModule } from 'src/cache/cache-manager.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account]), UploadsModule],
+  imports: [
+    TypeOrmModule.forFeature([Account]),
+    UploadsModule,
+    CacheManagerModule,
+  ],
   controllers: [ProfilesController],
   providers: [
     ProfilesService,
