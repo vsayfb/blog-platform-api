@@ -32,6 +32,7 @@ services:
       TWILIO_MESSAGING_SERVICE_SID: ${TWILIO_MESSAGING_SERVICE_SID}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URI: ${RABBITMQ_URI}
       SSL_KEY_PATH: ${SSL_KEY_PATH}
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CA_PATH: ${SSL_CA_PATH}
@@ -59,6 +60,14 @@ services:
     volumes:
       - redis-data:/data
 
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
 volumes:
   postgresql-data:
   redis-data:
+  rabbitmq:

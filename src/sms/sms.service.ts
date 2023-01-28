@@ -12,7 +12,7 @@ export class SmsService {
     private readonly smsSenderService: ISmsSenderService,
   ) {}
 
-  async sendSMS(to: string, data: string): Promise<boolean> {
+  async send(to: string, data: string): Promise<boolean> {
     try {
       await this.smsSenderService.send(to, data);
 

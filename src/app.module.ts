@@ -37,11 +37,15 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { VerificationCodesModule } from './verification_codes/verification-codes.module';
 import { join } from 'path';
+import { RabbitModule } from './rabbit/rabbit.module';
+import { QueueModule } from './global/queues/queue.module';
+import { ConsumersModule } from './global/queues/consumers/consumers.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
   TypeOrmModule.forRoot(dataSource.options),
   RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
+  RabbitModule.forRoot({ uri: process.env[ProcessEnv.RABBITMQ_URI] }),
   AccountsModule,
   ProfilesModule,
   AuthModule,
@@ -70,6 +74,8 @@ const imports = [
   SubscriptionsModule,
   TwoFactorAuthModule,
   NotificationsModule,
+  QueueModule,
+  ConsumersModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {

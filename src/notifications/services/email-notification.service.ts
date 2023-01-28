@@ -5,13 +5,13 @@ import {
   VerificationCode,
 } from 'src/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
-import { MailsService } from 'src/mails/mails.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
+import { MailsWorker } from 'src/global/queues/workers/mails.worker';
 
 @Injectable()
 export class EmailNotificationService implements INotificationService {
   constructor(
-    private readonly mailsService: MailsService,
+    private readonly mailsWorker: MailsWorker,
     private readonly tasksService: TasksService,
     private readonly codesService: VerificationCodesService,
   ) {}
@@ -20,57 +20,50 @@ export class EmailNotificationService implements INotificationService {
     username: string,
     email: string,
   ): Promise<VerificationCode> {
-    const code = await this.codesService.generate();
+    const verificationCode = await this.codesService.create({
+      receiver: email,
+      process: CodeProcess.REGISTER_WITH_EMAIL,
+    });
 
-    let sent = await this.mailsService.sendVerificationCode(
-      { username, email },
-      code,
+    this.mailsWorker.produceRegisterEmails({
+      to: email,
+      subject: 'Verification code',
+      template: 'verification_code',
+      username,
+      code: verificationCode.code,
+    });
+
+    this.tasksService.execAfterGivenMinutes(
+      () => this.codesService.deleteIfExists(verificationCode.id),
+      5,
     );
 
-    if (sent) {
-      const verificationCode = await this.codesService.create({
-        receiver: email,
-        code,
-        process: CodeProcess.REGISTER_WITH_EMAIL,
-      });
-
-      this.tasksService.execAfterGivenMinutes(
-        () => this.codesService.deleteIfExists(verificationCode.id),
-        5,
-      );
-
-      return verificationCode;
-    }
+    return verificationCode;
   }
 
   async notifyForTFA(
-    to: string,
+    receiver: string,
     process: CodeProcess,
   ): Promise<VerificationCode> {
-    const code = await this.codesService.generate();
+    const verificationCode = await this.codesService.create({
+      receiver,
+      process,
+    });
 
-    const sent = await this.mailsService.send(
-      [to],
-      'Verification Code',
-      `<div>
-        <div> Your verification code is here : <b> ${code} </b> </div>
-      </div>`,
+    this.mailsWorker.produceTfaMails({
+      to: receiver,
+      subject: 'Verification Code',
+      data: `<div>
+      <div> Your verification code is here : <b> ${verificationCode.code} </b> </div>
+            </div>`,
+    });
+
+    this.tasksService.execAfterGivenMinutes(
+      () => this.codesService.deleteIfExists(verificationCode.id),
+      2,
     );
 
-    if (sent) {
-      const verificationCode = await this.codesService.create({
-        receiver: to,
-        code,
-        process,
-      });
-
-      this.tasksService.execAfterGivenMinutes(
-        () => this.codesService.deleteIfExists(verificationCode.id),
-        2,
-      );
-
-      return verificationCode;
-    }
+    return verificationCode;
   }
 
   notify(receiver: string, data: string): Promise<VerificationCode> {

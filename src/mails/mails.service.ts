@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { MailgunMessageData } from 'mailgun.js/interfaces/Messages';
 import { IMailSenderService } from './interfaces/mail-sender-service.interface';
 
 @Injectable()
@@ -8,24 +9,28 @@ export class MailsService {
     private readonly mailSenderService: IMailSenderService,
   ) {}
 
-  async sendVerificationCode(
-    to: {
-      email: string;
-      username: string;
-    },
-    code: string,
-  ): Promise<boolean> {
+  async send(toMail: string, subject: string, content: string) {
     try {
-      await this.mailSenderService.sendVerificationMail(to, code);
+      await this.mailSenderService.send({ toMail, subject, content });
       return true;
     } catch (error) {
       throw error;
     }
   }
 
-  async send(to: string[], subject: string, data: any) {
+  async sendTemplate(
+    toMail: string,
+    subject: string,
+    templateName: string,
+    templateData: Record<string, any>,
+  ) {
     try {
-      await this.mailSenderService.sendMail(to, subject, data);
+      await this.mailSenderService.sendTemplate({
+        toMail,
+        subject,
+        templateName,
+        templateData,
+      });
       return true;
     } catch (error) {
       throw error;

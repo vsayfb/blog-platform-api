@@ -5,13 +5,13 @@ import {
   VerificationCode,
 } from 'src/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
-import { SmsService } from 'src/sms/sms.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
+import { SmsWorker } from 'src/global/queues/workers/sms.worker';
 
 @Injectable()
 export class MobilePhoneNotificationService implements INotificationService {
   constructor(
-    private readonly smsService: SmsService,
+    private readonly smsWorker: SmsWorker,
     private readonly tasksService: TasksService,
     private readonly verificationCodesService: VerificationCodesService,
   ) {}
@@ -20,54 +20,47 @@ export class MobilePhoneNotificationService implements INotificationService {
     username: string,
     phone: string,
   ): Promise<VerificationCode> {
-    const code = await this.verificationCodesService.generate();
+    const verificationCode = await this.verificationCodesService.create({
+      receiver: phone,
+      process: CodeProcess.REGISTER_WITH_MOBIL_PHONE,
+    });
 
-    const sent = await this.smsService.sendSMS(
-      phone,
-      `Thanks for signing up @${username}. Your verification code is here - ${code}`,
+    this.smsWorker.produce(
+      {
+        to: phone,
+        content: `Thanks for signing up @${username}. Your verification code is here - ${verificationCode.code}`,
+      },
+      255,
     );
 
-    if (sent) {
-      const verificationCode = await this.verificationCodesService.create({
-        receiver: phone,
-        code,
-        process: CodeProcess.REGISTER_WITH_MOBIL_PHONE,
-      });
+    this.tasksService.execAfterGivenMinutes(
+      () => this.verificationCodesService.deleteIfExists(verificationCode.id),
+      5,
+    );
 
-      this.tasksService.execAfterGivenMinutes(
-        () => this.verificationCodesService.deleteIfExists(verificationCode.id),
-        5,
-      );
-
-      return verificationCode;
-    }
+    return verificationCode;
   }
 
   async notifyForTFA(
     phone: string,
     process: CodeProcess,
   ): Promise<VerificationCode> {
-    const code = await this.verificationCodesService.generate();
+    const verificationCode = await this.verificationCodesService.create({
+      receiver: phone,
+      process,
+    });
 
-    const sent = await this.smsService.sendSMS(
-      phone,
-      `Your verification code is here - ${code}`,
+    this.smsWorker.produce({
+      to: phone,
+      content: `Your verification code is here - ${verificationCode.code}`,
+    });
+
+    this.tasksService.execAfterGivenMinutes(
+      () => this.verificationCodesService.deleteIfExists(verificationCode.id),
+      2,
     );
 
-    if (sent) {
-      const verificationCode = await this.verificationCodesService.create({
-        receiver: phone,
-        code,
-        process,
-      });
-
-      this.tasksService.execAfterGivenMinutes(
-        () => this.verificationCodesService.deleteIfExists(verificationCode.id),
-        2,
-      );
-
-      return verificationCode;
-    }
+    return verificationCode;
   }
 
   notify(receiver: string, data: string): Promise<VerificationCode> {

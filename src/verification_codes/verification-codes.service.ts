@@ -15,7 +15,7 @@ export class VerificationCodesService
     private verificationCodesRepository: Repository<VerificationCode>,
   ) {}
 
-  async generate(): Promise<string> {
+  private async generate(): Promise<string> {
     let unique = false;
 
     let code: string;
@@ -33,15 +33,13 @@ export class VerificationCodesService
 
   async create({
     receiver,
-    code,
     process,
   }: {
     receiver: string;
-    code: string;
     process: CodeProcess;
   }): Promise<VerificationCode> {
     const { id } = await this.verificationCodesRepository.save({
-      code,
+      code: await this.generate(),
       process,
       token: nanoid(72),
       receiver,

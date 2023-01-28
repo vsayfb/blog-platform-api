@@ -1,13 +1,17 @@
 export interface IMailSenderService {
-  sendVerificationMail(
-    to: {
-      email: string;
-      username: string;
-    },
-    code: string,
-  ): Promise<any>;
+  send({ toMail, subject, content }): Promise<Object>;
 
-  sendMail(to: string[], subject: string, html: string): Promise<any>;
+  sendTemplate({
+    toMail,
+    subject,
+    templateName,
+    templateData,
+  }: {
+    toMail: string;
+    subject: string;
+    templateName: string;
+    templateData: Record<string, any>;
+  }): Promise<Object>;
 }
 
 export const IMailSenderService = Symbol('IMailSenderService');

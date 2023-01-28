@@ -10,7 +10,7 @@ import { REDIS_CLIENT_OPTS } from './constants';
 @Injectable()
 export class RedisService {
   private redisClient: RedisClientType;
-  private redisConnected = false;
+  private connected = false;
 
   constructor(
     @Inject(REDIS_CLIENT_OPTS)
@@ -22,20 +22,18 @@ export class RedisService {
   ) {}
 
   async getClient(): Promise<RedisClientType> {
-    if (!this.redisConnected) {
+    if (this.connected) return this.redisClient;
+
+    try {
       this.redisClient = createClient(this.redisClientOpts);
 
-      this.redisClient.on('error', (err) => {
-        throw err;
-      });
-
-      this.redisClient.on('connect', () => {
-        this.redisConnected = true;
-      });
-
       await this.redisClient.connect();
-    }
 
-    return this.redisClient;
+      this.connected = true;
+
+      return this.redisClient;
+    } catch (error) {
+      throw error;
+    }
   }
 }

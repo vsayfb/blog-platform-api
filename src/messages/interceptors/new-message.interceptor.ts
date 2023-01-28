@@ -14,7 +14,7 @@ export class NewMessageInterceptor implements NestInterceptor {
   constructor(private readonly gatewayEventsService: GatewayEventsService) {}
 
   intercept(
-    context: ExecutionContext,
+    _: ExecutionContext,
     next: CallHandler<any>,
   ): Observable<{ data: NewMessageDto; message: MessageMessages }> {
     return next.handle().pipe(
