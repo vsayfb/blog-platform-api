@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
 import { MailsService } from 'src/mails/mails.service';
 import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { QUEUES } from '../constants/queue.constant';
 
 @Injectable()
 export class RegisterMailsConsumer {
@@ -13,11 +14,13 @@ export class RegisterMailsConsumer {
   async consume() {
     const channel = await this.rabbitMQ.createChannel();
 
-    const { queue } = await channel.assertQueue('register_mails', {
-      durable: false,
-      messageTtl: 300000,
-    });
-
+    const { queue } = await channel.assertQueue(
+      QUEUES.REGISTER_MAIL_NOTIFICATION,
+      {
+        durable: false,
+        messageTtl: 300000,
+      },
+    );
     channel.consume(
       queue,
       async (msg) => {

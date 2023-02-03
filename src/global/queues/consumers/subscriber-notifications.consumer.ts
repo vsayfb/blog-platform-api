@@ -29,16 +29,17 @@ export class SubscriberNotificationsConsumer {
     channel.consume(
       queue,
       async (msg) => {
-        const content = msg.content.toString() as unknown as {
+        const content = JSON.parse(msg.content.toString()) as unknown as {
           subject: string;
-          author: SelectedAccountFields;
           post: CreatedPostDto;
         };
 
-        const { subject, author, post } = content;
+        const { subject, post } = content;
+
+        console.log(content);
 
         const subs = await this.subscriptionsService.getSubscribers(
-          content.author.id,
+          post.author.id,
         );
 
         subs.forEach((sub) => {
@@ -47,7 +48,7 @@ export class SubscriberNotificationsConsumer {
             notifable: { id: sub.id },
             object: NotificationObject.POST,
             post,
-            sender: author,
+            sender: post.author,
             created_at: new Date(),
             updated_at: new Date(),
           } as any);

@@ -28,7 +28,6 @@ export class MailsWorker {
   }
 
   produceSubscriberMails(data: {
-    author: SelectedAccountFields;
     subject: string;
     post: CreatedPostDto;
   }) {

@@ -23,17 +23,18 @@ export class NotifySubcribers implements NestInterceptor {
   ): Observable<{ data: CreatedPostDto; message: PostMessages }> {
     return next.handle().pipe(
       map((value: { data: CreatedPostDto; message: PostMessages }) => {
-        const notificationObject = {
-          author: value.data.author,
-          subject: 'published a post.',
-          post: value.data,
-        };
+        if (value.data.published) {
+          const notificationObject = {
+            subject: 'published a post.',
+            post: value.data,
+          };
 
-        this.mailsWorker.produceSubscriberMails(notificationObject);
+          this.mailsWorker.produceSubscriberMails(notificationObject);
 
-        this.notificationsWorker.produceSubcriberNotifications(
-          notificationObject,
-        );
+          this.notificationsWorker.produceSubcriberNotifications(
+            notificationObject,
+          );
+        }
 
         return value;
       }),

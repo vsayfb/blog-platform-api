@@ -33,6 +33,7 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       REDIS_URL: ${REDIS_URL}
       RABBITMQ_URI: ${RABBITMQ_URI}
+      ELASTIC_NODE: ${ELASTIC_NODE}
       SSL_KEY_PATH: ${SSL_KEY_PATH}
       SSL_CERT_PATH: ${SSL_CERT_PATH}
       SSL_CA_PATH: ${SSL_CA_PATH}
@@ -67,7 +68,29 @@ services:
       - 5672:5672
       - 15672:15672
 
+  elastic-search:
+    container_name: elastic-search
+    image: elasticsearch:8.6.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.ml.enabled=false
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+  kibana:
+    container_name: kibana
+    image: kibana:8.6.0
+    ports:
+      - 5601:5601
+
 volumes:
   postgresql-data:
   redis-data:
   rabbitmq:
+  elastic-data:
+  kibana:

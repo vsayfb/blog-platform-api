@@ -7,7 +7,6 @@ import { AccountNotificationsConsumer } from '../consumers/account-notifications
 import { SubscriberNotificationsConsumer } from '../consumers/subscriber-notifications.consumer';
 import { QUEUES } from '../constants/queue.constant';
 
-
 @Injectable()
 export class NotificationsWorker {
   private channel: Channel;
@@ -26,17 +25,15 @@ export class NotificationsWorker {
   }
 
   produceSubcriberNotifications({
-    author,
     subject,
     post,
   }: {
-    author: SelectedAccountFields;
     subject: string;
     post: CreatedPostDto;
   }) {
     this.channel.sendToQueue(
       QUEUES.SUBSCRIBER_NOTIFICATIONS,
-      Buffer.from(JSON.stringify({ author, subject, post })),
+      Buffer.from(JSON.stringify({ subject, post })),
       {
         persistent: true,
       },

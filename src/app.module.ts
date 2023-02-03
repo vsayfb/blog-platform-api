@@ -40,12 +40,19 @@ import { join } from 'path';
 import { RabbitModule } from './rabbit/rabbit.module';
 import { QueueModule } from './global/queues/queue.module';
 import { ConsumersModule } from './global/queues/consumers/consumers.module';
+import { LoggingModule } from './logging/logging.module';
+import { LoggingInterceptor } from './logging/interceptors/logging.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ElasticModule } from './elastic/elastic.module';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
   TypeOrmModule.forRoot(dataSource.options),
   RedisModule.forRoot({ url: process.env[ProcessEnv.REDIS_URL] }),
   RabbitModule.forRoot({ uri: process.env[ProcessEnv.RABBITMQ_URI] }),
+  ElasticModule.forRoot({
+    clientOpts: { node: process.env[ProcessEnv.ELASTIC_NODE] },
+  }),
   AccountsModule,
   ProfilesModule,
   AuthModule,
@@ -76,6 +83,7 @@ const imports = [
   NotificationsModule,
   QueueModule,
   ConsumersModule,
+  LoggingModule,
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -97,6 +105,10 @@ if (process.env.NODE_ENV === 'production') {
     {
       provide: APP_FILTER,
       useClass: QueryFailedExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
 })

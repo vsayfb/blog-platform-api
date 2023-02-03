@@ -32,12 +32,14 @@ export class AccountNotificationsConsumer {
           notificationID,
         );
 
-        this.cacheJsonService.insertToArray(
-          CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
-          notification,
-        );
+        if (notification) {
+          await this.cacheJsonService.insertToArray(
+            CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
+            notification,
+          );
 
-        this.notificationsGateway.pushNotification(notification);
+          await this.notificationsGateway.pushNotification(notification);
+        }
 
         channel.ack(msg);
       },

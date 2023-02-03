@@ -5,4 +5,5 @@ import { SelectedPostFields } from './selected-post-fields';
 export type NewPost = SelectedPostFields & {
   author: SelectedAccountFields;
   tags: SelectedTagFields[];
+  published: boolean;
 };

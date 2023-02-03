@@ -30,22 +30,23 @@ export class SubscriberMailsConsumer {
       async (msg) => {
         try {
           const content = JSON.parse(msg.content.toString()) as unknown as {
-            author: SelectedAccountFields;
             subject: string;
             post: CreatedPostDto;
           };
 
-          const { author, subject, post } = content;
+          const { subject, post } = content;
 
           const subs = await this.subscriptionsService.getSubscribers(
-            author.id,
+            post.author.id,
           );
 
-          this.mailsService.send(
-            subs.map((s) => s.email).join(', '),
-            `@${author.username} ${subject}`,
-            post.content,
-          );
+          if (subs.length) {
+            this.mailsService.send(
+              subs.map((s) => s.email).join(', '),
+              `@${post.author.username} ${subject}`,
+              post.content,
+            );
+          }
 
           channel.ack(msg);
         } catch (error) {

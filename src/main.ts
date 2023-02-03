@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import * as express from 'express';
 import * as fs from 'fs';
 import { useContainer } from 'class-validator';
+import { LoggingInterceptor } from './logging/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const nestAppOptions: NestApplicationOptions = {};

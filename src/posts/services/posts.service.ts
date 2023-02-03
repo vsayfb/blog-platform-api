@@ -70,7 +70,7 @@ export class PostsService
       relations: { tags: true, author: true },
     });
 
-    return result;
+    return { ...result, published: created.published };
   }
 
   async getAll(): Promise<PublicPosts> {

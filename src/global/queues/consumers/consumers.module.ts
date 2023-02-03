@@ -7,11 +7,13 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { SmsModule } from 'src/sms/sms.module';
 import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
 import { AccountNotificationsConsumer } from './account-notifications.consumer';
-import { MailNotificationsConsumer } from './tfa-mail-notifications.consumer';
+import { TfaMailNotificationsConsumer } from './tfa-mail-notifications.consumer';
 import { SmsNotificationsConsumer } from './sms-notifications.consumer';
 import { RegisterMailsConsumer } from './register-mails.consumer';
 import { SubscriberMailsConsumer } from './subscriber-mails.consumer';
 import { SubscriberNotificationsConsumer } from './subscriber-notifications.consumer';
+import { LogsConsumer } from './logs.consumer';
+import { LoggingModule } from 'src/logging/logging.module';
 
 @Module({
   imports: [
@@ -22,22 +24,25 @@ import { SubscriberNotificationsConsumer } from './subscriber-notifications.cons
     AccountsNotificationsModule,
     CacheManagerModule,
     GatewaysModule,
+    LoggingModule,
   ],
   providers: [
     AccountNotificationsConsumer,
     SubscriberNotificationsConsumer,
     SubscriberMailsConsumer,
     RegisterMailsConsumer,
-    MailNotificationsConsumer,
+    TfaMailNotificationsConsumer,
     SmsNotificationsConsumer,
+    LogsConsumer,
   ],
   exports: [
     AccountNotificationsConsumer,
     SubscriberNotificationsConsumer,
     SubscriberMailsConsumer,
     RegisterMailsConsumer,
-    MailNotificationsConsumer,
+    TfaMailNotificationsConsumer,
     SmsNotificationsConsumer,
+    LogsConsumer,
   ],
 })
 export class ConsumersModule {}
