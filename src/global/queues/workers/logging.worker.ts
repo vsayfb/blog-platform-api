@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Channel, Connection } from 'amqplib';
 import { LogData } from 'src/logging/types/log-data.type';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
 import { QUEUES } from '../constants/queue.constant';
 import { LogsConsumer } from '../consumers/logs.consumer';
 

@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
-import { NotificationsService } from 'src/account_notifications/services/notifications.service';
+import { NotificationsService } from 'src/resources/account_notifications/services/notifications.service';
 import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
 import { CacheJsonService } from 'src/cache/services/cache-json.service';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
 import { QUEUES } from '../constants/queue.constant';
 
 @Injectable()

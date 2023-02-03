@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TasksModule } from 'src/global/tasks/tasks.module';
-import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
+import { VerificationCodesModule } from 'src/resources/verification_codes/verification-codes.module';
 import { MailsModule } from 'src/mails/mails.module';
 import { SmsModule } from 'src/sms/sms.module';
 import { EmailNotificationService } from './services/email-notification.service';

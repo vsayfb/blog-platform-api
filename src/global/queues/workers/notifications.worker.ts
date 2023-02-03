@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Channel, Connection } from 'amqplib';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { CreatedPostDto } from 'src/posts/response-dto/created-post.dto';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
+import { CreatedPostDto } from 'src/resources/posts/response-dto/created-post.dto';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
 import { AccountNotificationsConsumer } from '../consumers/account-notifications.consumer';
 import { SubscriberNotificationsConsumer } from '../consumers/subscriber-notifications.consumer';
 import { QUEUES } from '../constants/queue.constant';

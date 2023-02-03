@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { NotificationObject } from 'src/account_notifications/entities/notification.entity';
+import { NotificationObject } from 'src/resources/account_notifications/entities/notification.entity';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
-import { CreatedPostDto } from 'src/posts/response-dto/created-post.dto';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
-import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
+import { CreatedPostDto } from 'src/resources/posts/response-dto/created-post.dto';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
+import { SubscriptionsService } from 'src/resources/subscriptions/subscriptions.service';
 import { QUEUES } from '../constants/queue.constant';
 
 @Injectable()

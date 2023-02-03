@@ -7,7 +7,6 @@ import {
 @Injectable()
 export class OptionalImageFile implements PipeTransform {
   transform(image: Express.Multer.File) {
-
     if (!image) return null;
 
     const acceptMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];

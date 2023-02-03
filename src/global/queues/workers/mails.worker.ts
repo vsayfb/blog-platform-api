@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Channel, Connection } from 'amqplib';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
-import { CreatedPostDto } from 'src/posts/response-dto/created-post.dto';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
+import { CreatedPostDto } from 'src/resources/posts/response-dto/created-post.dto';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
 import { TfaMailNotificationsConsumer } from '../consumers/tfa-mail-notifications.consumer';
 import { RegisterMailsConsumer } from '../consumers/register-mails.consumer';
 import { SubscriberMailsConsumer } from '../consumers/subscriber-mails.consumer';
@@ -27,10 +27,7 @@ export class MailsWorker {
     });
   }
 
-  produceSubscriberMails(data: {
-    subject: string;
-    post: CreatedPostDto;
-  }) {
+  produceSubscriberMails(data: { subject: string; post: CreatedPostDto }) {
     this.channel.sendToQueue(
       QUEUES.SUBSCRIBER_MAILS_NOTIFICATIONS,
       Buffer.from(JSON.stringify(data)),

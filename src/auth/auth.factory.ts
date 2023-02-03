@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RegisterType } from 'src/accounts/entities/account.entity';
+import { RegisterType } from 'src/resources/accounts/entities/account.entity';
 import { IAuthService } from './interfaces/auth-service.interface';
 import { GoogleAuthService } from './services/google-auth.service';
 import { LocalAuthService } from './services/local-auth.service';

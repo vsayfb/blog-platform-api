@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ElasticModule } from 'src/elastic/elastic.module';
+import { ElasticModule } from 'src/global/elastic/elastic.module';
 import { LoggingService } from './logging.service';
 
 @Module({

@@ -1,13 +1,6 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  UseFilters,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Post, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import { GOOGLE_AUTH_ROUTE } from 'src/lib/constants';
 import { Client } from '../decorator/client.decorator';
 import { GoogleAccessTokenDto } from '../request-dto/google-access-token.dto';
@@ -18,9 +11,9 @@ import { AuthRoutes } from '../enums/auth-routes';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { GoogleAuthService } from '../services/google-auth.service';
-import { EnabledMobilePhoneFactorFilter } from 'src/tfa/exceptions/enabled-mobile-phone-factor-filter';
-import { VerifyGoogleUser } from 'src/accounts/guards/verify-google-user.guard';
-import { VerifiedGoogleUser } from 'src/accounts/decorators/google-user.decorator';
+import { EnabledMobilePhoneFactorFilter } from 'src/resources/tfa/exceptions/enabled-mobile-phone-factor-filter';
+import { VerifyGoogleUser } from 'src/resources/accounts/guards/verify-google-user.guard';
+import { VerifiedGoogleUser } from 'src/resources/accounts/decorators/google-user.decorator';
 import { GoogleUserCredentials } from 'src/apis/google/google.service';
 
 @Controller(GOOGLE_AUTH_ROUTE)
@@ -32,7 +25,7 @@ export class GoogleAuthController implements IAuthController {
   @Post(AuthRoutes.REGISTER)
   async register(
     @VerifiedGoogleUser() googleUser: GoogleUserCredentials,
-    @Body() body: GoogleAccessTokenDto,
+    @Body() _body: GoogleAccessTokenDto,
   ): Promise<{ data: RegisterDto; message: AuthMessages }> {
     return {
       data: await this.googleAuthService.register(googleUser),

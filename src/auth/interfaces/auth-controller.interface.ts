@@ -1,4 +1,4 @@
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import { LoginDto } from '../response-dto/login.dto';
 import { RegisterDto } from '../response-dto/register.dto';
 

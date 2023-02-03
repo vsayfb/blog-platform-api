@@ -1,7 +1,7 @@
-import { AccountRoutes } from 'src/accounts/enums/account-routes';
-import { NotificationRoutes } from 'src/account_notifications/enums/notification-routes';
-import { BookmarkRoutes } from 'src/bookmarks/enums/bookmark-routes';
-import { ChatRoutes } from 'src/chats/enums/chat-routes';
+import { AccountRoutes } from 'src/resources/accounts/enums/account-routes';
+import { NotificationRoutes } from 'src/resources/account_notifications/enums/notification-routes';
+import { BookmarkRoutes } from 'src/resources/bookmarks/enums/bookmark-routes';
+import { ChatRoutes } from 'src/resources/chats/enums/chat-routes';
 import {
   ACCOUNTS_ROUTE,
   BOOKMARKS_ROUTE,

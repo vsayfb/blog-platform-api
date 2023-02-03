@@ -16,7 +16,7 @@ jest.mock('../../../node_modules/twilio', function () {
 
 describe('TwilioService', () => {
   let twilioService: TwilioService;
-  let configService = { get: jest.fn().mockReturnValue('') };
+  const configService = { get: jest.fn().mockReturnValue('') };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

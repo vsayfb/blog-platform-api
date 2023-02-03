@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { GoogleAccountsService } from 'src/accounts/services/google-accounts.service';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { GoogleAccountsService } from 'src/resources/accounts/services/google-accounts.service';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import {
   GoogleService,
   GoogleUserCredentials,
@@ -8,7 +8,7 @@ import {
 import { RegisterDto } from '../response-dto/register.dto';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
-import { EnabledMobilePhoneFactorException } from 'src/tfa/exceptions/enabled-mobile-phone-factor.exception';
+import { EnabledMobilePhoneFactorException } from 'src/resources/tfa/exceptions/enabled-mobile-phone-factor.exception';
 
 @Injectable()
 export class GoogleAuthService extends BaseAuthService implements IAuthService {

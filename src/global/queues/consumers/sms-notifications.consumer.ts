@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
-import { RABBIT_CLIENT } from 'src/rabbit/constants';
+import { RABBIT_CLIENT } from 'src/global/rabbit/constants';
 import { SmsService } from 'src/sms/sms.service';
 import { QUEUES } from '../constants/queue.constant';
 

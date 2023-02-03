@@ -17,26 +17,26 @@ import { AuthRoutes } from '../enums/auth-routes';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { AuthMessages } from '../enums/auth-messages';
 import { LOCAL_AUTH_ROUTE } from 'src/lib/constants';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import { IAuthController } from '../interfaces/auth-controller.interface';
 import { LoginDto } from '../response-dto/login.dto';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
-import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { CodeMessages } from 'src/resources/verification_codes/enums/code-messages';
 import { NotificationBy } from 'src/notifications/types/notification-by';
-import { EnabledEmailFactorFilter } from 'src/tfa/exceptions/enabled-email-factor-filter';
-import { EnabledMobilePhoneFactorFilter } from 'src/tfa/exceptions/enabled-mobile-phone-factor-filter';
-import { VerificationCodeObj } from 'src/verification_codes/decorators/verification-code.decorator';
+import { EnabledEmailFactorFilter } from 'src/resources/tfa/exceptions/enabled-email-factor-filter';
+import { EnabledMobilePhoneFactorFilter } from 'src/resources/tfa/exceptions/enabled-mobile-phone-factor-filter';
+import { VerificationCodeObj } from 'src/resources/verification_codes/decorators/verification-code.decorator';
 import {
   CodeProcess,
   VerificationCode,
-} from 'src/verification_codes/entities/code.entity';
-import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
-import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
-import { TemporaryAccountsService } from 'src/accounts/services/temporary-accounts.service';
-import { NotificationTo } from 'src/verification_codes/decorators/notification-by.decorator';
-import { VerificationCodeProcess } from 'src/verification_codes/decorators/code-process.decorator';
-import { DeleteVerificationCodeInBody } from 'src/verification_codes/interceptors/delete-code-in-body.interceptor';
-import { VerificationCodeMatches } from 'src/verification_codes/guards/check-verification-code-matches.guard';
+} from 'src/resources/verification_codes/entities/code.entity';
+import { VerificationTokenDto } from 'src/resources/verification_codes/dto/verification-token.dto';
+import { VerificationCodeDto } from 'src/resources/verification_codes/dto/verification-code.dto';
+import { TemporaryAccountsService } from 'src/resources/accounts/services/temporary-accounts.service';
+import { NotificationTo } from 'src/resources/verification_codes/decorators/notification-by.decorator';
+import { VerificationCodeProcess } from 'src/resources/verification_codes/decorators/code-process.decorator';
+import { DeleteVerificationCodeInBody } from 'src/resources/verification_codes/interceptors/delete-code-in-body.interceptor';
+import { VerificationCodeMatches } from 'src/resources/verification_codes/guards/check-verification-code-matches.guard';
 import {
   RegisterWithEmailDto,
   RegisterWithMobilePhoneDto,

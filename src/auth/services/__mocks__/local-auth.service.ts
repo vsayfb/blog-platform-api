@@ -1,5 +1,5 @@
-import { accountStub } from 'src/accounts/test/stub/account.stub';
-import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { accountStub } from 'src/resources/accounts/test/stub/account.stub';
+import { CodeMessages } from 'src/resources/verification_codes/enums/code-messages';
 
 export const LocalAuthService = jest.fn().mockReturnValue({
   register: jest

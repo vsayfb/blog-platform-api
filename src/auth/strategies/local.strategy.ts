@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LocalAuthService } from '../services/local-auth.service';
 import { AuthMessages } from '../enums/auth-messages';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

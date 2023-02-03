@@ -1,14 +1,12 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreateAccountDto } from 'src/accounts/request-dto/create-account.dto';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { Injectable } from '@nestjs/common';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import { IAuthService } from '../interfaces/auth-service.interface';
 import { BaseAuthService } from './base-auth.service';
 import { RegisterDto } from '../response-dto/register.dto';
-import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
-import { LocalAccountsService } from 'src/accounts/services/local-accounts.service';
+import { LocalAccountsService } from 'src/resources/accounts/services/local-accounts.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
-import { EnabledEmailFactorException } from 'src/tfa/exceptions/enabled-email-factor.exception';
-import { EnabledMobilePhoneFactorException } from 'src/tfa/exceptions/enabled-mobile-phone-factor.exception';
+import { EnabledEmailFactorException } from 'src/resources/tfa/exceptions/enabled-email-factor.exception';
+import { EnabledMobilePhoneFactorException } from 'src/resources/tfa/exceptions/enabled-mobile-phone-factor.exception';
 import { CreateLocalAccount } from '../types/create-local-account';
 
 @Injectable()

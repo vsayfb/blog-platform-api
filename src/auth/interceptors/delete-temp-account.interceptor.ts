@@ -5,9 +5,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { TemporaryAccountsService } from 'src/accounts/services/temporary-accounts.service';
+import { TemporaryAccountsService } from 'src/resources/accounts/services/temporary-accounts.service';
 import { TasksService } from 'src/global/tasks/tasks.service';
-import { CodeMessages } from 'src/verification_codes/enums/code-messages';
+import { CodeMessages } from 'src/resources/verification_codes/enums/code-messages';
 
 /**
  * Removes unused temporary accounts by req.body.username, if they exist.

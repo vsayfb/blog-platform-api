@@ -1,4 +1,4 @@
-import { SelectedAccountFields } from '../../accounts/types/selected-account-fields';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 
 export type RegisterDto = {
   account: SelectedAccountFields;

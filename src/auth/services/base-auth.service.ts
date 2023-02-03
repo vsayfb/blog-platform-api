@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
-import { SelectedAccountFields } from 'src/accounts/types/selected-account-fields';
+import { PasswordManagerService } from 'src/resources/accounts/services/password-manager.service';
+import { SelectedAccountFields } from 'src/resources/accounts/types/selected-account-fields';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { JwtPayload } from 'src/lib/jwt.payload';
 

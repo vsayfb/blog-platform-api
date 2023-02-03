@@ -4,7 +4,7 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { AccountsModule } from 'src/accounts/accounts.module';
+import { AccountsModule } from 'src/resources/accounts/accounts.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,14 +17,13 @@ import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleAuthService } from './services/google-auth.service';
 import { LocalAuthService } from './services/local-auth.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
-import { VerificationCodesModule } from 'src/verification_codes/verification-codes.module';
+import { VerificationCodesModule } from 'src/resources/verification_codes/verification-codes.module';
 import { validateBodyDto } from 'src/lib/middlewares/validate-body-dto';
-import { AUTH_ROUTE, LOCAL_AUTH_ROUTE } from 'src/lib/constants';
+import { AUTH_ROUTE } from 'src/lib/constants';
 import { AuthRoutes } from './enums/auth-routes';
-import { TFADto } from 'src/tfa/dto/two-factor-auth.dto';
 import { validateParamDto } from 'src/lib/middlewares/validate-param.dto';
-import { VerificationTokenDto } from 'src/verification_codes/dto/verification-token.dto';
-import { VerificationCodeDto } from 'src/verification_codes/dto/verification-code.dto';
+import { VerificationTokenDto } from 'src/resources/verification_codes/dto/verification-token.dto';
+import { VerificationCodeDto } from 'src/resources/verification_codes/dto/verification-code.dto';
 import { AuthFactory } from './auth.factory';
 import { AuthController } from './controllers/auth.controller';
 

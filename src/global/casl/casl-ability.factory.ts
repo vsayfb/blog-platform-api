@@ -1,5 +1,5 @@
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { Post } from '../../posts/entities/post.entity';
+import { Post } from 'src/resources/posts/entities/post.entity';
 import {
   Ability,
   AbilityBuilder,
@@ -8,12 +8,12 @@ import {
   InferSubjects,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { Role, Account } from 'src/accounts/entities/account.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
-import { Comment } from 'src/comments/entities/comment.entity';
-import { Bookmark } from 'src/bookmarks/entities/bookmark.entity';
-import { Notification } from 'src/account_notifications/entities/notification.entity';
-import { TwoFactorAuth } from 'src/tfa/entities/two-factor-auth.entity';
+import { Role, Account } from 'src/resources/accounts/entities/account.entity';
+import { Tag } from 'src/resources/tags/entities/tag.entity';
+import { Comment } from 'src/resources/comments/entities/comment.entity';
+import { Bookmark } from 'src/resources/bookmarks/entities/bookmark.entity';
+import { Notification } from 'src/resources/account_notifications/entities/notification.entity';
+import { TwoFactorAuth } from 'src/resources/tfa/entities/two-factor-auth.entity';
 
 export enum Action {
   Manage = 'manage',

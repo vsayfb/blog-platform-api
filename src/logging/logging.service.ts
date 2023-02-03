@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { Inject, Injectable } from '@nestjs/common';
-import { ELASTIC_CLIENT } from 'src/elastic/constants';
+import { ELASTIC_CLIENT } from 'src/global/elastic/constants';
 import { LogData } from './types/log-data.type';
 
 @Injectable()

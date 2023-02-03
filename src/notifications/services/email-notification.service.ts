@@ -3,8 +3,8 @@ import { TasksService } from 'src/global/tasks/tasks.service';
 import {
   CodeProcess,
   VerificationCode,
-} from 'src/verification_codes/entities/code.entity';
-import { VerificationCodesService } from 'src/verification_codes/verification-codes.service';
+} from 'src/resources/verification_codes/entities/code.entity';
+import { VerificationCodesService } from 'src/resources/verification_codes/verification-codes.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
 import { MailsWorker } from 'src/global/queues/workers/mails.worker';
 

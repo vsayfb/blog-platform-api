@@ -1,4 +1,4 @@
-import { Role } from './../accounts/entities/account.entity';
+import { Role } from 'src/resources/accounts/entities/account.entity';
 
 export type JwtPayload = {
   sub: string;

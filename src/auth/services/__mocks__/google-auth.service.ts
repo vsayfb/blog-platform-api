@@ -1,4 +1,4 @@
-import { accountStub } from 'src/accounts/test/stub/account.stub';
+import { accountStub } from 'src/resources/accounts/test/stub/account.stub';
 
 export const GoogleAuthService = jest.fn().mockReturnValue({
   login: jest

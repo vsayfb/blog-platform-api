@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { NewMessageDto } from '../../messages/response-dto/message-view.dto';
+import { NewMessageDto } from 'src/resources/messages/response-dto/message-view.dto';
 import { ChatsGateway } from '../../gateways/chats.gateway';
 import { NotificationsWorker } from 'src/global/queues/workers/notifications.worker';
 
