@@ -5,10 +5,10 @@ import {
   Account,
   RegisterType,
   Role,
-} from 'src/accounts/entities/account.entity';
-import { PasswordManagerService } from 'src/accounts/services/password-manager.service';
+} from 'src/resources/accounts/entities/account.entity';
+import { PasswordManagerService } from 'src/resources/accounts/services/password-manager.service';
 import { ProcessEnv } from 'src/lib/enums/env';
-import { generateFakeUser } from 'test/helpers/utils/generateFakeUser';
+import { generateFakeAccount } from 'src/lib/test_helpers/generateFakeUser';
 
 export type DatabaseUser = {
   id: string;
@@ -67,7 +67,7 @@ export class TestDatabaseService {
 
   async createRandomTestUser(role?: Role): Promise<DatabaseUser> {
     const { username, email, password, display_name, image } =
-      generateFakeUser();
+      generateFakeAccount();
 
     const hashedPassword = await this.passwordManagerService.hashPassword(
       password,

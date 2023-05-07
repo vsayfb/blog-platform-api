@@ -9,8 +9,8 @@ import { AccountsNotificationsModule } from 'src/resources/account_notifications
 @Module({
   imports: [
     TypeOrmModule.forFeature([Follow]),
-    AccountsModule,
     AccountsNotificationsModule,
+    AccountsModule,
   ],
   controllers: [FollowController],
   providers: [FollowService],

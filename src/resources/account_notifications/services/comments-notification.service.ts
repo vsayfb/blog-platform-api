@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   NotificationActions,
   NotificationObject,
-} from '../entities/notification.entity';
+} from '../entities/account-notification.entity';
 import { NotificationsService } from './notifications.service';
 
 @Injectable()

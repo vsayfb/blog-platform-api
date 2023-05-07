@@ -8,15 +8,15 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Account } from '../../accounts/entities/account.entity';
-import { Message } from '../../messages/entities/message.entity';
+import { ChatMessage } from '../../messages/entities/chat-message.entity';
 
 @Entity()
 export class Chat {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(() => Message, (message) => message.chat, { cascade: true })
-  messages: Message[];
+  @OneToMany(() => ChatMessage, (message) => message.chat, { cascade: true })
+  messages: ChatMessage[];
 
   @ManyToMany(() => Account)
   @JoinTable()

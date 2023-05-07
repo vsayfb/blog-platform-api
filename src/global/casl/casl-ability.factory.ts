@@ -10,9 +10,9 @@ import {
 import { Injectable } from '@nestjs/common';
 import { Role, Account } from 'src/resources/accounts/entities/account.entity';
 import { Tag } from 'src/resources/tags/entities/tag.entity';
-import { Comment } from 'src/resources/comments/entities/comment.entity';
+import { PostComment } from 'src/resources/comments/entities/post-comment.entity';
 import { Bookmark } from 'src/resources/bookmarks/entities/bookmark.entity';
-import { Notification } from 'src/resources/account_notifications/entities/notification.entity';
+import { AccountNotification } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { TwoFactorAuth } from 'src/resources/tfa/entities/two-factor-auth.entity';
 
 export enum Action {
@@ -27,9 +27,9 @@ export type Subjects =
   | InferSubjects<
       | typeof Post
       | typeof Tag
-      | typeof Comment
+      | typeof PostComment
       | typeof Bookmark
-      | typeof Notification
+      | typeof AccountNotification
       | typeof Account
       | typeof TwoFactorAuth
     >
@@ -49,23 +49,23 @@ export class CaslAbilityFactory {
     } //
     else if (client.role === Role.MODERATOR) {
       can(Action.Manage, Tag);
-      can(Action.Manage, Comment);
+      can(Action.Manage, PostComment);
       can(Action.Manage, Post);
     } //
     else {
       can(Action.Manage, Post, { 'author.id': client.sub } as unknown as Post);
 
-      can(Action.Manage, Comment, {
+      can(Action.Manage, PostComment, {
         'author.id': client.sub,
-      } as unknown as Comment);
+      } as unknown as PostComment);
 
       can(Action.Manage, Bookmark, {
         'account.id': client.sub,
       } as unknown as Bookmark);
 
-      can(Action.Manage, Notification, {
+      can(Action.Manage, AccountNotification, {
         'notifable.id': client.sub,
-      } as unknown as Notification);
+      } as unknown as AccountNotification);
 
       can(Action.Manage, TwoFactorAuth, {
         'account.id': client.sub,

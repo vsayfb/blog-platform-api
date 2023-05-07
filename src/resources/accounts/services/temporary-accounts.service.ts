@@ -49,10 +49,13 @@ export class TemporaryAccountsService
     return this.tempAccountsRepository.findOneBy({ mobile_phone: mobilePhone });
   }
 
-  async deleteByUsernameIfExist(username: string): Promise<void> {
+  async deleteByUsernameIfExist(username: string): Promise<true> {
     const account = await this.getOneByUsername(username);
 
-    if (account) await this.tempAccountsRepository.remove(account);
+    if (account) {
+      await this.tempAccountsRepository.remove(account);
+      return true;
+    }
   }
 
   async delete(account: TemporaryAccount): Promise<string> {

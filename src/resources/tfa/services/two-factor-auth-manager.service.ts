@@ -25,7 +25,7 @@ export class TwoFactorAuthManager {
     by: NotificationBy;
     accountID: string;
   }): Promise<VerificationCode> {
-    const account = await this.accountsService.getCredentials(accountID);
+    const account = await this.accountsService.getCredentialsByID(accountID);
 
     if (account.two_factor_auth)
       throw new ForbiddenException(TFAMessages.ALREADY_ENABLED);
@@ -34,7 +34,7 @@ export class TwoFactorAuthManager {
       throw new ForbiddenException(
         by === 'email'
           ? AccountMessages.HAS_NOT_EMAIL
-          : AccountMessages.HAS_NOT_PHONE,
+          : AccountMessages.HAS_NOT_MOBILE_PHONE,
       );
     }
 
@@ -53,7 +53,7 @@ export class TwoFactorAuthManager {
 
     if (!tfa) throw new ForbiddenException(TFAMessages.NOT_ENABLED);
 
-    const account = await this.accountsService.getCredentials(accountID);
+    const account = await this.accountsService.getCredentialsByID(accountID);
 
     const notificationFactory = this.notificationFactory.createNotification(
       tfa.via,

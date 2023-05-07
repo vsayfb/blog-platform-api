@@ -7,24 +7,24 @@ import { IFindService } from 'src/lib/interfaces/find-service.interface';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { Repository } from 'typeorm';
 import {
-  Notification,
+  AccountNotification,
   NotificationActions,
-} from '../entities/notification.entity';
-import { AccountNotification } from '../types/account-notification';
+} from '../entities/account-notification.entity';
+import { AccountNotificationType } from '../types/account-notification';
 
 @Injectable()
 export class NotificationsService
   implements IFindService, IDeleteService, IUpdateService
 {
   constructor(
-    @InjectRepository(Notification)
-    protected readonly notificationsRepository: Repository<Notification>,
+    @InjectRepository(AccountNotification)
+    protected readonly notificationsRepository: Repository<AccountNotification>,
     protected readonly cacheJsonService: CacheJsonService,
   ) {}
 
   async getAccountNotifications(
     accountID: string,
-  ): Promise<AccountNotification[]> {
+  ): Promise<AccountNotificationType[]> {
     return this.notificationsRepository.find({
       where: { notifable: { id: accountID } },
       relations: { notifable: false },
@@ -37,15 +37,15 @@ export class NotificationsService
     });
   }
 
-  async delete(subject: Notification): Promise<string> {
+  async delete(subject: AccountNotification): Promise<string> {
     const removedNotification = { ...subject };
 
     await this.notificationsRepository.remove(subject);
 
-    this.cacheJsonService.removeFromArray(
-      CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
-      removedNotification,
-    );
+    this.cacheJsonService.removeFromArray({
+      key: CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
+      data: removedNotification,
+    });
 
     return removedNotification.id;
   }
@@ -66,27 +66,27 @@ export class NotificationsService
     await this.delete(notification);
   }
 
-  async update(subject: Notification): Promise<string> {
+  async update(subject: AccountNotification): Promise<string> {
     subject.seen = true;
 
     await this.notificationsRepository.save(subject);
 
-    this.cacheJsonService.removeFromArray(
-      CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
-      subject,
-    );
+    this.cacheJsonService.removeFromArray({
+      key: CACHED_ROUTES.CLIENT_NOTIFS + subject.notifable.id,
+      data: subject,
+    });
 
     return subject.id;
   }
 
-  async getOneByID(id: string): Promise<Notification> {
+  async getOneByID(id: string): Promise<AccountNotification> {
     return await this.notificationsRepository.findOne({
       where: { id },
       relations: { notifable: true },
     });
   }
 
-  async getAll(): Promise<Notification[]> {
+  async getAll(): Promise<AccountNotification[]> {
     return this.notificationsRepository.find();
   }
 }

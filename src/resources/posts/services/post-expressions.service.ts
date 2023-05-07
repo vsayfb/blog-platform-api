@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExpressionMessages } from 'src/resources/expressions/enums/expression-messages';
-import { NotificationActions } from 'src/resources/account_notifications/entities/notification.entity';
+import { NotificationActions } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { PostsNotificationService } from 'src/resources/account_notifications/services/posts.notification.service';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { Repository } from 'typeorm';

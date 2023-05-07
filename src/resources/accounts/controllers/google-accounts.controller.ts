@@ -2,19 +2,17 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  Injectable,
   Param,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GoogleUserCredentials } from 'src/apis/google/google.service';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GOOGLE_ACCOUNTS_ROUTE } from 'src/lib/constants';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { starEmail, starMobilePhone } from 'src/lib/star-text';
+import { starMobilePhone } from 'src/lib/star-text';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { TwoFactorAuth } from 'src/resources/tfa/entities/two-factor-auth.entity';
 import { TwoFactorAuthService } from 'src/resources/tfa/services/two-factor-auth.service';
@@ -27,8 +25,6 @@ import {
 } from 'src/resources/verification_codes/entities/code.entity';
 import { CodeMessages } from 'src/resources/verification_codes/enums/code-messages';
 import { VerificationCodeMatches } from 'src/resources/verification_codes/guards/check-verification-code-matches.guard';
-import { AccountCredentials } from '../decorators/account.decorator';
-import { VerifiedGoogleUser } from '../decorators/google-user.decorator';
 import { Account } from '../entities/account.entity';
 import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
@@ -37,10 +33,11 @@ import { VerifyGoogleUser } from '../guards/verify-google-user.guard';
 import { UpdateGoogleAccountPasswordDto } from '../request-dto/update-google-account-password.dto';
 import { AccountsService } from '../services/accounts.service';
 import { GoogleAccountsService } from '../services/google-accounts.service';
+import { Verification } from '../../../lib/interfaces/verification-interface';
 
 @Controller(GOOGLE_ACCOUNTS_ROUTE)
 @ApiTags(GOOGLE_ACCOUNTS_ROUTE)
-export class GoogleAccountsController {
+export class GoogleAccountsController implements Verification {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly googleAccountsService: GoogleAccountsService,
@@ -52,12 +49,14 @@ export class GoogleAccountsController {
   async updatePassword(
     @Client() client: JwtPayload,
     @Body() body: UpdateGoogleAccountPasswordDto,
-  ) {
-    const account = await this.googleAccountsService.getOneByID(client.sub);
+  ): Promise<{ data: null; message: AccountMessages }> {
+    const account = (await this.googleAccountsService.getOneByID(
+      client.sub,
+    )) as Account;
 
-    await this.accountsService.update(account as Account, {
-      password: body.new_password,
-    });
+    await this.accountsService.setPassword(account, body.new_password);
+
+    await this.accountsService.update(account as Account);
 
     return {
       data: null,
@@ -67,7 +66,7 @@ export class GoogleAccountsController {
 
   @Post(AccountRoutes.VERIFY_PROCESS + ':token')
   @UseGuards(JwtAuthGuard, IsGoogleAccount, VerificationCodeMatches)
-  async makeProcessOfCode(
+  async process(
     @Client() client: JwtPayload,
     @Param() params: VerificationTokenDto,
     @Body() body: VerificationCodeDto,
@@ -75,36 +74,35 @@ export class GoogleAccountsController {
   ) {
     const { process } = verification_code;
 
-    const account = await this.googleAccountsService.getOneByID(client.sub);
+    const account = (await this.googleAccountsService.getOneByID(
+      client.sub,
+    )) as Account;
 
-    switch (process) {
-      case CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          mobile_phone: verification_code.receiver,
-        });
-        return {
-          data: { mobile_phone: starMobilePhone(verification_code.receiver) },
-          message: AccountMessages.PHONE_ADDED,
-        };
-      case CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT:
-        await this.accountsService.update(account as Account, {
-          mobile_phone: null,
-        });
+    if (process === CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT) {
+      this.accountsService.setMobilePhone(account, verification_code.receiver);
 
-        const tfa = await this.twoFactorAuthService.getOneByAccountID(
-          client.sub,
-        );
+      await this.accountsService.update(account);
+      return {
+        data: { mobile_phone: starMobilePhone(verification_code.receiver) },
+        message: AccountMessages.MOBILE_PHONE_ADDED,
+      };
+    } else if (process === CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT) {
+      this.accountsService.setMobilePhone(account, null);
 
-        if (tfa && tfa.via === NotificationBy.MOBILE_PHONE) {
-          this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
-        }
+      await this.accountsService.update(account);
 
-        return {
-          data: { mobile_phone: null },
-          message: AccountMessages.PHONE_REMOVED,
-        };
-      default:
-        throw new ForbiddenException(CodeMessages.INVALID_CODE);
+      const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
+
+      if (tfa && tfa.via === NotificationBy.MOBILE_PHONE) {
+        await this.twoFactorAuthService.delete(tfa as TwoFactorAuth);
+      }
+
+      return {
+        data: { mobile_phone: null },
+        message: AccountMessages.MOBILE_PHONE_REMOVED,
+      };
+    } else {
+      throw new ForbiddenException(CodeMessages.INVALID_CODE);
     }
   }
 }

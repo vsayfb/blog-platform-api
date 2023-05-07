@@ -11,7 +11,7 @@ import {
   GOOGLE_ACCOUNTS_CREDENTIALS_ROUTE,
   GOOGLE_ACCOUNTS_ROUTE,
 } from 'src/lib/constants';
-import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
+import { FollowingURL } from 'src/lib/decorators/following-link.decorator';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/resources/verification_codes/decorators/code-process.decorator';
@@ -23,7 +23,7 @@ import { AccountCredentials } from '../decorators/account.decorator';
 import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
 import { PasswordsMatch } from '../guards/passwords-match.guard';
-import { AddNewPhoneDto } from '../request-dto/add-new-phone.dto';
+import { NewMobilePhoneDto } from '../request-dto/new-mobile-phone.dto';
 import { PasswordDto } from '../request-dto/password.dto';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 
@@ -34,15 +34,15 @@ export class GoogleAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
-  @FollowingLink(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
-  async addNewPhone(
+  async addMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
-    @Body() body: AddNewPhoneDto,
+    @Body() body: NewMobilePhoneDto,
   ) {
     if (account.mobile_phone)
-      throw new ForbiddenException(AccountMessages.HAS_PHONE);
+      throw new ForbiddenException(AccountMessages.HAS_MOBILE_PHONE);
 
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
@@ -54,26 +54,26 @@ export class GoogleAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
-  @FollowingLink(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(JwtAuthGuard, PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
   async removeMobilPhone(
     @AccountCredentials() account: AccountWithCredentials,
     @Body() body: PasswordDto,
   ) {
-    if (!account.email) {
-      throw new ForbiddenException(
-        'The account must have a phone number or email address.',
-      );
-    }
+    if (!account.mobile_phone)
+      throw new ForbiddenException(AccountMessages.HAS_NOT_MOBILE_PHONE);
+
+    if (!account.email)
+      throw new ForbiddenException(AccountMessages.MUST_HAS_PHONE_OR_EMAIL);
 
     const mobilePhone = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
@@ -85,9 +85,9 @@ export class GoogleAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         GOOGLE_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 }

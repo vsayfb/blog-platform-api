@@ -49,7 +49,7 @@ export class CodeAlreadySentForDisableTFA implements CanActivate {
       const via = tfa.via === NotificationBy.EMAIL ? 'email' : 'mobile phone.';
 
       throw new ForbiddenException({
-        following_link: followingLink,
+        following_url: followingLink,
         message: CodeMessages.ALREADY_SENT.slice(0, -1) + ' ' + via,
       });
     }

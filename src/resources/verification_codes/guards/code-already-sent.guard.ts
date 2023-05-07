@@ -34,7 +34,7 @@ export class VerificationCodeAlreadySentToAccount implements CanActivate {
       user: JwtPayload;
     } = context.switchToHttp().getRequest();
 
-    const account = await this.accountsService.getCredentials(req.user.sub);
+    const account = await this.accountsService.getCredentialsByID(req.user.sub);
 
     const process = this.reflector.get<CodeProcess>(
       'process',
@@ -58,7 +58,7 @@ export class VerificationCodeAlreadySentToAccount implements CanActivate {
 
     if (code)
       throw new ForbiddenException({
-        following_link: followingLink + code.token,
+        following_url: followingLink + code.token,
         message: CodeMessages.ALREADY_SENT,
       });
 

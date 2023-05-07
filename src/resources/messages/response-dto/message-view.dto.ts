@@ -1,3 +1,3 @@
-import { ChatMessage } from '../types/new-message';
+import { ChatMessageType } from '../types/new-message';
 
-export type NewMessageDto = ChatMessage;
+export type NewMessageDto = ChatMessageType;

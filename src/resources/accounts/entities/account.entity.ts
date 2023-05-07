@@ -1,6 +1,6 @@
 import { Bookmark } from 'src/resources/bookmarks/entities/bookmark.entity';
 import { Chat } from 'src/resources/chats/entities/chat.entity';
-import { Comment } from 'src/resources/comments/entities/comment.entity';
+import { PostComment } from 'src/resources/comments/entities/post-comment.entity';
 import { Follow } from 'src/resources/follow/entities/follow.entity';
 import { Post } from 'src/resources/posts/entities/post.entity';
 import { TwoFactorAuth } from 'src/resources/tfa/entities/two-factor-auth.entity';
@@ -52,8 +52,8 @@ export class Account {
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
-  @OneToMany(() => Comment, (comment) => comment.author)
-  comments: Comment[];
+  @OneToMany(() => PostComment, (comment) => comment.author)
+  comments: PostComment[];
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.account)
   bookmarks: Bookmark[];

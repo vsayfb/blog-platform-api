@@ -2,7 +2,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLocalAccount } from 'src/auth/types/create-local-account';
 import { Brackets, Repository } from 'typeorm';
 import { Account, RegisterType } from '../entities/account.entity';
-import { CreateAccountDto } from '../request-dto/create-account.dto';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 import { CREDENTIALS } from './accounts.service';
@@ -29,7 +28,7 @@ export class LocalAccountsService {
     return await this.accountsRepository.findOneBy({ id: created.id });
   }
 
-  async getOneByID(id: string) {
+  async getOneByID(id: string): Promise<SelectedAccountFields> {
     return this.accountsRepository.findOne({
       where: { id, via: RegisterType.LOCAL },
     });
@@ -38,7 +37,7 @@ export class LocalAccountsService {
   async getCredentialsByUsernameOrEmailOrPhone(
     value: string,
   ): Promise<AccountWithCredentials> {
-    const result = await this.accountsRepository
+    return await this.accountsRepository
       .createQueryBuilder('account')
       .where('account.via = :via', { via: RegisterType.LOCAL })
       .andWhere(
@@ -55,7 +54,5 @@ export class LocalAccountsService {
       .select(Object.keys(CREDENTIALS).map((c) => 'account.' + c))
       .leftJoinAndSelect('account.two_factor_auth', 'two_factor_auth')
       .getOne();
-
-    return result;
   }
 }

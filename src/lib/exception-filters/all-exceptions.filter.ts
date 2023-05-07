@@ -14,6 +14,7 @@ import {
 import { LoggingWorker } from 'src/global/queues/workers/logging.worker';
 import { LogData } from 'src/logging/types/log-data.type';
 import { JwtPayload } from '../jwt.payload';
+import { calcResponseTime } from '../calc-response-time';
 
 @Injectable()
 export class AllExceptionsFilter extends BaseExceptionFilter {
@@ -44,12 +45,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
         start_time: startTime,
         request_method: request.method,
         request_url: request.url,
+        response_time: calcResponseTime(request.start_time, endTime),
         end_time: endTime,
-        response_time:
-          endTime.getMilliseconds() -
-          request.start_time.getMilliseconds() +
-          'ms',
-        exception,
       };
 
       this.loggingWorker.produce(log);

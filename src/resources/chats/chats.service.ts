@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { Repository } from 'typeorm';
-import { Message } from '../messages/entities/message.entity';
+import { ChatMessage } from '../messages/entities/chat-message.entity';
 import { ChatMessages } from './enums/chat-messages';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
@@ -15,7 +15,8 @@ import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
 export class ChatsService implements ICreateService, IFindService {
   constructor(
     @InjectRepository(Chat) private chatsRepository: Repository<Chat>,
-    @InjectRepository(Message) private messagesRepository: Repository<Message>,
+    @InjectRepository(ChatMessage)
+    private messagesRepository: Repository<ChatMessage>,
     private readonly cacheJsonService: CacheJsonService,
   ) {}
 
@@ -65,15 +66,15 @@ export class ChatsService implements ICreateService, IFindService {
       updated_at: chat.updated_at,
     };
 
-    this.cacheJsonService.insertToArray(
-      CACHED_ROUTES.CLIENT_CHATS + initiatorID,
-      cacheChat,
-    );
+    this.cacheJsonService.insertToArray({
+      key: CACHED_ROUTES.CLIENT_CHATS + initiatorID,
+      data: cacheChat,
+    });
 
-    this.cacheJsonService.insertToArray(
-      CACHED_ROUTES.CLIENT_CHATS + toID,
-      cacheChat,
-    );
+    this.cacheJsonService.insertToArray({
+      key: CACHED_ROUTES.CLIENT_CHATS + toID,
+      data: cacheChat,
+    });
 
     return newChat;
   }

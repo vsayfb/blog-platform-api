@@ -24,7 +24,7 @@ import { CreateCommentDto } from './request-dto/create-comment.dto';
 import { RepliesDto } from './response-dto/replies.dto';
 import { CreatedReplyDto } from './response-dto/created-reply.dto';
 import { UpdateCommentDto } from './request-dto/update-comment.dto';
-import { Comment } from './entities/comment.entity';
+import { PostComment } from './entities/post-comment.entity';
 import { CommentMessages } from './enums/comment-messages';
 import { CommentRoutes } from './enums/comment-routes';
 import { CommentedNotificationInterceptor } from './interceptors/commented-notification.interceptor';
@@ -119,7 +119,7 @@ export class CommentsController
   @UseGuards(JwtAuthGuard, CanManageData)
   @Delete(CommentRoutes.DELETE + ':id')
   async delete(
-    @Data() comment: Comment,
+    @Data() comment: PostComment,
   ): Promise<{ id: string; message: CommentMessages }> {
     return {
       id: await this.commentsService.delete(comment),
@@ -130,7 +130,7 @@ export class CommentsController
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(CommentRoutes.UPDATE + ':id')
   async update(
-    @Data() comment: Comment,
+    @Data() comment: PostComment,
     @Body() updateCommentDto: UpdateCommentDto,
   ): Promise<{ data: UpdatedCommentDto; message: string }> {
     return {

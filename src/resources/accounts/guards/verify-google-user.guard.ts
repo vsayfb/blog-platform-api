@@ -1,14 +1,21 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import {
   GoogleService,
   GoogleUserCredentials,
 } from 'src/apis/google/google.service';
+import { AccountMessages } from '../enums/account-messages';
 
 /**
  * Validate google_access_token in body before using this guard.
  *
- * If user verified this guard puts user credentials then
- * you can get credentials using @VerifiedGoogleUser decorator.
+ * If user verified this guard it puts user into request object.
+ *
+ * Then you can get credentials using @VerifiedGoogleUser decorator.
  */
 
 @Injectable()
@@ -25,7 +32,7 @@ export class VerifyGoogleUser implements CanActivate {
       req.body.google_access_token,
     );
 
-    if (!user) return false;
+    if (!user) throw new ForbiddenException(AccountMessages.NOT_FOUND);
 
     req.verified_google_user = user;
 

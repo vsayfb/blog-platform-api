@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Follow } from './entities/follow.entity';
 import { FollowMessages } from './enums/follow-messages';
 import { NotificationsService } from 'src/resources/account_notifications/services/notifications.service';
-import { NotificationActions } from 'src/resources/account_notifications/entities/notification.entity';
+import { NotificationActions } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { IUpdateService } from 'src/lib/interfaces/update-service.interface';
 import { UserFollowers } from './types/user-followers';
 import { UserFollowed } from './types/user-followed';

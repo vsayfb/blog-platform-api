@@ -33,10 +33,10 @@ export class AccountNotificationsConsumer {
         );
 
         if (notification) {
-          await this.cacheJsonService.insertToArray(
-            CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
-            notification,
-          );
+          await this.cacheJsonService.insertToArray({
+            key: CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
+            data: notification,
+          });
 
           await this.notificationsGateway.pushNotification(notification);
         }

@@ -75,8 +75,8 @@ export class EnabledEmailFactorFilter implements ExceptionFilter {
     const code = await notificationFactory.notifyForTFA(receiver, process);
 
     const res = {
-      following_link: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN + code.token,
-      message: CodeMessages.CODE_SENT_TO_MAIL,
+      following_url: AUTH_ROUTE + AuthRoutes.VERIFY_TFA_LOGIN + code.token,
+      message: CodeMessages.CODE_SENT_TO_EMAIL,
     };
 
     response.status(HttpStatus.OK).json(res);

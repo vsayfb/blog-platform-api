@@ -1,6 +1,6 @@
 import { SelectedAccountFields } from '../../accounts/types/selected-account-fields';
 
-export type ChatMessage = {
+export type ChatMessageType = {
   id: string;
   chat_id: string;
   content: string;

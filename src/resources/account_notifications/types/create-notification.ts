@@ -1,4 +1,4 @@
-import { NotificationActions } from '../entities/notification.entity';
+import { NotificationActions } from '../entities/account-notification.entity';
 
 export type CreateNotification = {
   senderID: string;

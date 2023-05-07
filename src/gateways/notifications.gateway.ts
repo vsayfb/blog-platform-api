@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-import { Notification } from 'src/resources/account_notifications/entities/notification.entity';
+import { AccountNotification } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { JwtPayload } from 'src/lib/jwt.payload';
 
 dotenv.config();
@@ -75,7 +75,7 @@ export class NotificationsGateway
     return socket?.socketID;
   }
 
-  async pushNotification(notification: Notification) {
+  async pushNotification(notification: AccountNotification) {
     const senderSocket = await this.getSenderSocket(notification.sender.id);
 
     const notifableSocketID = this.getNotifableSocketID(

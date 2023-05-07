@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
-import { NotificationObject } from 'src/resources/account_notifications/entities/notification.entity';
+import { NotificationObject } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
 import { CreatedPostDto } from 'src/resources/posts/response-dto/created-post.dto';
 import { RABBIT_CLIENT } from 'src/global/rabbit/constants';

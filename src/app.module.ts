@@ -14,7 +14,7 @@ import { BookmarksModule } from './resources/bookmarks/bookmarks.module';
 import { FollowModule } from './resources/follow/follow.module';
 import { AccountsNotificationsModule } from './resources/account_notifications/account-notifications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSource } from 'ormconfig';
+import { dataSource } from '../ormconfig';
 import { GatewaysModule } from './gateways/gateways.module';
 import { EventsModule } from './global/events/events.module';
 import { ChatsModule } from './resources/chats/chats.module';
@@ -29,14 +29,12 @@ import { TwilioModule } from './apis/twilio/twilio.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './lib/exception-filters/all-exceptions.filter';
 import { QueryFailedExceptionFilter } from './lib/exception-filters/query-failed.exception.filter';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { ExpressionsModule } from './resources/expressions/expressions.module';
 import { SubscriptionsModule } from './resources/subscriptions/subscriptions.module';
 import { TwoFactorAuthModule } from './resources/tfa/tfa.module';
 import { ProfilesModule } from './resources/profiles/profiles.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { VerificationCodesModule } from './resources/verification_codes/verification-codes.module';
-import { join } from 'path';
 import { RabbitModule } from './global/rabbit/rabbit.module';
 import { QueueModule } from './global/queues/queue.module';
 import { ConsumersModule } from './global/queues/consumers/consumers.module';
@@ -85,15 +83,6 @@ const imports = [
   ConsumersModule,
   LoggingModule,
 ];
-
-if (process.env.NODE_ENV === 'production') {
-  imports.push(
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', '..', 'client', 'build'),
-      exclude: ['api/*'],
-    }),
-  );
-}
 
 @Module({
   imports,

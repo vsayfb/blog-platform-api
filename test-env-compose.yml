@@ -1,0 +1,38 @@
+services:
+  app:
+    command: npm run test:watch
+    extends:
+      file: docker-compose.yml
+      service: app
+
+  postgresql-database:
+    extends:
+      service: postgresql-database
+
+      file: docker-compose.yml
+  redis-database:
+    extends:
+      file: docker-compose.yml
+      service: redis-database
+
+  rabbitmq:
+    extends:
+      file: docker-compose.yml
+      service: rabbitmq
+
+  elastic-search:
+    extends:
+      file: docker-compose.yml
+      service: elastic-search
+
+  kibana:
+    extends:
+      file: docker-compose.yml
+      service: kibana
+
+volumes:
+  postgresql-data:
+  redis-data:
+  rabbitmq:
+  elastic-data:
+  kibana:

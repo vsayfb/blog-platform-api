@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProcessEnv } from 'src/lib/enums/env';
-import { smsStub } from 'src/sms/stub/sms.stub';
+import { smsStub } from 'src/sms/dummy/sms.dummy';
 import { TwilioService } from './twilio.service';
 
 const twilioClient = {

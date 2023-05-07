@@ -1,3 +1,3 @@
-import { PostComment } from '../types/post-comment';
+import { PostCommentType } from '../types/post-comment';
 
-export type PostCommentsDto = PostComment[];
+export type PostCommentsDto = PostCommentType[];

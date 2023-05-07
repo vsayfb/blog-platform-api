@@ -18,8 +18,6 @@ export class GoogleAccountsService implements ICreateService {
   ) {}
 
   private async generateUniqueUsername(text: string) {
-    const username = text;
-
     // TODO
 
     // length -> (2,16)
@@ -27,7 +25,7 @@ export class GoogleAccountsService implements ICreateService {
     // min two letters -> /[A-Za-z]/gi
     // max two underscores -> /[_]/gi
 
-    return username;
+    return text;
   }
 
   async create(data: {
@@ -64,13 +62,14 @@ export class GoogleAccountsService implements ICreateService {
   async getOneByID(
     id: string,
   ): Promise<SelectedAccountFields & { email: string; password: string }> {
-    return await this.accountsRepository.findOne({
-      where: { id, via: RegisterType.GOOGLE },
+    return await this.accountsRepository.findOneBy({
+      id,
+      via: RegisterType.GOOGLE,
     });
   }
 
   async getCredentialsByEmail(email: string): Promise<AccountWithCredentials> {
-    const result = await this.accountsRepository.findOne({
+    return await this.accountsRepository.findOne({
       where: {
         via: RegisterType.GOOGLE,
         email,
@@ -78,7 +77,5 @@ export class GoogleAccountsService implements ICreateService {
       select: CREDENTIALS,
       relations: { two_factor_auth: true },
     });
-
-    return result;
   }
 }

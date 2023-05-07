@@ -14,7 +14,7 @@ import { AccountWithCredentials } from 'src/resources/accounts/types/account-wit
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNT_TFA, GOOGLE_ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
-import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
+import { FollowingURL } from 'src/lib/decorators/following-link.decorator';
 import { JwtPayload } from 'src/lib/jwt.payload';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/resources/verification_codes/decorators/code-process.decorator';
@@ -45,14 +45,14 @@ export class GoogleAccountTFAController {
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR)
   @NotificationTo(NotificationBy.MOBILE_PHONE)
-  @FollowingLink(GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE)
+  @FollowingURL(GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_MOBILE_PHONE)
   async enable2FAWithMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
-  ): Promise<{ following_link: string; message: CodeMessages }> {
+  ): Promise<{ following_url: string; message: CodeMessages }> {
     if (!account.mobile_phone)
-      throw new ForbiddenException(AccountMessages.HAS_NOT_PHONE);
+      throw new ForbiddenException(AccountMessages.HAS_NOT_MOBILE_PHONE);
 
     const code = await this.twoFactorAuthManager.enable({
       by: NotificationBy.MOBILE_PHONE,
@@ -60,8 +60,8 @@ export class GoogleAccountTFAController {
     });
 
     return {
-      following_link: GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      following_url: GOOGLE_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 

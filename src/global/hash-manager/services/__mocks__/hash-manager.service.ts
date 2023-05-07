@@ -1,8 +1,8 @@
-import { hashStub } from '../../test/stub/hash.stub';
+import { hashDummy } from '../../dummy/hash.dummy';
 
 export const HashManagerService = jest.fn().mockReturnValue({
   manager: {
-    hash: jest.fn().mockResolvedValue(hashStub().hashedText),
+    hash: jest.fn().mockResolvedValue(hashDummy().hashedText),
     compare: jest.fn().mockResolvedValue(true),
   },
 });

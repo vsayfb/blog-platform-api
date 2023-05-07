@@ -11,17 +11,31 @@ export class CacheJsonService {
     return await this.cacheManager.json.get(key);
   }
 
-  async save(key: string, data: any, ttl: number) {
+  async save({
+    key,
+    data,
+    ttl,
+  }: {
+    key: string;
+    data: any;
+    ttl?: number;
+  }): Promise<void> {
     try {
       await this.cacheManager.json.set(key, '$', data);
 
-      await this.cacheManager.expire(key, ttl);
+      await this.cacheManager.expire(key, ttl || 200);
     } catch (error) {
       console.log(error);
     }
   }
 
-  async update(key: string, data: Record<string, any>) {
+  async update({
+    key,
+    data,
+  }: {
+    key: string;
+    data: Record<string, any>;
+  }): Promise<void> {
     try {
       const cache = await this.get(key);
 
@@ -35,7 +49,13 @@ export class CacheJsonService {
     }
   }
 
-  async updateFields(key: string, data: Record<string, any>) {
+  async updateFields({
+    key,
+    data,
+  }: {
+    key: string;
+    data: Record<string, any>;
+  }): Promise<void> {
     try {
       for (const k in data)
         await this.cacheManager.json.set(key, `.data.${k}`, data[k]);
@@ -44,7 +64,15 @@ export class CacheJsonService {
     }
   }
 
-  async insertToArray(key: string, data: Record<string, any>, index?: number) {
+  async insertToArray({
+    key,
+    data,
+    index,
+  }: {
+    key: string;
+    data: Record<string, any>;
+    index?: number;
+  }): Promise<void> {
     try {
       if (await this.get(key))
         await this.cacheManager.json.arrInsert(key, '.data', index || 0, data);
@@ -53,7 +81,15 @@ export class CacheJsonService {
     }
   }
 
-  async updateInArray(key: string, id: string, data: Record<string, any>) {
+  async updateInArray({
+    key,
+    id,
+    data,
+  }: {
+    key: string;
+    id: string;
+    data: Record<string, any>;
+  }): Promise<void> {
     try {
       const res = await this.get(key);
 
@@ -73,11 +109,25 @@ export class CacheJsonService {
     }
   }
 
-  async remove(key: string) {
+  async remove({ key }: { key: string }): Promise<void> {
     await this.cacheManager.del(key);
   }
 
-  async removeFromArray(key: string, data: Record<string, any>) {
+  async deleteAll() {
+    try {
+      await this.cacheManager.flushAll();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async removeFromArray({
+    key,
+    data,
+  }: {
+    key: string;
+    data: Record<string, any>;
+  }): Promise<void> {
     try {
       const index = await this.cacheManager.json.arrIndex(key, '.data', data);
 

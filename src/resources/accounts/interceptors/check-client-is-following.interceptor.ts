@@ -21,24 +21,11 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async onModuleInit() {
-    // use global scope to prevent circulary dependency between follow -> account modules
+    // use global scope to prevent circular dependency between follow -> account modules
     this.followService = this.moduleRef.get(FollowService, { strict: false });
   }
 
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Promise<
-    Observable<
-      Promise<{
-        data: ProfileDto & {
-          following_by: boolean;
-          subscriptions_by: Subscriptions;
-        };
-        message: AccountMessages;
-      }>
-    >
-  > {
+  intercept(context: ExecutionContext, next: CallHandler) {
     const request: Request & { user: JwtPayload | null } = context
       .switchToHttp()
       .getRequest();
@@ -46,9 +33,7 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
     const client = request.user;
 
     return next.handle().pipe(
-      map(async (profile: { data: ProfileDto }) => {
-        //
-
+      map((value: { data: ProfileDto; message: AccountMessages }) => {
         let clientFollowsProfile = false;
 
         const subscriptions: Subscriptions = {
@@ -57,29 +42,28 @@ export class CheckClientIsFollowing implements NestInterceptor, OnModuleInit {
         };
 
         if (client) {
-          const follow = await this.followService.getFollow(
-            client.sub,
-            profile.data.id,
-          );
+          this.followService
+            .getFollow(client.sub, value.data.id)
+            .then((follow) => {
+              if (follow) {
+                clientFollowsProfile = true;
 
-          if (follow) {
-            clientFollowsProfile = true;
+                subscriptions.mails_turned_on =
+                  follow.subscriptions.mails_turned_on;
 
-            subscriptions.mails_turned_on =
-              follow.subscriptions.mails_turned_on;
-
-            subscriptions.notifications_turned_on =
-              follow.subscriptions.notifications_turned_on;
-          }
+                subscriptions.notifications_turned_on =
+                  follow.subscriptions.notifications_turned_on;
+              }
+            });
         }
 
         return {
           data: {
-            ...profile.data,
+            ...value.data,
             following_by: clientFollowsProfile,
             subscriptions_by: subscriptions,
           },
-          message: AccountMessages.FOUND,
+          message: value.message,
         };
       }),
     );

@@ -1,3 +1,3 @@
-import { AccountNotification } from '../types/account-notification';
+import { AccountNotificationType } from '../types/account-notification';
 
-export type AccountNotifications = AccountNotification[];
+export type AccountNotifications = AccountNotificationType[];

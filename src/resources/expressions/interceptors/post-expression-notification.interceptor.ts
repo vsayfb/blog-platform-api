@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { NotificationActions } from 'src/resources/account_notifications/entities/notification.entity';
+import { NotificationActions } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { PostsNotificationService } from 'src/resources/account_notifications/services/posts.notification.service';
 import {
   PostExpression,

@@ -32,7 +32,7 @@ import { VerificationCodeProcess } from 'src/resources/verification_codes/decora
 import { NotificationTo } from 'src/resources/verification_codes/decorators/notification-by.decorator';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { IsLocalAccount } from 'src/resources/accounts/guards/is-local-account.guard';
-import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
+import { FollowingURL } from 'src/lib/decorators/following-link.decorator';
 
 @Controller(LOCAL_ACCOUNT_TFA)
 @ApiTags(LOCAL_ACCOUNT_TFA)
@@ -45,12 +45,12 @@ export class LocalAccountTFAController {
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_EMAIL_FACTOR)
   @NotificationTo(NotificationBy.EMAIL)
-  @FollowingLink(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
+  @FollowingURL(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_EMAIL_FACTOR)
   async enable2FAWithEmail(
     @AccountCredentials() account: AccountWithCredentials,
-  ): Promise<{ following_link: string; message: CodeMessages }> {
+  ): Promise<{ following_url: string; message: CodeMessages }> {
     if (!account.email)
       throw new ForbiddenException(AccountMessages.HAS_NOT_EMAIL);
 
@@ -60,21 +60,21 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
-      message: CodeMessages.CODE_SENT_TO_MAIL,
+      following_url: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
+      message: CodeMessages.CODE_SENT_TO_EMAIL,
     };
   }
 
   @VerificationCodeProcess(CodeProcess.ENABLE_TFA_MOBILE_PHONE_FACTOR)
   @NotificationTo(NotificationBy.MOBILE_PHONE)
-  @FollowingLink(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
+  @FollowingURL(LOCAL_ACCOUNT_TFA + TFARoutes.CREATE)
   @UseGuards(PasswordsMatch, VerificationCodeAlreadySentToAccount)
   @Post(TFARoutes.ENABLE_WITH_MOBILE_PHONE)
   async enable2FAWithMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
-  ): Promise<{ following_link: string; message: CodeMessages }> {
+  ): Promise<{ following_url: string; message: CodeMessages }> {
     if (!account.mobile_phone)
-      throw new ForbiddenException(AccountMessages.HAS_NOT_PHONE);
+      throw new ForbiddenException(AccountMessages.HAS_NOT_MOBILE_PHONE);
 
     const code = await this.twoFactorAuthManager.enable({
       by: NotificationBy.MOBILE_PHONE,
@@ -82,8 +82,8 @@ export class LocalAccountTFAController {
     });
 
     return {
-      following_link: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      following_url: LOCAL_ACCOUNT_TFA + TFARoutes.CREATE + code.token,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 

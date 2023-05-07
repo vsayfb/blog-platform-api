@@ -11,8 +11,7 @@ services:
       npm i --legacy-peer-deps && npm run start:dev;
       fi"
     ports:
-      - 80:5555
-      - 443:5555
+      - 5555:5555
     environment:
       NODE_ENV: ${NODE_ENV}
       JWT_SECRET: ${JWT_SECRET}

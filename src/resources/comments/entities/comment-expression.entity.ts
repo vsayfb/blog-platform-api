@@ -6,20 +6,20 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Comment } from './comment.entity';
+import { PostComment } from './post-comment.entity';
 
 export enum CommentExpressionType {
   LIKE = 'like',
   DISLIKE = 'dislike',
 }
 
-@Entity()
+@Entity({ name: 'comment_expressions' })
 export class CommentExpression {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Comment, { onDelete: 'CASCADE' })
-  comment: Comment;
+  @ManyToOne(() => PostComment, { onDelete: 'CASCADE' })
+  comment: PostComment;
 
   @Column({ type: 'enum', enum: CommentExpressionType })
   expression: CommentExpressionType;

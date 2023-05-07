@@ -1,6 +1,5 @@
-import { accountStub } from 'src/resources/accounts/test/stub/account.stub';
+import { accountDummy } from 'src/resources/accounts/dummy/accountDummy';
 
 export const GoogleAccountsService = jest.fn().mockReturnValue({
-  create: jest.fn().mockResolvedValue(accountStub()),
-  getOneByEmail: jest.fn().mockResolvedValue(accountStub()),
+  getOneByID: jest.fn().mockResolvedValue(accountDummy()),
 });

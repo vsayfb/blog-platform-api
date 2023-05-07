@@ -13,9 +13,11 @@ import { AccountWithCredentials } from '../types/account-with-credentials';
 /**
  * Validate "password" value in req.body before using this guard.
  *
- * This guard checks that given password matches with hashed password.
+ * This guard checks that given password matches with password in database.
  *
- * It they are matched, you can get account with @AccountCredentials decorator.
+ * If they match, it puts an account the account_credentials into request object.
+ *
+ * You can get the account with @AccountCredentials decorator.
  */
 @Injectable()
 export class PasswordsMatch implements CanActivate {
@@ -33,14 +35,14 @@ export class PasswordsMatch implements CanActivate {
 
     const client = request.user;
 
-    const account = await this.accountsService.getCredentials(client.sub);
+    const account = await this.accountsService.getCredentialsByID(client.sub);
 
-    const matched = await this.passwordManagerService.comparePassword(
+    const matches = await this.passwordManagerService.comparePassword(
       request.body.password,
       account.password,
     );
 
-    if (!matched) throw new ForbiddenException(AccountMessages.WRONG_PASSWORD);
+    if (!matches) throw new ForbiddenException(AccountMessages.WRONG_PASSWORD);
 
     request.account_credentials = account;
 

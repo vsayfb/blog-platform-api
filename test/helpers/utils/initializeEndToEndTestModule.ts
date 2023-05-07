@@ -31,8 +31,6 @@ export async function initializeEndToEndTestModule(): Promise<{
 
   await databaseService.connectDatabase();
 
-  await databaseService.clearAllTables();
-
   return {
     nestApp: app,
     database: databaseService,

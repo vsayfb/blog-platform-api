@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { LocalAuthService } from 'src/auth/services/local-auth.service';
 import { RegisterType } from '../entities/account.entity';
 import { AccountMessages } from '../enums/account-messages';
@@ -19,15 +19,26 @@ export class SignNewJwtToken implements NestInterceptor, OnModuleInit {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   async onModuleInit() {
+    // use global scope to prevent circular dependency between account -> auth modules
+
     this.localAuthService = this.moduleRef.get(LocalAuthService, {
       strict: false,
     });
   }
 
-  intercept(context: ExecutionContext, next: CallHandler<any>) {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<{
+    data: { access_token: string; account: SelectedAccountFields };
+    message: AccountMessages;
+  }> {
     return next.handle().pipe(
       map(
-        (value: { data: SelectedAccountFields; message: AccountMessages }) => {
+        (value: {
+          data: SelectedAccountFields;
+          message: AccountMessages.UPDATED;
+        }) => {
           const result = this.localAuthService.login(value.data);
 
           const { access_token } = result;

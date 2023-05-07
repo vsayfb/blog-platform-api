@@ -14,7 +14,7 @@ import { NOTIFICATIONS_ROUTE } from 'src/lib/constants';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
-import { Notification } from './entities/notification.entity';
+import { AccountNotification } from './entities/account-notification.entity';
 import { NotificationMessages } from './enums/notification-messages';
 import { NotificationRoutes } from './enums/notification-routes';
 import { AccountNotifications } from './response-dto/account-notifications';
@@ -56,7 +56,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard, CanManageData)
   @Patch(NotificationRoutes.SEEN + ':id')
-  async makeVisibilitySeen(@Data() notification: Notification): Promise<{
+  async makeVisibilitySeen(@Data() notification: AccountNotification): Promise<{
     data: { id: string; seen: boolean };
     message: NotificationMessages;
   }> {

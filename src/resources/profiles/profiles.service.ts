@@ -41,10 +41,10 @@ export class ProfilesService implements IFindService, IUpdateService {
 
     await this.profilesRepository.save(subject);
 
-    this.cacheJsonService.updateFields(
-      CACHED_ROUTES.CLIENT_ACCOUNT + subject.id,
-      updatedFields,
-    );
+    this.cacheJsonService.updateFields({
+      key: CACHED_ROUTES.CLIENT_ACCOUNT + subject.id,
+      data: updatedFields,
+    });
 
     return this.profilesRepository.findOneBy({ id: subject.id });
   }

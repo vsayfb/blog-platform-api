@@ -31,10 +31,10 @@ import { VerificationCodeDto } from 'src/resources/verification_codes/dto/verifi
 import { validateParamDto } from 'src/lib/middlewares/validate-param.dto';
 import { VerificationTokenDto } from 'src/resources/verification_codes/dto/verification-token.dto';
 import { VerificationCodesModule } from 'src/resources/verification_codes/verification-codes.module';
-import { AddNewPhoneDto } from './request-dto/add-new-phone.dto';
+import { NewMobilePhoneDto } from './request-dto/new-mobile-phone.dto';
 import { LocalAccountsCredentialsController } from './controllers/local-accounts-credentials.controller';
 import { PasswordDto } from './request-dto/password.dto';
-import { AddNewEmail } from './request-dto/add-new-email.dto';
+import { NewEmailDto } from './request-dto/add-new-email.dto';
 import { LocalAccountsService } from './services/local-accounts.service';
 import { GoogleAccountsController } from './controllers/google-accounts.controller';
 import { GoogleAccountsCredentialsController } from './controllers/google-accounts-credentials.controller';
@@ -123,7 +123,7 @@ export class AccountsModule implements NestModule {
     /** GOOGLE ACCOUNTS ROUTE */
 
     /** LOCAL ACCOUNTS CREDENTIALS ROUTE */
-    consumer.apply(validateBodyDto(AddNewPhoneDto)).forRoutes({
+    consumer.apply(validateBodyDto(NewMobilePhoneDto)).forRoutes({
       path: LOCAL_ACCOUNTS_CREDENTIALS_ROUTE + AccountRoutes.ADD_MOBILE_PHONE,
       method: RequestMethod.POST,
     });
@@ -132,7 +132,7 @@ export class AccountsModule implements NestModule {
         LOCAL_ACCOUNTS_CREDENTIALS_ROUTE + AccountRoutes.REMOVE_MOBILE_PHONE,
       method: RequestMethod.POST,
     });
-    consumer.apply(validateBodyDto(AddNewEmail)).forRoutes({
+    consumer.apply(validateBodyDto(NewEmailDto)).forRoutes({
       path: LOCAL_ACCOUNTS_CREDENTIALS_ROUTE + AccountRoutes.ADD_EMAIL,
       method: RequestMethod.POST,
     });

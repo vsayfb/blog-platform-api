@@ -1,9 +1,9 @@
-import { googleUserCredentialsStub } from '../stub/google-credentials.stub';
+import { googleUserCredentialsDummy } from '../dummy/google-credentials.dummy';
 
 export const GoogleService = jest.fn().mockReturnValue({
   getUserCredentials: jest.fn().mockResolvedValue({
-    email: googleUserCredentialsStub().email,
-    given_name: googleUserCredentialsStub().given_name,
-    family_name: googleUserCredentialsStub().family_name,
+    email: googleUserCredentialsDummy().email,
+    given_name: googleUserCredentialsDummy().givenName,
+    family_name: googleUserCredentialsDummy().familyName,
   }),
 });

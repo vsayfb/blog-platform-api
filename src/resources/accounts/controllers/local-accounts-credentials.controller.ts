@@ -12,7 +12,7 @@ import {
   LOCAL_ACCOUNTS_CREDENTIALS_ROUTE,
   LOCAL_ACCOUNTS_ROUTE,
 } from 'src/lib/constants';
-import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
+import { FollowingURL } from 'src/lib/decorators/following-link.decorator';
 import { NotificationFactory } from 'src/notifications/services/notification-factory.service';
 import { NotificationBy } from 'src/notifications/types/notification-by';
 import { VerificationCodeProcess } from 'src/resources/verification_codes/decorators/code-process.decorator';
@@ -25,8 +25,8 @@ import { AccountMessages } from '../enums/account-messages';
 import { AccountRoutes } from '../enums/account-routes';
 import { IsLocalAccount } from '../guards/is-local-account.guard';
 import { PasswordsMatch } from '../guards/passwords-match.guard';
-import { AddNewEmail } from '../request-dto/add-new-email.dto';
-import { AddNewPhoneDto } from '../request-dto/add-new-phone.dto';
+import { NewEmailDto } from '../request-dto/add-new-email.dto';
+import { NewMobilePhoneDto } from '../request-dto/new-mobile-phone.dto';
 import { PasswordDto } from '../request-dto/password.dto';
 import { AccountWithCredentials } from '../types/account-with-credentials';
 
@@ -37,7 +37,7 @@ export class LocalAccountsCredentialsController {
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.ADD_MOBILE_PHONE_TO_ACCOUNT)
-  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -45,12 +45,12 @@ export class LocalAccountsCredentialsController {
     VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.ADD_MOBILE_PHONE)
-  async addNewPhone(
+  async addMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
-    @Body() dto: AddNewPhoneDto,
+    @Body() dto: NewMobilePhoneDto,
   ) {
     if (account.mobile_phone)
-      throw new ForbiddenException(AccountMessages.HAS_PHONE);
+      throw new ForbiddenException(AccountMessages.HAS_MOBILE_PHONE);
 
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
@@ -62,15 +62,15 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.MOBILE_PHONE)
   @VerificationCodeProcess(CodeProcess.REMOVE_MOBILE_PHONE_FROM_ACCOUNT)
-  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -78,15 +78,15 @@ export class LocalAccountsCredentialsController {
     VerificationCodeAlreadySentToAccount,
   )
   @Post(AccountRoutes.REMOVE_MOBILE_PHONE)
-  async removeMobilPhone(
+  async removeMobilePhone(
     @AccountCredentials() account: AccountWithCredentials,
     @Body() body: PasswordDto,
   ) {
-    if (!account.email) {
-      throw new ForbiddenException(
-        'The account must have a phone number or email address.',
-      );
-    }
+    if (!account.mobile_phone)
+      throw new ForbiddenException(AccountMessages.HAS_NOT_MOBILE_PHONE);
+
+    if (!account.email)
+      throw new ForbiddenException(AccountMessages.MUST_HAS_PHONE_OR_EMAIL);
 
     const mobilePhone = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
@@ -98,15 +98,15 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_PHONE,
+      message: CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.ADD_EMAIL_TO_ACCOUNT)
-  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -116,7 +116,7 @@ export class LocalAccountsCredentialsController {
   @Post(AccountRoutes.ADD_EMAIL)
   async addEmail(
     @AccountCredentials() account: AccountWithCredentials,
-    @Body() dto: AddNewEmail,
+    @Body() dto: NewEmailDto,
   ) {
     if (account.email) throw new ForbiddenException(AccountMessages.HAS_EMAIL);
 
@@ -130,15 +130,15 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_MAIL,
+      message: CodeMessages.CODE_SENT_TO_EMAIL,
     };
   }
 
   @NotificationTo(NotificationBy.EMAIL)
   @VerificationCodeProcess(CodeProcess.REMOVE_EMAIL_FROM_ACCOUNT)
-  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
+  @FollowingURL(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS)
   @UseGuards(
     JwtAuthGuard,
     IsLocalAccount,
@@ -150,12 +150,11 @@ export class LocalAccountsCredentialsController {
     @AccountCredentials() account: AccountWithCredentials,
     @Body() body: PasswordDto,
   ) {
-    if (!account.email) throw new ForbiddenException(AccountMessages.HAS_EMAIL);
+    if (!account.email)
+      throw new ForbiddenException(AccountMessages.HAS_NOT_EMAIL);
 
     if (!account.mobile_phone)
-      throw new ForbiddenException(
-        'Account has to a mobile phone to sure account is not a bot.',
-      );
+      throw new ForbiddenException(AccountMessages.MUST_HAS_PHONE_OR_EMAIL);
 
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.EMAIL,
@@ -167,14 +166,14 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         LOCAL_ACCOUNTS_ROUTE + AccountRoutes.VERIFY_PROCESS + code.token,
-      message: CodeMessages.CODE_SENT_TO_MAIL,
+      message: CodeMessages.CODE_SENT_TO_EMAIL,
     };
   }
 
   @Post(AccountRoutes.CHANGE_PASSWORD)
-  @FollowingLink(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD)
+  @FollowingURL(LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD)
   @UseGuards(JwtAuthGuard, IsLocalAccount, PasswordsMatch)
   async changePassword(
     @AccountCredentials() account: AccountWithCredentials,
@@ -199,12 +198,12 @@ export class LocalAccountsCredentialsController {
     );
 
     return {
-      following_link:
+      following_url:
         LOCAL_ACCOUNTS_ROUTE + AccountRoutes.UPDATE_PASSWORD + code.token,
       message:
         notifyBy === NotificationBy.EMAIL
-          ? CodeMessages.CODE_SENT_TO_MAIL
-          : CodeMessages.CODE_SENT_TO_PHONE,
+          ? CodeMessages.CODE_SENT_TO_EMAIL
+          : CodeMessages.CODE_SENT_TO_MOBILE_PHONE,
     };
   }
 }

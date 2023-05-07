@@ -8,13 +8,10 @@ export class PasswordManagerService {
   constructor(private readonly hashManagerService: HashManagerService) {}
 
   async hashPassword(password: string) {
-    return await this.hashManagerService.manager.hash(password, this.salt);
+    return this.hashManagerService.manager.hash(password, this.salt);
   }
 
   async comparePassword(password: string, hashedPassword: string) {
-    return await this.hashManagerService.manager.compare(
-      password,
-      hashedPassword,
-    );
+    return this.hashManagerService.manager.compare(password, hashedPassword);
   }
 }

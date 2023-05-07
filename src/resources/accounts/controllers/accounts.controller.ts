@@ -42,7 +42,7 @@ export class AccountsController {
     data: ClientAccountDto;
     message: AccountMessages;
   }> {
-    const account = await this.accountsService.getCredentials(client.sub);
+    const account = await this.accountsService.getCredentialsByID(client.sub);
 
     delete account.password;
 
@@ -70,8 +70,12 @@ export class AccountsController {
     data: LoginDto;
     message: AccountMessages;
   }> {
+    this.accountsService.setUsername(subject, updateDto.username);
+
+    const data = await this.accountsService.update(subject);
+
     return {
-      data: (await this.accountsService.update(subject, updateDto)) as any,
+      data: data as unknown as LoginDto,
       message: AccountMessages.UPDATED,
     };
   }
@@ -103,7 +107,7 @@ export class AccountsController {
   async isAvailableEmail(
     @Query() { email }: EmailDto,
   ): Promise<{ data: boolean; message: string }> {
-    const account = await this.accountsService.getOneByUsername(email);
+    const account = await this.accountsService.getOneByEmail(email);
 
     if (account) return { data: false, message: AccountMessages.EMAIL_TAKEN };
 

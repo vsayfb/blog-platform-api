@@ -1,18 +1,9 @@
-import { accountStub } from 'src/resources/accounts/test/stub/account.stub';
-import { CodeMessages } from 'src/resources/verification_codes/enums/code-messages';
+import { jwtPayloadDummy } from '../../dummy/jwt-payload.dummy';
+import { accountDummy } from '../../../resources/accounts/dummy/accountDummy';
 
 export const LocalAuthService = jest.fn().mockReturnValue({
-  register: jest
-    .fn()
-    .mockResolvedValue({ account: accountStub(), access_token: '' }),
-
-  login: jest
-    .fn()
-    .mockReturnValue({ account: accountStub(), access_token: '' }),
-
-  validateAccount: jest.fn().mockResolvedValue(accountStub()),
-
-  beginRegisterVerification: jest
-    .fn()
-    .mockResolvedValue({ message: CodeMessages.CODE_SENT_TO_MAIL }),
+  login: jest.fn().mockReturnValue({
+    access_token: 'access_token',
+    account: accountDummy(),
+  }),
 });

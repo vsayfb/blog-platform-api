@@ -9,7 +9,7 @@ import { PostsService } from 'src/resources/posts/services/posts.service';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from '../request-dto/create-comment.dto';
 import { UpdateCommentDto } from '../request-dto/update-comment.dto';
-import { Comment } from '../entities/comment.entity';
+import { PostComment } from '../entities/post-comment.entity';
 import { CommentMessages } from '../enums/comment-messages';
 import { SelectedCommentFields } from '../types/selected-comment-fields';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
@@ -19,7 +19,7 @@ import { IDeleteService } from 'src/lib/interfaces/delete-service.interface';
 import { CommentExpressionType } from '../entities/comment-expression.entity';
 import { NewComment } from '../types/new-comment';
 import { NewReply } from '../types/new-reply';
-import { PostComment } from '../types/post-comment';
+import { PostCommentType } from '../types/post-comment';
 import { AccountComment } from '../types/account-comment';
 import { CommentReply } from '../types/comment-reply';
 
@@ -28,8 +28,8 @@ export class CommentsService
   implements ICreateService, IFindService, IDeleteService, IUpdateService
 {
   constructor(
-    @InjectRepository(Comment)
-    private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(PostComment)
+    private readonly commentRepository: Repository<PostComment>,
     private readonly postsService: PostsService,
   ) {}
 
@@ -82,7 +82,7 @@ export class CommentsService
     return result as NewReply;
   }
 
-  async getPostComments(postID: string): Promise<PostComment[]> {
+  async getPostComments(postID: string): Promise<PostCommentType[]> {
     if (!(await this.postsService.checkPublicByID(postID)))
       throw new ForbiddenException();
 
@@ -114,7 +114,7 @@ export class CommentsService
       .loadRelationCountAndMap('comment.reply_count', 'comment.replies')
       .getMany();
 
-    return result as unknown as PostComment[];
+    return result as unknown as PostCommentType[];
   }
 
   async getCommentReplies(commentID: string): Promise<CommentReply[]> {
@@ -152,14 +152,14 @@ export class CommentsService
     return comments;
   }
 
-  async getOneByID(id: string): Promise<Comment> {
+  async getOneByID(id: string): Promise<PostComment> {
     return await this.commentRepository.findOne({
       where: { id },
       relations: { author: true, post: true },
     });
   }
 
-  async delete(subject: Comment): Promise<string> {
+  async delete(subject: PostComment): Promise<string> {
     const commentID = subject.id;
 
     await this.commentRepository.remove(subject);
@@ -168,7 +168,7 @@ export class CommentsService
   }
 
   async update(
-    comment: Comment,
+    comment: PostComment,
     dto: UpdateCommentDto,
   ): Promise<SelectedCommentFields> {
     comment.content = dto.content;
@@ -176,7 +176,7 @@ export class CommentsService
     return await this.commentRepository.save(comment);
   }
 
-  async getAll(): Promise<Comment[]> {
+  async getAll(): Promise<PostComment[]> {
     return await this.commentRepository.find({
       relations: { author: true },
     });

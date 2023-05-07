@@ -40,7 +40,7 @@ export class CachePersonalJSON
       map((value) => {
         const ttl = this.extractTTL(context);
 
-        this.cacheJsonService.save(key, value, ttl);
+        this.cacheJsonService.save({ key, data: value, ttl });
 
         return value;
       }),

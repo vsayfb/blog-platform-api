@@ -6,10 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Account } from 'src/resources/accounts/entities/account.entity';
 import { UploadsModule } from 'src/uploads/uploads.module';
 import { CacheManagerModule } from 'src/cache/cache-manager.module';
+import { FollowModule } from '../follow/follow.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account]),
+    FollowModule,
     UploadsModule,
     CacheManagerModule,
   ],

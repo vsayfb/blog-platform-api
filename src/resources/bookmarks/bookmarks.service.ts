@@ -48,10 +48,10 @@ export class BookmarksService
       post: newBookmark.post,
     };
 
-    this.cacheJsonService.insertToArray(
-      CACHED_ROUTES.CLIENT_BOOKMARKS + accountID,
-      cacheBookmark,
-    );
+    this.cacheJsonService.insertToArray({
+      key: CACHED_ROUTES.CLIENT_BOOKMARKS + accountID,
+      data: cacheBookmark,
+    });
 
     delete newBookmark.post;
 
@@ -65,10 +65,10 @@ export class BookmarksService
 
     const removeCache: AccountBookmark = { ...removed, id: bookmarkID };
 
-    this.cacheJsonService.removeFromArray(
-      CACHED_ROUTES.CLIENT_BOOKMARKS + subject.account.id,
-      removeCache,
-    );
+    this.cacheJsonService.removeFromArray({
+      key: CACHED_ROUTES.CLIENT_BOOKMARKS + subject.account.id,
+      data: removeCache,
+    });
 
     return bookmarkID;
   }

@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Message } from './entities/message.entity';
+import { ChatMessage } from './entities/chat-message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from '../chats/chats.service';
 import { ChatMessages } from '../chats/enums/chat-messages';
 import { ICreateService } from 'src/lib/interfaces/create-service.interface';
 import { IFindService } from 'src/lib/interfaces/find-service.interface';
-import { ChatMessage } from './types/new-message';
+import { ChatMessageType } from './types/new-message';
 import { CacheJsonService } from 'src/cache/services/cache-json.service';
 import { AccountChat } from 'src/resources/chats/types/account-chat';
 import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
@@ -14,8 +14,8 @@ import { CACHED_ROUTES } from 'src/cache/constants/cached-routes';
 @Injectable()
 export class MessagesService implements ICreateService, IFindService {
   constructor(
-    @InjectRepository(Message)
-    private readonly messagesRepository: Repository<Message>,
+    @InjectRepository(ChatMessage)
+    private readonly messagesRepository: Repository<ChatMessage>,
     private readonly chatsService: ChatsService,
     private readonly cacheJsonService: CacheJsonService,
   ) {}
@@ -28,7 +28,7 @@ export class MessagesService implements ICreateService, IFindService {
     content: string;
     senderID: string;
     chatID: string;
-  }): Promise<ChatMessage> {
+  }): Promise<ChatMessageType> {
     const chat = await this.chatsService.getOneByID(chatID);
 
     if (!chat) throw new NotFoundException(ChatMessages.NOT_FOUND);
@@ -54,11 +54,11 @@ export class MessagesService implements ICreateService, IFindService {
     };
 
     chat.members.map((m) => {
-      this.cacheJsonService.updateInArray(
-        CACHED_ROUTES.CLIENT_CHATS + m.id,
-        chat.id,
-        cacheChat,
-      );
+      this.cacheJsonService.updateInArray({
+        key: CACHED_ROUTES.CLIENT_CHATS + m.id,
+        id: chat.id,
+        data: cacheChat,
+      });
     });
 
     return {

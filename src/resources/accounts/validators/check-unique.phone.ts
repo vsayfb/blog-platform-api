@@ -33,7 +33,7 @@ export class CheckUniquePhone implements ValidatorConstraintInterface {
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return AccountMessages.PHONE_TAKEN;
+    return AccountMessages.MOBILE_PHONE_TAKEN;
   }
 }
 

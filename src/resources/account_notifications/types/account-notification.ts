@@ -4,9 +4,9 @@ import { SelectedPostFields } from 'src/resources/posts/types/selected-post-fiel
 import {
   NotificationActions,
   NotificationObject,
-} from '../entities/notification.entity';
+} from '../entities/account-notification.entity';
 
-export type AccountNotification = {
+export type AccountNotificationType = {
   id: string;
   sender: SelectedAccountFields;
   post?: SelectedPostFields;

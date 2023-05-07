@@ -14,7 +14,7 @@ import { PasswordsMatch } from 'src/resources/accounts/guards/passwords-match.gu
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ACCOUNT_TFA, TFA_ROUTE } from 'src/lib/constants';
-import { FollowingLink } from 'src/lib/decorators/following-link.decorator';
+import { FollowingURL } from 'src/lib/decorators/following-link.decorator';
 import { Data } from 'src/lib/decorators/request-data.decorator';
 import { CanManageData } from 'src/lib/guards/CanManageData';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -53,12 +53,12 @@ export class AccountTFAController {
     };
   }
 
-  @FollowingLink(ACCOUNT_TFA + TFARoutes.DELETE)
+  @FollowingURL(ACCOUNT_TFA + TFARoutes.DELETE)
   @UseGuards(PasswordsMatch, CodeAlreadySentForDisableTFA)
   @Post(TFARoutes.DISABLE)
   async disable2FA(
     @Client() client: JwtPayload,
-  ): Promise<{ following_link: string; message: string }> {
+  ): Promise<{ following_url: string; message: string }> {
     const code = await this.twoFactorAuthManager.disable(client.sub);
 
     const tfa = await this.twoFactorAuthService.getOneByAccountID(client.sub);
@@ -67,7 +67,7 @@ export class AccountTFAController {
       tfa.via === NotificationBy.EMAIL ? 'email' : 'mobile phone';
 
     return {
-      following_link: ACCOUNT_TFA + TFARoutes.DELETE + code.token,
+      following_url: ACCOUNT_TFA + TFARoutes.DELETE + code.token,
       message: CodeMessages.SENT + 'to your ' + codeSentTo,
     };
   }

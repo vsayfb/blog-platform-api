@@ -1,14 +1,16 @@
-import { accountStub } from 'src/resources/accounts/test/stub/account.stub';
-import { uploadImageStub } from 'src/uploads/stub/upload-image.stub';
+import { accountDummy } from 'src/resources/accounts/dummy/accountDummy';
 
 export const AccountsService = jest.fn().mockReturnValue({
-  getOneByID: jest.fn().mockResolvedValue(accountStub()),
-  getAccount: jest.fn().mockResolvedValue(accountStub()),
-  getProfile: jest.fn().mockResolvedValue(accountStub()),
-  create: jest.fn().mockResolvedValue(accountStub()),
-  changeProfileImage: jest.fn().mockResolvedValue(uploadImageStub().newImage),
-  getOneByUsername: jest.fn().mockResolvedValue(accountStub()),
-  getOneByEmail: jest.fn().mockResolvedValue(accountStub()),
-  searchByUsername: jest.fn().mockResolvedValue([accountStub()]),
-  getAll: jest.fn().mockResolvedValue([accountStub()]),
+  getOneByID: jest.fn().mockResolvedValue(accountDummy()),
+  getCredentialsByID: jest.fn().mockResolvedValue(accountDummy()),
+  update: jest
+    .fn()
+    .mockImplementation((dto, update) => ({ ...dto, ...update })),
+  getOneByUsername: jest.fn().mockResolvedValue(accountDummy()),
+  getOneByEmail: jest.fn().mockResolvedValue(accountDummy()),
+  setPassword: jest.fn().mockResolvedValue(undefined),
+  setUsername: jest.fn().mockReturnValue(undefined),
+  setDisplayName: jest.fn().mockReturnValue(undefined),
+  setEmail: jest.fn().mockReturnValue(undefined),
+  setMobilePhone: jest.fn().mockReturnValue(undefined),
 });

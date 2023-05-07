@@ -10,7 +10,7 @@ import {
   CommentExpressionType,
 } from 'src/resources/comments/entities/comment-expression.entity';
 import { GatewayEventsService } from 'src/global/events/gateway-events.service';
-import { NotificationActions } from 'src/resources/account_notifications/entities/notification.entity';
+import { NotificationActions } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { CommentsNotificationService } from 'src/resources/account_notifications/services/comments-notification.service';
 import { ExpressionMessages } from '../enums/expression-messages';
 
