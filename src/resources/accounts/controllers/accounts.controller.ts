@@ -1,6 +1,5 @@
 import {
   Body,
-  CacheTTL,
   Controller,
   Get,
   Patch,
@@ -28,6 +27,7 @@ import { LoginDto } from 'src/auth/response-dto/login.dto';
 import { ClientAccountDto } from '../response-dto/client-account.dto';
 import { FoundUserDto } from '../response-dto/found-user.dto';
 import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller(ACCOUNTS_ROUTE)
 @ApiTags(ACCOUNTS_ROUTE)

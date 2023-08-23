@@ -8,6 +8,8 @@ import { AccountWithCredentials } from '../types/account-with-credentials';
 import { SelectedAccountFields } from '../types/selected-account-fields';
 import { CREDENTIALS } from './accounts.service';
 import { PasswordManagerService } from './password-manager.service';
+import { UsernameDto } from '../request-dto/username.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class GoogleAccountsService implements ICreateService {
@@ -16,17 +18,6 @@ export class GoogleAccountsService implements ICreateService {
     private readonly accountsRepository: Repository<Account>,
     private readonly passwordManagerService: PasswordManagerService,
   ) {}
-
-  private async generateUniqueUsername(text: string) {
-    // TODO
-
-    // length -> (2,16)
-    // only allow underscore special char -> /[^A-Za-z0-9_]/g
-    // min two letters -> /[A-Za-z]/gi
-    // max two underscores -> /[_]/gi
-
-    return text;
-  }
 
   async create(data: {
     email: string;
@@ -45,7 +36,8 @@ export class GoogleAccountsService implements ICreateService {
 
     const displayName = givenName + ' ' + familyName;
 
-    const username = await this.generateUniqueUsername(givenName + familyName);
+    // todo -> generate unique username
+    const username = email.split('@')[0];
 
     const newGoogleAccount = await this.accountsRepository.save({
       email,

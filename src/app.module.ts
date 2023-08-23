@@ -42,6 +42,7 @@ import { LoggingModule } from './logging/logging.module';
 import { LoggingInterceptor } from './logging/interceptors/logging.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ElasticModule } from './global/elastic/elastic.module';
+import { ServiceUnavailableExceptionFilter } from './lib/exception-filters/service_unavailable.filter';
 
 const imports = [
   ConfigModule.forRoot({ isGlobal: true }),
@@ -90,6 +91,10 @@ const imports = [
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ServiceUnavailableExceptionFilter,
     },
     {
       provide: APP_FILTER,

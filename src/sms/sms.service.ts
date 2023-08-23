@@ -1,8 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ISmsSenderService } from './interfaces/sms-service.interface';
 
 @Injectable()
@@ -13,12 +9,8 @@ export class SmsService {
   ) {}
 
   async send(to: string, data: string): Promise<boolean> {
-    try {
-      await this.smsSenderService.send(to, data);
+    await this.smsSenderService.send(to, data);
 
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    return true;
   }
 }

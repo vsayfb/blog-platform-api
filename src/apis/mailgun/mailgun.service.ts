@@ -1,16 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import Mailgun from 'mailgun.js';
 import * as formData from 'form-data';
 import { ConfigService } from '@nestjs/config';
-import Client from 'mailgun.js/client';
+import { MessagesSendResult, Interfaces } from 'mailgun.js';
 import { ProcessEnv } from 'src/lib/enums/env';
 import { IMailSenderService } from 'src/mails/interfaces/mail-sender-service.interface';
-import { MessagesSendResult } from 'mailgun.js/interfaces/Messages';
+import { AccountMessages } from 'src/resources/accounts/enums/account-messages';
 
 @Injectable()
 export class MailgunService implements IMailSenderService {
   private mailgun = new Mailgun(formData);
-  private client: Client;
+  private client: Interfaces.IMailgunClient;
 
   private domain = this.configService.get<string>(ProcessEnv.MAILGUN_DOMAIN);
   private sender = this.configService.get<string>(
@@ -42,8 +47,10 @@ export class MailgunService implements IMailSenderService {
       });
     } catch (error) {
       if (error.details.indexOf('not a valid') >= 0) {
-        throw new BadRequestException('Invalid email address.');
-      } else throw error;
+        throw new BadRequestException(AccountMessages.INVALID_EMAIL);
+      } else {
+        throw new BadGatewayException(error);
+      }
     }
   }
   async sendTemplate({
@@ -57,14 +64,6 @@ export class MailgunService implements IMailSenderService {
     templateName: string;
     templateData: Record<string, any>;
   }): Promise<MessagesSendResult> {
-    console.log({
-      from: this.sender,
-      to: toMail,
-      subject,
-      template: templateName,
-      'h:X-Mailgun-Variables': JSON.stringify(templateData),
-    });
-
     try {
       return await this.client.messages.create(this.domain, {
         from: this.sender,
@@ -74,11 +73,11 @@ export class MailgunService implements IMailSenderService {
         'h:X-Mailgun-Variables': JSON.stringify(templateData),
       });
     } catch (error) {
-      console.log(error);
-
       if (error.details.indexOf('not a valid') >= 0) {
-        throw new BadRequestException('Invalid email address.');
-      } else throw error;
+        throw new BadRequestException(AccountMessages.INVALID_EMAIL);
+      } else {
+        throw new BadGatewayException(error);
+      }
     }
   }
 }

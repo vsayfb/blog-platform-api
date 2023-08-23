@@ -6,10 +6,9 @@ import {
   Param,
   NotFoundException,
   Body,
-  Query,
-  CacheTTL,
   UseInterceptors,
 } from '@nestjs/common';
+
 import { ChatsService } from './chats.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/lib/jwt.payload';
@@ -25,6 +24,7 @@ import { ICreateController } from 'src/lib/interfaces/create-controller.interfac
 import { ChatWithQueryID } from './request-dto/chat-with-query';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller(CHATS_ROUTE)
 @ApiTags(CHATS_ROUTE)

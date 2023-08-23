@@ -1,4 +1,5 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { RedisClientType } from 'redis';
 
 @Injectable()
@@ -131,7 +132,7 @@ export class CacheJsonService {
     try {
       const index = await this.cacheManager.json.arrIndex(key, '.data', data);
 
-      if (index >= 0)
+      if (typeof index == 'number' && index >= 0)
         await this.cacheManager.json.arrPop(key, '.data', index as number);
     } catch (error) {
       console.log(error);

@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 
 @Injectable()
 export class TasksService {
+  // store tasks somewhere to survive possible server failure 
   constructor(private schedulerRegistry: SchedulerRegistry) {}
 
   execAfterGivenMinutes(cb: Function, minutes: number) {

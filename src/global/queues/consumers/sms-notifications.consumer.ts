@@ -23,14 +23,14 @@ export class SmsNotificationsConsumer {
       queue,
       async (msg) => {
         try {
-          const content = JSON.parse(msg.content.toString()) as unknown as {
+          const data = JSON.parse(msg.content.toString()) as unknown as {
             to: string;
-            data: string;
+            content: string;
           };
 
-          const { to, data } = content;
+          const { to, content } = data;
 
-          await this.smsService.send(to, data);
+          await this.smsService.send(to, content);
 
           channel.ack(msg);
         } catch (error) {

@@ -7,11 +7,12 @@ import {
 import { VerificationCodesService } from 'src/resources/verification_codes/verification-codes.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
 import { SmsWorker } from 'src/global/queues/workers/sms.worker';
+import { SmsService } from 'src/sms/sms.service';
 
 @Injectable()
 export class MobilePhoneNotificationService implements INotificationService {
   constructor(
-    private readonly smsWorker: SmsWorker,
+    private readonly smsService: SmsService,
     private readonly tasksService: TasksService,
     private readonly verificationCodesService: VerificationCodesService,
   ) {}
@@ -25,13 +26,16 @@ export class MobilePhoneNotificationService implements INotificationService {
       process: CodeProcess.REGISTER_WITH_MOBIL_PHONE,
     });
 
-    this.smsWorker.produce(
-      {
-        to: phone,
-        content: `Thanks for signing up @${username}. Your verification code is here - ${verificationCode.code}`,
-      },
-      255,
-    );
+    try {
+      await this.smsService.send(
+        phone,
+        `Thanks for signing up @${username}. Your verification code is here - ${verificationCode.code}`,
+      );
+    } catch (error) {
+      this.verificationCodesService.delete(verificationCode);
+
+      throw error;
+    }
 
     this.tasksService.execAfterGivenMinutes(
       () => this.verificationCodesService.deleteIfExists(verificationCode.id),
@@ -50,10 +54,16 @@ export class MobilePhoneNotificationService implements INotificationService {
       process,
     });
 
-    this.smsWorker.produce({
-      to: phone,
-      content: `Your verification code is here - ${verificationCode.code}`,
-    });
+    try {
+      await this.smsService.send(
+        phone,
+        `Your verification code is here - ${verificationCode.code}`,
+      );
+    } catch (error) {
+      this.verificationCodesService.delete(verificationCode);
+
+      throw error;
+    }
 
     this.tasksService.execAfterGivenMinutes(
       () => this.verificationCodesService.deleteIfExists(verificationCode.id),

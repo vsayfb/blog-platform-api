@@ -105,14 +105,18 @@ export class ChatsService implements ICreateService, IFindService {
       relations: { members: true, messages: { sender: true } },
     });
 
-    return chats.filter((c) => {
-      //@ts-ignore
-      c.last_message = c.messages[c.messages.length - 1];
-      //@ts-ignore
-      c.last_message.chat_id = c.id;
-      delete c.messages;
-      return c.members.some((c) => c.id === accountID);
-    }) as unknown as AccountChat[];
+    if (chats.length) {
+      return chats.filter((c) => {
+        //@ts-ignore
+        c.last_message = c.messages[c.messages.length - 1];
+        //@ts-ignore
+        c.last_message.chat_id = c.id;
+        delete c.messages;
+        return c.members.some((c) => c.id === accountID);
+      }) as unknown as AccountChat[];
+    }
+
+    return [];
   }
 
   async getAccountChatCount(accountID: string): Promise<number> {
@@ -127,7 +131,7 @@ export class ChatsService implements ICreateService, IFindService {
       relations: { members: true, messages: true },
     });
 
-    return chat.members.some((m) => m.id === memberID) ? chat : null;
+    return chat?.members.some((m) => m.id === memberID) ? chat : null;
   }
 
   async getOneByID(id: string): Promise<ChatWithMembers> {

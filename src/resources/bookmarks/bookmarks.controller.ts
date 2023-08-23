@@ -7,8 +7,8 @@ import {
   Post,
   BadRequestException,
   UseInterceptors,
-  CacheTTL,
 } from '@nestjs/common';
+
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Data } from 'src/lib/decorators/request-data.decorator';
@@ -25,6 +25,7 @@ import { IDeleteController } from 'src/lib/interfaces/delete-controller.interfac
 import { Client } from 'src/auth/decorator/client.decorator';
 import { NewBookmarkDto } from './response-dto/new-bookmark.dto';
 import { CachePersonalJSON } from 'src/cache/interceptors/cache-personal-json.interceptor';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller(BOOKMARKS_ROUTE)
 @ApiTags(BOOKMARKS_ROUTE)

@@ -1,75 +1,111 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is an API designed as a monolithic architecture that includes some features found in social media applications. The purpose of my doing this project was simply to explore backend development concepts. I have delved into various aspects and attempted to implement them on my own.
+
+## Requirements
+
+The API integrates with several other APIs.
+
+<div>
+<b> Twilio  </b> :  Used for sending SMS to users.
+</div>
+
+<br>
+
+<div>
+<b> Mailgun  </b> : Used for sending emails to users.
+</div>
+
+<br>
+
+<div>
+<b> Cloudinary </b> : Used for storing uploaded pictures.
+</div>
+
+<br>
+
+<div>
+<b> Google OAuth2  </b> : Used for registering users via Google.
+</div>
+
+## Tools
+
+<div> 
+  You can explore API resources at <b>http://localhost:port/api</b> via Swagger.
+</div>
+
+<br>
+
+<div> 
+  You can manage data at  <b>http://localhost:8000</b> using PgAdmin.
+  <br></br>
+  - Email/Username : <b>admin@admin.com</b>
+  <br></br>
+  - Password : <b>root</b>
+</div>
+
+</br>
+
+<div> 
+  You can examine cached data at  <b>http://localhost:8001</b> using RedisInsight.
+  <br></br>
+  - Host : <b>redis-database </b>
+  <br></br>
+  - Port : <b> 6379</b>
+  <br></br>
+  - Name : <b>redis</b>
+</div>
+
+<br>
+
+<div> 
+ <div> You can examine logged data at  <b>http://localhost:8002</b> using Elastic UI.</div>
+  </br>
+   <div> - URL : <b>http://localhost:9200 </b> </div>
+  
+  </br>
+
+  <div> - Appname : <b> * </b> </div>
+
+</div>
+
+  </br>
+
+<div> 
+ <div> You can examine queues at  <b>http://localhost:15672</b> using RabbitMQ.</div>
+  </br>
+   <div> - Username : <b>guest </b> </div>
+  
+  </br>
+
+  <div> - Password : <b>guest </b> </div>
+
+</div>
+
+<br>
 
 ## Installation
 
-```bash
-$ npm install
-```
+As I said, the API integrates with several other APIs, like Twilio, Mailgun, Cloudinary, and Google OAuth2. All of these services offer free trials, so you can obtain an API key for each one. Once you have the API keys, you can configure them by referring to their respective documentation.
+
+If you don't obtain the necessary API keys or fail to configure the other APIs, certain features of the API will not function. The project will still work, but, for instance, you won't be able to create accounts since the API verifies users through their email or phone numbers. Additionally, you won't be able to activate Two-Factor Authentication (TFA) without email or mobile phone number verification.
+
+<i>However, you can still create an account using PgAdmin</i>. To do this, visit <b>http://localhost:8000</b>.
+
+Once you obtain the API keys, all you have to do is set the environment variables. There is an example environment file in this repository.
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ docker compose up
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
 ## Test
 
 ```bash
-# unit tests
-$ npm run tests
+# tests
+$ docker compose -f test-env-compose.yml up --attach app
 
-# e2e tests
-$ npm run tests:e2e
-
-# tests coverage
-$ npm run tests:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If
-you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).

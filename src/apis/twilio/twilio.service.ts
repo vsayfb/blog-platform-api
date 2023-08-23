@@ -1,6 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ProcessEnv } from 'src/lib/enums/env';
+import { AccountMessages } from 'src/resources/accounts/enums/account-messages';
 import { ISmsSenderService } from 'src/sms/interfaces/sms-service.interface';
 import * as twilio from 'twilio';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
@@ -34,9 +41,13 @@ export class TwilioService implements ISmsSenderService {
         body: data,
       });
     } catch (error: InvalidPhone | any) {
+      console.log(error);
+
       if (error.code === 21211) {
-        throw new BadRequestException('Invalid mobile phone number.');
-      } else throw error;
+        throw new BadRequestException(AccountMessages.INVALID_MOBILE_PHONE);
+      } else {
+        throw new BadGatewayException(error);
+      }
     }
   }
 }

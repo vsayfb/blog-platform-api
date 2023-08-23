@@ -11,9 +11,8 @@ import {
   UploadedFile,
   Query,
   Put,
-  CacheTTL,
-  CacheKey,
 } from '@nestjs/common';
+
 import { PostsService } from './services/posts.service';
 import { CreatePostDto } from './request-dto/create-post.dto';
 import { UpdatePostDto } from './request-dto/update-post.dto';
@@ -45,6 +44,7 @@ import { Client } from 'src/auth/decorator/client.decorator';
 import { AccountPostsDto } from './response-dto/account-posts.dto';
 import { UpdatedPostDto } from './response-dto/updated-post.dto';
 import { CachePublicJSON } from 'src/cache/interceptors/cache-public-json.interceptor';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @Controller(POSTS_ROUTE)
 @ApiTags(POSTS_ROUTE)

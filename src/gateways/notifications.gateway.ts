@@ -12,6 +12,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { AccountNotification } from 'src/resources/account_notifications/entities/account-notification.entity';
 import { JwtPayload } from 'src/lib/jwt.payload';
+import { LoggingService } from 'src/logging/logging.service';
 
 dotenv.config();
 
@@ -78,14 +79,17 @@ export class NotificationsGateway
   async pushNotification(notification: AccountNotification) {
     const senderSocket = await this.getSenderSocket(notification.sender.id);
 
+    //
+    if (!senderSocket) {
+      return;
+    }
+
     const notifableSocketID = this.getNotifableSocketID(
       notification.notifable.id,
     );
 
-    // target user is not online do not try to send notification
-    if (!notifableSocketID) return null;
+    if (!notifableSocketID) return;
 
-    // it is not necessarry because notifable is client. do not put it to notification object
     delete notification.notifable;
 
     senderSocket.to(notifableSocketID).emit('notification', notification);

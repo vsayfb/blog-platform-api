@@ -1,14 +1,14 @@
 services:
   app:
-    image: node:18-alpine
+    image: node
     container_name: app
     working_dir: /app
     volumes:
       - ./:/app
-    command: sh -c "if [[ ${NODE_ENV} == "production" ]]; then
-      npm i pm2 -g && npm i --legacy-peer-deps && npm run build && npm run migrate && npm run start:prod;
+    command: bash -c "if [[ ${NODE_ENV} == "production" ]]; then
+      npm i pm2 -g && npm i  && npm run build && npm run migrate && npm run start:prod;
       else
-      npm i --legacy-peer-deps && npm run start:dev;
+      npm i && npm run start:dev;
       fi"
     ports:
       - 5555:5555
@@ -16,8 +16,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       JWT_SECRET: ${JWT_SECRET}
       DEV_DATABASE: ${DEV_DATABASE}
-      PROD_DATABASE: ${PROD_DATABASE}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PROD_DATABASE: ${PROD_DATABASE}
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
@@ -79,13 +79,37 @@ services:
       - discovery.type=single-node
       - xpack.ml.enabled=false
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - "http.port=9200"
+      - "http.cors.allow-origin=http://localhost:8002"
+      - "http.cors.enabled=true"
+      - "http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
+      - "http.cors.allow-credentials=true"
 
-  kibana:
-    container_name: kibana
-    image: kibana:8.6.0
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_LISTEN_PORT: 8000
     ports:
-      - 5601:5601
+      - 8000:8000
+
+  redisinsight:
+    container_name: redisinsight
+    image: redislabs/redisinsight
+    restart: always
+    ports:
+      - 8001:8001
+
+  elastic-ui:
+    container_name: elastic_ui
+    image: appbaseio/dejavu
+    restart: always    
+    ports:
+      - 8002:1358
 
 volumes:
   postgresql-data:

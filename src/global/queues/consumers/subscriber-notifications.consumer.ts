@@ -28,32 +28,36 @@ export class SubscriberNotificationsConsumer {
     channel.consume(
       queue,
       async (msg) => {
-        const content = JSON.parse(msg.content.toString()) as unknown as {
-          subject: string;
-          post: CreatedPostDto;
-        };
+        try {
+          const content = JSON.parse(msg.content.toString()) as unknown as {
+            subject: string;
+            post: CreatedPostDto;
+          };
 
-        const { subject, post } = content;
+          const { subject, post } = content;
 
-        console.log(content);
+          console.log(content);
 
-        const subs = await this.subscriptionsService.getSubscribers(
-          post.author.id,
-        );
+          const subs = await this.subscriptionsService.getSubscribers(
+            post.author.id,
+          );
 
-        subs.forEach((sub) => {
-          this.notificationsGateway.pushNotification({
-            action: subject,
-            notifable: { id: sub.id },
-            object: NotificationObject.POST,
-            post,
-            sender: post.author,
-            created_at: new Date(),
-            updated_at: new Date(),
-          } as any);
-        });
+          subs.forEach((sub) => {
+            this.notificationsGateway.pushNotification({
+              action: subject,
+              notifable: { id: sub.id },
+              object: NotificationObject.POST,
+              post,
+              sender: post.author,
+              created_at: new Date(),
+              updated_at: new Date(),
+            } as any);
+          });
 
-        channel.ack(msg);
+          channel.ack(msg);
+        } catch (error) {
+          console.log('queue error', error);
+        }
       },
       { noAck: false },
     );

@@ -8,12 +8,12 @@ const config: Config.InitialOptions = {
     '^src/(.*)$': '<rootDir>/$1',
   },
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-    },
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
   },
   maxWorkers: 1,
 };

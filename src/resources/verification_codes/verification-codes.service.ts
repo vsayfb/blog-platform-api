@@ -16,19 +16,19 @@ export class VerificationCodesService
   ) {}
 
   private async generate(): Promise<string> {
-    let unique = false;
+    // let unique = false;
 
-    let code: string;
+    // let code: string;
 
-    do {
-      code = Math.floor(100000 + Math.random() * 900000).toString();
+    // do {
+    //   code = Math.floor(100000 + Math.random() * 900000).toString();
 
-      unique = (await this.verificationCodesRepository.findOneBy({ code }))
-        ? false
-        : true;
-    } while (!unique);
+    //   unique = (await this.verificationCodesRepository.findOneBy({ code }))
+    //     ? false
+    //     : true;
+    // } while (!unique);
 
-    return code;
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
   async create({

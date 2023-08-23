@@ -33,10 +33,11 @@ export class LoggingInterceptor implements NestInterceptor {
         const data: LogData = {
           client_id: request.user?.sub || 'guest',
           start_time: request.start_time,
+          end_time: endTime,
+          response_time: calcResponseTime(request.start_time, endTime),
           request_method: request.method,
           request_url: request.url,
-          response_time: calcResponseTime(request.start_time, endTime),
-          end_time: endTime,
+          exception: null,
         };
 
         this.loggingWorker.produce(data);

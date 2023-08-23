@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  Catch,
   HttpException,
   HttpStatus,
   Inject,
@@ -16,7 +17,7 @@ import { LogData } from 'src/logging/types/log-data.type';
 import { JwtPayload } from '../jwt.payload';
 import { calcResponseTime } from '../calc-response-time';
 
-@Injectable()
+@Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
   @Inject(LoggingWorker)
   private readonly loggingWorker: LoggingWorker;
@@ -32,8 +33,6 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       }
     >();
 
-    console.log('start time', request.start_time);
-
     const startTime = request.start_time;
     const response = http.getResponse<Response>();
 
@@ -42,11 +41,12 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
       const log: LogData = {
         client_id: request.user?.sub || 'guest',
-        start_time: startTime,
+        start_time: startTime ? startTime : endTime,
         request_method: request.method,
         request_url: request.url,
         response_time: calcResponseTime(request.start_time, endTime),
         end_time: endTime,
+        exception: exception.stack ? exception.stack : exception,
       };
 
       this.loggingWorker.produce(log);

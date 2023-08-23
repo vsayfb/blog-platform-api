@@ -1,11 +1,7 @@
-import {
-  CACHE_KEY_METADATA,
-  CACHE_TTL_METADATA,
-  ExecutionContext,
-  Inject,
-} from '@nestjs/common';
+import { ExecutionContext, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CacheJsonService } from '../services/cache-json.service';
+import { CACHE_KEY_METADATA, CACHE_TTL_METADATA } from '@nestjs/cache-manager';
 
 export abstract class BaseCacheInterceptor {
   constructor(

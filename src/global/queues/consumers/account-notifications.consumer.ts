@@ -26,22 +26,26 @@ export class AccountNotificationsConsumer {
     channel.consume(
       queue,
       async (msg) => {
-        const notificationID = msg.content.toString();
+        try {
+          const notificationID = msg.content.toString();
 
-        const notification = await this.notificationsService.getOneByID(
-          notificationID,
-        );
+          const notification = await this.notificationsService.getOneByID(
+            notificationID,
+          );
 
-        if (notification) {
-          await this.cacheJsonService.insertToArray({
-            key: CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
-            data: notification,
-          });
+          if (notification) {
+            await this.cacheJsonService.insertToArray({
+              key: CACHED_ROUTES.CLIENT_NOTIFS + notification.notifable.id,
+              data: notification,
+            });
 
-          await this.notificationsGateway.pushNotification(notification);
+            await this.notificationsGateway.pushNotification(notification);
+          }
+
+          channel.ack(msg);
+        } catch (error) {
+          console.log('queue error', error);
         }
-
-        channel.ack(msg);
       },
       { noAck: false },
     );

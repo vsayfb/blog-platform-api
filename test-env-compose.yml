@@ -25,14 +25,8 @@ services:
       file: docker-compose.yml
       service: elastic-search
 
-  kibana:
-    extends:
-      file: docker-compose.yml
-      service: kibana
-
 volumes:
   postgresql-data:
   redis-data:
   rabbitmq:
   elastic-data:
-  kibana:

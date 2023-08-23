@@ -5,15 +5,15 @@ const config: Config.InitialOptions = {
   displayName: 'unit',
   testRegex: '.*\\.unit.spec\\.ts$',
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
   },
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/$1',
-  },
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-    },
   },
 };
 

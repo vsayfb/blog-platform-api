@@ -6,12 +6,12 @@ import {
 } from 'src/resources/verification_codes/entities/code.entity';
 import { VerificationCodesService } from 'src/resources/verification_codes/verification-codes.service';
 import { INotificationService } from '../interfaces/notification-service.interface';
-import { MailsWorker } from 'src/global/queues/workers/mails.worker';
+import { MailsService } from 'src/mails/mails.service';
 
 @Injectable()
 export class EmailNotificationService implements INotificationService {
   constructor(
-    private readonly mailsWorker: MailsWorker,
+    private readonly mailsService: MailsService,
     private readonly tasksService: TasksService,
     private readonly codesService: VerificationCodesService,
   ) {}
@@ -25,13 +25,18 @@ export class EmailNotificationService implements INotificationService {
       process: CodeProcess.REGISTER_WITH_EMAIL,
     });
 
-    this.mailsWorker.produceRegisterEmails({
-      to: email,
-      subject: 'Verification code',
-      template: 'verification_code',
-      username,
-      code: verificationCode.code,
-    });
+    try {
+      await this.mailsService.sendTemplate(
+        email,
+        'Verification code',
+        'verication_code',
+        { username, code: verificationCode.code },
+      );
+    } catch (error) {
+      this.codesService.delete(verificationCode);
+
+      throw error;
+    }
 
     this.tasksService.execAfterGivenMinutes(
       () => this.codesService.deleteIfExists(verificationCode.id),
@@ -50,13 +55,19 @@ export class EmailNotificationService implements INotificationService {
       process,
     });
 
-    this.mailsWorker.produceTfaMails({
-      to: receiver,
-      subject: 'Verification Code',
-      data: `<div>
+    try {
+      await this.mailsService.send(
+        receiver,
+        'Verification Code',
+        `<div>
       <div> Your verification code is here : <b> ${verificationCode.code} </b> </div>
             </div>`,
-    });
+      );
+    } catch (error) {
+      this.codesService.delete(verificationCode);
+
+      throw error;
+    }
 
     this.tasksService.execAfterGivenMinutes(
       () => this.codesService.deleteIfExists(verificationCode.id),

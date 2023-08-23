@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadGatewayException, Inject, Injectable } from '@nestjs/common';
 import { Connection } from 'amqplib';
 import { MailsService } from 'src/mails/mails.service';
 import { RABBIT_CLIENT } from 'src/global/rabbit/constants';

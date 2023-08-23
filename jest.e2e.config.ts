@@ -5,12 +5,12 @@ const config: Config.InitialOptions = {
   displayName: 'e2e',
   testRegex: '.*\\.e2e.spec\\.ts$',
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-    },
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
   },
   maxWorkers: 1,
   collectCoverageFrom: ['**/*.(t|j)s'],

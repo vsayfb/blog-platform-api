@@ -99,8 +99,6 @@ export class LocalAuthController implements IAuthController {
   @UseInterceptors(DeleteTemporaryAccount)
   @Post(AuthRoutes.REGISTER_WITH_EMAIL)
   async registerWithEmail(@Body() body: RegisterWithEmailDto) {
-    await this.temporaryAccountsService.create({ ...body, mobile_phone: null });
-
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.EMAIL,
     );
@@ -109,6 +107,8 @@ export class LocalAuthController implements IAuthController {
       body.username,
       body.email,
     );
+
+    await this.temporaryAccountsService.create({ ...body, mobile_phone: null });
 
     return {
       following_url: LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.token,
@@ -121,8 +121,6 @@ export class LocalAuthController implements IAuthController {
   @UseInterceptors(DeleteTemporaryAccount)
   @Post(AuthRoutes.REGISTER_WITH_MOBILE_PHONE)
   async registerWithMobilePhone(@Body() body: RegisterWithMobilePhoneDto) {
-    await this.temporaryAccountsService.create({ ...body, email: null });
-
     const notificationFactory = this.notificationFactory.createNotification(
       NotificationBy.MOBILE_PHONE,
     );
@@ -131,6 +129,8 @@ export class LocalAuthController implements IAuthController {
       body.username,
       body.mobile_phone,
     );
+
+    await this.temporaryAccountsService.create({ ...body, email: null });
 
     return {
       following_url: LOCAL_AUTH_ROUTE + AuthRoutes.VERIFY_REGISTER + code.token,

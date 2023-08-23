@@ -8,34 +8,30 @@ export class LoggingService {
   constructor(@Inject(ELASTIC_CLIENT) private readonly elastic: Client) {}
 
   async log(data: LogData) {
-    if (!data.exception) {
-      try {
+    try {
+      if (!data.exception) {
         await this.elastic.index({
           index: 'info',
           document: data,
         });
-      } catch (error) {
-        console.error('index error', error.message);
+      } else if (data.exception && !data.exception.status) {
+        await this.elastic.index({
+          index: 'app_errors',
+          document: { ...data, exception: JSON.stringify(data.exception) },
+        });
+      } else if (data.exception.status >= 400 && data.exception.status <= 499) {
+        await this.elastic.index({
+          index: 'http_errors',
+          document: { ...data, exception: JSON.stringify(data.exception) },
+        });
+      } else if (data.exception.status == 502) {
+        await this.elastic.index({
+          index: 'bad_gateway',
+          document: { ...data, exception: JSON.stringify(data.exception) },
+        });
       }
-    } else {
-      try {
-        switch (true) {
-          case data.exception.status >= 400 && data.exception.status <= 499:
-            await this.elastic.index({
-              index: 'http_errors',
-              document: { ...data, exception: JSON.stringify(data.exception) },
-            });
-            break;
-          default:
-            await this.elastic.index({
-              index: 'app_errors',
-              document: { ...data, exception: JSON.stringify(data.exception) },
-            });
-            break;
-        }
-      } catch (error) {
-        console.error('index error', error.message);
-      }
+    } catch (error) {
+      console.log('index error', error);
     }
   }
 }

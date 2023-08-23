@@ -2,8 +2,8 @@ import {
   CACHE_KEY_METADATA,
   CACHE_MANAGER,
   CACHE_TTL_METADATA,
-  Module,
-} from '@nestjs/common';
+} from '@nestjs/cache-manager';
+import { Module } from '@nestjs/common';
 import { REDIS_CLIENT } from 'src/global/redis/constants';
 import { CachePersonalJSON } from './interceptors/cache-personal-json.interceptor';
 import { CachePublicJSON } from './interceptors/cache-public-json.interceptor';

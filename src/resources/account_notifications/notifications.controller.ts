@@ -1,11 +1,11 @@
 import {
-  CacheTTL,
   Controller,
   Get,
   Patch,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+
 import { ApiTags } from '@nestjs/swagger';
 import { Client } from 'src/auth/decorator/client.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -19,6 +19,7 @@ import { NotificationMessages } from './enums/notification-messages';
 import { NotificationRoutes } from './enums/notification-routes';
 import { AccountNotifications } from './response-dto/account-notifications';
 import { NotificationsService } from './services/notifications.service';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags(NOTIFICATIONS_ROUTE)
 @Controller(NOTIFICATIONS_ROUTE)
