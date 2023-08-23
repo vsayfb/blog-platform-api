@@ -1,8 +1,8 @@
 {
   "name": "blog-platform-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A social media platfrom API.",
+  "author": "vsayfb",
   "private": false,
   "license": "UNLICENSED",
   "scripts": {
